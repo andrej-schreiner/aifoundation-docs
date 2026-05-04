@@ -52,9 +52,10 @@ For production workloads, purchase via the [T-Cloud Marketplace](https://marketp
   </TabItem>
   <TabItem value="windows-ps" label="Windows (PowerShell)">
     ```powershell
-    $env:OPENAI_API_KEY = "your_api_key_here"
-    $env:OPENAI_BASE_URL = "https://llm-server.llmhub.t-systems.net/v2"
+    [System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'your_api_key_here', 'User')
+    [System.Environment]::SetEnvironmentVariable('OPENAI_BASE_URL', 'https://llm-server.llmhub.t-systems.net/v2', 'User')
     ```
+    Open a new PowerShell window for the variables to take effect. (`$env:VAR = '...'` only sets a variable for the current session.)
   </TabItem>
   <TabItem value="windows-cmd" label="Windows (CMD)">
     ```bash

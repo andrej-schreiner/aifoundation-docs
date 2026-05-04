@@ -34,11 +34,13 @@ model: gpt-oss-120b
 apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
 ```
 
-3. Generate an API key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard):
+3. Generate an API key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard) and reference it from a Continue secret:
 
 ```yaml
-apiKey: gen-************************************************
+apiKey: ${{ secrets.OPENAI_API_KEY }}
 ```
+
+   See [Using an environment variable](#using-an-environment-variable) below for how to provide the value.
 
 4. Assign one or more roles to the model, such as `chat`, `edit`, `apply`, `autocomplete`, or `embed`:
 
@@ -58,14 +60,14 @@ models:
     model: gpt-4.1
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
   - name: Qwen3-30B-A3B-FP8
     model: Qwen3-30B-A3B-FP8
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
       - edit
@@ -73,6 +75,27 @@ models:
 ```
 
 Once the config is saved, you can start a chat and use Continue in VS Code.
+
+### Using an environment variable
+
+The `${{ secrets.OPENAI_API_KEY }}` reference resolves the value at runtime instead of pinning the API key into your `config.yaml`. Continue searches the following sources in order:
+
+1. A `.env` file in your workspace root
+2. `.continue/.env` in your workspace
+3. `~/.continue/.env` in your home directory
+4. The process environment
+
+:::caution[VS Code may not see your shell environment]
+On macOS and Windows, VS Code typically does **not** inherit shell environment variables. Even if you exported `OPENAI_API_KEY` in your terminal during the [Quickstart](/getting-started/quickstart), Continue running inside VS Code may not see it. The reliable path is a `.env` file.
+:::
+
+Create `~/.continue/.env` with your key:
+
+```dotenv
+OPENAI_API_KEY=gen-************************************************
+```
+
+Restart VS Code. Continue will resolve `${{ secrets.OPENAI_API_KEY }}` from the `.env` file, and you only set the value once for every model in your `config.yaml`.
 
 ## Updating
 
