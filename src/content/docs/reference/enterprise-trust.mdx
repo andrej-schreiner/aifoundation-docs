@@ -5,6 +5,10 @@ description: "Security, compliance, data sovereignty, and AI Act alignment for A
 
 AI Foundation Services gives you a single OpenAI-compatible API across two clearly separated categories of models — those operated by Telekom in the EU/EEA, and those forwarded to third-party providers under their own terms. This page summarizes the trust and compliance posture; the [Service Description (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.20) is the binding source.
 
+:::tip[No training on customer data]
+Regardless of which model you select, **customer prompts and responses are not used to train or fine-tune any model** through AI Foundation Services.
+:::
+
 
 ## Two Model Categories — Pick the Right One for Your Data
 
@@ -25,7 +29,7 @@ Operated by Telekom on T-Cloud Public. Examples:
 For these models:
 
 - Data processing happens **inside the EU/EEA or in countries with an EU adequacy decision**
-- Customer prompts and returned results are **not stored**, **not viewable** by Telekom or third parties, and **not used for training**
+- Customer prompts and returned results are **not stored** and **not viewable** by Telekom or third parties
 
 ### Category 2 — Third-party providers, sub-processors worldwide
 
@@ -81,7 +85,7 @@ Certification scope depends on the specific service and infrastructure layer. Fo
 | **Processing location** | EU/EEA or adequacy-decision country | Determined by third-party provider; may be worldwide |
 | **Storage** | Not stored | Per third-party provider's terms |
 | **Visibility** | Not viewable by Telekom or third parties | Per third-party provider's terms |
-| **Training use** | Not used for model training | Per third-party provider's terms |
+| **Training use** | Not used for model training | Not used for model training |
 | **Encryption in transit** | TLS-secured (HTTPS) | TLS-secured (HTTPS) |
 | **Authentication** | API keys via [Self-Service Portal](https://apikey.llmhub.t-systems.net) | API keys via [Self-Service Portal](https://apikey.llmhub.t-systems.net) |
 

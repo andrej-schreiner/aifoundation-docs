@@ -5,6 +5,10 @@ description: "Sicherheit, Compliance, Datensouveränität und KI-Verordnungs-Kon
 
 AI Foundation Services bietet eine einheitliche OpenAI-kompatible API für zwei klar getrennte Modellkategorien — solche, die von der Telekom in der EU/EWR betrieben werden, und solche, die an Drittanbieter unter deren eigenen Bedingungen weitergeleitet werden. Diese Seite fasst die Trust- und Compliance-Position zusammen; die [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.20) ist die verbindliche Quelle.
 
+:::tip[Kein Training mit Kundendaten]
+Unabhängig vom gewählten Modell werden **Kundendaten und -antworten nicht zum Training oder Fine-Tuning von Modellen** über AI Foundation Services genutzt.
+:::
+
 
 ## Zwei Modellkategorien — wählen Sie die passende für Ihre Daten
 
@@ -25,7 +29,7 @@ Werden von der Telekom auf der T-Cloud Public betrieben. Beispiele:
 Für diese Modelle gilt:
 
 - Datenverarbeitung erfolgt **innerhalb der EU/EWR oder in Staaten mit datenschutzrechtlichem Angemessenheitsbeschluss der EU-Kommission**
-- Übermittelte Daten und zurückgelieferte Ergebnisse werden **nicht gespeichert**, sind **weder für die Telekom noch für Dritte einsehbar** und werden **nicht zum Training der Modelle genutzt**
+- Übermittelte Daten und zurückgelieferte Ergebnisse werden **nicht gespeichert** und sind **weder für die Telekom noch für Dritte einsehbar**
 
 ### Kategorie 2 — Drittanbieter, Subunternehmer weltweit
 
@@ -81,7 +85,7 @@ Der Zertifizierungsumfang hängt vom spezifischen Service und der Infrastrukture
 | **Verarbeitungsort** | EU/EWR oder Land mit Angemessenheitsbeschluss | Vom Drittanbieter bestimmt; ggf. weltweit |
 | **Speicherung** | Keine | Gemäß Bedingungen des Drittanbieters |
 | **Einsehbarkeit** | Weder für Telekom noch Dritte einsehbar | Gemäß Bedingungen des Drittanbieters |
-| **Nutzung für Training** | Keine | Gemäß Bedingungen des Drittanbieters |
+| **Nutzung für Training** | Keine | Keine |
 | **Verschlüsselung bei Übertragung** | TLS-gesichert (HTTPS) | TLS-gesichert (HTTPS) |
 | **Authentifizierung** | API-Keys über das [Self-Service-Portal](https://apikey.llmhub.t-systems.net) | API-Keys über das [Self-Service-Portal](https://apikey.llmhub.t-systems.net) |
 
