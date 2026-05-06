@@ -6,6 +6,9 @@ exclude = [
   "linkedin.com",
   "twitter.com",
   "x.com",
+  # Anti-bot defenses drop the connection from CI runners (TCP reset),
+  # so lychee can't verify these even though the pages are valid.
+  "www\\.telekom\\.com",
   # Internal domains — not reachable from CI
   "docs\\.llmhub\\.t-systems\\.net",
   "llmhub\\.t-systems\\.net",
