@@ -304,3 +304,40 @@
 .copy-icon:hover {
 	opacity: 1;
 }
+
+/* Minimum Monthly Commitment explanatory note (Plans page) */
+.commitment-note {
+	margin-top: 1.5rem;
+	padding: 1rem 1.25rem;
+	border-inline-start: 4px solid var(--sl-color-accent);
+	background: var(--sl-color-accent-low);
+	border-radius: 0 8px 8px 0;
+	font-size: 0.95rem;
+}
+
+.commitment-note p {
+	margin: 0 0 0.5rem;
+}
+
+.commitment-note p:last-child,
+.commitment-note ul:last-child {
+	margin-bottom: 0;
+}
+
+.commitment-note__title {
+	font-weight: 600;
+	color: var(--sl-color-accent-high);
+}
+
+.commitment-note__example-title {
+	margin-top: 0.75rem;
+}
+
+.commitment-note__list {
+	margin: 0.25rem 0 0 1.25rem;
+	padding: 0;
+}
+
+.commitment-note__list li {
+	margin: 0.25rem 0;
+}
