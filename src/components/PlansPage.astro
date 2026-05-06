@@ -38,17 +38,10 @@ const t = {
   footnote: isDE
     ? '* Beispielpreise für T-Cloud-gehostete Large Language Models · † Beispiel-RPM für ein repräsentatives T-Cloud-Modell — genaue Limits variieren je Modell'
     : '* Example pricing for T-Cloud-hosted Large Language Models · † Example RPM for a representative T-Cloud model — exact limits vary by model',
-  commitmentNoteTitle: isDE ? 'Zum monatlichen Mindestumsatz' : 'About the Minimum Monthly Commitment',
+  commitmentNoteLead: isDE ? 'Monatlicher Mindestumsatz' : 'Minimum Monthly Commitment',
   commitmentNoteBody: isDE
-    ? 'Der angegebene Betrag ist der Mindestbetrag Ihrer Monatsrechnung — keine zusätzliche Gebühr neben den Token-Kosten. Token-Verbrauch wird gegen den Mindestumsatz verrechnet.'
-    : 'The amount shown is the floor your monthly invoice will not go below — not a fee on top of token usage. Token charges are billed against the commitment.',
-  commitmentNoteExampleTitle: isDE ? 'Beispiel: Tarif Essential (1.000 €/Monat)' : 'Example: Essential plan (€1,000/month)',
-  commitmentNoteExampleUnder: isDE
-    ? '600 € Token-Verbrauch → Rechnung 1.000 € (Mindestumsatz greift)'
-    : 'Use €600 in tokens → invoiced €1,000 (commitment minimum applies)',
-  commitmentNoteExampleOver: isDE
-    ? '1.500 € Token-Verbrauch → Rechnung 1.500 € (Verbrauch überschreitet Mindestumsatz)'
-    : 'Use €1,500 in tokens → invoiced €1,500 (usage exceeds the commitment)',
+    ? 'ist die Untergrenze Ihrer monatlichen Abrechnung — keine zusätzliche Gebühr neben den Token-Kosten.'
+    : 'is the floor of your monthly billing — not a fee on top of token usage.',
   modelsTitle: isDE ? 'Unsere Modelle' : 'Our Models',
   modelsSubtitle: isDE
     ? 'Standard-Modelle sind leistungsfähig und auf Geschwindigkeit ausgelegt – zuverlässig für die meisten Anwendungsfälle, ohne Kompromisse bei der Qualität. Premium-Modelle gehen darüber hinaus: für komplexes Reasoning, lange Kontexte und Aufgaben, bei denen die Ausgabequalität im Vordergrund steht.'
@@ -451,14 +444,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             </a>
           </small>
 
-          <aside class="commitment-note" aria-label={t.commitmentNoteTitle}>
-            <p class="commitment-note__title">{t.commitmentNoteTitle}</p>
-            <p>{t.commitmentNoteBody}</p>
-            <p class="commitment-note__example-title"><em>{t.commitmentNoteExampleTitle}</em></p>
-            <ul class="commitment-note__list">
-              <li>{t.commitmentNoteExampleUnder}</li>
-              <li>{t.commitmentNoteExampleOver}</li>
-            </ul>
+          <aside class="commitment-note" aria-label={t.commitmentNoteLead}>
+            <strong class="commitment-note__lead">{t.commitmentNoteLead}</strong> {t.commitmentNoteBody}
           </aside>
         </div>
       </section>
