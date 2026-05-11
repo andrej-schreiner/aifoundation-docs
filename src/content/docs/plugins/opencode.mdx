@@ -57,3 +57,30 @@ opencode
 Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
 
 You can now start a chat and use OpenCode.
+
+## Example Config
+
+If you'd rather configure OpenCode declaratively (or pin a default model and base URL), create `opencode.json` at your project root or `~/.config/opencode/opencode.json` for a global default:
+
+```jsonc
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "openai/gpt-4.1", // Set your default model (format: provider_id/model_id)
+
+  "provider": {
+    "openai": {
+      "options": {
+        "baseURL": "https://llm-server.llmhub.t-systems.net/v2"
+      }
+    }
+  },
+
+  // Set permissions for built-in tools
+  "permission": {
+    "edit": "allow",
+    "websearch": "allow"
+  }
+}
+```
+
+OpenCode automatically picks up `OPENAI_API_KEY` from your environment, so the config only needs the `baseURL`. If you set the variable during the [Quickstart](/getting-started/quickstart), no further key configuration is needed here.

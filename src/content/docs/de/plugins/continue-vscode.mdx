@@ -34,11 +34,13 @@ model: gpt-oss-120b
 apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
 ```
 
-3. Erzeugen Sie einen API-Key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard):
+3. Erzeugen Sie einen API-Key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard) und referenzieren Sie ihn über ein Continue-Secret:
 
 ```yaml
-apiKey: gen-************************************************
+apiKey: ${{ secrets.OPENAI_API_KEY }}
 ```
+
+   Wie Sie den Wert hinterlegen, ist unter [Umgebungsvariable verwenden](#umgebungsvariable-verwenden) beschrieben.
 
 4. Weisen Sie dem Modell eine oder mehrere Rollen zu, etwa `chat`, `edit`, `apply`, `autocomplete` oder `embed`:
 
@@ -58,14 +60,14 @@ models:
     model: gpt-4.1
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
   - name: Qwen3-30B-A3B-FP8
     model: Qwen3-30B-A3B-FP8
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
       - edit
@@ -73,6 +75,27 @@ models:
 ```
 
 Sobald die Konfiguration gespeichert ist, können Sie einen Chat starten und Continue in VS Code verwenden.
+
+### Umgebungsvariable verwenden
+
+Die Referenz `${{ secrets.OPENAI_API_KEY }}` löst den Wert zur Laufzeit auf, anstatt den API-Key in Ihrer `config.yaml` zu speichern. Continue durchsucht die folgenden Quellen in dieser Reihenfolge:
+
+1. Eine `.env`-Datei im Workspace-Stamm
+2. `.continue/.env` im Workspace
+3. `~/.continue/.env` in Ihrem Home-Verzeichnis
+4. Die Prozessumgebung
+
+:::caution[VS Code sieht Shell-Umgebungsvariablen oft nicht]
+Unter macOS und Windows erbt VS Code in der Regel **keine** Shell-Umgebungsvariablen. Auch wenn Sie `OPENAI_API_KEY` im Terminal während des [Quickstart](/de/getting-started/quickstart) gesetzt haben, sieht Continue innerhalb von VS Code diesen Wert möglicherweise nicht. Der zuverlässige Weg ist eine `.env`-Datei.
+:::
+
+Legen Sie `~/.continue/.env` mit Ihrem Key an:
+
+```dotenv
+OPENAI_API_KEY=gen-************************************************
+```
+
+Starten Sie VS Code neu. Continue löst `${{ secrets.OPENAI_API_KEY }}` aus der `.env`-Datei auf, und Sie hinterlegen den Wert nur einmal für alle Modelle in Ihrer `config.yaml`.
 
 ## Aktualisierung
 
