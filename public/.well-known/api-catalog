@@ -1,0 +1,25 @@
+{
+  "linkset": [
+    {
+      "anchor": "https://llm-server.llmhub.t-systems.net/v2",
+      "service-desc": [
+        { "href": "https://llm-server.llmhub.t-systems.net/redoc", "type": "text/html" }
+      ],
+      "service-doc": [
+        { "href": "https://docs.llmhub.t-systems.net/reference/api-endpoints/", "type": "text/html" }
+      ],
+      "status": [
+        { "href": "https://uptime.llmhub.t-systems.net/status/health", "type": "text/html" }
+      ]
+    },
+    {
+      "anchor": "https://api-gateway.ai.t-systems.net",
+      "service-desc": [
+        { "href": "https://api-gateway.ai.t-systems.net/redoc", "type": "text/html" }
+      ],
+      "service-doc": [
+        { "href": "https://docs.llmhub.t-systems.net/smartchat/api-reference/", "type": "text/html" }
+      ]
+    }
+  ]
+}
