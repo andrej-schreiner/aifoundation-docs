@@ -26,35 +26,43 @@ https_proxy=<your-proxy-url:port>
 
 1. Add the npm registry:
 
-```bash
-npm config set @aie:registry https://plugins.dev.aie.ai.t-systems.net/v1/npm
-```
+   ```bash
+   npm config set @aie:registry https://plugins.dev.aie.ai.t-systems.net/v1/npm
+   ```
 
 2. Install OpenCode globally:
 
-```bash
-npm install -g @aie/opencode
-```
+   ```bash
+   npm install -g @aie/opencode
+   ```
 
 3. If you are on Windows and need a proxy, set the required environment variables before starting OpenCode.
 
 4. Get an API key from the portal:
 
-- [AI Foundation Services API Key Portal](https://apikey.llmhub.t-systems.net/)
+   - [AI Foundation Services API Key Portal](https://apikey.llmhub.t-systems.net/)
 
-5. Run OpenCode:
+5. Run:
 
-```bash
-opencode
-```
+   ```bash
+   opencode auth login https://plugins.dev.aie.ai.t-systems.net
+   ```
 
-6. In OpenCode, run the following command to choose your provider and sign in with your API key:
+   This sets up OpenCode with the configuration published at [https://plugins.dev.aie.ai.t-systems.net/.well-known/opencode](https://plugins.dev.aie.ai.t-systems.net/.well-known/opencode), which we recommend for compliant usage with AI Foundation Services models.
 
-```bash
-/connect
-```
+6. Run OpenCode:
 
-Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
+   ```bash
+   opencode
+   ```
+
+7. In OpenCode, run the following command to choose your provider and sign in with your API key:
+
+   ```bash
+   /connect
+   ```
+
+   Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
 
 You can now start a chat and use OpenCode.
 
