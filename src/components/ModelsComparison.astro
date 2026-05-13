@@ -631,7 +631,15 @@ const rowDataPayload = allModels.map((m) => ({
                 </span>
               </td>
               <td>
-                <span class={`plans-tag ${cloudTagClass(m.cloud)}`} title={fullCloud}>{m.cloud}</span>
+                <button
+                  type="button"
+                  class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
+                  title={`${fullCloud} — click to filter`}
+                  data-cloud={m.cloud}
+                  aria-label={`Filter the table to ${m.cloud} cloud only`}
+                >
+                  {m.cloud}
+                </button>
               </td>
               <td>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
               <td>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
@@ -805,6 +813,23 @@ const rowDataPayload = allModels.map((m) => ({
     if (resetBtn) {
       resetBtn.addEventListener('click', () => reset());
     }
+
+    // Cloud tag in a row acts as a one-click filter shortcut: clicking
+    // "Telekom" (or "Azure" / "GCP") narrows the Cloud filter to just that
+    // value. Delegated so it survives any future row re-render.
+    root.addEventListener('click', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      const btn = target?.closest('.mc-cloud-filter-btn') as HTMLElement | null;
+      if (!btn) return;
+      const cloud = btn.dataset.cloud;
+      if (!cloud) return;
+      const cloudFilter = root.querySelector<HTMLElement>('.mc-filter[data-filter="cloud"]');
+      if (!cloudFilter) return;
+      cloudFilter.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+        input.checked = input.value === cloud;
+      });
+      apply();
+    });
 
     // Close open filters when clicking outside
     document.addEventListener('click', (evt) => {
@@ -1051,6 +1076,25 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison a.plans-tag:hover {
     filter: brightness(1.08);
     text-decoration: none;
+  }
+
+  /* Cloud tag in a row is a button (one-click filter); reset native button
+     chrome so it looks identical to the static span versions elsewhere. */
+  .models-comparison button.plans-tag.mc-cloud-filter-btn {
+    border: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .models-comparison button.plans-tag.mc-cloud-filter-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .models-comparison button.plans-tag.mc-cloud-filter-btn:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
   }
 
   .models-comparison .tag-tcloud {
