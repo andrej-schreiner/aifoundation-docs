@@ -62,7 +62,6 @@ export default defineConfig({
 						{ label: 'Function Calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
 						{ label: 'Image Generation', translations: { de: 'Image Generation' }, slug: 'guides/image-generation' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
-						{ label: 'Fine-Tuning', translations: { de: 'Fine-Tuning' }, slug: 'guides/fine-tuning' },
 						{ label: 'Visual RAG', translations: { de: 'Visual RAG' }, slug: 'guides/visual-rag' },
 						{ label: 'Asynchronous Requests', translations: { de: 'Asynchronous Requests' }, slug: 'guides/asynchronous-requests' },
 					],
