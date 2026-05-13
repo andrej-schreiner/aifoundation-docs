@@ -12,6 +12,7 @@ export default defineConfig({
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
+		'/guides/fine-tuning': '/changelog',
 	},
 	integrations: [
 		starlight({
@@ -122,6 +123,7 @@ export default defineConfig({
 						// { label: 'Standard 4000', translations: { de: 'Standard 4000' }, slug: 'plans/standard-4000' },
 					],
 				},
+				{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 				{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },
 				{
 					label: 'Links',
