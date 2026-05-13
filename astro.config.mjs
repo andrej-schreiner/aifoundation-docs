@@ -13,7 +13,9 @@ export default defineConfig({
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
 		'/guides/fine-tuning': '/changelog',
+		'/de/guides/fine-tuning': '/de/changelog',
 		'/getting-started/models': '/models',
+		'/de/getting-started/models': '/de/models',
 	},
 	integrations: [
 		starlight({
