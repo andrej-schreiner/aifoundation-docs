@@ -1,0 +1,100 @@
+---
+title: "Gemma 4"
+description: "Gemma 4, gehostet auf AI Foundation Services. Test model (T-Cloud Public)."
+sidebar:
+  label: "Gemma 4"
+modelId: "gemma-4-31B"
+---
+
+{/* TODO: Ein-Absatz-Zusammenfassung, was das Modell ist und wofür es geeignet ist. */}
+
+## Zentrale Parameter
+
+| Fähigkeit | Bewertung |
+|---|---|
+| Intelligenz | TODO |
+| Geschwindigkeit | TODO |
+| Souveränität | **Hoch** |
+
+| Feld | Wert |
+|---|---|
+| Modell-Identifier | `gemma-4-31B` |
+| Kontextfenster | 256K |
+| Parameter | TODO |
+| Quantisierung | TODO |
+| Mehrsprachig | TODO |
+
+## Lebenszyklus & Alternativen
+
+- **Status:** Stable
+- **Eingeführt auf AI Foundation Services:** TODO
+- **Geplante Stilllegung:** Keine
+- **Empfohlene Alternative bei Stilllegung:** N/A
+
+## Herkunft
+
+- **Anbieter:** TODO
+- **Herkunftsland:** TODO
+- **Veröffentlichung des Basismodells:** TODO
+- **Lizenz:** [Nutzungsbedingungen](https://ai.google.dev/gemma/docs/gemma_4_license)
+
+## T-Systems Hosting & Datenverarbeitung
+
+- **Hosting-Anbieter:** T-Cloud
+- **Serverstandort:** Deutschland
+- **Datenverarbeitung:** EU/EEA
+- **Datenverarbeitungs-Kategorie:** Open Source auf T-Cloud — die Daten werden innerhalb der EU verarbeitet, nicht gespeichert und sind weder für die Telekom noch für Dritte einsehbar.
+- **Kundendaten werden niemals zum Modelltraining genutzt.**
+
+Siehe [Enterprise Trust](/de/reference/enterprise-trust) für das vollständige Datenverarbeitungs-Modell.
+
+## Modalitäten
+
+- Eingabe: TODO
+- Ausgabe: TODO
+
+## Endpunkte
+
+- `POST /chat/completions`
+
+## Funktionen
+
+- Streaming: TODO
+- Tool- / Function-Calling: TODO
+- Reasoning: TODO
+- Strukturierte Ausgaben: TODO
+- Asynchrone Anfragen: TODO
+
+## Preise
+
+- Eingabe: €0.00 / Million Token
+- Ausgabe: €0.00 / Million Token
+- Verfügbar in Tarifen: Test
+
+Siehe [Tarife & Preise](/de/plans) für den vollständigen Kontext.
+
+## Anwendungsbeispiel
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gemma-4-31B",
+    messages=[{"role": "user", "content": "Hallo!"}],
+)
+print(response.choices[0].message.content)
+```
+
+## Rate-Limits
+
+- Anfragen pro Minute: dynamic
+- Eingabe-Token pro Minute: dynamic
+- Ausgabe-Token pro Minute: dynamic
+- Limits gelten pro Vertrag.
+
+Siehe [Rate-Limits](/de/reference/rate-limits) für die vollständige Aufschlüsselung.
+
+## Versionsverlauf
+
+- TODO

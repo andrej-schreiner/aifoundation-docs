@@ -1,0 +1,100 @@
+---
+title: "Gemini 2.5 Flash Image"
+description: "Gemini 2.5 Flash Image, gehostet auf AI Foundation Services. Google image LLM (GCP)."
+sidebar:
+  label: "Gemini 2.5 Flash Image"
+modelId: "gemini-2.5-flash-image"
+---
+
+{/* TODO: Ein-Absatz-Zusammenfassung, was das Modell ist und wofür es geeignet ist. */}
+
+## Zentrale Parameter
+
+| Fähigkeit | Bewertung |
+|---|---|
+| Intelligenz | TODO |
+| Geschwindigkeit | TODO |
+| Souveränität | **Niedrig** |
+
+| Feld | Wert |
+|---|---|
+| Modell-Identifier | `gemini-2.5-flash-image` |
+| Kontextfenster | 1M |
+| Parameter | TODO |
+| Quantisierung | TODO |
+| Mehrsprachig | TODO |
+
+## Lebenszyklus & Alternativen
+
+- **Status:** Stable
+- **Eingeführt auf AI Foundation Services:** TODO
+- **Geplante Stilllegung:** Keine
+- **Empfohlene Alternative bei Stilllegung:** N/A
+
+## Herkunft
+
+- **Anbieter:** TODO
+- **Herkunftsland:** TODO
+- **Veröffentlichung des Basismodells:** TODO
+- **Lizenz:** [Nutzungsbedingungen](https://cloud.google.com/terms/services)
+
+## T-Systems Hosting & Datenverarbeitung
+
+- **Hosting-Anbieter:** Upstream provider
+- **Serverstandort:** Unknown
+- **Datenverarbeitung:** Unknown
+- **Datenverarbeitungs-Kategorie:** Proprietäres Modell, das an den Upstream-Anbieter (Microsoft Azure oder Google Cloud) weitergeleitet wird, der Subunternehmer einsetzen kann. Mit der Auswahl dieses Modells akzeptieren Sie die Bedingungen des Drittanbieters.
+- **Kundendaten werden niemals zum Modelltraining genutzt.**
+
+Siehe [Enterprise Trust](/de/reference/enterprise-trust) für das vollständige Datenverarbeitungs-Modell.
+
+## Modalitäten
+
+- Eingabe: TODO
+- Ausgabe: TODO
+
+## Endpunkte
+
+- `POST /chat/completions` (multimodaler Input)
+
+## Funktionen
+
+- Streaming: TODO
+- Tool- / Function-Calling: TODO
+- Reasoning: TODO
+- Strukturierte Ausgaben: TODO
+- Asynchrone Anfragen: TODO
+
+## Preise
+
+- Eingabe: €0.27 / Million Token
+- Ausgabe: €27.00 / Million Token
+- Verfügbar in Tarifen: Essential, Professional, Agentic
+
+Siehe [Tarife & Preise](/de/plans) für den vollständigen Kontext.
+
+## Anwendungsbeispiel
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gemini-2.5-flash-image",
+    messages=[{"role": "user", "content": "Hallo!"}],
+)
+print(response.choices[0].message.content)
+```
+
+## Rate-Limits
+
+- Anfragen pro Minute: Dynamic Shared Quota
+- Eingabe-Token pro Minute: Dynamic Shared Quota
+- Ausgabe-Token pro Minute: Dynamic Shared Quota
+- Limits gelten pro Vertrag.
+
+Siehe [Rate-Limits](/de/reference/rate-limits) für die vollständige Aufschlüsselung.
+
+## Versionsverlauf
+
+- TODO

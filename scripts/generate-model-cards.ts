@@ -382,6 +382,147 @@ See [Rate Limits](/reference/rate-limits) for the full breakdown.
 `;
 }
 
+// ---------------- DE template ----------------
+
+function dataHandlingDe(m: CompiledModel): string {
+  if (m.sovereignty === 'High') {
+    return 'Open Source auf T-Cloud — die Daten werden innerhalb der EU verarbeitet, nicht gespeichert und sind weder für die Telekom noch für Dritte einsehbar.';
+  }
+  return 'Proprietäres Modell, das an den Upstream-Anbieter (Microsoft Azure oder Google Cloud) weitergeleitet wird, der Subunternehmer einsetzen kann. Mit der Auswahl dieses Modells akzeptieren Sie die Bedingungen des Drittanbieters.';
+}
+
+function endpointForCategoryDe(category: Category): string {
+  switch (category) {
+    case 'embeddings':
+      return '`POST /embeddings`';
+    case 'audio':
+      return '`POST /audio/transcriptions`, `POST /audio/translations`';
+    case 'image-generation':
+      return '`POST /images/generations`';
+    case 'vision':
+      return '`POST /chat/completions` (multimodaler Input)';
+    case 'coding':
+    case 'llms':
+    default:
+      return '`POST /chat/completions`';
+  }
+}
+
+function sovereigntyDe(s: Sovereignty): string {
+  switch (s) {
+    case 'High':
+      return 'Hoch';
+    case 'Medium':
+      return 'Mittel';
+    case 'Low':
+      return 'Niedrig';
+  }
+}
+
+function renderDeMdx(m: CompiledModel): string {
+  return `---
+title: "${m.displayModelName}"
+description: "${m.displayModelName}, gehostet auf AI Foundation Services. ${m.modelLabel}."
+sidebar:
+  label: "${m.displayModelName}"
+modelId: "${m.exactModelName}"
+---
+
+{/* TODO: Ein-Absatz-Zusammenfassung, was das Modell ist und wofür es geeignet ist. */}
+
+## Zentrale Parameter
+
+| Fähigkeit | Bewertung |
+|---|---|
+| Intelligenz | TODO |
+| Geschwindigkeit | TODO |
+| Souveränität | **${sovereigntyDe(m.sovereignty)}** |
+
+| Feld | Wert |
+|---|---|
+| Modell-Identifier | \`${m.exactModelName}\` |
+| Kontextfenster | ${m.contextWindow} |
+| Parameter | TODO |
+| Quantisierung | TODO |
+| Mehrsprachig | TODO |
+
+## Lebenszyklus & Alternativen
+
+- **Status:** Stable
+- **Eingeführt auf AI Foundation Services:** TODO
+- **Geplante Stilllegung:** Keine
+- **Empfohlene Alternative bei Stilllegung:** N/A
+
+## Herkunft
+
+- **Anbieter:** TODO
+- **Herkunftsland:** TODO
+- **Veröffentlichung des Basismodells:** TODO
+- **Lizenz:** [Nutzungsbedingungen](${m.termsOfUseUrl})
+
+## T-Systems Hosting & Datenverarbeitung
+
+- **Hosting-Anbieter:** ${m.hostingProvider}
+- **Serverstandort:** ${m.serverLocation === 'Germany' ? 'Deutschland' : m.serverLocation}
+- **Datenverarbeitung:** ${m.dataProcessing}
+- **Datenverarbeitungs-Kategorie:** ${dataHandlingDe(m)}
+- **Kundendaten werden niemals zum Modelltraining genutzt.**
+
+Siehe [Enterprise Trust](/de/reference/enterprise-trust) für das vollständige Datenverarbeitungs-Modell.
+
+## Modalitäten
+
+- Eingabe: TODO
+- Ausgabe: TODO
+
+## Endpunkte
+
+- ${endpointForCategoryDe(m.category)}
+
+## Funktionen
+
+- Streaming: TODO
+- Tool- / Function-Calling: TODO
+- Reasoning: TODO
+- Strukturierte Ausgaben: TODO
+- Asynchrone Anfragen: TODO
+
+## Preise
+
+- Eingabe: €${formatPrice(m.inputPricePerMillionTokens)} / Million Token
+- Ausgabe: €${formatPrice(m.outputPricePerMillionTokens)} / Million Token
+- Verfügbar in Tarifen: ${m.plans.join(', ')}
+
+Siehe [Tarife & Preise](/de/plans) für den vollständigen Kontext.
+
+## Anwendungsbeispiel
+
+\`\`\`python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="${m.exactModelName}",
+    messages=[{"role": "user", "content": "Hallo!"}],
+)
+print(response.choices[0].message.content)
+\`\`\`
+
+## Rate-Limits
+
+- Anfragen pro Minute: ${m.requestPerMinuteLimit}
+- Eingabe-Token pro Minute: ${formatTokens(m.inputTokenPerMinuteLimit)}
+- Ausgabe-Token pro Minute: ${formatTokens(m.outputTokenPerMinuteLimit)}
+- Limits gelten pro Vertrag.
+
+Siehe [Rate-Limits](/de/reference/rate-limits) für die vollständige Aufschlüsselung.
+
+## Versionsverlauf
+
+- TODO
+`;
+}
+
 // ---------------- Writer ----------------
 
 interface WriteResult {
@@ -435,7 +576,16 @@ async function main() {
   for (const p of enResult.created) process.stdout.write(`  + ${p}\n`);
   for (const p of enResult.skipped) process.stdout.write(`  = ${p} (exists)\n`);
 
-  process.stdout.write('\nDE templates not yet implemented — coming in next task.\n');
+  const deResult: WriteResult = { created: [], skipped: [] };
+  for (const m of models) {
+    const slug = kebabCase(m.exactModelName);
+    const filePath = join(DE_MODELS_DIR, m.category, `${slug}.mdx`);
+    writeIfMissing(filePath, renderDeMdx(m), deResult);
+  }
+
+  process.stdout.write(`\nDE: created ${deResult.created.length}, skipped ${deResult.skipped.length}\n`);
+  for (const p of deResult.created) process.stdout.write(`  + ${p}\n`);
+  for (const p of deResult.skipped) process.stdout.write(`  = ${p} (exists)\n`);
 }
 
 main().catch((err) => {
