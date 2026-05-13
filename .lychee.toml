@@ -13,6 +13,10 @@ exclude = [
   "docs\\.llmhub\\.t-systems\\.net",
   "llmhub\\.t-systems\\.net",
   "llm-serving\\.llmhub\\.t-systems\\.net",
+  # starlight-versions generates "current version" links on frozen v1
+  # SmartChat subpages whose current-version counterparts were moved to
+  # docs.smartchat.ai.t-systems.net
+  "smartchat/(api-reference|global-chat|local-chat)$",
 ]
 
 # Don't check mailto links
