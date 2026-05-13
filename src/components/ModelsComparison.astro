@@ -601,7 +601,7 @@ const rowDataPayload = allModels.map((m) => ({
       <thead>
         <tr>
           <th>{t.colModel}</th>
-          <th>{t.colCategory}</th>
+          {!categoryFilter && <th>{t.colCategory}</th>}
           <th>{t.colProvider}</th>
           <th>{t.colCloud}</th>
           <th>{t.colInput}</th>
@@ -621,7 +621,7 @@ const rowDataPayload = allModels.map((m) => ({
           return (
             <tr data-key={m.exactModelName}>
               <td><strong>{m.displayModelName}</strong></td>
-              <td>{CATEGORY_LABELS[m.category]}</td>
+              {!categoryFilter && <td>{CATEGORY_LABELS[m.category]}</td>}
               <td>
                 <span class="creator-brand creator-brand--icon-text" title={m.capabilities.creator} aria-label={m.capabilities.creator}>
                   {brandIcon && (
