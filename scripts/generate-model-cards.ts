@@ -191,15 +191,77 @@ function resolveHosting(deploymentRegion: string): {
   return { hostingProvider: 'Upstream provider', serverLocation: 'Unknown', dataProcessing: 'Unknown' };
 }
 
-// ---------------- Main (skeleton) ----------------
+// ---------------- Loader ----------------
+
+function loadModels(): CompiledModel[] {
+  // Sync read avoids async plumbing in main().
+  const fs = require('node:fs') as typeof import('node:fs');
+  const json = JSON.parse(fs.readFileSync(PRICING_JSON_PATH, 'utf-8')) as PricingPackage[];
+
+  // exactModelName -> compiled model; accumulates plans across packages.
+  const byName = new Map<string, CompiledModel>();
+
+  for (const pkg of json) {
+    for (const entry of pkg.modelQuotaConfigs ?? []) {
+      const existing = byName.get(entry.exactModelName);
+      if (existing) {
+        if (!existing.plans.includes(pkg.packageName)) {
+          existing.plans.push(pkg.packageName);
+        }
+        continue;
+      }
+      const category = resolveCategory(entry.exactModelName);
+      const sovereignty = resolveSovereignty(entry.deploymentRegion, entry.exactModelName);
+      const hosting = resolveHosting(entry.deploymentRegion);
+      byName.set(entry.exactModelName, {
+        exactModelName: entry.exactModelName,
+        displayModelName: entry.displayModelName,
+        modelLabel: entry.modelLabel,
+        contextWindow: entry.contextWindow,
+        termsOfUseUrl: entry.termsOfUseUrl,
+        deploymentRegion: entry.deploymentRegion,
+        inputPricePerMillionTokens: entry.inputPricePerMillionTokens,
+        outputPricePerMillionTokens: entry.outputPricePerMillionTokens,
+        requestPerMinuteLimit: entry.requestPerMinuteLimit,
+        inputTokenPerMinuteLimit: entry.inputTokenPerMinuteLimit,
+        outputTokenPerMinuteLimit: entry.outputTokenPerMinuteLimit,
+        category,
+        plans: [pkg.packageName],
+        sovereignty,
+        ...hosting,
+      });
+    }
+  }
+
+  // Stable, plan-friendly order
+  const planOrder: Record<Plan, number> = { Essential: 0, Professional: 1, Agentic: 2, Test: 3 };
+  for (const m of byName.values()) {
+    m.plans.sort((a, b) => planOrder[a] - planOrder[b]);
+  }
+
+  return [...byName.values()].sort((a, b) => a.exactModelName.localeCompare(b.exactModelName));
+}
+
+// ---------------- Main ----------------
 
 async function main() {
   const dryRun = process.argv.includes('--dry-run');
-  process.stdout.write(`Generator scaffold loaded. Dry-run: ${dryRun}. (Implementation pending in next tasks.)\n`);
-  process.stdout.write(`Pricing JSON path: ${PRICING_JSON_PATH}\n`);
-  process.stdout.write(`EN output dir: ${EN_MODELS_DIR}\n`);
-  process.stdout.write(`DE output dir: ${DE_MODELS_DIR}\n`);
-  process.stdout.write(`CATEGORY_MAP has ${Object.keys(CATEGORY_MAP).length} entries.\n`);
+  const models = loadModels();
+  process.stdout.write(`Loaded ${models.length} unique models from pricing JSON.\n`);
+
+  if (dryRun) {
+    process.stdout.write('\nDry-run — listing models:\n');
+    for (const m of models) {
+      process.stdout.write(
+        `  [${m.category.padEnd(16)}] ${m.exactModelName.padEnd(40)} ` +
+          `"${m.displayModelName}" — ${m.sovereignty} — plans: ${m.plans.join(', ')}\n`,
+      );
+    }
+    process.stdout.write(`\nDry-run complete. ${models.length} model(s).\n`);
+    return;
+  }
+
+  process.stdout.write('Templates not yet implemented — re-run with --dry-run for now.\n');
 }
 
 main().catch((err) => {
