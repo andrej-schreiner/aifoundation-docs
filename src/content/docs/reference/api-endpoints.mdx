@@ -1,6 +1,6 @@
 ---
 title: "API Endpoints"
-description: "Complete reference for all REST endpoints in the LLM Hub API — chat completions, embeddings, audio, images, fine-tuning, and more."
+description: "Complete reference for all REST endpoints in the LLM Hub API — chat completions, embeddings, audio, images, and more."
 ---
 
 AI Foundation Services provides an OpenAI-compatible REST API. All endpoints use the base URL:
@@ -26,10 +26,6 @@ For the complete OpenAPI specification, see the [interactive API docs (Redoc)](h
 | `GET` | `/audio/models` | List available audio models |
 | `POST` | `/images/generations` | Generate images from text |
 | `POST` | `/responses` | Create a response (Responses API) |
-| `POST` | `/fine_tuning/jobs` | Create a fine-tuning job |
-| `GET` | `/fine_tuning/jobs` | List fine-tuning jobs |
-| `POST` | `/fine_tuning/jobs/{id}/cancel` | Cancel a fine-tuning job |
-| `GET` | `/fine_tuning/jobs/{id}/events` | List fine-tuning events |
 | `POST` | `/files` | Upload a file |
 | `GET` | `/files` | List uploaded files |
 | `DELETE` | `/files/{id}` | Delete a file |
