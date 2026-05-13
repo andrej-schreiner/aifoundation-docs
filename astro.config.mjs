@@ -93,6 +93,7 @@ export default defineConfig({
 					translations: { de: 'Modelle' },
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'models' },
+						{ label: 'Comparison', translations: { de: 'Vergleich' }, slug: 'models/comparison' },
 						{
 							label: 'Active Models',
 							translations: { de: 'Aktive Modelle' },

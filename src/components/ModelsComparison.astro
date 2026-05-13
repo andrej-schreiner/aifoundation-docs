@@ -1,0 +1,439 @@
+---
+import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+
+// Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+
+// Models that are no longer offered through the regular plans (mirrors AvailableModels.astro)
+const OFFLINE_MODELS = new Set([
+  'gpt-4.1-nano',
+  'gpt-4o-mini',
+  'GPT-5-Codex',
+  'gpt-5-nano',
+  'Mistral-Large-2411',
+  'Mistral-Medium-3',
+  'o1',
+  'text-embedding-ada-002',
+]);
+
+// Mirrors AvailableModels.astro shape; deduped on exactModelName below.
+const EXTRA_MODELS = [
+  {
+    exactModelName: 'gpt-5.2',
+    displayModelName: 'GPT 5.2',
+    deploymentRegion: 'azure-sweden-central',
+    contextWindow: '—',
+    inputPricePerMillionTokens: 0,
+    outputPricePerMillionTokens: 0,
+    plans: ['Test'],
+    category: 'llms',
+    isExtra: true,
+  },
+  {
+    exactModelName: 'Qwen3-Coder-30B-A3B-Instruct-FP8',
+    displayModelName: 'Qwen 3 Coder 30B',
+    deploymentRegion: 'otc-germany',
+    contextWindow: '—',
+    inputPricePerMillionTokens: 0,
+    outputPricePerMillionTokens: 0,
+    plans: ['Test'],
+    category: 'coding',
+    isExtra: true,
+  },
+];
+
+// Category mapping by exactModelName (duplicated from scripts/generate-model-cards.ts).
+type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+const CATEGORY_MAP: Record<string, Category> = {
+  // LLMs
+  'Llama-3.3-70B-Instruct': 'llms',
+  'Mistral-Small-3': 'llms',
+  'Qwen3-Next-80B-A3B-Instruct': 'llms',
+  'claude-3-7-sonnet': 'llms',
+  'claude-haiku-4.5': 'llms',
+  'claude-opus-4.5': 'llms',
+  'claude-opus-4.6': 'llms',
+  'claude-sonnet-4': 'llms',
+  'claude-sonnet-4.5': 'llms',
+  'claude-sonnet-4.5-long-context': 'llms',
+  'claude-sonnet-4.6': 'llms',
+  'gemini-2.5-flash': 'llms',
+  'gemini-2.5-pro': 'llms',
+  'gemini-2.5-pro-long-context': 'llms',
+  'gemini-3-flash': 'llms',
+  'gemini-3-pro': 'llms',
+  'gemini-3-pro-long-context': 'llms',
+  'gemma-4-31B': 'llms',
+  'gpt-4.1-2025-04-14': 'llms',
+  'gpt-4.1-mini-2025-04-14': 'llms',
+  'gpt-4.1-nano-2025-04-14': 'llms',
+  'gpt-4o-2024-11-20': 'llms',
+  'gpt-4o-mini-2024-07-18': 'llms',
+  'gpt-5': 'llms',
+  'gpt-5-mini': 'llms',
+  'gpt-5-nano': 'llms',
+  'gpt-5.2': 'llms',
+  'gpt-oss-120b': 'llms',
+  'mistral-medium-3': 'llms',
+  'o1-2024-12-17': 'llms',
+  'o1-mini-2024-09-12': 'llms',
+  'o3-2025-04-16': 'llms',
+  'o3-mini-2025-01-31': 'llms',
+  'o4-mini-2025-04-16': 'llms',
+  // Coding
+  'Qwen3-Coder-30B-A3B-Instruct': 'coding',
+  'Qwen3-Coder-30B-A3B-Instruct-FP8': 'coding',
+  'gpt-5-codex': 'coding',
+  // Vision (multimodal image-as-input)
+  'Qwen3-VL-30B-A3B-Instruct-FP8': 'vision',
+  'gemini-2.5-flash-image': 'vision',
+  // Embeddings
+  'jina-embeddings-v2-base-de': 'embeddings',
+  'text-embedding-ada-002': 'embeddings',
+  'text-embedding-bge-m3': 'embeddings',
+  // Audio
+  'whisper-large-v3': 'audio',
+  'whisper-large-v3-turbo': 'audio',
+  // Image generation
+  'gpt-image-1-image-input': 'image-generation',
+  'gpt-image-1-text-input': 'image-generation',
+};
+
+type Sovereignty = 'High' | 'Medium' | 'Low';
+
+function resolveCategory(exactModelName: string): Category {
+  return CATEGORY_MAP[exactModelName] ?? 'llms';
+}
+
+function resolveSovereignty(deploymentRegion: string): Sovereignty {
+  const region = deploymentRegion.toLowerCase();
+  if (region === 'otc-germany') return 'High';
+  if (region.startsWith('azure-sweden') || region.startsWith('azure-eu')) return 'Medium';
+  return 'Low';
+}
+
+function resolveProvider(deploymentRegion: string): string {
+  const raw = deploymentRegion.toLowerCase().split('-')[0];
+  if (raw === 'otc') return 'T-Cloud';
+  if (raw === 'azure') return 'Azure';
+  if (raw === 'gcp') return 'Google';
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+}
+
+// Slug rule for model card links — must mirror scripts/generate-model-cards.ts
+function kebabCase(s: string): string {
+  return s
+    .toLowerCase()
+    .replace(/[._]/g, '-')
+    .replace(/[^a-z0-9-]/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+interface CompiledModel {
+  exactModelName: string;
+  displayModelName: string;
+  category: Category;
+  provider: string;
+  sovereignty: Sovereignty;
+  contextWindow: string;
+  inputPricePerMillionTokens: number;
+  outputPricePerMillionTokens: number;
+  plans: string[];
+  slug: string;
+  isExtra: boolean;
+}
+
+// ---------------- Compile model list ----------------
+
+// exactModelName -> CompiledModel; plans accumulate across packages.
+const byName = new Map<string, CompiledModel>();
+
+for (const pkg of pricingData as Array<{ packageName: string; modelQuotaConfigs: Array<Record<string, unknown>> }>) {
+  for (const entry of pkg.modelQuotaConfigs ?? []) {
+    const exactModelName = entry.exactModelName as string;
+    if (OFFLINE_MODELS.has(exactModelName)) continue;
+    const existing = byName.get(exactModelName);
+    if (existing) {
+      if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);
+      continue;
+    }
+    const deploymentRegion = entry.deploymentRegion as string;
+    byName.set(exactModelName, {
+      exactModelName,
+      displayModelName: entry.displayModelName as string,
+      category: resolveCategory(exactModelName),
+      provider: resolveProvider(deploymentRegion),
+      sovereignty: resolveSovereignty(deploymentRegion),
+      contextWindow: (entry.contextWindow as string) ?? '—',
+      inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,
+      outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
+      plans: [pkg.packageName],
+      slug: kebabCase(exactModelName),
+      isExtra: false,
+    });
+  }
+}
+
+// Merge EXTRA_MODELS: dedupe on exactModelName — keep pricing entry if present.
+for (const x of EXTRA_MODELS) {
+  if (byName.has(x.exactModelName)) continue;
+  byName.set(x.exactModelName, {
+    exactModelName: x.exactModelName,
+    displayModelName: x.displayModelName,
+    category: x.category as Category,
+    provider: resolveProvider(x.deploymentRegion),
+    sovereignty: resolveSovereignty(x.deploymentRegion),
+    contextWindow: x.contextWindow,
+    inputPricePerMillionTokens: x.inputPricePerMillionTokens,
+    outputPricePerMillionTokens: x.outputPricePerMillionTokens,
+    plans: x.plans,
+    slug: kebabCase(x.exactModelName),
+    isExtra: true,
+  });
+}
+
+// Stable plan order
+const planOrder: Record<string, number> = { Essential: 0, Professional: 1, Agentic: 2, Test: 3 };
+for (const m of byName.values()) {
+  m.plans.sort((a, b) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99));
+}
+
+const allModels = [...byName.values()];
+
+const TABLE1_CATEGORIES: Category[] = ['llms', 'coding', 'vision'];
+const TABLE2_CATEGORIES: Category[] = ['embeddings', 'audio', 'image-generation'];
+
+const table1Models = allModels
+  .filter((m) => TABLE1_CATEGORIES.includes(m.category))
+  .sort((a, b) => a.displayModelName.localeCompare(b.displayModelName));
+
+const table2Models = allModels
+  .filter((m) => TABLE2_CATEGORIES.includes(m.category))
+  .sort((a, b) => a.displayModelName.localeCompare(b.displayModelName));
+
+// ---------------- Translations & formatters ----------------
+
+const t = {
+  table1Heading: isDE ? 'Sprach-, Coding- und Vision-Modelle' : 'Language, Coding & Vision Models',
+  table2Heading: isDE ? 'Embedding-, Audio- und Bildgenerierungs-Modelle' : 'Embedding, Audio & Image Generation Models',
+  colModel: isDE ? 'Modell' : 'Model',
+  colCategory: isDE ? 'Kategorie' : 'Category',
+  colProvider: isDE ? 'Anbieter' : 'Provider',
+  colSovereignty: isDE ? 'Souveränität' : 'Sovereignty',
+  colContext: isDE ? 'Kontext' : 'Context',
+  colInput: isDE ? 'Eingabe €/M Token' : 'Input €/M tokens',
+  colOutput: isDE ? 'Ausgabe €/M Token' : 'Output €/M tokens',
+  colPrice: isDE ? 'Preis €/M Token' : 'Price €/M tokens',
+  colPlans: isDE ? 'Tarife' : 'Plans',
+  high: isDE ? 'Hoch' : 'High',
+  medium: isDE ? 'Mittel' : 'Medium',
+  low: isDE ? 'Niedrig' : 'Low',
+};
+
+const CATEGORY_LABELS: Record<Category, string> = {
+  llms: 'LLM',
+  coding: 'Coding',
+  vision: 'Vision',
+  embeddings: isDE ? 'Embedding' : 'Embedding',
+  audio: 'Audio',
+  'image-generation': isDE ? 'Bildgenerierung' : 'Image Generation',
+};
+
+function sovereigntyLabel(s: Sovereignty): string {
+  if (s === 'High') return t.high;
+  if (s === 'Medium') return t.medium;
+  return t.low;
+}
+
+function sovereigntyClass(s: Sovereignty): string {
+  if (s === 'High') return 'sovereignty-high';
+  if (s === 'Medium') return 'sovereignty-medium';
+  return 'sovereignty-low';
+}
+
+function formatPrice(n: number): string {
+  if (!n || n <= 0) return '—';
+  return `€${n.toFixed(2)}`;
+}
+
+function table2Price(m: CompiledModel): string {
+  // Specialty models often have equal input/output; show the higher non-zero value, or '—'.
+  const p = Math.max(m.inputPricePerMillionTokens || 0, m.outputPricePerMillionTokens || 0);
+  if (p <= 0) return '—';
+  return `€${p.toFixed(2)}`;
+}
+
+function modelHref(m: CompiledModel): string {
+  const prefix = isDE ? '/de/models' : '/models';
+  return `${prefix}/${m.category}/${m.slug}/`;
+}
+---
+
+<div class="models-comparison">
+  <h2 class="models-comparison__heading">{t.table1Heading} <span class="models-comparison__count">({table1Models.length})</span></h2>
+  <div class="models-comparison__scroll">
+    <table class="models-comparison-table">
+      <thead>
+        <tr>
+          <th>{t.colModel}</th>
+          <th>{t.colCategory}</th>
+          <th>{t.colProvider}</th>
+          <th>{t.colSovereignty}</th>
+          <th>{t.colContext}</th>
+          <th class="num">{t.colInput}</th>
+          <th class="num">{t.colOutput}</th>
+          <th>{t.colPlans}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          table1Models.map((m) => (
+            <tr>
+              <td>
+                <a href={modelHref(m)}>{m.displayModelName}</a>
+              </td>
+              <td>{CATEGORY_LABELS[m.category]}</td>
+              <td>{m.provider}</td>
+              <td>
+                <span class:list={['sovereignty-badge', sovereigntyClass(m.sovereignty)]}>{sovereigntyLabel(m.sovereignty)}</span>
+              </td>
+              <td>{m.contextWindow}</td>
+              <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
+              <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td>{m.plans.join(', ')}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <h2 class="models-comparison__heading">{t.table2Heading} <span class="models-comparison__count">({table2Models.length})</span></h2>
+  <div class="models-comparison__scroll">
+    <table class="models-comparison-table">
+      <thead>
+        <tr>
+          <th>{t.colModel}</th>
+          <th>{t.colCategory}</th>
+          <th>{t.colProvider}</th>
+          <th>{t.colSovereignty}</th>
+          <th>{t.colContext}</th>
+          <th class="num">{t.colPrice}</th>
+          <th>{t.colPlans}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          table2Models.map((m) => (
+            <tr>
+              <td>
+                <a href={modelHref(m)}>{m.displayModelName}</a>
+              </td>
+              <td>{CATEGORY_LABELS[m.category]}</td>
+              <td>{m.provider}</td>
+              <td>
+                <span class:list={['sovereignty-badge', sovereigntyClass(m.sovereignty)]}>{sovereigntyLabel(m.sovereignty)}</span>
+              </td>
+              <td>{m.contextWindow}</td>
+              <td class="num">{table2Price(m)}</td>
+              <td>{m.plans.join(', ')}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<style>
+  .models-comparison {
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  .models-comparison__heading {
+    margin: 1.5rem 0 0.75rem;
+    font-size: 1.15rem;
+  }
+
+  .models-comparison__count {
+    font-size: 0.75em;
+    font-weight: 400;
+    color: var(--sl-color-gray-3);
+    vertical-align: middle;
+  }
+
+  .models-comparison__scroll {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  .models-comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .models-comparison-table thead th {
+    text-align: left;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-6);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .models-comparison-table tbody td {
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+    vertical-align: top;
+  }
+
+  .models-comparison-table tbody tr:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .models-comparison-table th.num,
+  .models-comparison-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .models-comparison-table a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .models-comparison-table a:hover {
+    text-decoration: underline;
+  }
+
+  .sovereignty-badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+
+  .sovereignty-high {
+    background: rgba(34, 197, 94, 0.15);
+    color: var(--sl-color-green, #16a34a);
+    border: 1px solid rgba(34, 197, 94, 0.35);
+  }
+
+  .sovereignty-medium {
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--sl-color-orange, #d97706);
+    border: 1px solid rgba(245, 158, 11, 0.35);
+  }
+
+  .sovereignty-low {
+    background: rgba(239, 68, 68, 0.15);
+    color: var(--sl-color-red, #dc2626);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+  }
+</style>
