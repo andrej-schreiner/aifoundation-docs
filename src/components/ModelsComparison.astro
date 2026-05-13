@@ -2,6 +2,12 @@
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
 
+type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+interface Props {
+  category?: CategoryProp;
+}
+const { category: categoryFilter } = Astro.props as Props;
+
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
@@ -321,17 +327,6 @@ function cloudTagClass(cloud: CloudKey): string {
   return cloud === 'Telekom' ? 'tag-tcloud' : 'tag-cloud';
 }
 
-// ---------------- Slug rule for model card links ----------------
-// (must mirror scripts/generate-model-cards.ts)
-function kebabCase(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/[._]/g, '-')
-    .replace(/[^a-z0-9-]/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
-}
-
 // ---------------- Compile model list ----------------
 
 interface CompiledModel {
@@ -343,7 +338,6 @@ interface CompiledModel {
   inputPricePerMillionTokens: number;
   outputPricePerMillionTokens: number;
   plans: string[];
-  slug: string;
   capabilities: Capabilities;
 }
 
@@ -373,7 +367,6 @@ for (const pkg of pricingData as Array<{
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
       plans: [pkg.packageName],
-      slug: kebabCase(exactModelName),
       capabilities: resolveCapabilities(exactModelName, category),
     });
   }
@@ -385,9 +378,9 @@ for (const m of byName.values()) {
   m.plans.sort((a, b) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99));
 }
 
-const allModels = [...byName.values()].sort((a, b) =>
-  a.displayModelName.localeCompare(b.displayModelName),
-);
+const allModels = [...byName.values()]
+  .filter((m) => (categoryFilter ? m.category === categoryFilter : true))
+  .sort((a, b) => a.displayModelName.localeCompare(b.displayModelName));
 
 // ---------------- Translations & formatters ----------------
 
@@ -432,11 +425,6 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 function formatPrice(n: number): string {
   if (!n || n <= 0) return '—';
   return `€${n.toFixed(2)}`;
-}
-
-function modelHref(m: CompiledModel): string {
-  const prefix = isDE ? '/de/models' : '/models';
-  return `${prefix}/${m.category}/${m.slug}/`;
 }
 
 function planHref(plan: string): string {
@@ -485,20 +473,22 @@ const rowDataPayload = allModels.map((m) => ({
   data-rows={JSON.stringify(rowDataPayload)}
   data-default-cloud="Telekom">
   <div class="models-comparison__filterbar" role="group" aria-label={t.heading}>
-    <details class="mc-filter" data-filter="category">
-      <summary>
-        <span class="mc-filter__label">{t.colCategory}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        {uniqueCategories.map((c) => (
-          <label class="mc-filter__option">
-            <input type="checkbox" value={c} checked />
-            <span>{CATEGORY_LABELS[c]}</span>
-          </label>
-        ))}
-      </div>
-    </details>
+    {!categoryFilter && (
+      <details class="mc-filter" data-filter="category">
+        <summary>
+          <span class="mc-filter__label">{t.colCategory}</span>
+          <span class="mc-filter__count" data-count></span>
+        </summary>
+        <div class="mc-filter__menu">
+          {uniqueCategories.map((c) => (
+            <label class="mc-filter__option">
+              <input type="checkbox" value={c} checked />
+              <span>{CATEGORY_LABELS[c]}</span>
+            </label>
+          ))}
+        </div>
+      </details>
+    )}
 
     <details class="mc-filter" data-filter="provider">
       <summary>
@@ -630,7 +620,7 @@ const rowDataPayload = allModels.map((m) => ({
           const fullCloud = cloudFullName(m.cloud);
           return (
             <tr data-key={m.exactModelName}>
-              <td><a href={modelHref(m)}>{m.displayModelName}</a></td>
+              <td><strong>{m.displayModelName}</strong></td>
               <td>{CATEGORY_LABELS[m.category]}</td>
               <td>
                 <span class="creator-brand creator-brand--icon-text" title={m.capabilities.creator} aria-label={m.capabilities.creator}>
