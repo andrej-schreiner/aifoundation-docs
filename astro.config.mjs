@@ -87,6 +87,27 @@ export default defineConfig({
 					],
 				},
 				{
+					label: 'Models',
+					translations: { de: 'Modelle' },
+					items: [
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'models' },
+						{
+							label: 'Active Models',
+							translations: { de: 'Aktive Modelle' },
+							items: [
+								{ label: 'Chat & Reasoning (LLMs)', translations: { de: 'Chat & Reasoning (LLMs)' }, autogenerate: { directory: 'models/llms' } },
+								{ label: 'Coding', translations: { de: 'Coding' }, autogenerate: { directory: 'models/coding' } },
+								{ label: 'Vision', translations: { de: 'Vision' }, autogenerate: { directory: 'models/vision' } },
+								{ label: 'Embeddings', translations: { de: 'Embeddings' }, autogenerate: { directory: 'models/embeddings' } },
+								{ label: 'Audio (Speech-to-Text)', translations: { de: 'Audio (Sprache-zu-Text)' }, autogenerate: { directory: 'models/audio' } },
+								{ label: 'Image Generation', translations: { de: 'Bildgenerierung' }, autogenerate: { directory: 'models/image-generation' } },
+							],
+						},
+						{ label: 'Scheduled for Retirement', translations: { de: 'Zur Stilllegung vorgesehen' }, slug: 'models/scheduled-for-retirement' },
+						{ label: 'Retired Models', translations: { de: 'Stillgelegte Modelle' }, slug: 'models/retired' },
+					],
+				},
+				{
 					label: 'Reference',
 					translations: { de: 'Referenz' },
 					items: [
