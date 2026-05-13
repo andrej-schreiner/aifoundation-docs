@@ -16,31 +16,12 @@ const OFFLINE_MODELS = new Set([
   'text-embedding-ada-002',
 ]);
 
-// Mirrors AvailableModels.astro shape; deduped on exactModelName below.
-const EXTRA_MODELS = [
-  {
-    exactModelName: 'gpt-5.2',
-    displayModelName: 'GPT 5.2',
-    deploymentRegion: 'azure-sweden-central',
-    contextWindow: '—',
-    inputPricePerMillionTokens: 0,
-    outputPricePerMillionTokens: 0,
-    plans: ['Test'],
-    category: 'llms',
-    isExtra: true,
-  },
-  {
-    exactModelName: 'Qwen3-Coder-30B-A3B-Instruct-FP8',
-    displayModelName: 'Qwen 3 Coder 30B',
-    deploymentRegion: 'otc-germany',
-    contextWindow: '—',
-    inputPricePerMillionTokens: 0,
-    outputPricePerMillionTokens: 0,
-    plans: ['Test'],
-    category: 'coding',
-    isExtra: true,
-  },
-];
+// Note: AvailableModels.astro has an EXTRA_MODELS list (gpt-5.2 + Qwen 3 Coder
+// FP8). Both are redundant for this table — gpt-5.2 is already in the pricing
+// JSON, and the FP8 Qwen variant is the same hardware-quantized build as the
+// non-FP8 entry already in the JSON. We don't merge EXTRA_MODELS in here so the
+// table stays consistent with the model cards (every row links to a card that
+// actually exists).
 
 // Category mapping by exactModelName (duplicated from scripts/generate-model-cards.ts).
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
@@ -141,7 +122,6 @@ interface CompiledModel {
   outputPricePerMillionTokens: number;
   plans: string[];
   slug: string;
-  isExtra: boolean;
 }
 
 // ---------------- Compile model list ----------------
@@ -170,27 +150,8 @@ for (const pkg of pricingData as Array<{ packageName: string; modelQuotaConfigs:
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
       plans: [pkg.packageName],
       slug: kebabCase(exactModelName),
-      isExtra: false,
     });
   }
-}
-
-// Merge EXTRA_MODELS: dedupe on exactModelName — keep pricing entry if present.
-for (const x of EXTRA_MODELS) {
-  if (byName.has(x.exactModelName)) continue;
-  byName.set(x.exactModelName, {
-    exactModelName: x.exactModelName,
-    displayModelName: x.displayModelName,
-    category: x.category as Category,
-    provider: resolveProvider(x.deploymentRegion),
-    sovereignty: resolveSovereignty(x.deploymentRegion),
-    contextWindow: x.contextWindow,
-    inputPricePerMillionTokens: x.inputPricePerMillionTokens,
-    outputPricePerMillionTokens: x.outputPricePerMillionTokens,
-    plans: x.plans,
-    slug: kebabCase(x.exactModelName),
-    isExtra: true,
-  });
 }
 
 // Stable plan order
