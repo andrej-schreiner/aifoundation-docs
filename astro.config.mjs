@@ -13,6 +13,7 @@ export default defineConfig({
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
 		'/guides/fine-tuning': '/changelog',
+		'/getting-started/models': '/models',
 	},
 	integrations: [
 		starlight({
@@ -48,7 +49,6 @@ export default defineConfig({
 					items: [
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
-						{ label: 'Models', translations: { de: 'Verfügbare Modelle' }, slug: 'getting-started/models' },
 					],
 				},
 				{
