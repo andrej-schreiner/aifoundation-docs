@@ -1,8 +1,10 @@
 ---
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
 
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const localePrefix = isDE ? '/de' : '';
 
 // Models that are no longer offered through the regular plans (mirrors AvailableModels.astro)
 const OFFLINE_MODELS = new Set([
@@ -15,13 +17,6 @@ const OFFLINE_MODELS = new Set([
   'o1',
   'text-embedding-ada-002',
 ]);
-
-// Note: AvailableModels.astro has an EXTRA_MODELS list (gpt-5.2 + Qwen 3 Coder
-// FP8). Both are redundant for this table — gpt-5.2 is already in the pricing
-// JSON, and the FP8 Qwen variant is the same hardware-quantized build as the
-// non-FP8 entry already in the JSON. We don't merge EXTRA_MODELS in here so the
-// table stays consistent with the model cards (every row links to a card that
-// actually exists).
 
 // Category mapping by exactModelName (duplicated from scripts/generate-model-cards.ts).
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
@@ -80,28 +75,254 @@ const CATEGORY_MAP: Record<string, Category> = {
   'gpt-image-1-text-input': 'image-generation',
 };
 
-type Sovereignty = 'High' | 'Medium' | 'Low';
-
 function resolveCategory(exactModelName: string): Category {
   return CATEGORY_MAP[exactModelName] ?? 'llms';
 }
 
-function resolveSovereignty(deploymentRegion: string): Sovereignty {
-  const region = deploymentRegion.toLowerCase();
-  if (region === 'otc-germany') return 'High';
-  if (region.startsWith('azure-sweden') || region.startsWith('azure-eu')) return 'Medium';
-  return 'Low';
+// ---------------- Capabilities ----------------
+
+type Creator =
+  | 'Meta'
+  | 'OpenAI'
+  | 'Anthropic'
+  | 'Google'
+  | 'Google Gemma'
+  | 'Mistral'
+  | 'Alibaba Cloud'
+  | 'T-Systems'
+  | 'Other';
+type InputModality = 'Text' | 'Image' | 'Audio';
+type OutputModality = 'Text' | 'Image' | 'Audio' | 'Vector';
+
+interface Capabilities {
+  creator: Creator;
+  inputModalities: InputModality[];
+  outputModalities: OutputModality[];
+  streaming: boolean;
+  toolCalling: boolean;
 }
 
-function resolveProvider(deploymentRegion: string): string {
-  const raw = deploymentRegion.toLowerCase().split('-')[0];
-  if (raw === 'otc') return 'T-Cloud';
-  if (raw === 'azure') return 'Azure';
-  if (raw === 'gcp') return 'Google';
-  return raw.charAt(0).toUpperCase() + raw.slice(1);
+function inferCreator(exactModelName: string): Creator {
+  const n = exactModelName;
+  if (/^Llama-/i.test(n)) return 'Meta';
+  if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
+  if (/^Qwen3-/i.test(n)) return 'Alibaba Cloud';
+  if (/^claude-/i.test(n)) return 'Anthropic';
+  if (/^gemma-/i.test(n)) return 'Google Gemma';
+  if (/^gemini-/i.test(n)) return 'Google';
+  if (/^(gpt-|o1-|o3-|o4-|gpt-image)/i.test(n)) return 'OpenAI';
+  return 'Other';
 }
 
-// Slug rule for model card links — must mirror scripts/generate-model-cards.ts
+// LLM defaults: Text→Text, streaming, tool-calling.
+function llmDefault(exactModelName: string): Capabilities {
+  return {
+    creator: inferCreator(exactModelName),
+    inputModalities: ['Text'],
+    outputModalities: ['Text'],
+    streaming: true,
+    toolCalling: true,
+  };
+}
+
+// Seed one entry per exactModelName in the pricing JSON.
+const MODEL_CAPABILITIES: Record<string, Capabilities> = {
+  // LLMs (Text → Text, streaming + tools)
+  'Llama-3.3-70B-Instruct': llmDefault('Llama-3.3-70B-Instruct'),
+  'Mistral-Small-3': llmDefault('Mistral-Small-3'),
+  'Qwen3-Next-80B-A3B-Instruct': llmDefault('Qwen3-Next-80B-A3B-Instruct'),
+  'claude-3-7-sonnet': llmDefault('claude-3-7-sonnet'),
+  'claude-haiku-4.5': llmDefault('claude-haiku-4.5'),
+  'claude-opus-4.5': llmDefault('claude-opus-4.5'),
+  'claude-opus-4.6': llmDefault('claude-opus-4.6'),
+  'claude-sonnet-4': llmDefault('claude-sonnet-4'),
+  'claude-sonnet-4.5': llmDefault('claude-sonnet-4.5'),
+  'claude-sonnet-4.5-long-context': llmDefault('claude-sonnet-4.5-long-context'),
+  'claude-sonnet-4.6': llmDefault('claude-sonnet-4.6'),
+  'gemini-2.5-flash': llmDefault('gemini-2.5-flash'),
+  'gemini-2.5-pro': llmDefault('gemini-2.5-pro'),
+  'gemini-2.5-pro-long-context': llmDefault('gemini-2.5-pro-long-context'),
+  'gemini-3-flash': llmDefault('gemini-3-flash'),
+  'gemini-3-pro': llmDefault('gemini-3-pro'),
+  'gemini-3-pro-long-context': llmDefault('gemini-3-pro-long-context'),
+  'gemma-4-31B': llmDefault('gemma-4-31B'),
+  'gpt-4.1-2025-04-14': llmDefault('gpt-4.1-2025-04-14'),
+  'gpt-4.1-mini-2025-04-14': llmDefault('gpt-4.1-mini-2025-04-14'),
+  'gpt-4.1-nano-2025-04-14': llmDefault('gpt-4.1-nano-2025-04-14'),
+  'gpt-4o-2024-11-20': llmDefault('gpt-4o-2024-11-20'),
+  'gpt-4o-mini-2024-07-18': llmDefault('gpt-4o-mini-2024-07-18'),
+  'gpt-5': llmDefault('gpt-5'),
+  'gpt-5-mini': llmDefault('gpt-5-mini'),
+  'gpt-5-nano': llmDefault('gpt-5-nano'),
+  'gpt-5.2': llmDefault('gpt-5.2'),
+  'gpt-oss-120b': llmDefault('gpt-oss-120b'),
+  'mistral-medium-3': llmDefault('mistral-medium-3'),
+  'o1-2024-12-17': llmDefault('o1-2024-12-17'),
+  'o1-mini-2024-09-12': llmDefault('o1-mini-2024-09-12'),
+  'o3-2025-04-16': llmDefault('o3-2025-04-16'),
+  'o3-mini-2025-01-31': llmDefault('o3-mini-2025-01-31'),
+  'o4-mini-2025-04-16': llmDefault('o4-mini-2025-04-16'),
+
+  // Coding (same defaults as LLMs)
+  'Qwen3-Coder-30B-A3B-Instruct': llmDefault('Qwen3-Coder-30B-A3B-Instruct'),
+  'Qwen3-Coder-30B-A3B-Instruct-FP8': llmDefault('Qwen3-Coder-30B-A3B-Instruct-FP8'),
+  'gpt-5-codex': llmDefault('gpt-5-codex'),
+
+  // Vision (Text + Image → Text)
+  'Qwen3-VL-30B-A3B-Instruct-FP8': {
+    creator: 'Alibaba Cloud',
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Text'],
+    streaming: true,
+    toolCalling: true,
+  },
+  'gemini-2.5-flash-image': {
+    creator: 'Google',
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Text'],
+    streaming: true,
+    toolCalling: true,
+  },
+
+  // Embeddings (Text → Vector, no streaming / no tools)
+  'jina-embeddings-v2-base-de': {
+    creator: 'Other',
+    inputModalities: ['Text'],
+    outputModalities: ['Vector'],
+    streaming: false,
+    toolCalling: false,
+  },
+  'text-embedding-ada-002': {
+    creator: 'OpenAI',
+    inputModalities: ['Text'],
+    outputModalities: ['Vector'],
+    streaming: false,
+    toolCalling: false,
+  },
+  'text-embedding-bge-m3': {
+    creator: 'Other',
+    inputModalities: ['Text'],
+    outputModalities: ['Vector'],
+    streaming: false,
+    toolCalling: false,
+  },
+
+  // Audio (Audio → Text, no streaming / no tools)
+  'whisper-large-v3': {
+    creator: 'OpenAI',
+    inputModalities: ['Audio'],
+    outputModalities: ['Text'],
+    streaming: false,
+    toolCalling: false,
+  },
+  'whisper-large-v3-turbo': {
+    creator: 'OpenAI',
+    inputModalities: ['Audio'],
+    outputModalities: ['Text'],
+    streaming: false,
+    toolCalling: false,
+  },
+
+  // Image generation
+  'gpt-image-1-text-input': {
+    creator: 'OpenAI',
+    inputModalities: ['Text'],
+    outputModalities: ['Image'],
+    streaming: false,
+    toolCalling: false,
+  },
+  'gpt-image-1-image-input': {
+    creator: 'OpenAI',
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Image'],
+    streaming: false,
+    toolCalling: false,
+  },
+};
+
+function categoryDefault(exactModelName: string, category: Category): Capabilities {
+  switch (category) {
+    case 'vision':
+      return {
+        creator: inferCreator(exactModelName),
+        inputModalities: ['Text', 'Image'],
+        outputModalities: ['Text'],
+        streaming: true,
+        toolCalling: true,
+      };
+    case 'embeddings':
+      return {
+        creator: inferCreator(exactModelName),
+        inputModalities: ['Text'],
+        outputModalities: ['Vector'],
+        streaming: false,
+        toolCalling: false,
+      };
+    case 'audio':
+      return {
+        creator: inferCreator(exactModelName),
+        inputModalities: ['Audio'],
+        outputModalities: ['Text'],
+        streaming: false,
+        toolCalling: false,
+      };
+    case 'image-generation':
+      return {
+        creator: inferCreator(exactModelName),
+        inputModalities: ['Text'],
+        outputModalities: ['Image'],
+        streaming: false,
+        toolCalling: false,
+      };
+    case 'llms':
+    case 'coding':
+    default:
+      return llmDefault(exactModelName);
+  }
+}
+
+function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
+  const direct = MODEL_CAPABILITIES[exactModelName];
+  if (direct) return direct;
+  console.warn(
+    `[ModelsComparison] No MODEL_CAPABILITIES entry for "${exactModelName}" (category=${category}); falling back to category defaults.`,
+  );
+  return categoryDefault(exactModelName, category);
+}
+
+// ---------------- Cloud (replaces Sovereignty) ----------------
+
+type CloudKey = 'Telekom' | 'Azure' | 'GCP' | 'Other';
+
+function resolveCloud(deploymentRegion: string): CloudKey {
+  const region = (deploymentRegion ?? '').toLowerCase();
+  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → Telekom
+  if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'Telekom';
+  if (region.startsWith('azure')) return 'Azure';
+  if (region.startsWith('gcp') || region.startsWith('google')) return 'GCP';
+  return 'Other';
+}
+
+function cloudFullName(cloud: CloudKey): string {
+  switch (cloud) {
+    case 'Telekom':
+      return 'T-Cloud Public';
+    case 'Azure':
+      return 'Microsoft Azure';
+    case 'GCP':
+      return 'Google Cloud Platform';
+    case 'Other':
+    default:
+      return 'Other';
+  }
+}
+
+function cloudTagClass(cloud: CloudKey): string {
+  return cloud === 'Telekom' ? 'tag-tcloud' : 'tag-cloud';
+}
+
+// ---------------- Slug rule for model card links ----------------
+// (must mirror scripts/generate-model-cards.ts)
 function kebabCase(s: string): string {
   return s
     .toLowerCase()
@@ -111,25 +332,28 @@ function kebabCase(s: string): string {
     .replace(/^-|-$/g, '');
 }
 
+// ---------------- Compile model list ----------------
+
 interface CompiledModel {
   exactModelName: string;
   displayModelName: string;
   category: Category;
-  provider: string;
-  sovereignty: Sovereignty;
+  cloud: CloudKey;
   contextWindow: string;
   inputPricePerMillionTokens: number;
   outputPricePerMillionTokens: number;
   plans: string[];
   slug: string;
+  capabilities: Capabilities;
 }
-
-// ---------------- Compile model list ----------------
 
 // exactModelName -> CompiledModel; plans accumulate across packages.
 const byName = new Map<string, CompiledModel>();
 
-for (const pkg of pricingData as Array<{ packageName: string; modelQuotaConfigs: Array<Record<string, unknown>> }>) {
+for (const pkg of pricingData as Array<{
+  packageName: string;
+  modelQuotaConfigs: Array<Record<string, unknown>>;
+}>) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const exactModelName = entry.exactModelName as string;
     if (OFFLINE_MODELS.has(exactModelName)) continue;
@@ -139,17 +363,18 @@ for (const pkg of pricingData as Array<{ packageName: string; modelQuotaConfigs:
       continue;
     }
     const deploymentRegion = entry.deploymentRegion as string;
+    const category = resolveCategory(exactModelName);
     byName.set(exactModelName, {
       exactModelName,
       displayModelName: entry.displayModelName as string,
-      category: resolveCategory(exactModelName),
-      provider: resolveProvider(deploymentRegion),
-      sovereignty: resolveSovereignty(deploymentRegion),
+      category,
+      cloud: resolveCloud(deploymentRegion),
       contextWindow: (entry.contextWindow as string) ?? '—',
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
       plans: [pkg.packageName],
       slug: kebabCase(exactModelName),
+      capabilities: resolveCapabilities(exactModelName, category),
     });
   }
 }
@@ -160,79 +385,227 @@ for (const m of byName.values()) {
   m.plans.sort((a, b) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99));
 }
 
-const allModels = [...byName.values()];
-
-const TABLE1_CATEGORIES: Category[] = ['llms', 'coding', 'vision'];
-const TABLE2_CATEGORIES: Category[] = ['embeddings', 'audio', 'image-generation'];
-
-const table1Models = allModels
-  .filter((m) => TABLE1_CATEGORIES.includes(m.category))
-  .sort((a, b) => a.displayModelName.localeCompare(b.displayModelName));
-
-const table2Models = allModels
-  .filter((m) => TABLE2_CATEGORIES.includes(m.category))
-  .sort((a, b) => a.displayModelName.localeCompare(b.displayModelName));
+const allModels = [...byName.values()].sort((a, b) =>
+  a.displayModelName.localeCompare(b.displayModelName),
+);
 
 // ---------------- Translations & formatters ----------------
 
 const t = {
-  table1Heading: isDE ? 'Sprach-, Coding- und Vision-Modelle' : 'Language, Coding & Vision Models',
-  table2Heading: isDE ? 'Embedding-, Audio- und Bildgenerierungs-Modelle' : 'Embedding, Audio & Image Generation Models',
+  heading: isDE ? 'Modelle im Vergleich' : 'Models Comparison',
   colModel: isDE ? 'Modell' : 'Model',
   colCategory: isDE ? 'Kategorie' : 'Category',
   colProvider: isDE ? 'Anbieter' : 'Provider',
-  colSovereignty: isDE ? 'Souveränität' : 'Sovereignty',
+  colCloud: isDE ? 'Cloud' : 'Cloud',
+  colInput: isDE ? 'Eingabe' : 'Input',
+  colOutput: isDE ? 'Ausgabe' : 'Output',
+  colStreaming: 'Streaming',
+  colTools: 'Tools',
   colContext: isDE ? 'Kontext' : 'Context',
-  colInput: isDE ? 'Eingabe €/M Token' : 'Input €/M tokens',
-  colOutput: isDE ? 'Ausgabe €/M Token' : 'Output €/M tokens',
-  colPrice: isDE ? 'Preis €/M Token' : 'Price €/M tokens',
+  colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
+  colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
-  high: isDE ? 'Hoch' : 'High',
-  medium: isDE ? 'Mittel' : 'Medium',
-  low: isDE ? 'Niedrig' : 'Low',
+  reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
+  showing: isDE ? 'Zeige' : 'Showing',
+  of: isDE ? 'von' : 'of',
+  models: isDE ? 'Modellen' : 'models',
+  selected: isDE ? 'ausgewählt' : 'selected',
+  noResults: isDE ? 'Keine Modelle entsprechen den Filtern.' : 'No models match the current filters.',
 };
 
 const CATEGORY_LABELS: Record<Category, string> = {
   llms: 'LLM',
-  coding: 'Coding',
+  coding: isDE ? 'Coding' : 'Coding',
   vision: 'Vision',
   embeddings: isDE ? 'Embedding' : 'Embedding',
   audio: 'Audio',
   'image-generation': isDE ? 'Bildgenerierung' : 'Image Generation',
 };
 
-function sovereigntyLabel(s: Sovereignty): string {
-  if (s === 'High') return t.high;
-  if (s === 'Medium') return t.medium;
-  return t.low;
-}
-
-function sovereigntyClass(s: Sovereignty): string {
-  if (s === 'High') return 'sovereignty-high';
-  if (s === 'Medium') return 'sovereignty-medium';
-  return 'sovereignty-low';
-}
+const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
+  Text: isDE ? 'Text' : 'Text',
+  Image: isDE ? 'Bild' : 'Image',
+  Audio: 'Audio',
+  Vector: isDE ? 'Vektor' : 'Vector',
+};
 
 function formatPrice(n: number): string {
   if (!n || n <= 0) return '—';
   return `€${n.toFixed(2)}`;
 }
 
-function table2Price(m: CompiledModel): string {
-  // Specialty models often have equal input/output; show the higher non-zero value, or '—'.
-  const p = Math.max(m.inputPricePerMillionTokens || 0, m.outputPricePerMillionTokens || 0);
-  if (p <= 0) return '—';
-  return `€${p.toFixed(2)}`;
-}
-
 function modelHref(m: CompiledModel): string {
   const prefix = isDE ? '/de/models' : '/models';
   return `${prefix}/${m.category}/${m.slug}/`;
 }
+
+function planHref(plan: string): string {
+  return `${localePrefix}/plans/${plan.toLowerCase()}/`;
+}
+
+function planTagClass(plan: string): string {
+  return `tag-plan-${plan.toLowerCase()}`;
+}
+
+// ---------------- Filter values (unique sets) ----------------
+
+const uniqueCategories = [...new Set(allModels.map((m) => m.category))];
+const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
+const uniqueClouds: CloudKey[] = ['Telekom', 'Azure', 'GCP', 'Other'].filter((c) =>
+  allModels.some((m) => m.cloud === c),
+) as CloudKey[];
+const uniqueInputs: InputModality[] = ['Text', 'Image', 'Audio'].filter((mod) =>
+  allModels.some((m) => m.capabilities.inputModalities.includes(mod as InputModality)),
+) as InputModality[];
+const uniqueOutputs: OutputModality[] = ['Text', 'Image', 'Audio', 'Vector'].filter((mod) =>
+  allModels.some((m) => m.capabilities.outputModalities.includes(mod as OutputModality)),
+) as OutputModality[];
+const uniquePlans = ['Essential', 'Professional', 'Agentic', 'Test'].filter((p) =>
+  allModels.some((m) => m.plans.includes(p)),
+);
+
+// Build the row-data payload consumed by the client script. We render the
+// table SSR (so non-JS users see all rows); the script only toggles row
+// visibility based on filter state, so we don't ship full HTML twice.
+const rowDataPayload = allModels.map((m) => ({
+  key: m.exactModelName,
+  category: m.category,
+  provider: m.capabilities.creator,
+  cloud: m.cloud,
+  inputs: m.capabilities.inputModalities,
+  outputs: m.capabilities.outputModalities,
+  streaming: m.capabilities.streaming,
+  toolCalling: m.capabilities.toolCalling,
+  plans: m.plans,
+}));
 ---
 
-<div class="models-comparison">
-  <h2 class="models-comparison__heading">{t.table1Heading} <span class="models-comparison__count">({table1Models.length})</span></h2>
+<div
+  class="models-comparison"
+  data-rows={JSON.stringify(rowDataPayload)}
+  data-default-cloud="Telekom">
+  <div class="models-comparison__filterbar" role="group" aria-label={t.heading}>
+    <details class="mc-filter" data-filter="category">
+      <summary>
+        <span class="mc-filter__label">{t.colCategory}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        {uniqueCategories.map((c) => (
+          <label class="mc-filter__option">
+            <input type="checkbox" value={c} checked />
+            <span>{CATEGORY_LABELS[c]}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="provider">
+      <summary>
+        <span class="mc-filter__label">{t.colProvider}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        {uniqueProviders.map((p) => (
+          <label class="mc-filter__option">
+            <input type="checkbox" value={p} checked />
+            <span>{p}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="cloud">
+      <summary>
+        <span class="mc-filter__label">{t.colCloud}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        {uniqueClouds.map((c) => (
+          <label class="mc-filter__option">
+            <input type="checkbox" value={c} checked={c === 'Telekom'} />
+            <span>{c}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="input">
+      <summary>
+        <span class="mc-filter__label">{t.colInput}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        {uniqueInputs.map((m) => (
+          <label class="mc-filter__option">
+            <input type="checkbox" value={m} checked />
+            <span>{MODALITY_LABELS[m]}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="output">
+      <summary>
+        <span class="mc-filter__label">{t.colOutput}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        {uniqueOutputs.map((m) => (
+          <label class="mc-filter__option">
+            <input type="checkbox" value={m} checked />
+            <span>{MODALITY_LABELS[m]}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="streaming">
+      <summary>
+        <span class="mc-filter__label">{t.colStreaming}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        <label class="mc-filter__option"><input type="checkbox" value="true" checked /><span>✓</span></label>
+        <label class="mc-filter__option"><input type="checkbox" value="false" checked /><span>—</span></label>
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="tools">
+      <summary>
+        <span class="mc-filter__label">{t.colTools}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        <label class="mc-filter__option"><input type="checkbox" value="true" checked /><span>✓</span></label>
+        <label class="mc-filter__option"><input type="checkbox" value="false" checked /><span>—</span></label>
+      </div>
+    </details>
+
+    <details class="mc-filter" data-filter="plans">
+      <summary>
+        <span class="mc-filter__label">{t.colPlans}</span>
+        <span class="mc-filter__count" data-count></span>
+      </summary>
+      <div class="mc-filter__menu">
+        {uniquePlans.map((p) => (
+          <label class="mc-filter__option">
+            <input type="checkbox" value={p} checked />
+            <span>{p}</span>
+          </label>
+        ))}
+      </div>
+    </details>
+
+    <button type="button" class="mc-reset" data-reset>{t.reset}</button>
+  </div>
+
+  <div class="models-comparison__status" aria-live="polite">
+    <span data-status-text>
+      {t.showing} <span data-visible-count>{allModels.length}</span> {t.of} <span data-total-count>{allModels.length}</span> {t.models}
+    </span>
+  </div>
+
   <div class="models-comparison__scroll">
     <table class="models-comparison-table">
       <thead>
@@ -240,88 +613,342 @@ function modelHref(m: CompiledModel): string {
           <th>{t.colModel}</th>
           <th>{t.colCategory}</th>
           <th>{t.colProvider}</th>
-          <th>{t.colSovereignty}</th>
+          <th>{t.colCloud}</th>
+          <th>{t.colInput}</th>
+          <th>{t.colOutput}</th>
+          <th class="center">{t.colStreaming}</th>
+          <th class="center">{t.colTools}</th>
           <th>{t.colContext}</th>
-          <th class="num">{t.colInput}</th>
-          <th class="num">{t.colOutput}</th>
+          <th class="num">{t.colInputPrice}</th>
+          <th class="num">{t.colOutputPrice}</th>
           <th>{t.colPlans}</th>
         </tr>
       </thead>
       <tbody>
-        {
-          table1Models.map((m) => (
-            <tr>
-              <td>
-                <a href={modelHref(m)}>{m.displayModelName}</a>
-              </td>
+        {allModels.map((m) => {
+          const brandIcon = getModelBrandIcon(m.capabilities.creator);
+          const fullCloud = cloudFullName(m.cloud);
+          return (
+            <tr data-key={m.exactModelName}>
+              <td><a href={modelHref(m)}>{m.displayModelName}</a></td>
               <td>{CATEGORY_LABELS[m.category]}</td>
-              <td>{m.provider}</td>
               <td>
-                <span class:list={['sovereignty-badge', sovereigntyClass(m.sovereignty)]}>{sovereigntyLabel(m.sovereignty)}</span>
+                <span class="creator-brand creator-brand--icon-text" title={m.capabilities.creator} aria-label={m.capabilities.creator}>
+                  {brandIcon && (
+                    <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
+                  )}
+                  <span class="creator-brand__label">{m.capabilities.creator}</span>
+                </span>
               </td>
+              <td>
+                <span class={`plans-tag ${cloudTagClass(m.cloud)}`} title={fullCloud}>{m.cloud}</span>
+              </td>
+              <td>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td class="center">{m.capabilities.streaming ? '✓' : '—'}</td>
+              <td class="center">{m.capabilities.toolCalling ? '✓' : '—'}</td>
               <td>{m.contextWindow}</td>
               <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
               <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
-              <td>{m.plans.join(', ')}</td>
+              <td>
+                <span class="mc-plans">
+                  {m.plans.map((p) => (
+                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{p}</a>
+                  ))}
+                </span>
+              </td>
             </tr>
-          ))
-        }
-      </tbody>
-    </table>
-  </div>
-
-  <h2 class="models-comparison__heading">{t.table2Heading} <span class="models-comparison__count">({table2Models.length})</span></h2>
-  <div class="models-comparison__scroll">
-    <table class="models-comparison-table">
-      <thead>
-        <tr>
-          <th>{t.colModel}</th>
-          <th>{t.colCategory}</th>
-          <th>{t.colProvider}</th>
-          <th>{t.colSovereignty}</th>
-          <th>{t.colContext}</th>
-          <th class="num">{t.colPrice}</th>
-          <th>{t.colPlans}</th>
+          );
+        })}
+        <tr class="mc-no-results" hidden>
+          <td colspan="12" class="mc-no-results__cell">{t.noResults}</td>
         </tr>
-      </thead>
-      <tbody>
-        {
-          table2Models.map((m) => (
-            <tr>
-              <td>
-                <a href={modelHref(m)}>{m.displayModelName}</a>
-              </td>
-              <td>{CATEGORY_LABELS[m.category]}</td>
-              <td>{m.provider}</td>
-              <td>
-                <span class:list={['sovereignty-badge', sovereigntyClass(m.sovereignty)]}>{sovereigntyLabel(m.sovereignty)}</span>
-              </td>
-              <td>{m.contextWindow}</td>
-              <td class="num">{table2Price(m)}</td>
-              <td>{m.plans.join(', ')}</td>
-            </tr>
-          ))
-        }
       </tbody>
     </table>
   </div>
 </div>
+
+<script>
+  type RowData = {
+    key: string;
+    category: string;
+    provider: string;
+    cloud: string;
+    inputs: string[];
+    outputs: string[];
+    streaming: boolean;
+    toolCalling: boolean;
+    plans: string[];
+  };
+
+  function initModelsComparison(root: HTMLElement) {
+    if (root.dataset.mcInit === '1') return;
+    root.dataset.mcInit = '1';
+
+    const rows: RowData[] = JSON.parse(root.dataset.rows || '[]');
+    const tableRowsByKey = new Map<string, HTMLTableRowElement>();
+    root.querySelectorAll<HTMLTableRowElement>('tbody tr[data-key]').forEach((tr) => {
+      const key = tr.dataset.key;
+      if (key) tableRowsByKey.set(key, tr);
+    });
+
+    const noResultsRow = root.querySelector<HTMLTableRowElement>('.mc-no-results');
+    const visibleCountEl = root.querySelector<HTMLElement>('[data-visible-count]');
+    const totalCountEl = root.querySelector<HTMLElement>('[data-total-count]');
+    if (totalCountEl) totalCountEl.textContent = String(rows.length);
+
+    const filterDefs: Array<{ id: string; type: 'single' | 'multi' | 'bool'; field: keyof RowData }> = [
+      { id: 'category', type: 'single', field: 'category' },
+      { id: 'provider', type: 'single', field: 'provider' },
+      { id: 'cloud', type: 'single', field: 'cloud' },
+      { id: 'input', type: 'multi', field: 'inputs' },
+      { id: 'output', type: 'multi', field: 'outputs' },
+      { id: 'streaming', type: 'bool', field: 'streaming' },
+      { id: 'tools', type: 'bool', field: 'toolCalling' },
+      { id: 'plans', type: 'multi', field: 'plans' },
+    ];
+
+    type FilterState = Map<string, Set<string>>;
+
+    function readState(): FilterState {
+      const state: FilterState = new Map();
+      for (const def of filterDefs) {
+        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
+        if (!details) continue;
+        const checked = new Set<string>();
+        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+          if (input.checked) checked.add(input.value);
+        });
+        state.set(def.id, checked);
+      }
+      return state;
+    }
+
+    function valueToString(value: unknown): string {
+      if (typeof value === 'boolean') return value ? 'true' : 'false';
+      return String(value);
+    }
+
+    function rowPasses(row: RowData, state: FilterState): boolean {
+      for (const def of filterDefs) {
+        const checked = state.get(def.id);
+        if (!checked) continue;
+        if (checked.size === 0) return false;
+        if (def.type === 'multi') {
+          const values = row[def.field] as string[];
+          // Row passes this filter if ANY of its values is checked.
+          if (!values.some((v) => checked.has(v))) return false;
+        } else {
+          const v = valueToString(row[def.field]);
+          if (!checked.has(v)) return false;
+        }
+      }
+      return true;
+    }
+
+    function updateCounts() {
+      for (const def of filterDefs) {
+        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
+        if (!details) continue;
+        const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        const checked = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
+        const countEl = details.querySelector<HTMLElement>('[data-count]');
+        if (countEl) {
+          countEl.textContent =
+            checked.length === all.length ? '' : `(${checked.length}/${all.length})`;
+        }
+        details.classList.toggle('mc-filter--active', checked.length !== all.length);
+      }
+    }
+
+    function apply() {
+      const state = readState();
+      let visible = 0;
+      for (const row of rows) {
+        const tr = tableRowsByKey.get(row.key);
+        if (!tr) continue;
+        const passes = rowPasses(row, state);
+        tr.hidden = !passes;
+        if (passes) visible += 1;
+      }
+      if (visibleCountEl) visibleCountEl.textContent = String(visible);
+      if (noResultsRow) noResultsRow.hidden = visible > 0;
+      updateCounts();
+    }
+
+    // Capture initial defaults so reset restores them
+    const defaults: FilterState = readState();
+
+    function reset() {
+      for (const def of filterDefs) {
+        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
+        if (!details) continue;
+        const defaultSet = defaults.get(def.id) ?? new Set<string>();
+        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+          input.checked = defaultSet.has(input.value);
+        });
+      }
+      apply();
+    }
+
+    root.addEventListener('change', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      if (target && target instanceof HTMLInputElement && target.type === 'checkbox') {
+        apply();
+      }
+    });
+
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => reset());
+    }
+
+    // Close open filters when clicking outside
+    document.addEventListener('click', (evt) => {
+      const target = evt.target as Node | null;
+      root.querySelectorAll<HTMLDetailsElement>('details.mc-filter[open]').forEach((d) => {
+        if (target && !d.contains(target)) d.open = false;
+      });
+    });
+
+    apply();
+  }
+
+  function initAll() {
+    document
+      .querySelectorAll<HTMLElement>('.models-comparison')
+      .forEach((root) => initModelsComparison(root));
+  }
+
+  document.addEventListener('astro:page-load', initAll);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+</script>
 
 <style>
   .models-comparison {
     margin: 1.5rem 0 2.5rem;
   }
 
-  .models-comparison__heading {
-    margin: 1.5rem 0 0.75rem;
-    font-size: 1.15rem;
+  .models-comparison__filterbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
   }
 
-  .models-comparison__count {
-    font-size: 0.75em;
-    font-weight: 400;
+  .mc-filter {
+    position: relative;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    background: var(--sl-color-gray-6);
+    font-size: 0.82rem;
+  }
+
+  .mc-filter > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.3rem 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    line-height: 1.2;
+    user-select: none;
+  }
+
+  .mc-filter > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mc-filter > summary::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.65;
+    transition: transform 120ms ease;
+  }
+
+  .mc-filter[open] > summary::after {
+    transform: rotate(180deg);
+  }
+
+  .mc-filter__label {
+    font-weight: 600;
+  }
+
+  .mc-filter__count {
+    color: var(--sl-color-text-accent);
+    font-weight: 500;
+  }
+
+  .mc-filter--active > summary {
+    box-shadow: inset 0 0 0 1px var(--sl-color-text-accent);
+    border-radius: 5px;
+  }
+
+  .mc-filter__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 20;
+    min-width: 11rem;
+    max-height: 22rem;
+    overflow-y: auto;
+    padding: 0.4rem 0.5rem;
+    background: var(--sl-color-bg, var(--sl-color-gray-6));
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .mc-filter__option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0.35rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .mc-filter__option:hover {
+    background: var(--sl-color-gray-5);
+  }
+
+  .mc-filter__option input[type='checkbox'] {
+    accent-color: #e20074;
+  }
+
+  .mc-reset {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--sl-color-text);
+    background: transparent;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .mc-reset:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .models-comparison__status {
+    margin-bottom: 0.5rem;
+    font-size: 0.82rem;
     color: var(--sl-color-gray-3);
-    vertical-align: middle;
   }
 
   .models-comparison__scroll {
@@ -332,7 +959,7 @@ function modelHref(m: CompiledModel): string {
   .models-comparison-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
   }
 
   .models-comparison-table thead th {
@@ -361,6 +988,11 @@ function modelHref(m: CompiledModel): string {
     white-space: nowrap;
   }
 
+  .models-comparison-table th.center,
+  .models-comparison-table td.center {
+    text-align: center;
+  }
+
   .models-comparison-table a {
     color: var(--sl-color-text-accent);
     text-decoration: none;
@@ -370,31 +1002,106 @@ function modelHref(m: CompiledModel): string {
     text-decoration: underline;
   }
 
-  .sovereignty-badge {
-    display: inline-block;
-    padding: 0.1rem 0.5rem;
-    border-radius: 999px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    line-height: 1.4;
+  .mc-no-results__cell {
+    text-align: center;
+    padding: 1.25rem !important;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Brand-icon (mirrors ModelsTable.astro creator-brand--icon-text pattern) */
+  .models-comparison .creator-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    vertical-align: middle;
+  }
+
+  .models-comparison .creator-brand--icon-text .creator-brand__icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 4px;
+    padding: 1px;
+    background: white;
+  }
+
+  .models-comparison .creator-brand__label {
+    font-weight: 500;
+    font-size: 0.85rem;
     white-space: nowrap;
   }
 
-  .sovereignty-high {
-    background: rgba(34, 197, 94, 0.15);
-    color: var(--sl-color-green, #16a34a);
-    border: 1px solid rgba(34, 197, 94, 0.35);
+  /* Plans-tag styling, scoped — colors match the Plans overview palette */
+  .models-comparison .plans-tag {
+    display: inline-block;
+    padding: 0.14rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-decoration: none;
   }
 
-  .sovereignty-medium {
-    background: rgba(245, 158, 11, 0.15);
-    color: var(--sl-color-orange, #d97706);
-    border: 1px solid rgba(245, 158, 11, 0.35);
+  .models-comparison a.plans-tag:hover {
+    filter: brightness(1.08);
+    text-decoration: none;
   }
 
-  .sovereignty-low {
-    background: rgba(239, 68, 68, 0.15);
-    color: var(--sl-color-red, #dc2626);
-    border: 1px solid rgba(239, 68, 68, 0.35);
+  .models-comparison .tag-tcloud {
+    background: #e20074;
+    color: white;
+  }
+
+  .models-comparison .tag-cloud {
+    background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
+    color: var(--sl-color-text);
+  }
+
+  .models-comparison .mc-plans {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  /* Per-plan colors */
+  .models-comparison .tag-plan-essential {
+    background: rgba(99, 102, 241, 0.18);
+    color: #4338ca;
+    box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.35);
+  }
+
+  .models-comparison .tag-plan-professional {
+    background: rgba(226, 0, 116, 0.16);
+    color: #b3005c;
+    box-shadow: inset 0 0 0 1px rgba(226, 0, 116, 0.4);
+  }
+
+  .models-comparison .tag-plan-agentic {
+    background: rgba(34, 197, 94, 0.16);
+    color: #15803d;
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4);
+  }
+
+  .models-comparison .tag-plan-test {
+    background: transparent;
+    color: var(--sl-color-text);
+    box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
+  }
+
+  :root[data-theme='dark'] .models-comparison .tag-plan-essential {
+    color: #c7d2fe;
+  }
+
+  :root[data-theme='dark'] .models-comparison .tag-plan-professional {
+    color: #fbcfe8;
+  }
+
+  :root[data-theme='dark'] .models-comparison .tag-plan-agentic {
+    color: #bbf7d0;
   }
 </style>
+</content>
+</invoke>
