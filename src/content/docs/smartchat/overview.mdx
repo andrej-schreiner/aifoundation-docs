@@ -5,7 +5,7 @@ description: "T-Systems SmartChat — a managed, sovereign solution for AI-assis
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-SmartChat is a managed, sovereign offering for AI-assisted knowledge work — featuring chat with your documents, deep research, and data and tool integrations. Built on T-Systems AI Foundation Services and operated on T-Cloud, it delivers **GDPR**, **BSI-C5**, and **ISO 27017/27018** compliance, audit logging, role-based access, and an SLA as part of the product rather than leaving them as your team's homework.
+SmartChat is a managed, sovereign offering for AI-assisted knowledge work — featuring chat with your documents, deep research, and data and tool integrations. Built on T-Systems AI Foundation Services and operated on T-Cloud, which is certified to BSI-C5 and ISO 27017/27018, it delivers **GDPR** compliance, audit logging, role-based access, and a contractually agreed service level as part of the product rather than leaving them as your team's homework.
 
 In practice, SmartChat is what you reach for when the chat UI is the easy part and the hard part is running it safely for regulated workloads: **healthcare**, **public sector**, **finance**, or any context where data residency, professional secrecy, and operational accountability matter most.
 
@@ -14,10 +14,10 @@ In practice, SmartChat is what you reach for when the chat UI is the easy part a
 - **End-to-End Hosting** — Fully managed document knowledge bases with no infrastructure to maintain
 - **Enterprise RAG** — Upload documents and query them via UI or API with over 50 retrieval settings
 - **Multi-Tenancy** — Isolated spaces with strict data separation for different confidentiality levels and organizational boundaries
-- **Compliance** — **GDPR**, **BSI-C5**, and **ISO 27017/27018** certified, with audit logging — built for regulated workloads in **healthcare**, **public sector**, and **finance**
+- **Compliance** — GDPR-compliant, running on T-Cloud infrastructure that is certified to BSI-C5 and ISO 27017/27018 ([T-Cloud certificates](https://www.t-systems.com/de/en/cloud-services/public-cloud/certificates-public-cloud)). Includes audit logging and role-based access control at the product level
 - **Enterprise Security** — OWASP Top 10 hardened, penetration-tested by Deutsche Telekom security professionals, with enterprise SSO and role-based access control
 - **Fully Sovereign** — European across the entire stack — the application, the cloud, the LLMs, and the infrastructure are all operated by T-Systems in Germany
-- **Operational Support** — Dedicated support during business hours (Mon–Fri, 9:00–17:00 CET/CEST) with SLA
+- **Operational Support** — Provided by T-Systems with contractually agreed service levels and service hours
 - **Predictable Pricing** — Monthly flat-rate fees
 
 ## Getting Started
@@ -31,6 +31,22 @@ To use SmartChat, contact the AIFS team at **[ai@t-systems.com](mailto:ai@t-syst
 
 ---
 
-<LinkCard title="Try SmartChat (API Key Only)" href="https://public.oweb-chat.llmhub.t-systems.net/" description="Already have an AI Foundation Services API key? Start chatting right away." />
+### Available Models
+
+SmartChat is operated by T-Systems with a curated model selection from the **AI Foundation Services**. Models running fully in T-Cloud Germany include:
+
+- **Llama 3.3 70B** — general chat and reasoning
+- **GPT-OSS 120B** — largest open-weight model hosted in T-Cloud Germany
+- **Qwen3-Next 80B** — long-context, reasoning
+- **Gemma 4** — new, preview
+- **Mistral Small 3** — European-developed
+- **BGE-M3** and **Jina Embeddings v2 Base DE** — embeddings for multilingual and German-language RAG
+- **Whisper Large v3** — speech-to-text
+
+EU-hosted models (GPT-5.2, Claude 4.6, Gemini 3 Pro and others) are available on request. Full AIFS model list: [docs.llmhub.t-systems.net/getting-started/models](https://docs.llmhub.t-systems.net/getting-started/models/).
+
+---
+
 <LinkCard title="Open SmartChat (Full Version with Account)" href="https://smartchat.ai.t-systems.net" description="Dedicated SmartChat account with multi-tenancy, admin panel, and full RAG capabilities." />
+<LinkCard title="Try SmartChat (API Key Only)" href="https://public.oweb-chat.llmhub.t-systems.net/" description="Already have an AI Foundation Services API key? Start chatting right away." />
 <LinkCard title="SmartChat Documentation" href="https://docs.smartchat.ai.t-systems.net" description="In-depth documentation, user guides, and API reference." />

@@ -5,7 +5,7 @@ description: "T-Systems SmartChat — ein souveräner Managed Service für KI-ge
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-SmartChat ist ein souveräner Managed Service für KI-gestütztes Wissensmanagement — mit KI-Chat auf Basis Ihrer Dokumente, Deep Research sowie Daten- und Tool-Integrationen. Basierend auf T-Systems AI Foundation Services und betrieben auf T-Cloud, bietet es **DSGVO**-, **BSI-C5**- und **ISO 27017/27018**-Konformität, Audit-Logging, rollenbasierte Zugriffskontrolle und ein SLA als festen Bestandteil des Produkts — anstatt das Ihrem Team zu überlassen.
+SmartChat ist ein souveräner Managed Service für KI-gestütztes Wissensmanagement — mit KI-Chat auf Basis Ihrer Dokumente, Deep Research sowie Daten- und Tool-Integrationen. Basierend auf T-Systems AI Foundation Services und betrieben auf T-Cloud, das nach BSI-C5 sowie ISO 27017/27018 zertifiziert ist, bietet es **DSGVO**-Konformität, Audit-Logging, rollenbasierte Zugriffskontrolle und ein vertraglich zugesichertes Service Level als festen Bestandteil des Produkts — anstatt das Ihrem Team zu überlassen.
 
 In der Praxis ist SmartChat die richtige Wahl, wenn die Chat-Oberfläche der einfache Teil ist und die eigentliche Herausforderung darin besteht, sie sicher für regulierte Umgebungen zu betreiben: **Gesundheitswesen**, **öffentlicher Sektor**, **Finanzwesen** oder jeder Kontext, in dem Datenresidenz, Berufsgeheimnis und betriebliche Verantwortlichkeit am wichtigsten sind.
 
@@ -14,10 +14,10 @@ In der Praxis ist SmartChat die richtige Wahl, wenn die Chat-Oberfläche der ein
 - **End-to-End-Hosting** — Vollständig verwaltete Dokumenten-Wissensbasen ohne eigene Infrastruktur
 - **Enterprise RAG** — Dokumente hochladen und per UI oder API abfragen, mit über 50 Retrieval-Einstellungen
 - **Multi-Tenancy** — Isolierte Spaces mit strikter Datentrennung für verschiedene Vertraulichkeitsstufen und Organisationsgrenzen
-- **Compliance** — **DSGVO**-, **BSI-C5**- und **ISO 27017/27018**-zertifiziert, mit Audit-Logging — entwickelt für regulierte Umgebungen im **Gesundheitswesen**, **öffentlichen Sektor** und **Finanzwesen**
+- **Compliance** — DSGVO-konform, betrieben auf T-Cloud-Infrastruktur, die nach BSI-C5 sowie ISO 27017/27018 zertifiziert ist ([T-Cloud-Zertifikate](https://www.t-systems.com/de/de/cloud-services/public-cloud/zertifikate-public-cloud)). Umfasst Audit-Logging und rollenbasierte Zugriffskontrolle auf Produktebene
 - **Enterprise Security** — OWASP Top 10 gehärtet, penetrationsgetestet durch Deutsche Telekom Sicherheitsexperten, mit Enterprise-SSO und rollenbasierter Zugriffskontrolle
 - **Vollständig souverän** — Durchgängig europäisch — die Anwendung, die Cloud, die LLMs und die Infrastruktur werden alle von T-Systems in Deutschland betrieben
-- **Operativer Support** — Dedizierter Support während der Geschäftszeiten (Mo–Fr, 9:00–17:00 MEZ/MESZ) mit SLA
+- **Operativer Support** — Bereitgestellt durch T-Systems mit vertraglich vereinbartem Service Level und Servicezeiten
 - **Planbare Preise** — Monatliche Pauschalgebühren
 
 ## Erste Schritte
@@ -31,6 +31,22 @@ Um SmartChat zu nutzen, kontaktieren Sie das AIFS-Team unter **[ai@t-systems.com
 
 ---
 
-<LinkCard title="SmartChat testen (nur API-Key)" href="https://public.oweb-chat.llmhub.t-systems.net/" description="Sie haben bereits einen AI Foundation Services API-Key? Sofort loslegen." />
+### Verfügbare Modelle
+
+SmartChat wird von T-Systems mit einer kuratierten Modellauswahl aus den **AI Foundation Services** betrieben. Modelle, die vollständig in T-Cloud Germany laufen, umfassen u.a.:
+
+- **Llama 3.3 70B** — allgemeines Chat- und Reasoning-Modell
+- **GPT-OSS 120B** — größtes in T-Cloud Germany gehostetes Open-Weight-Modell
+- **Qwen3-Next 80B** — Long-Context, Reasoning
+- **Gemma 4** — neu, Preview
+- **Mistral Small 3** — europäisch entwickelt
+- **BGE-M3** und **Jina Embeddings v2 Base DE** — Embeddings für mehrsprachiges bzw. deutschsprachiges RAG
+- **Whisper Large v3** — Sprache-zu-Text
+
+Optional EU-gehostete Modelle (u.a. GPT-5.2, Claude 4.6, Gemini 3 Pro) sind je nach Vereinbarung verfügbar. Vollständige AIFS-Modellliste: [docs.llmhub.t-systems.net/getting-started/models](https://docs.llmhub.t-systems.net/getting-started/models/).
+
+---
+
 <LinkCard title="SmartChat öffnen (Vollversion mit Account)" href="https://smartchat.ai.t-systems.net" description="Dedizierter SmartChat-Account mit Multi-Tenancy, Admin-Panel und vollständigen RAG-Funktionen." />
+<LinkCard title="SmartChat testen (nur API-Key)" href="https://public.oweb-chat.llmhub.t-systems.net/" description="Sie haben bereits einen AI Foundation Services API-Key? Sofort loslegen." />
 <LinkCard title="SmartChat-Dokumentation" href="https://docs.smartchat.ai.t-systems.net" description="Ausführliche Dokumentation, Benutzerhandbücher und API-Referenz." />
