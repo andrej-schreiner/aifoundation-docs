@@ -1,0 +1,100 @@
+---
+title: "GPT-5 Codex"
+description: "GPT-5 Codex hosted on AI Foundation Services. OpenAI coding LLM (Azure Sweden)."
+sidebar:
+  label: "GPT-5 Codex"
+modelId: "gpt-5-codex"
+---
+
+{/* TODO: one-paragraph summary of what the model is and what it's good for. */}
+
+## Central parameters
+
+| Capability | Rating |
+|---|---|
+| Intelligence | TODO |
+| Speed | TODO |
+| Sovereignty | **Medium** |
+
+| Field | Value |
+|---|---|
+| Model identifier | `gpt-5-codex` |
+| Context window | 400K |
+| Parameters | TODO |
+| Quantization | TODO |
+| Multilingual | TODO |
+
+## Lifecycle & alternatives
+
+- **Stage:** Stable
+- **Added to AI Foundation Services:** TODO
+- **Scheduled retirement:** None
+- **Suggested alternative if retired:** N/A
+
+## Origin
+
+- **Provider:** TODO
+- **Country of origin:** TODO
+- **Base model release:** TODO
+- **License:** [Terms of use](https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure/MCA#ServiceSpecificTerms)
+
+## T-Systems hosting & data handling
+
+- **Hosting provider:** Azure
+- **Server location:** Sweden
+- **Data processing:** EU
+- **Data handling category:** Proprietary model forwarded to the upstream provider (Microsoft Azure or Google Cloud), who may use sub-processors. Selecting this model accepts the third-party provider's terms.
+- **Customer data is never used for training.**
+
+See [Enterprise Trust](/reference/enterprise-trust) for the full data-handling model.
+
+## Modalities
+
+- Input: TODO
+- Output: TODO
+
+## Endpoints
+
+- `POST /chat/completions`
+
+## Features
+
+- Streaming: TODO
+- Tool / function calling: TODO
+- Reasoning: TODO
+- Structured outputs: TODO
+- Asynchronous requests: TODO
+
+## Pricing
+
+- Input: €1.10 / million tokens
+- Output: €8.70 / million tokens
+- Available in plans: Essential, Professional, Agentic
+
+See [Plans & Pricing](/plans) for full context.
+
+## Usage example
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-5-codex",
+    messages=[{"role": "user", "content": "Hello!"}],
+)
+print(response.choices[0].message.content)
+```
+
+## Rate limits
+
+- Requests per minute: 3000
+- Input tokens per minute: 3,000,000
+- Output tokens per minute: 2,000,000
+- Limits are scoped per contract.
+
+See [Rate Limits](/reference/rate-limits) for the full breakdown.
+
+## Version history
+
+- TODO
