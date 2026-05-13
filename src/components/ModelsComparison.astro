@@ -794,6 +794,19 @@ const rowDataPayload = allModels.map((m) => ({
     root.addEventListener('change', (evt) => {
       const target = evt.target as HTMLElement | null;
       if (target && target instanceof HTMLInputElement && target.type === 'checkbox') {
+        // If the user just unchecked the last option in a filter, auto-revert
+        // that filter to "All" (every option checked). Prevents the table
+        // collapsing to zero rows from an accidentally-empty selection.
+        const filterDetails = target.closest('.mc-filter') as HTMLElement | null;
+        if (filterDetails) {
+          const all = filterDetails.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+          const anyChecked = Array.from(all).some((input) => input.checked);
+          if (!anyChecked) {
+            all.forEach((input) => {
+              input.checked = true;
+            });
+          }
+        }
         apply();
       }
     });
