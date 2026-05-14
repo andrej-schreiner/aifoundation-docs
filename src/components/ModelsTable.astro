@@ -258,7 +258,10 @@ const priceBuckets = [
     const totalCountEl = section.querySelector<HTMLElement>('[data-total-count]');
     const maxHeightRowThreshold = 12;
 
-    let sortKey = '';
+    // Default sort: cloudProvider with custom rank (Telekom > Azure > GCP),
+    // ascending — i.e. Telekom rows at the top. Replaces the old
+    // Telekom-only filter default.
+    let sortKey = 'cloudProvider';
     let sortAsc = true;
     let searchTerm = '';
 
@@ -342,23 +345,21 @@ const priceBuckets = [
       // Decide which values should be checked:
       //  - If we previously had no constraint (all checked), keep no constraint.
       //  - If we have a narrowed prev state with overlap, preserve it.
-      //  - Otherwise: cloud defaults to Telekom-only (mirror comparison page);
-      //    every other filter defaults to all-checked (no constraint).
+      //  - Otherwise: default to all-checked (no constraint). Telekom-first
+      //    positioning is achieved via the default sort (sortKey =
+      //    'cloudProvider') rather than a filter.
       const prev = filterStatePrev.get(filterId);
       let checkedFn: (v: string) => boolean;
       if (prev?.wasAllChecked) {
         checkedFn = () => true;
       } else if (prev && values.some((v) => prev.checked.has(v))) {
         checkedFn = (v) => prev.checked.has(v);
-      } else if (filterId === 'cloud') {
-        checkedFn = (v) => v === 'Telekom';
       } else {
         checkedFn = () => true;
       }
 
-      // If after applying checkedFn nothing is checked (e.g. cloud-only-Telekom
-      // but no Telekom in this plan), fall back to all-checked so we don't
-      // start in a zero-row state.
+      // If after applying checkedFn nothing is checked, fall back to
+      // all-checked so we don't start in a zero-row state.
       if (!values.some((v) => checkedFn(v))) {
         checkedFn = () => true;
       }
@@ -565,6 +566,21 @@ const priceBuckets = [
 
       if (sortKey) {
         models.sort((left, right) => {
+          // Cloud column uses a fixed priority order (Telekom > Azure > GCP >
+          // others) instead of alphabetical, so "sort by cloud" produces the
+          // product's flagship ordering rather than A → Z. Secondary sort by
+          // displayName keeps ties stable and readable.
+          if (sortKey === 'cloudProvider') {
+            const RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2 };
+            const lr = RANK[normalizeCloudProvider(left.cloudProvider)] ?? 99;
+            const rr = RANK[normalizeCloudProvider(right.cloudProvider)] ?? 99;
+            if (lr !== rr) return sortAsc ? lr - rr : rr - lr;
+            const lname = (left.displayName || '').toLowerCase();
+            const rname = (right.displayName || '').toLowerCase();
+            if (lname < rname) return -1;
+            if (lname > rname) return 1;
+            return 0;
+          }
           let leftValue = left[sortKey];
           let rightValue = right[sortKey];
           if (typeof leftValue === 'number' && typeof rightValue === 'number') {

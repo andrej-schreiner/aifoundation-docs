@@ -334,9 +334,17 @@ for (const m of byName.values()) {
   m.plans.sort((a, b) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99));
 }
 
+// Default order: Telekom-first by cloud priority, then alphabetical by
+// display name. Client-side sort (column-header clicks) can override.
+const CLOUD_RANK: Record<CloudKey, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+
 const allModels = [...byName.values()]
   .filter((m) => (categoryFilter ? m.category === categoryFilter : true))
-  .sort((a, b) => a.displayModelName.localeCompare(b.displayModelName));
+  .sort((a, b) => {
+    const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
+    if (rankDiff !== 0) return rankDiff;
+    return a.displayModelName.localeCompare(b.displayModelName);
+  });
 
 // ---------------- Translations & formatters ----------------
 
@@ -430,13 +438,7 @@ const filterChips: FilterChip[] = [
         optionLabel: (v: string) => CATEGORY_LABELS[v as Category],
       }]),
   { id: 'provider', label: t.colProvider, values: uniqueProviders, optionLabel: (v) => v },
-  {
-    id: 'cloud',
-    label: t.colCloud,
-    values: uniqueClouds,
-    optionLabel: (v) => v,
-    defaultChecked: (v) => v === 'Telekom',
-  },
+  { id: 'cloud', label: t.colCloud, values: uniqueClouds, optionLabel: (v) => v },
   { id: 'input', label: t.colInput, values: uniqueInputs, optionLabel: (v) => MODALITY_LABELS[v as InputModality] },
   { id: 'output', label: t.colOutput, values: uniqueOutputs, optionLabel: (v) => MODALITY_LABELS[v as OutputModality] },
   { id: 'streaming', label: t.colStreaming, values: ['true', 'false'], optionLabel: boolToTick },
@@ -446,9 +448,22 @@ const filterChips: FilterChip[] = [
 
 // Build the row-data payload consumed by the client script. We render the
 // table SSR (so non-JS users see all rows); the script only toggles row
-// visibility based on filter state, so we don't ship full HTML twice.
+// visibility based on filter state and re-orders rows for sort, so we don't
+// ship full HTML twice.
+function parseContextWindow(raw: string): number {
+  const match = (raw ?? '').match(/^([\d.,]+)\s*([KMkm])?/);
+  if (!match) return Number.NaN;
+  const num = parseFloat(match[1].replace(/,/g, ''));
+  if (!Number.isFinite(num)) return Number.NaN;
+  const suffix = (match[2] ?? '').toLowerCase();
+  if (suffix === 'k') return num * 1_000;
+  if (suffix === 'm') return num * 1_000_000;
+  return num;
+}
+
 const rowDataPayload = allModels.map((m) => ({
   key: m.exactModelName,
+  displayModelName: m.displayModelName,
   category: m.category,
   provider: m.capabilities.creator,
   cloud: m.cloud,
@@ -456,14 +471,17 @@ const rowDataPayload = allModels.map((m) => ({
   outputs: m.capabilities.outputModalities,
   streaming: m.capabilities.streaming,
   toolCalling: m.capabilities.toolCalling,
+  contextWindowRaw: m.contextWindow,
+  contextWindowNum: parseContextWindow(m.contextWindow),
+  inputPrice: m.inputPricePerMillionTokens,
+  outputPrice: m.outputPricePerMillionTokens,
   plans: m.plans,
 }));
 ---
 
 <div
   class="models-comparison"
-  data-rows={JSON.stringify(rowDataPayload)}
-  data-default-cloud="Telekom">
+  data-rows={JSON.stringify(rowDataPayload)}>
   <div class="models-comparison__filterbar" role="group" aria-label={t.heading}>
     {filterChips.map((chip) => (
       <details class="mc-filter" data-filter={chip.id}>
@@ -499,18 +517,29 @@ const rowDataPayload = allModels.map((m) => ({
     <table class="models-comparison-table">
       <thead>
         <tr>
-          <th>{t.colModel}</th>
-          {!categoryFilter && <th>{t.colCategory}</th>}
-          <th>{t.colProvider}</th>
-          <th>{t.colCloud}</th>
-          <th>{t.colInput}</th>
-          <th>{t.colOutput}</th>
-          <th class="center">{t.colStreaming}</th>
-          <th class="center">{t.colTools}</th>
-          <th>{t.colContext}</th>
-          <th class="num">{t.colInputPrice}</th>
-          <th class="num">{t.colOutputPrice}</th>
-          <th>{t.colPlans}</th>
+          {[
+            { key: 'model', label: t.colModel, cls: '' },
+            ...(!categoryFilter ? [{ key: 'category', label: t.colCategory, cls: '' }] : []),
+            { key: 'provider', label: t.colProvider, cls: '' },
+            { key: 'cloud', label: t.colCloud, cls: '' },
+            { key: 'input', label: t.colInput, cls: '' },
+            { key: 'output', label: t.colOutput, cls: '' },
+            { key: 'streaming', label: t.colStreaming, cls: 'center' },
+            { key: 'tools', label: t.colTools, cls: 'center' },
+            { key: 'context', label: t.colContext, cls: '' },
+            { key: 'inputPrice', label: t.colInputPrice, cls: 'num' },
+            { key: 'outputPrice', label: t.colOutputPrice, cls: 'num' },
+            { key: 'plans', label: t.colPlans, cls: '' },
+          ].map((h) => (
+            <th data-sort={h.key} class={h.cls}>
+              <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
+                <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
+                  <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
+                </svg>
+                <span>{h.label}</span>
+              </button>
+            </th>
+          ))}
         </tr>
       </thead>
       <tbody>
@@ -568,6 +597,7 @@ const rowDataPayload = allModels.map((m) => ({
 <script>
   type RowData = {
     key: string;
+    displayModelName: string;
     category: string;
     provider: string;
     cloud: string;
@@ -575,6 +605,10 @@ const rowDataPayload = allModels.map((m) => ({
     outputs: string[];
     streaming: boolean;
     toolCalling: boolean;
+    contextWindowRaw: string;
+    contextWindowNum: number;
+    inputPrice: number;
+    outputPrice: number;
     plans: string[];
   };
 
@@ -584,6 +618,7 @@ const rowDataPayload = allModels.map((m) => ({
 
     const rows: RowData[] = JSON.parse(root.dataset.rows || '[]');
     const tableRowsByKey = new Map<string, HTMLTableRowElement>();
+    const tbody = root.querySelector<HTMLTableSectionElement>('tbody');
     root.querySelectorAll<HTMLTableRowElement>('tbody tr[data-key]').forEach((tr) => {
       const key = tr.dataset.key;
       if (key) tableRowsByKey.set(key, tr);
@@ -593,6 +628,13 @@ const rowDataPayload = allModels.map((m) => ({
     const visibleCountEl = root.querySelector<HTMLElement>('[data-visible-count]');
     const totalCountEl = root.querySelector<HTMLElement>('[data-total-count]');
     if (totalCountEl) totalCountEl.textContent = String(rows.length);
+
+    // Sort state. Default: cloud (Telekom-first via custom rank). SSR-render
+    // is already in this order so the first paint matches; subsequent sorts
+    // reorder the rows in-place.
+    let sortKey = 'cloud';
+    let sortAsc = true;
+    const CLOUD_RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
 
     const filterDefs: Array<{ id: string; type: 'single' | 'multi' | 'bool'; field: keyof RowData }> = [
       { id: 'category', type: 'single', field: 'category' },
@@ -683,10 +725,119 @@ const rowDataPayload = allModels.map((m) => ({
       }
     }
 
+    function compareRows(a: RowData, b: RowData): number {
+      let av: number | string;
+      let bv: number | string;
+      switch (sortKey) {
+        case 'model':
+          av = a.displayModelName.toLowerCase();
+          bv = b.displayModelName.toLowerCase();
+          break;
+        case 'category':
+          av = a.category.toLowerCase();
+          bv = b.category.toLowerCase();
+          break;
+        case 'provider':
+          av = a.provider.toLowerCase();
+          bv = b.provider.toLowerCase();
+          break;
+        case 'cloud': {
+          const ar = CLOUD_RANK[a.cloud] ?? 99;
+          const br = CLOUD_RANK[b.cloud] ?? 99;
+          if (ar !== br) return sortAsc ? ar - br : br - ar;
+          av = a.displayModelName.toLowerCase();
+          bv = b.displayModelName.toLowerCase();
+          break;
+        }
+        case 'input':
+          av = a.inputs.join(',').toLowerCase();
+          bv = b.inputs.join(',').toLowerCase();
+          break;
+        case 'output':
+          av = a.outputs.join(',').toLowerCase();
+          bv = b.outputs.join(',').toLowerCase();
+          break;
+        case 'streaming':
+          // true sorts before false in asc — flip boolean to numeric so the
+          // generic numeric comparator below does the right thing.
+          av = a.streaming ? 0 : 1;
+          bv = b.streaming ? 0 : 1;
+          break;
+        case 'tools':
+          av = a.toolCalling ? 0 : 1;
+          bv = b.toolCalling ? 0 : 1;
+          break;
+        case 'context': {
+          const an = a.contextWindowNum;
+          const bn = b.contextWindowNum;
+          const aValid = Number.isFinite(an);
+          const bValid = Number.isFinite(bn);
+          if (aValid && bValid) {
+            av = an;
+            bv = bn;
+          } else if (aValid) {
+            return -1;
+          } else if (bValid) {
+            return 1;
+          } else {
+            av = a.contextWindowRaw.toLowerCase();
+            bv = b.contextWindowRaw.toLowerCase();
+          }
+          break;
+        }
+        case 'inputPrice':
+          av = a.inputPrice;
+          bv = b.inputPrice;
+          break;
+        case 'outputPrice':
+          av = a.outputPrice;
+          bv = b.outputPrice;
+          break;
+        case 'plans':
+          av = a.plans.length;
+          bv = b.plans.length;
+          break;
+        default:
+          av = a.displayModelName.toLowerCase();
+          bv = b.displayModelName.toLowerCase();
+      }
+      if (typeof av === 'number' && typeof bv === 'number') {
+        return sortAsc ? av - bv : bv - av;
+      }
+      const as = String(av);
+      const bs = String(bv);
+      if (as < bs) return sortAsc ? -1 : 1;
+      if (as > bs) return sortAsc ? 1 : -1;
+      return 0;
+    }
+
+    function updateSortIndicators() {
+      root.querySelectorAll<HTMLElement>('th[data-sort]').forEach((th) => {
+        const icon = th.querySelector<SVGElement>('.mc-sort-icon');
+        const isActive = th.dataset.sort === sortKey;
+        th.classList.toggle('mc-sort-active', isActive);
+        if (icon) {
+          icon.classList.toggle('mc-sort-icon--active', isActive);
+          icon.classList.toggle('mc-sort-icon--asc', isActive && sortAsc);
+          icon.classList.toggle('mc-sort-icon--desc', isActive && !sortAsc);
+        }
+      });
+    }
+
     function apply() {
       const state = readState();
+      // Sort the row list, then re-append matching <tr>s to <tbody> in the
+      // new order. Skips the no-results row, which stays at the end.
+      const ordered = [...rows].sort(compareRows);
+      if (tbody) {
+        for (const row of ordered) {
+          const tr = tableRowsByKey.get(row.key);
+          if (tr) tbody.appendChild(tr);
+        }
+        if (noResultsRow) tbody.appendChild(noResultsRow);
+      }
       let visible = 0;
-      for (const row of rows) {
+      for (const row of ordered) {
         const tr = tableRowsByKey.get(row.key);
         if (!tr) continue;
         const passes = rowPasses(row, state);
@@ -696,12 +847,13 @@ const rowDataPayload = allModels.map((m) => ({
       if (visibleCountEl) visibleCountEl.textContent = String(visible);
       if (noResultsRow) noResultsRow.hidden = visible > 0;
       updateCounts();
+      updateSortIndicators();
     }
 
     // "Reset filters" means "remove all filters" — every option in every
     // column gets checked, so no constraint is applied and the table shows
-    // the full set. Note this is intentionally different from the initial
-    // page load, which uses the curated Telekom-only Cloud default.
+    // the full set. The initial page load also has every option checked
+    // (Telekom-first ordering is achieved via sort, not filter).
     function reset() {
       for (const def of filterDefs) {
         const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
@@ -736,6 +888,26 @@ const rowDataPayload = allModels.map((m) => ({
     const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
     if (resetBtn) {
       resetBtn.addEventListener('click', () => reset());
+    }
+
+    // Column-header click-to-sort. Delegated on <thead> so we don't bind
+    // one handler per <th>. Clicking the active key flips direction; a new
+    // key starts ascending.
+    const thead = root.querySelector<HTMLElement>('thead');
+    if (thead) {
+      thead.addEventListener('click', (evt) => {
+        const target = evt.target as HTMLElement | null;
+        const th = target?.closest('th[data-sort]') as HTMLElement | null;
+        if (!th) return;
+        const key = th.dataset.sort;
+        if (!key) return;
+        if (sortKey === key) sortAsc = !sortAsc;
+        else {
+          sortKey = key;
+          sortAsc = true;
+        }
+        apply();
+      });
     }
 
     // Cloud tag in a row toggles its value in the Cloud filter. Click an
@@ -1075,6 +1247,60 @@ const rowDataPayload = allModels.map((m) => ({
 
   :root[data-theme='dark'] .models-comparison .tag-plan-agentic {
     color: #bbf7d0;
+  }
+
+  /* Column-header click-to-sort. Mirrors the plans-table .sort-* pattern but
+     scoped with .mc- prefixes so the two components stay independent. */
+  .mc-sort-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    font-weight: 600;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .mc-sort-header:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .mc-sort-icon {
+    width: 0.5rem;
+    height: 0.36rem;
+    flex: 0 0 auto;
+    opacity: 0.4;
+    transform: rotate(0deg);
+    transition:
+      transform 160ms ease,
+      opacity 160ms ease;
+    color: currentColor;
+  }
+
+  .mc-sort-icon path {
+    fill: currentColor;
+  }
+
+  .mc-sort-icon--active {
+    opacity: 1;
+  }
+
+  .mc-sort-icon--asc {
+    transform: rotate(180deg);
+  }
+
+  .mc-sort-icon--desc {
+    transform: rotate(0deg);
+  }
+
+  .models-comparison-table th.mc-sort-active .mc-sort-header {
+    color: var(--sl-color-text-accent);
   }
 </style>
 </content>
