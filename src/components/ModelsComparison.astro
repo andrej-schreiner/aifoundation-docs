@@ -24,7 +24,8 @@ const OFFLINE_MODELS = new Set([
   'text-embedding-ada-002',
 ]);
 
-// Category mapping by exactModelName (duplicated from scripts/generate-model-cards.ts).
+// Category mapping by exactModelName. Unknown models default to 'llms'
+// (see resolveCategory below).
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
 const CATEGORY_MAP: Record<string, Category> = {
   // LLMs
@@ -131,49 +132,10 @@ function llmDefault(exactModelName: string): Capabilities {
   };
 }
 
-// Seed one entry per exactModelName in the pricing JSON.
+// Per-model capability overrides. Only carry entries that DEVIATE from the
+// category defaults in categoryDefault(): LLMs and Coding fall through to
+// the default (Text→Text, streaming + tools, creator inferred from name).
 const MODEL_CAPABILITIES: Record<string, Capabilities> = {
-  // LLMs (Text → Text, streaming + tools)
-  'Llama-3.3-70B-Instruct': llmDefault('Llama-3.3-70B-Instruct'),
-  'Mistral-Small-3': llmDefault('Mistral-Small-3'),
-  'Qwen3-Next-80B-A3B-Instruct': llmDefault('Qwen3-Next-80B-A3B-Instruct'),
-  'claude-3-7-sonnet': llmDefault('claude-3-7-sonnet'),
-  'claude-haiku-4.5': llmDefault('claude-haiku-4.5'),
-  'claude-opus-4.5': llmDefault('claude-opus-4.5'),
-  'claude-opus-4.6': llmDefault('claude-opus-4.6'),
-  'claude-sonnet-4': llmDefault('claude-sonnet-4'),
-  'claude-sonnet-4.5': llmDefault('claude-sonnet-4.5'),
-  'claude-sonnet-4.5-long-context': llmDefault('claude-sonnet-4.5-long-context'),
-  'claude-sonnet-4.6': llmDefault('claude-sonnet-4.6'),
-  'gemini-2.5-flash': llmDefault('gemini-2.5-flash'),
-  'gemini-2.5-pro': llmDefault('gemini-2.5-pro'),
-  'gemini-2.5-pro-long-context': llmDefault('gemini-2.5-pro-long-context'),
-  'gemini-3-flash': llmDefault('gemini-3-flash'),
-  'gemini-3-pro': llmDefault('gemini-3-pro'),
-  'gemini-3-pro-long-context': llmDefault('gemini-3-pro-long-context'),
-  'gemma-4-31B': llmDefault('gemma-4-31B'),
-  'gpt-4.1-2025-04-14': llmDefault('gpt-4.1-2025-04-14'),
-  'gpt-4.1-mini-2025-04-14': llmDefault('gpt-4.1-mini-2025-04-14'),
-  'gpt-4.1-nano-2025-04-14': llmDefault('gpt-4.1-nano-2025-04-14'),
-  'gpt-4o-2024-11-20': llmDefault('gpt-4o-2024-11-20'),
-  'gpt-4o-mini-2024-07-18': llmDefault('gpt-4o-mini-2024-07-18'),
-  'gpt-5': llmDefault('gpt-5'),
-  'gpt-5-mini': llmDefault('gpt-5-mini'),
-  'gpt-5-nano': llmDefault('gpt-5-nano'),
-  'gpt-5.2': llmDefault('gpt-5.2'),
-  'gpt-oss-120b': llmDefault('gpt-oss-120b'),
-  'mistral-medium-3': llmDefault('mistral-medium-3'),
-  'o1-2024-12-17': llmDefault('o1-2024-12-17'),
-  'o1-mini-2024-09-12': llmDefault('o1-mini-2024-09-12'),
-  'o3-2025-04-16': llmDefault('o3-2025-04-16'),
-  'o3-mini-2025-01-31': llmDefault('o3-mini-2025-01-31'),
-  'o4-mini-2025-04-16': llmDefault('o4-mini-2025-04-16'),
-
-  // Coding (same defaults as LLMs)
-  'Qwen3-Coder-30B-A3B-Instruct': llmDefault('Qwen3-Coder-30B-A3B-Instruct'),
-  'Qwen3-Coder-30B-A3B-Instruct-FP8': llmDefault('Qwen3-Coder-30B-A3B-Instruct-FP8'),
-  'gpt-5-codex': llmDefault('gpt-5-codex'),
-
   // Vision (Text + Image → Text)
   'Qwen3-VL-30B-A3B-Instruct-FP8': {
     creator: 'Alibaba Cloud',
@@ -288,12 +250,7 @@ function categoryDefault(exactModelName: string, category: Category): Capabiliti
 }
 
 function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
-  const direct = MODEL_CAPABILITIES[exactModelName];
-  if (direct) return direct;
-  console.warn(
-    `[ModelsComparison] No MODEL_CAPABILITIES entry for "${exactModelName}" (category=${category}); falling back to category defaults.`,
-  );
-  return categoryDefault(exactModelName, category);
+  return MODEL_CAPABILITIES[exactModelName] ?? categoryDefault(exactModelName, category);
 }
 
 // ---------------- Cloud (replaces Sovereignty) ----------------
@@ -317,7 +274,6 @@ function cloudFullName(cloud: CloudKey): string {
       return 'Microsoft Azure';
     case 'GCP':
       return 'Google Cloud Platform';
-    case 'Other':
     default:
       return 'Other';
   }
@@ -408,15 +364,15 @@ const t = {
 
 const CATEGORY_LABELS: Record<Category, string> = {
   llms: 'LLM',
-  coding: isDE ? 'Coding' : 'Coding',
+  coding: 'Coding',
   vision: 'Vision',
-  embeddings: isDE ? 'Embedding' : 'Embedding',
+  embeddings: 'Embedding',
   audio: 'Audio',
   'image-generation': isDE ? 'Bildgenerierung' : 'Image Generation',
 };
 
 const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
-  Text: isDE ? 'Text' : 'Text',
+  Text: 'Text',
   Image: isDE ? 'Bild' : 'Image',
   Audio: 'Audio',
   Vector: isDE ? 'Vektor' : 'Vector',
@@ -437,20 +393,56 @@ function planTagClass(plan: string): string {
 
 // ---------------- Filter values (unique sets) ----------------
 
+// Unique-value sets per filter, pruned to only what's actually in the current row set.
 const uniqueCategories = [...new Set(allModels.map((m) => m.category))];
 const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
-const uniqueClouds: CloudKey[] = ['Telekom', 'Azure', 'GCP', 'Other'].filter((c) =>
+const uniqueClouds = (['Telekom', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
   allModels.some((m) => m.cloud === c),
-) as CloudKey[];
-const uniqueInputs: InputModality[] = ['Text', 'Image', 'Audio'].filter((mod) =>
-  allModels.some((m) => m.capabilities.inputModalities.includes(mod as InputModality)),
-) as InputModality[];
-const uniqueOutputs: OutputModality[] = ['Text', 'Image', 'Audio', 'Vector'].filter((mod) =>
-  allModels.some((m) => m.capabilities.outputModalities.includes(mod as OutputModality)),
-) as OutputModality[];
+);
+const uniqueInputs = (['Text', 'Image', 'Audio'] as InputModality[]).filter((mod) =>
+  allModels.some((m) => m.capabilities.inputModalities.includes(mod)),
+);
+const uniqueOutputs = (['Text', 'Image', 'Audio', 'Vector'] as OutputModality[]).filter((mod) =>
+  allModels.some((m) => m.capabilities.outputModalities.includes(mod)),
+);
 const uniquePlans = ['Essential', 'Professional', 'Agentic', 'Test'].filter((p) =>
   allModels.some((m) => m.plans.includes(p)),
 );
+
+// Filter chips, declared once. Adding a filter = one entry here + one entry in
+// the runtime filterDefs (in the <script> below). The SSR template loops over
+// this array rather than copy-pasting eight near-identical <details> blocks.
+interface FilterChip {
+  id: string;
+  label: string;
+  values: readonly string[];
+  optionLabel: (v: string) => string;
+  defaultChecked?: (v: string) => boolean;
+}
+const boolToTick = (v: string) => (v === 'true' ? '✓' : '—');
+const filterChips: FilterChip[] = [
+  ...(categoryFilter
+    ? []
+    : [{
+        id: 'category',
+        label: t.colCategory,
+        values: uniqueCategories,
+        optionLabel: (v: string) => CATEGORY_LABELS[v as Category],
+      }]),
+  { id: 'provider', label: t.colProvider, values: uniqueProviders, optionLabel: (v) => v },
+  {
+    id: 'cloud',
+    label: t.colCloud,
+    values: uniqueClouds,
+    optionLabel: (v) => v,
+    defaultChecked: (v) => v === 'Telekom',
+  },
+  { id: 'input', label: t.colInput, values: uniqueInputs, optionLabel: (v) => MODALITY_LABELS[v as InputModality] },
+  { id: 'output', label: t.colOutput, values: uniqueOutputs, optionLabel: (v) => MODALITY_LABELS[v as OutputModality] },
+  { id: 'streaming', label: t.colStreaming, values: ['true', 'false'], optionLabel: boolToTick },
+  { id: 'tools', label: t.colTools, values: ['true', 'false'], optionLabel: boolToTick },
+  { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => v },
+];
 
 // Build the row-data payload consumed by the client script. We render the
 // table SSR (so non-JS users see all rows); the script only toggles row
@@ -473,119 +465,26 @@ const rowDataPayload = allModels.map((m) => ({
   data-rows={JSON.stringify(rowDataPayload)}
   data-default-cloud="Telekom">
   <div class="models-comparison__filterbar" role="group" aria-label={t.heading}>
-    {!categoryFilter && (
-      <details class="mc-filter" data-filter="category">
+    {filterChips.map((chip) => (
+      <details class="mc-filter" data-filter={chip.id}>
         <summary>
-          <span class="mc-filter__label">{t.colCategory}</span>
+          <span class="mc-filter__label">{chip.label}</span>
           <span class="mc-filter__count" data-count></span>
         </summary>
         <div class="mc-filter__menu">
-          {uniqueCategories.map((c) => (
+          {chip.values.map((v) => (
             <label class="mc-filter__option">
-              <input type="checkbox" value={c} checked />
-              <span>{CATEGORY_LABELS[c]}</span>
+              <input
+                type="checkbox"
+                value={v}
+                checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
+              />
+              <span>{chip.optionLabel(v)}</span>
             </label>
           ))}
         </div>
       </details>
-    )}
-
-    <details class="mc-filter" data-filter="provider">
-      <summary>
-        <span class="mc-filter__label">{t.colProvider}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        {uniqueProviders.map((p) => (
-          <label class="mc-filter__option">
-            <input type="checkbox" value={p} checked />
-            <span>{p}</span>
-          </label>
-        ))}
-      </div>
-    </details>
-
-    <details class="mc-filter" data-filter="cloud">
-      <summary>
-        <span class="mc-filter__label">{t.colCloud}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        {uniqueClouds.map((c) => (
-          <label class="mc-filter__option">
-            <input type="checkbox" value={c} checked={c === 'Telekom'} />
-            <span>{c}</span>
-          </label>
-        ))}
-      </div>
-    </details>
-
-    <details class="mc-filter" data-filter="input">
-      <summary>
-        <span class="mc-filter__label">{t.colInput}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        {uniqueInputs.map((m) => (
-          <label class="mc-filter__option">
-            <input type="checkbox" value={m} checked />
-            <span>{MODALITY_LABELS[m]}</span>
-          </label>
-        ))}
-      </div>
-    </details>
-
-    <details class="mc-filter" data-filter="output">
-      <summary>
-        <span class="mc-filter__label">{t.colOutput}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        {uniqueOutputs.map((m) => (
-          <label class="mc-filter__option">
-            <input type="checkbox" value={m} checked />
-            <span>{MODALITY_LABELS[m]}</span>
-          </label>
-        ))}
-      </div>
-    </details>
-
-    <details class="mc-filter" data-filter="streaming">
-      <summary>
-        <span class="mc-filter__label">{t.colStreaming}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        <label class="mc-filter__option"><input type="checkbox" value="true" checked /><span>✓</span></label>
-        <label class="mc-filter__option"><input type="checkbox" value="false" checked /><span>—</span></label>
-      </div>
-    </details>
-
-    <details class="mc-filter" data-filter="tools">
-      <summary>
-        <span class="mc-filter__label">{t.colTools}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        <label class="mc-filter__option"><input type="checkbox" value="true" checked /><span>✓</span></label>
-        <label class="mc-filter__option"><input type="checkbox" value="false" checked /><span>—</span></label>
-      </div>
-    </details>
-
-    <details class="mc-filter" data-filter="plans">
-      <summary>
-        <span class="mc-filter__label">{t.colPlans}</span>
-        <span class="mc-filter__count" data-count></span>
-      </summary>
-      <div class="mc-filter__menu">
-        {uniquePlans.map((p) => (
-          <label class="mc-filter__option">
-            <input type="checkbox" value={p} checked />
-            <span>{p}</span>
-          </label>
-        ))}
-      </div>
-    </details>
+    ))}
 
     <button type="button" class="mc-reset" data-reset>{t.reset}</button>
   </div>
