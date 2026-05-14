@@ -121,136 +121,34 @@ function inferCreator(exactModelName: string): Creator {
   return 'Other';
 }
 
-// LLM defaults: Text→Text, streaming, tool-calling.
-function llmDefault(exactModelName: string): Capabilities {
-  return {
-    creator: inferCreator(exactModelName),
-    inputModalities: ['Text'],
-    outputModalities: ['Text'],
-    streaming: true,
-    toolCalling: true,
-  };
-}
-
-// Per-model capability overrides. Only carry entries that DEVIATE from the
-// category defaults in categoryDefault(): LLMs and Coding fall through to
-// the default (Text→Text, streaming + tools, creator inferred from name).
-const MODEL_CAPABILITIES: Record<string, Capabilities> = {
-  // Vision (Text + Image → Text)
-  'Qwen3-VL-30B-A3B-Instruct-FP8': {
-    creator: 'Alibaba Cloud',
-    inputModalities: ['Text', 'Image'],
-    outputModalities: ['Text'],
-    streaming: true,
-    toolCalling: true,
-  },
-  'gemini-2.5-flash-image': {
-    creator: 'Google',
-    inputModalities: ['Text', 'Image'],
-    outputModalities: ['Text'],
-    streaming: true,
-    toolCalling: true,
-  },
-
-  // Embeddings (Text → Vector, no streaming / no tools)
-  'jina-embeddings-v2-base-de': {
-    creator: 'Other',
-    inputModalities: ['Text'],
-    outputModalities: ['Vector'],
-    streaming: false,
-    toolCalling: false,
-  },
-  'text-embedding-ada-002': {
-    creator: 'OpenAI',
-    inputModalities: ['Text'],
-    outputModalities: ['Vector'],
-    streaming: false,
-    toolCalling: false,
-  },
-  'text-embedding-bge-m3': {
-    creator: 'Other',
-    inputModalities: ['Text'],
-    outputModalities: ['Vector'],
-    streaming: false,
-    toolCalling: false,
-  },
-
-  // Audio (Audio → Text, no streaming / no tools)
-  'whisper-large-v3': {
-    creator: 'OpenAI',
-    inputModalities: ['Audio'],
-    outputModalities: ['Text'],
-    streaming: false,
-    toolCalling: false,
-  },
-  'whisper-large-v3-turbo': {
-    creator: 'OpenAI',
-    inputModalities: ['Audio'],
-    outputModalities: ['Text'],
-    streaming: false,
-    toolCalling: false,
-  },
-
-  // Image generation
-  'gpt-image-1-text-input': {
-    creator: 'OpenAI',
-    inputModalities: ['Text'],
-    outputModalities: ['Image'],
-    streaming: false,
-    toolCalling: false,
-  },
-  'gpt-image-1-image-input': {
-    creator: 'OpenAI',
-    inputModalities: ['Text', 'Image'],
-    outputModalities: ['Image'],
-    streaming: false,
-    toolCalling: false,
-  },
+// Default capability shape per category (creator filled in per-model below).
+const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
+  llms:               { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
+  coding:             { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
+  vision:             { inputModalities: ['Text', 'Image'], outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
+  embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
+  audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
+  'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
 };
 
-function categoryDefault(exactModelName: string, category: Category): Capabilities {
-  switch (category) {
-    case 'vision':
-      return {
-        creator: inferCreator(exactModelName),
-        inputModalities: ['Text', 'Image'],
-        outputModalities: ['Text'],
-        streaming: true,
-        toolCalling: true,
-      };
-    case 'embeddings':
-      return {
-        creator: inferCreator(exactModelName),
-        inputModalities: ['Text'],
-        outputModalities: ['Vector'],
-        streaming: false,
-        toolCalling: false,
-      };
-    case 'audio':
-      return {
-        creator: inferCreator(exactModelName),
-        inputModalities: ['Audio'],
-        outputModalities: ['Text'],
-        streaming: false,
-        toolCalling: false,
-      };
-    case 'image-generation':
-      return {
-        creator: inferCreator(exactModelName),
-        inputModalities: ['Text'],
-        outputModalities: ['Image'],
-        streaming: false,
-        toolCalling: false,
-      };
-    case 'llms':
-    case 'coding':
-    default:
-      return llmDefault(exactModelName);
-  }
-}
+// Per-model overrides for cases where the category default + inferCreator
+// would produce the wrong answer. Sparse on purpose — everything not listed
+// here resolves from category default + creator inferred from the model name.
+const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
+  // Creator overrides (inferCreator has no pattern for these prefixes):
+  'text-embedding-ada-002': { creator: 'OpenAI' },
+  'whisper-large-v3':       { creator: 'OpenAI' },
+  'whisper-large-v3-turbo': { creator: 'OpenAI' },
+  // Image-input variant of gpt-image-1 accepts an image alongside text:
+  'gpt-image-1-image-input': { inputModalities: ['Text', 'Image'] },
+};
 
 function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
-  return MODEL_CAPABILITIES[exactModelName] ?? categoryDefault(exactModelName, category);
+  return {
+    creator: inferCreator(exactModelName),
+    ...CATEGORY_DEFAULTS[category],
+    ...MODEL_CAPABILITY_OVERRIDES[exactModelName],
+  };
 }
 
 // ---------------- Cloud (replaces Sovereignty) ----------------
