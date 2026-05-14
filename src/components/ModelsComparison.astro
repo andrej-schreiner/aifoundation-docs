@@ -774,16 +774,16 @@ const rowDataPayload = allModels.map((m) => ({
       updateCounts();
     }
 
-    // Capture initial defaults so reset restores them
-    const defaults: FilterState = readState();
-
+    // "Reset filters" means "remove all filters" — every option in every
+    // column gets checked, so no constraint is applied and the table shows
+    // the full set. Note this is intentionally different from the initial
+    // page load, which uses the curated Telekom-only Cloud default.
     function reset() {
       for (const def of filterDefs) {
         const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
         if (!details) continue;
-        const defaultSet = defaults.get(def.id) ?? new Set<string>();
         details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
-          input.checked = defaultSet.has(input.value);
+          input.checked = true;
         });
       }
       apply();
