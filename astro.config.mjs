@@ -25,6 +25,7 @@ export default defineConfig({
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',
+				alt: 'AI Foundation Services LLM serving',
 			},
 			favicon: '/img/favicon_180x180.png',
 			customCss: ['./src/styles/custom.css'],

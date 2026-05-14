@@ -412,16 +412,41 @@ const priceBuckets = [
       });
     }
 
+    // Locale read from <html lang> (set by Starlight per page) so the
+    // aria-label uses the same language as the visible chip label.
+    const isDE = document.documentElement.lang === 'de';
+
     function updateChipCounts() {
       section.querySelectorAll<HTMLElement>('.plans-filter').forEach((details) => {
         const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
         const checked = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
         const countEl = details.querySelector<HTMLElement>('[data-count]');
+        const isAll = all.length === 0 || checked.length === all.length;
         if (countEl) {
-          countEl.textContent =
-            all.length === 0 || checked.length === all.length ? '' : `(${checked.length}/${all.length})`;
+          countEl.textContent = isAll ? '' : `(${checked.length}/${all.length})`;
         }
-        details.classList.toggle('plans-filter--active', all.length > 0 && checked.length !== all.length);
+        details.classList.toggle('plans-filter--active', all.length > 0 && !isAll);
+
+        // Mirror the visible (N/M) into a screen-reader-friendly aria-label
+        // on the <summary> so AT users hear "Cloud filter, 1 of 3 selected"
+        // (or the German equivalent) instead of "Cloud, 1, 3". When no chip
+        // is active we fall back to the plain label set in SSR.
+        const summary = details.querySelector<HTMLElement>('summary');
+        const labelEl = details.querySelector<HTMLElement>('.plans-filter__label');
+        if (summary && labelEl) {
+          const label = (labelEl.textContent || '').trim();
+          if (isAll) {
+            // Restore the static SSR label (which is just the filter name).
+            summary.setAttribute('aria-label', label);
+          } else {
+            summary.setAttribute(
+              'aria-label',
+              isDE
+                ? `Filter ${label}, ${checked.length} von ${all.length} ausgewählt`
+                : `${label} filter, ${checked.length} of ${all.length} selected`,
+            );
+          }
+        }
       });
     }
 
