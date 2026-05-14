@@ -95,6 +95,13 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
     <Selector id="cloud-filter" label={translations.labelCloud}>
       <option value="">{translations.optionAll}</option>
     </Selector>
+    {
+      !legacy && (
+        <Selector id="tier-filter" label={translations.labelModelTier || translations.thModelTier}>
+          <option value="">{translations.optionAll}</option>
+        </Selector>
+      )
+    }
     <Selector id="input-price-filter" label={translations.labelInputPriceRange || translations.thInputPrice}>
       <option value="">{translations.optionAll}</option>
       <option value="0-2">{translations.priceUnder2}</option>
@@ -157,6 +164,7 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
     const searchInput = section.querySelector<HTMLInputElement>('#model-search');
     const locationFilter = section.querySelector<HTMLSelectElement>('#location-filter');
     const cloudFilter = section.querySelector<HTMLSelectElement>('#cloud-filter');
+    const tierFilter = section.querySelector<HTMLSelectElement>('#tier-filter');
     const inputPriceFilter = section.querySelector<HTMLSelectElement>('#input-price-filter');
     const outputPriceFilter = section.querySelector<HTMLSelectElement>('#output-price-filter');
     const tbody = section.querySelector<HTMLTableSectionElement>('#models-tbody');
@@ -174,9 +182,11 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
 
       const locations = new Set<string>();
       const clouds = new Set<string>();
+      const tiers = new Set<string>();
       for (const model of plan.models) {
         if (model.serverLocation) locations.add(model.serverLocation);
         if (model.cloudProvider) clouds.add(model.cloudProvider);
+        if (model.modelTier) tiers.add(model.modelTier);
       }
 
       if (locationFilter) {
@@ -200,6 +210,18 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
           option.textContent = cloud;
           if (cloud === current) option.selected = true;
           cloudFilter.appendChild(option);
+        });
+      }
+
+      if (tierFilter) {
+        const current = tierFilter.value;
+        tierFilter.innerHTML = `<option value="">${translations.optionAll || 'All'}</option>`;
+        [...tiers].sort().forEach((tier) => {
+          const option = document.createElement('option');
+          option.value = tier;
+          option.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+          if (tier === current) option.selected = true;
+          tierFilter.appendChild(option);
         });
       }
     }
@@ -247,6 +269,10 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
 
       if (cloudFilter && cloudFilter.value) {
         models = models.filter((model) => model.cloudProvider === cloudFilter.value);
+      }
+
+      if (tierFilter && tierFilter.value) {
+        models = models.filter((model) => model.modelTier === tierFilter.value);
       }
 
       if (inputPriceFilter) {
@@ -333,8 +359,8 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
         const creatorIcon = brandIcons[model.creator] || '';
         row.innerHTML = `
           <td>${hostTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 26rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(hostTooltip)}</span></span>` : `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>`}</td>
-          <td><span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${cloudProviderClass}">${escapeHtml(cloudProvider)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(cloudProviderFullName)}</span></span></td>
-          ${legacy ? '' : `<td>${tierTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${tierClass}">${escapeHtml(modelTier)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(tierTooltip)}</span></span>` : `<span class="plans-tag ${tierClass}">${escapeHtml(modelTier)}</span>`}</td>`}
+          <td><span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${cloudProviderClass} mt-cloud-tag-btn" data-cloud="${escapeHtml(model.cloudProvider)}" title="${escapeHtml(cloudProviderFullName)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(cloudProvider)} cloud in the filter">${escapeHtml(cloudProvider)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(cloudProviderFullName)}</span></span></td>
+          ${legacy ? '' : `<td>${tierTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${tierClass} mt-tier-tag-btn" data-tier="${escapeHtml(model.modelTier)}" title="${escapeHtml(tierTooltip || modelTier)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(modelTier)} tier in the filter">${escapeHtml(modelTier)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(tierTooltip)}</span></span>` : `<button type="button" class="plans-tag ${tierClass} mt-tier-tag-btn" data-tier="${escapeHtml(model.modelTier)}" title="${escapeHtml(tierTooltip || modelTier)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(modelTier)} tier in the filter">${escapeHtml(modelTier)}</button>`}</td>`}
           <td>
             <span class="creator-brand ${creatorIcon ? 'creator-brand--icon' : 'creator-brand--text'}" title="${escapeHtml(model.creator)}" aria-label="${escapeHtml(model.creator)}">
               ${creatorIcon ? `<img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(model.creator)}" />` : `<span class="creator-brand__label">${escapeHtml(model.creator)}</span>`}
@@ -409,6 +435,10 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
       cloudFilter.addEventListener('change', render);
     }
 
+    if (tierFilter) {
+      tierFilter.addEventListener('change', render);
+    }
+
     if (inputPriceFilter) {
       inputPriceFilter.addEventListener('change', render);
     }
@@ -431,6 +461,27 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
         });
       });
     }
+
+    // Click-to-toggle on cloud / tier tags in rows. Single-select semantics:
+    // clicking a tag with the currently-active filter value clears the filter
+    // (back to "All"); clicking any other value sets the filter to that value.
+    section.addEventListener('click', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      const cloudBtn = target?.closest('.mt-cloud-tag-btn') as HTMLElement | null;
+      if (cloudBtn && cloudFilter) {
+        const value = cloudBtn.dataset.cloud ?? '';
+        cloudFilter.value = cloudFilter.value === value ? '' : value;
+        cloudFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+      const tierBtn = target?.closest('.mt-tier-tag-btn') as HTMLElement | null;
+      if (tierBtn && tierFilter) {
+        const value = tierBtn.dataset.tier ?? '';
+        tierFilter.value = tierFilter.value === value ? '' : value;
+        tierFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        return;
+      }
+    });
 
     populateFilterDropdowns();
     render();
@@ -571,6 +622,30 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
   .tag-external-cloud {
     background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
     color: var(--sl-color-text);
+  }
+
+  .models-table-section button.plans-tag.mt-cloud-tag-btn,
+  .models-table-section button.plans-tag.mt-tier-tag-btn {
+    border: 0;
+    margin: 0;
+    padding: 0.14rem 0.5rem;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .models-table-section button.plans-tag.mt-cloud-tag-btn:hover,
+  .models-table-section button.plans-tag.mt-tier-tag-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .models-table-section button.plans-tag.mt-cloud-tag-btn:focus-visible,
+  .models-table-section button.plans-tag.mt-tier-tag-btn:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
   }
 
   .ui-tooltip {
