@@ -43,6 +43,13 @@ const sortableHeaders = [
 ];
 
 const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
+
+// Price filter buckets are static (don't depend on plan), so we can SSR them.
+const priceBuckets = [
+  { value: '0-2', label: translations.priceUnder2 },
+  { value: '2-5', label: translations.price2to5 },
+  { value: '5+', label: translations.priceOver5 },
+];
 ---
 
 <section
@@ -89,32 +96,107 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
       )
     }
     <TextField id="model-search" label={translations.labelSearch} placeholder={translations.placeholderSearch} />
-    <Selector id="location-filter" label={translations.labelServerLocation}>
-      <option value="">{translations.optionAll}</option>
-    </Selector>
-    <Selector id="cloud-filter" label={translations.labelCloud}>
-      <option value="">{translations.optionAll}</option>
-    </Selector>
-    {
-      !legacy && (
-        <Selector id="tier-filter" label={translations.labelModelTier || translations.thModelTier}>
+  </div>
+
+  {
+    legacy ? (
+      <div class="models-controls">
+        {/* Legacy plans page keeps its native-select filters. */}
+        <Selector id="location-filter" label={translations.labelServerLocation}>
           <option value="">{translations.optionAll}</option>
         </Selector>
-      )
-    }
-    <Selector id="input-price-filter" label={translations.labelInputPriceRange || translations.thInputPrice}>
-      <option value="">{translations.optionAll}</option>
-      <option value="0-2">{translations.priceUnder2}</option>
-      <option value="2-5">{translations.price2to5}</option>
-      <option value="5+">{translations.priceOver5}</option>
-    </Selector>
-    <Selector id="output-price-filter" label={translations.labelOutputPriceRange || translations.thOutputPrice}>
-      <option value="">{translations.optionAll}</option>
-      <option value="0-2">{translations.priceUnder2}</option>
-      <option value="2-5">{translations.price2to5}</option>
-      <option value="5+">{translations.priceOver5}</option>
-    </Selector>
-  </div>
+        <Selector id="cloud-filter" label={translations.labelCloud}>
+          <option value="">{translations.optionAll}</option>
+        </Selector>
+        <Selector id="input-price-filter" label={translations.labelInputPriceRange || translations.thInputPrice}>
+          <option value="">{translations.optionAll}</option>
+          <option value="0-2">{translations.priceUnder2}</option>
+          <option value="2-5">{translations.price2to5}</option>
+          <option value="5+">{translations.priceOver5}</option>
+        </Selector>
+        <Selector id="output-price-filter" label={translations.labelOutputPriceRange || translations.thOutputPrice}>
+          <option value="">{translations.optionAll}</option>
+          <option value="0-2">{translations.priceUnder2}</option>
+          <option value="2-5">{translations.price2to5}</option>
+          <option value="5+">{translations.priceOver5}</option>
+        </Selector>
+      </div>
+    ) : (
+      <div class="plans-filterbar" role="group" aria-label={translations.modelsTitle}>
+        <details class="plans-filter" data-filter="location">
+          <summary aria-label={translations.labelServerLocation}>
+            <span class="plans-filter__label">{translations.labelServerLocation}</span>
+            <span class="plans-filter__count" data-count />
+          </summary>
+          <div class="plans-filter__menu" data-options>
+            {/* Options populated by client script — depend on selected plan. */}
+          </div>
+        </details>
+
+        <details class="plans-filter" data-filter="cloud">
+          <summary aria-label={translations.labelCloud}>
+            <span class="plans-filter__label">{translations.labelCloud}</span>
+            <span class="plans-filter__count" data-count />
+          </summary>
+          <div class="plans-filter__menu" data-options />
+        </details>
+
+        <details class="plans-filter" data-filter="tier">
+          <summary aria-label={translations.labelModelTier || translations.thModelTier}>
+            <span class="plans-filter__label">{translations.labelModelTier || translations.thModelTier}</span>
+            <span class="plans-filter__count" data-count />
+          </summary>
+          <div class="plans-filter__menu" data-options />
+        </details>
+
+        <details class="plans-filter" data-filter="inputPrice">
+          <summary aria-label={translations.labelInputPriceRange || translations.thInputPrice}>
+            <span class="plans-filter__label">{translations.labelInputPriceRange || translations.thInputPrice}</span>
+            <span class="plans-filter__count" data-count />
+          </summary>
+          <div class="plans-filter__menu">
+            {priceBuckets.map((b) => (
+              <label class="plans-filter__option">
+                <input type="checkbox" value={b.value} checked />
+                <span>{b.label}</span>
+              </label>
+            ))}
+          </div>
+        </details>
+
+        <details class="plans-filter" data-filter="outputPrice">
+          <summary aria-label={translations.labelOutputPriceRange || translations.thOutputPrice}>
+            <span class="plans-filter__label">{translations.labelOutputPriceRange || translations.thOutputPrice}</span>
+            <span class="plans-filter__count" data-count />
+          </summary>
+          <div class="plans-filter__menu">
+            {priceBuckets.map((b) => (
+              <label class="plans-filter__option">
+                <input type="checkbox" value={b.value} checked />
+                <span>{b.label}</span>
+              </label>
+            ))}
+          </div>
+        </details>
+
+        <button type="button" class="plans-filter-reset" data-reset aria-label="Reset all filters">
+          {translations.labelResetFilters || 'Reset filters'}
+        </button>
+      </div>
+    )
+  }
+
+  {
+    !legacy && (
+      <div class="plans-filter-status" aria-live="polite">
+        <span data-status-text>
+          {translations.showingPrefix || 'Showing'} <span data-visible-count>0</span>{' '}
+          {translations.ofPrefix || 'of'} <span data-total-count>0</span>{' '}
+          {translations.modelsLabel || 'models'}
+        </span>
+      </div>
+    )
+  }
 
   <div class="table-wrapper">
     <table class="plans-table" id="models-table">
@@ -149,6 +231,8 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
 <script>
   import { isPriceInRange } from '../shared/lib/priceRangeHelper';
 
+  type FilterState = Map<string, Set<string>>;
+
   function initModelsTable(section: HTMLElement) {
     const plansData = JSON.parse(section.dataset.plans || '[]');
     const brandIcons = JSON.parse(section.dataset.brandIcons || '{}');
@@ -162,31 +246,33 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
 
     const selector = section.querySelector<HTMLSelectElement>('#plan-selector');
     const searchInput = section.querySelector<HTMLInputElement>('#model-search');
-    const locationFilter = section.querySelector<HTMLSelectElement>('#location-filter');
-    const cloudFilter = section.querySelector<HTMLSelectElement>('#cloud-filter');
-    const tierFilter = section.querySelector<HTMLSelectElement>('#tier-filter');
-    const inputPriceFilter = section.querySelector<HTMLSelectElement>('#input-price-filter');
-    const outputPriceFilter = section.querySelector<HTMLSelectElement>('#output-price-filter');
+    // Legacy native-select filters (only rendered when legacy === true)
+    const locationFilter = section.querySelector<HTMLSelectElement>('select#location-filter');
+    const cloudFilter = section.querySelector<HTMLSelectElement>('select#cloud-filter');
+    const inputPriceFilter = section.querySelector<HTMLSelectElement>('select#input-price-filter');
+    const outputPriceFilter = section.querySelector<HTMLSelectElement>('select#output-price-filter');
     const tbody = section.querySelector<HTMLTableSectionElement>('#models-tbody');
     const table = section.querySelector<HTMLTableElement>('#models-table');
     const tableWrapper = section.querySelector<HTMLElement>('.table-wrapper');
+    const visibleCountEl = section.querySelector<HTMLElement>('[data-visible-count]');
+    const totalCountEl = section.querySelector<HTMLElement>('[data-total-count]');
     const maxHeightRowThreshold = 12;
 
     let sortKey = '';
     let sortAsc = true;
     let searchTerm = '';
 
-    function populateFilterDropdowns() {
+    // --- Legacy path: keep the old native-select filter UI ---
+
+    function populateLegacyFilterDropdowns() {
       const plan = plansData[currentIndex];
       if (!plan) return;
 
       const locations = new Set<string>();
       const clouds = new Set<string>();
-      const tiers = new Set<string>();
       for (const model of plan.models) {
         if (model.serverLocation) locations.add(model.serverLocation);
         if (model.cloudProvider) clouds.add(model.cloudProvider);
-        if (model.modelTier) tiers.add(model.modelTier);
       }
 
       if (locationFilter) {
@@ -212,18 +298,143 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
           cloudFilter.appendChild(option);
         });
       }
+    }
 
-      if (tierFilter) {
-        const current = tierFilter.value;
-        tierFilter.innerHTML = `<option value="">${translations.optionAll || 'All'}</option>`;
-        [...tiers].sort().forEach((tier) => {
-          const option = document.createElement('option');
-          option.value = tier;
-          option.textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
-          if (tier === current) option.selected = true;
-          tierFilter.appendChild(option);
-        });
+    // --- Multi-select path: <details>+checkbox chips ---
+
+    // Filter id -> { checked: Set<string>, wasAllChecked: boolean }; preserved
+    // across plan changes so user selections survive plan switches. We track
+    // "was all checked" separately because if the user never narrowed a
+    // filter, switching to a plan with new values shouldn't accidentally
+    // exclude those new values (no constraint → still no constraint).
+    interface PrevFilter {
+      checked: Set<string>;
+      wasAllChecked: boolean;
+    }
+    const filterStatePrev = new Map<string, PrevFilter>();
+
+    function getPlanFilterValues(): Record<string, string[]> {
+      const plan = plansData[currentIndex];
+      if (!plan) return { location: [], cloud: [], tier: [] };
+      const locations = new Set<string>();
+      const clouds = new Set<string>();
+      const tiers = new Set<string>();
+      for (const model of plan.models) {
+        if (model.serverLocation) locations.add(model.serverLocation);
+        if (model.cloudProvider) clouds.add(model.cloudProvider);
+        if (model.modelTier) tiers.add(model.modelTier);
       }
+      return {
+        location: [...locations].sort(),
+        cloud: ['Telekom', 'Azure', 'GCP', 'Other'].filter((c) => clouds.has(c)).concat(
+          [...clouds].filter((c) => !['Telekom', 'Azure', 'GCP', 'Other'].includes(c)).sort(),
+        ),
+        tier: [...tiers].sort(),
+      };
+    }
+
+    function renderFilterOptions(filterId: string, values: string[], labelFn: (v: string) => string) {
+      const details = section.querySelector<HTMLElement>(`.plans-filter[data-filter="${filterId}"]`);
+      if (!details) return;
+      const menu = details.querySelector<HTMLElement>('[data-options]');
+      if (!menu) return;
+
+      // Decide which values should be checked:
+      //  - If we previously had no constraint (all checked), keep no constraint.
+      //  - If we have a narrowed prev state with overlap, preserve it.
+      //  - Otherwise: cloud defaults to Telekom-only (mirror comparison page);
+      //    every other filter defaults to all-checked (no constraint).
+      const prev = filterStatePrev.get(filterId);
+      let checkedFn: (v: string) => boolean;
+      if (prev?.wasAllChecked) {
+        checkedFn = () => true;
+      } else if (prev && values.some((v) => prev.checked.has(v))) {
+        checkedFn = (v) => prev.checked.has(v);
+      } else if (filterId === 'cloud') {
+        checkedFn = (v) => v === 'Telekom';
+      } else {
+        checkedFn = () => true;
+      }
+
+      // If after applying checkedFn nothing is checked (e.g. cloud-only-Telekom
+      // but no Telekom in this plan), fall back to all-checked so we don't
+      // start in a zero-row state.
+      if (!values.some((v) => checkedFn(v))) {
+        checkedFn = () => true;
+      }
+
+      menu.innerHTML = values
+        .map(
+          (v) => `
+            <label class="plans-filter__option">
+              <input type="checkbox" value="${escapeHtml(v)}"${checkedFn(v) ? ' checked' : ''} />
+              <span>${escapeHtml(labelFn(v))}</span>
+            </label>
+          `,
+        )
+        .join('');
+    }
+
+    function rebuildDynamicFilters() {
+      const { location, cloud, tier } = getPlanFilterValues();
+      renderFilterOptions('location', location, (v) => v);
+      renderFilterOptions('cloud', cloud, (v) => v);
+      renderFilterOptions('tier', tier, (v) => v.charAt(0).toUpperCase() + v.slice(1));
+    }
+
+    function readFilterState(): FilterState {
+      const state: FilterState = new Map();
+      section.querySelectorAll<HTMLElement>('.plans-filter').forEach((details) => {
+        const id = details.dataset.filter;
+        if (!id) return;
+        const checked = new Set<string>();
+        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+          if (input.checked) checked.add(input.value);
+        });
+        state.set(id, checked);
+      });
+      return state;
+    }
+
+    function persistFilterState() {
+      section.querySelectorAll<HTMLElement>('.plans-filter').forEach((details) => {
+        const id = details.dataset.filter;
+        if (!id) return;
+        const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        const checked = new Set<string>();
+        all.forEach((input) => {
+          if (input.checked) checked.add(input.value);
+        });
+        filterStatePrev.set(id, {
+          checked,
+          wasAllChecked: all.length > 0 && checked.size === all.length,
+        });
+      });
+    }
+
+    function updateChipCounts() {
+      section.querySelectorAll<HTMLElement>('.plans-filter').forEach((details) => {
+        const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        const checked = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
+        const countEl = details.querySelector<HTMLElement>('[data-count]');
+        if (countEl) {
+          countEl.textContent =
+            all.length === 0 || checked.length === all.length ? '' : `(${checked.length}/${all.length})`;
+        }
+        details.classList.toggle('plans-filter--active', all.length > 0 && checked.length !== all.length);
+      });
+    }
+
+    function resetAllFilters() {
+      section.querySelectorAll<HTMLElement>('.plans-filter').forEach((details) => {
+        details
+          .querySelectorAll<HTMLInputElement>('input[type="checkbox"]')
+          .forEach((input) => {
+            input.checked = true;
+          });
+      });
+      persistFilterState();
+      render();
     }
 
     function applyPriceFilter(models: any[], filterValue: string, getPrice: (model: any) => number | null | undefined) {
@@ -242,6 +453,21 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
       }
 
       return models;
+    }
+
+    function priceBucketFor(price: number | null | undefined): string | null {
+      if (price == null) return null;
+      if (isPriceInRange(price, 0, 2)) return '0-2';
+      if (isPriceInRange(price, 2, 5)) return '2-5';
+      if (isPriceInRange(price, 5)) return '5+';
+      return null;
+    }
+
+    function passesMultiSelect(value: string, checked: Set<string>): boolean {
+      // Defensive: empty checked set means "no constraint". Auto-revert
+      // normally prevents this state, but treat as pass-all just in case.
+      if (checked.size === 0) return true;
+      return checked.has(value);
     }
 
     function getModels() {
@@ -263,24 +489,53 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
         );
       }
 
-      if (locationFilter && locationFilter.value) {
-        models = models.filter((model) => model.serverLocation === locationFilter.value);
-      }
+      if (legacy) {
+        if (locationFilter && locationFilter.value) {
+          models = models.filter((model) => model.serverLocation === locationFilter.value);
+        }
+        if (cloudFilter && cloudFilter.value) {
+          models = models.filter((model) => model.cloudProvider === cloudFilter.value);
+        }
+        if (inputPriceFilter) {
+          models = applyPriceFilter(models, inputPriceFilter.value, (model) => model.inputPrice);
+        }
+        if (outputPriceFilter) {
+          models = applyPriceFilter(models, outputPriceFilter.value, (model) => model.outputPrice);
+        }
+      } else {
+        const state = readFilterState();
+        const locationChecked = state.get('location');
+        const cloudChecked = state.get('cloud');
+        const tierChecked = state.get('tier');
+        const inputPriceChecked = state.get('inputPrice');
+        const outputPriceChecked = state.get('outputPrice');
 
-      if (cloudFilter && cloudFilter.value) {
-        models = models.filter((model) => model.cloudProvider === cloudFilter.value);
-      }
-
-      if (tierFilter && tierFilter.value) {
-        models = models.filter((model) => model.modelTier === tierFilter.value);
-      }
-
-      if (inputPriceFilter) {
-        models = applyPriceFilter(models, inputPriceFilter.value, (model) => model.inputPrice);
-      }
-
-      if (outputPriceFilter) {
-        models = applyPriceFilter(models, outputPriceFilter.value, (model) => model.outputPrice);
+        if (locationChecked && locationChecked.size > 0) {
+          models = models.filter((model) => passesMultiSelect(model.serverLocation, locationChecked));
+        }
+        if (cloudChecked && cloudChecked.size > 0) {
+          models = models.filter((model) => passesMultiSelect(model.cloudProvider, cloudChecked));
+        }
+        if (tierChecked && tierChecked.size > 0) {
+          models = models.filter((model) => passesMultiSelect(model.modelTier, tierChecked));
+        }
+        if (inputPriceChecked && inputPriceChecked.size > 0) {
+          models = models.filter((model) => {
+            const bucket = priceBucketFor(model.inputPrice);
+            // A row with no price (null) passes — we can't bucket it. This
+            // matches the legacy behavior where the price filter only excluded
+            // rows whose price fell outside the selected range.
+            if (!bucket) return true;
+            return inputPriceChecked.has(bucket);
+          });
+        }
+        if (outputPriceChecked && outputPriceChecked.size > 0) {
+          models = models.filter((model) => {
+            const bucket = priceBucketFor(model.outputPrice);
+            if (!bucket) return true;
+            return outputPriceChecked.has(bucket);
+          });
+        }
       }
 
       if (sortKey) {
@@ -340,6 +595,8 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
 
     function render() {
       if (!tbody) return;
+      const plan = plansData[currentIndex];
+      const totalRows = plan ? plan.models.length : 0;
       const models = getModels();
       tbody.innerHTML = '';
 
@@ -410,12 +667,25 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
           icon.classList.toggle('sort-icon--desc', isActive && !sortAsc);
         });
       }
+
+      if (!legacy) {
+        if (visibleCountEl) visibleCountEl.textContent = String(models.length);
+        if (totalCountEl) totalCountEl.textContent = String(totalRows);
+        updateChipCounts();
+      }
     }
 
     if (selector && !locked) {
       selector.addEventListener('change', () => {
         currentIndex = parseInt(selector.value, 10);
-        populateFilterDropdowns();
+        if (legacy) {
+          populateLegacyFilterDropdowns();
+        } else {
+          // Preserve user's checkbox state across plan changes, then rebuild
+          // the option list for the new plan's available values.
+          persistFilterState();
+          rebuildDynamicFilters();
+        }
         render();
       });
     }
@@ -427,24 +697,42 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
       });
     }
 
-    if (locationFilter) {
-      locationFilter.addEventListener('change', render);
-    }
+    if (legacy) {
+      if (locationFilter) locationFilter.addEventListener('change', render);
+      if (cloudFilter) cloudFilter.addEventListener('change', render);
+      if (inputPriceFilter) inputPriceFilter.addEventListener('change', render);
+      if (outputPriceFilter) outputPriceFilter.addEventListener('change', render);
+    } else {
+      // One delegated listener for every checkbox in the filter bar. Handles
+      // the apply call AND the auto-revert (uncheck-last → re-check-all).
+      section.addEventListener('change', (evt) => {
+        const target = evt.target as HTMLElement | null;
+        if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
+        const details = target.closest('.plans-filter') as HTMLElement | null;
+        if (!details) return;
+        const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        const anyChecked = Array.from(all).some((input) => input.checked);
+        if (!anyChecked) {
+          all.forEach((input) => {
+            input.checked = true;
+          });
+        }
+        render();
+      });
 
-    if (cloudFilter) {
-      cloudFilter.addEventListener('change', render);
-    }
+      // Reset button removes ALL filters (every checkbox checked).
+      const resetBtn = section.querySelector<HTMLButtonElement>('[data-reset]');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => resetAllFilters());
+      }
 
-    if (tierFilter) {
-      tierFilter.addEventListener('change', render);
-    }
-
-    if (inputPriceFilter) {
-      inputPriceFilter.addEventListener('change', render);
-    }
-
-    if (outputPriceFilter) {
-      outputPriceFilter.addEventListener('change', render);
+      // Close open chips when clicking outside the filter bar.
+      document.addEventListener('click', (evt) => {
+        const target = evt.target as Node | null;
+        section.querySelectorAll<HTMLDetailsElement>('details.plans-filter[open]').forEach((d) => {
+          if (target && !d.contains(target)) d.open = false;
+        });
+      });
     }
 
     if (table) {
@@ -462,28 +750,50 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
       });
     }
 
-    // Click-to-toggle on cloud / tier tags in rows. Single-select semantics:
-    // clicking a tag with the currently-active filter value clears the filter
-    // (back to "All"); clicking any other value sets the filter to that value.
+    // Click-to-toggle on cloud / tier tags in rows. Multi-select semantics
+    // (matches the comparison page): clicking a tag toggles its value in the
+    // corresponding filter. Dispatches a synthetic 'change' event so the
+    // existing listener handles apply + auto-revert in one place.
     section.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
       const cloudBtn = target?.closest('.mt-cloud-tag-btn') as HTMLElement | null;
-      if (cloudBtn && cloudFilter) {
+      if (cloudBtn) {
         const value = cloudBtn.dataset.cloud ?? '';
-        cloudFilter.value = cloudFilter.value === value ? '' : value;
-        cloudFilter.dispatchEvent(new Event('change', { bubbles: true }));
+        if (legacy) {
+          if (cloudFilter) {
+            // Legacy keeps the single-select narrow behavior.
+            cloudFilter.value = cloudFilter.value === value ? '' : value;
+            cloudFilter.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        } else {
+          const checkbox = section.querySelector<HTMLInputElement>(
+            `.plans-filter[data-filter="cloud"] input[type="checkbox"][value="${value}"]`,
+          );
+          if (checkbox) {
+            checkbox.checked = !checkbox.checked;
+            checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
         return;
       }
       const tierBtn = target?.closest('.mt-tier-tag-btn') as HTMLElement | null;
-      if (tierBtn && tierFilter) {
+      if (tierBtn && !legacy) {
         const value = tierBtn.dataset.tier ?? '';
-        tierFilter.value = tierFilter.value === value ? '' : value;
-        tierFilter.dispatchEvent(new Event('change', { bubbles: true }));
-        return;
+        const checkbox = section.querySelector<HTMLInputElement>(
+          `.plans-filter[data-filter="tier"] input[type="checkbox"][value="${value}"]`,
+        );
+        if (checkbox) {
+          checkbox.checked = !checkbox.checked;
+          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+        }
       }
     });
 
-    populateFilterDropdowns();
+    if (legacy) {
+      populateLegacyFilterDropdowns();
+    } else {
+      rebuildDynamicFilters();
+    }
     render();
   }
 
@@ -576,6 +886,127 @@ const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
     margin-bottom: 0.75rem;
     flex-wrap: wrap;
     align-items: flex-end;
+  }
+
+  /* Multi-select <details> filter bar (mirrors ModelsComparison's .mc-filter*
+     pattern with .plans-filter* prefixes so the two components stay
+     independent and visual changes don't leak between them). */
+  .plans-filterbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .plans-filter {
+    position: relative;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    background: var(--sl-color-gray-6);
+    font-size: 0.82rem;
+  }
+
+  .plans-filter > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.3rem 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    line-height: 1.2;
+    user-select: none;
+  }
+
+  .plans-filter > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .plans-filter > summary::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.65;
+    transition: transform 120ms ease;
+  }
+
+  .plans-filter[open] > summary::after {
+    transform: rotate(180deg);
+  }
+
+  .plans-filter__label {
+    font-weight: 600;
+  }
+
+  .plans-filter__count {
+    color: var(--sl-color-text-accent);
+    font-weight: 500;
+  }
+
+  .plans-filter--active > summary {
+    box-shadow: inset 0 0 0 1px var(--sl-color-text-accent);
+    border-radius: 5px;
+  }
+
+  .plans-filter__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 20;
+    min-width: 11rem;
+    max-height: 22rem;
+    overflow-y: auto;
+    padding: 0.4rem 0.5rem;
+    background: var(--sl-color-bg, var(--sl-color-gray-6));
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .plans-filter__option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0.35rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .plans-filter__option:hover {
+    background: var(--sl-color-gray-5);
+  }
+
+  .plans-filter__option input[type='checkbox'] {
+    accent-color: #e20074;
+  }
+
+  .plans-filter-reset {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--sl-color-text);
+    background: transparent;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .plans-filter-reset:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .plans-filter-status {
+    margin-bottom: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-3);
   }
 
   .sort-header {
