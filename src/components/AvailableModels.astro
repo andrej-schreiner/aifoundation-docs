@@ -12,6 +12,12 @@ const t = {
   showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show More ({count} more)',
   showLess: isDE ? 'Weniger anzeigen' : 'Show Less',
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
+  // A11y / tooltips — localized copy-button strings so screen readers in DE
+  // announce in German.
+  copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
+  copyAriaTemplate: isDE ? 'Modell-ID {id} kopieren' : 'Copy model ID {id}',
+  copiedAriaTemplate: isDE ? 'Kopiert: {id}' : 'Copied {id}',
+  modelsCountAriaTemplate: isDE ? '{count} Modelle insgesamt' : '{count} models total',
 };
 
 const OFFLINE_MODELS = new Set([
@@ -170,17 +176,24 @@ const INITIAL_COUNT = 6;
 ---
 
 <div class="available-models">
-  <h2 class="models-heading">{t.sectionHeading} <span class="models-count">({sortedModels.length})</span></h2>
-  <span id="copy-status" class="copy-status" aria-live="polite" aria-atomic="true"></span>
+  <h2 class="models-heading">
+    {t.sectionHeading}{' '}
+    <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(sortedModels.length))}>
+      ({sortedModels.length})
+    </span>
+  </h2>
+  <span id="copy-status" class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="models-grid" id="models-grid">
     {
       sortedModels.map((model, index) => (
         <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
           <button
             class="model-card__copy"
+            type="button"
             data-model-id={model.modelId}
-            title={`Copy model ID: ${model.modelId}`}
-            aria-label={`Copy model ID ${model.modelId}`}>
+            data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
+            title={t.copyTitleTemplate.replace('{id}', model.modelId)}
+            aria-label={t.copyAriaTemplate.replace('{id}', model.modelId)}>
             <>
               <svg
                 class="icon-copy"
@@ -225,7 +238,14 @@ const INITIAL_COUNT = 6;
             </span>
             <span>
               {t.serverLocation}: <strong>{model.hosted}</strong>{' '}
-              {model.countryCode && <span class={`fi fi-${model.countryCode}`} style="margin-left: 4px;" />}
+              {model.countryCode && (
+                <span
+                  class={`fi fi-${model.countryCode}`}
+                  style="margin-left: 4px;"
+                  role="presentation"
+                  aria-hidden="true"
+                />
+              )}
             </span>
             <span>
               {t.dataProcessing}: <strong>{model.dataProcessing}</strong>
@@ -240,6 +260,9 @@ const INITIAL_COUNT = 6;
       <button
         class="models-toggle"
         id="models-toggle"
+        type="button"
+        aria-controls="models-grid"
+        aria-expanded="false"
         data-total={sortedModels.length}
         data-initial={INITIAL_COUNT}
         data-show-more-template={t.showMoreTemplate}
@@ -331,9 +354,16 @@ const INITIAL_COUNT = 6;
     transition: opacity 0.15s;
   }
 
-  .model-card__copy:hover {
+  .model-card__copy:hover,
+  .model-card__copy:focus-visible {
     opacity: 1;
     color: var(--sl-color-white);
+  }
+
+  .model-card__copy:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 
   .model-card__copy .icon-check {
@@ -392,6 +422,11 @@ const INITIAL_COUNT = 6;
   .models-toggle:hover {
     background: var(--sl-color-gray-4, var(--sl-color-gray-5));
   }
+
+  .models-toggle:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
 </style>
 
 <script>
@@ -415,9 +450,12 @@ const INITIAL_COUNT = 6;
         }
       });
       toggle.textContent = expanded ? showLess : showMoreTemplate.replace('{count}', String(total - initial));
+      toggle.setAttribute('aria-expanded', String(expanded));
     });
 
-    // Copy model ID to clipboard with visual + accessible feedback
+    // Copy model ID to clipboard with visual + accessible feedback.
+    // The button's `data-copied-label` carries the localized "Copied: <id>"
+    // string so the live-region announcement matches the page locale.
     const copyStatus = document.getElementById('copy-status');
     document.querySelectorAll<HTMLButtonElement>('.model-card__copy').forEach((btn) => {
       btn.addEventListener('click', async () => {
@@ -428,8 +466,9 @@ const INITIAL_COUNT = 6;
           // Visual feedback: swap icon for 1500ms
           btn.setAttribute('data-copied', '');
           const originalLabel = btn.getAttribute('aria-label') ?? '';
-          btn.setAttribute('aria-label', `Copied ${modelId}`);
-          if (copyStatus) copyStatus.textContent = `Copied ${modelId}`;
+          const copiedLabel = btn.dataset.copiedLabel ?? `Copied ${modelId}`;
+          btn.setAttribute('aria-label', copiedLabel);
+          if (copyStatus) copyStatus.textContent = copiedLabel;
           setTimeout(() => {
             btn.removeAttribute('data-copied');
             btn.setAttribute('aria-label', originalLabel);

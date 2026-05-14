@@ -6,13 +6,16 @@ interface Props {
 }
 
 const { text, maxWidth = '24rem', position = 'top' } = Astro.props;
+// Unique id per instance so the tooltip content can be linked to its trigger
+// via `aria-describedby`, exposing the text to screen readers.
+const tipId = Math.random().toString(36).slice(2, 10);
 ---
 
 <span class={`ui-tooltip ui-tooltip--${position}`} style={`--ui-tooltip-max-width: ${maxWidth};`}>
-  <span class="ui-tooltip__trigger">
+  <span class="ui-tooltip__trigger" tabindex="0" aria-describedby={`ui-tooltip-${tipId}`}>
     <slot />
   </span>
-  <span class="ui-tooltip__content" role="tooltip">
+  <span class="ui-tooltip__content" id={`ui-tooltip-${tipId}`} role="tooltip">
     {text}
   </span>
 </span>
@@ -68,10 +71,18 @@ const { text, maxWidth = '24rem', position = 'top' } = Astro.props;
     border-radius: 0.1rem;
   }
 
-  .ui-tooltip:hover .ui-tooltip__content {
+  .ui-tooltip:hover .ui-tooltip__content,
+  .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
+  .ui-tooltip:focus-within .ui-tooltip__content {
     opacity: 1;
     visibility: visible;
     transform: translateX(-50%) translateY(0);
+  }
+
+  .ui-tooltip__trigger:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   .ui-tooltip--right-center .ui-tooltip__content {
@@ -88,7 +99,9 @@ const { text, maxWidth = '24rem', position = 'top' } = Astro.props;
     transform: translateY(-50%) rotate(45deg);
   }
 
-  .ui-tooltip--right-center:hover .ui-tooltip__content {
+  .ui-tooltip--right-center:hover .ui-tooltip__content,
+  .ui-tooltip--right-center .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
+  .ui-tooltip--right-center:focus-within .ui-tooltip__content {
     transform: translateY(-50%) translateX(0);
   }
 
