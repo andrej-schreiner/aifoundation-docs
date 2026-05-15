@@ -5,6 +5,10 @@ description: "Install OpenCode, an open-source terminal-based AI coding agent, a
 
 OpenCode is an open-source AI coding agent that runs in the terminal and can be used alongside any editor or IDE.
 
+With OpenCode you can ask questions about your codebase, generate or refactor code, run tests and shell commands, and let the agent carry out multi-step changes across files — all from the terminal, using AI Foundation Services models.
+
+It's a good fit if you prefer a keyboard-driven, editor-agnostic workflow and want a single tool you can drop into any project without switching IDEs.
+
 ## Key Features
 
 - LSP support that loads the right language tooling for the model
@@ -26,37 +30,55 @@ https_proxy=<your-proxy-url:port>
 
 1. Add the npm registry:
 
-```bash
-npm config set @aie:registry https://plugins.dev.aie.ai.t-systems.net/v1/npm
-```
+   ```bash
+   npm config set @aie:registry https://plugins.dev.aie.ai.t-systems.net/v1/npm
+   ```
 
 2. Install OpenCode globally:
 
-```bash
-npm install -g @aie/opencode
-```
+   ```bash
+   npm install -g @aie/opencode
+   ```
 
 3. If you are on Windows and need a proxy, set the required environment variables before starting OpenCode.
 
 4. Get an API key from the portal:
 
-- [AI Foundation Services API Key Portal](https://apikey.llmhub.t-systems.net/)
+   - [AI Foundation Services API Key Portal](https://apikey.llmhub.t-systems.net/)
 
-5. Run OpenCode:
+5. Run:
 
-```bash
-opencode
-```
+   ```bash
+   opencode auth login https://plugins.dev.aie.ai.t-systems.net
+   ```
 
-6. In OpenCode, run the following command to choose your provider and sign in with your API key:
+   This sets up OpenCode with the configuration published at [https://plugins.dev.aie.ai.t-systems.net/.well-known/opencode](https://plugins.dev.aie.ai.t-systems.net/.well-known/opencode), which we recommend for compliant usage with AI Foundation Services models.
 
-```bash
-/connect
-```
+6. Run OpenCode:
 
-Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
+   ```bash
+   opencode
+   ```
+
+7. In OpenCode, run the following command to choose your provider and sign in with your API key:
+
+   ```bash
+   /connect
+   ```
+
+   Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
 
 You can now start a chat and use OpenCode.
+
+## First Steps with OpenCode
+
+Once OpenCode is running, you interact with the agent in natural language. A few prompts to try inside your project directory:
+
+- `Summarize what this repository does and how the main modules fit together.`
+- `Refactor getUserById in src/db/users.ts to use async/await instead of promise chains.`
+- `Run the test suite and fix any failures.`
+
+For the full list of in-session commands and advanced configuration (custom agents, MCP servers, rules), see the upstream [OpenCode documentation](https://opencode.ai/docs).
 
 ## Example Config
 
