@@ -33,8 +33,14 @@ const OFFLINE_MODELS = new Set([
 // Category mapping by exactModelName. Unknown models default to 'llms'
 // (see resolveCategory below).
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+// Category = each model's *primary purpose*. A model can show up on other
+// pages via capabilityFilter (e.g. an LLM with image input still surfaces on
+// /models/vision). Sources for category placement: vendor model cards
+// (OpenAI/Anthropic/Google/Meta/Mistral/Alibaba) audited against the live
+// pricing JSON. Image-output models go under image-generation regardless of
+// whether they also accept image input.
 const CATEGORY_MAP: Record<string, Category> = {
-  // LLMs
+  // LLMs (general-purpose chat & reasoning; some are multimodal-in, all output Text)
   'Llama-3.3-70B-Instruct': 'llms',
   'Mistral-Small-3': 'llms',
   'Qwen3-Next-80B-A3B-Instruct': 'llms',
@@ -69,21 +75,23 @@ const CATEGORY_MAP: Record<string, Category> = {
   'o3-2025-04-16': 'llms',
   'o3-mini-2025-01-31': 'llms',
   'o4-mini-2025-04-16': 'llms',
-  // Coding
+  // Coding (specialised for code generation; per OpenAI/Alibaba positioning)
   'Qwen3-Coder-30B-A3B-Instruct': 'coding',
-  'Qwen3-Coder-30B-A3B-Instruct-FP8': 'coding',
   'gpt-5-codex': 'coding',
-  // Vision (multimodal image-as-input)
+  // Vision (primary purpose is image understanding → Text output)
   'Qwen3-VL-30B-A3B-Instruct-FP8': 'vision',
-  'gemini-2.5-flash-image': 'vision',
-  // Embeddings
+  // Embeddings (Text → Vector)
   'jina-embeddings-v2-base-de': 'embeddings',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
-  // Audio
+  // Audio (Audio → Text; STT models)
   'whisper-large-v3': 'audio',
   'whisper-large-v3-turbo': 'audio',
-  // Image generation
+  // Image generation (outputs Image; gemini-2.5-flash-image a.k.a. "Nano Banana"
+  // belongs here even though it also accepts image input — its purpose is image
+  // generation/editing, which surfaces via /models/image-generation. It still
+  // appears on /models/vision via the capabilityFilter.)
+  'gemini-2.5-flash-image': 'image-generation',
   'gpt-image-1-image-input': 'image-generation',
   'gpt-image-1-text-input': 'image-generation',
 };
@@ -150,26 +158,26 @@ const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
 // Per-model overrides for cases where the category default + inferCreator
 // would produce the wrong answer. Sparse on purpose — everything not listed
 // here resolves from category default + creator inferred from the model name.
+//
+// Audited against vendor model cards. Be specific to the named model when
+// adding entries: "this vendor is multimodal" is not enough — mini/nano/oss
+// variants often differ from their flagship.
 const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // Creator overrides (inferCreator has no pattern for these prefixes):
   'text-embedding-ada-002': { creator: 'OpenAI' },
   'whisper-large-v3':       { creator: 'OpenAI' },
   'whisper-large-v3-turbo': { creator: 'OpenAI' },
-  // Image-input variant of gpt-image-1 accepts an image alongside text:
-  'gpt-image-1-image-input': { inputModalities: ['Text', 'Image'] },
 
-  // Image-capable LLMs — Category stays 'llms' (primary purpose is general
-  // language/reasoning), but inputModalities includes 'Image' so they pass
-  // the capabilityFilter='accepts-image' check on /models/vision.
-  //
-  // Sources: vendor model cards published alongside each release. If a model
-  // is added here, sanity-check with the vendor's docs.
-  'gemini-2.5-flash':              { inputModalities: ['Text', 'Image'] },
-  'gemini-2.5-pro':                { inputModalities: ['Text', 'Image'] },
-  'gemini-2.5-pro-long-context':   { inputModalities: ['Text', 'Image'] },
-  'gemini-3-flash':                { inputModalities: ['Text', 'Image'] },
-  'gemini-3-pro':                  { inputModalities: ['Text', 'Image'] },
-  'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image'] },
+  // Image-capable LLMs — Category stays 'llms', but inputModalities includes
+  // 'Image' so they pass capabilityFilter='accepts-image' on /models/vision.
+  // Gemini also accepts Audio input per Google's Gemini API docs.
+  'gemini-2.5-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-2.5-pro':                { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-2.5-pro-long-context':   { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-3-flash':                { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-3-pro':                  { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemma-4-31B':                   { inputModalities: ['Text', 'Image'] },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
@@ -179,6 +187,7 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gpt-5-mini':                    { inputModalities: ['Text', 'Image'] },
   'gpt-5-nano':                    { inputModalities: ['Text', 'Image'] },
   'gpt-5.2':                       { inputModalities: ['Text', 'Image'] },
+  'mistral-medium-3':              { inputModalities: ['Text', 'Image'] },
   'claude-3-7-sonnet':             { inputModalities: ['Text', 'Image'] },
   'claude-haiku-4.5':              { inputModalities: ['Text', 'Image'] },
   'claude-opus-4.5':               { inputModalities: ['Text', 'Image'] },
@@ -187,9 +196,32 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'claude-sonnet-4.5':             { inputModalities: ['Text', 'Image'] },
   'claude-sonnet-4.5-long-context':{ inputModalities: ['Text', 'Image'] },
   'claude-sonnet-4.6':             { inputModalities: ['Text', 'Image'] },
-  'o1-2024-12-17':                 { inputModalities: ['Text', 'Image'] },
   'o3-2025-04-16':                 { inputModalities: ['Text', 'Image'] },
   'o4-mini-2025-04-16':            { inputModalities: ['Text', 'Image'] },
+
+  // OpenAI o-series reasoning models — quirks vs the llms default
+  // (streaming: true, toolCalling: true):
+  //  - o1: vision-capable, tool-capable, but streaming is unsupported by the
+  //    o1-2024-12-17 endpoint (per Azure/OpenAI community confirmation).
+  //  - o1-mini: text-only with no tool/function calling (per OpenAI release).
+  'o1-2024-12-17':                 { inputModalities: ['Text', 'Image'], streaming: false },
+  'o1-mini-2024-09-12':            { toolCalling: false },
+
+  // Coding-specialised — gpt-5-codex inherits GPT-5's image input via the
+  // Responses API per OpenAI's Codex models docs.
+  'gpt-5-codex':                   { inputModalities: ['Text', 'Image'] },
+
+  // Image generation overrides (category default is text→image, no streaming,
+  // no tools). gpt-image-1 streams partial images; the image-input variant
+  // also accepts an image alongside text. Gemini 2.5 Flash Image ("Nano
+  // Banana") accepts text+image and emits both an image and accompanying text.
+  'gpt-image-1-text-input':        { streaming: true },
+  'gpt-image-1-image-input':       { inputModalities: ['Text', 'Image'], streaming: true },
+  'gemini-2.5-flash-image':        {
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Image', 'Text'],
+    streaming: true,
+  },
 };
 
 function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
