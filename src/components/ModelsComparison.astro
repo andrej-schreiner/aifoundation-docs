@@ -449,11 +449,10 @@ const rowDataPayload = allModels.map((m) => ({
               <td><strong>{m.displayModelName}</strong></td>
               {!categoryFilter && <td>{CATEGORY_LABELS[m.category]}</td>}
               <td>
-                <span class="creator-brand creator-brand--icon-text" title={m.capabilities.creator} aria-label={m.capabilities.creator}>
-                  {brandIcon && (
-                    <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
-                  )}
-                  <span class="creator-brand__label">{m.capabilities.creator}</span>
+                <span class="creator-brand" title={m.capabilities.creator} aria-label={m.capabilities.creator}>
+                  {brandIcon
+                    ? <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
+                    : <span class="creator-brand__fallback">{m.capabilities.creator}</span>}
                 </span>
               </td>
               <td>
@@ -1033,15 +1032,15 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--sl-color-gray-3);
   }
 
-  /* Brand-icon (mirrors ModelsTable.astro creator-brand--icon-text pattern) */
+  /* Brand-icon: icon-only cell. Creator name lives in aria-label/title for
+     a11y and hover; we only fall back to text when no logo is registered. */
   .models-comparison .creator-brand {
     display: inline-flex;
     align-items: center;
-    gap: 0.4rem;
     vertical-align: middle;
   }
 
-  .models-comparison .creator-brand--icon-text .creator-brand__icon {
+  .models-comparison .creator-brand__icon {
     width: 18px;
     height: 18px;
     display: block;
@@ -1052,7 +1051,7 @@ const rowDataPayload = allModels.map((m) => ({
     background: white;
   }
 
-  .models-comparison .creator-brand__label {
+  .models-comparison .creator-brand__fallback {
     font-weight: 500;
     font-size: 0.85rem;
     white-space: nowrap;
