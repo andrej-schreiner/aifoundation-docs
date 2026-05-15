@@ -12,6 +12,7 @@ interface Props {
   modelBrandIcons: Record<string, string>;
   hostTooltips: Record<string, string>;
   tierTooltips: Record<string, string>;
+  creatorTooltips: Record<string, string>;
   testModelsSectionTitle?: string;
   legacy?: boolean;
 }
@@ -24,6 +25,7 @@ const {
   modelBrandIcons,
   hostTooltips,
   tierTooltips,
+  creatorTooltips,
   testModelsSectionTitle,
   legacy = false,
 } = Astro.props;
@@ -58,6 +60,7 @@ const priceBuckets = [
   data-brand-icons={JSON.stringify(modelBrandIcons)}
   data-host-tooltips={JSON.stringify(hostTooltips)}
   data-tier-tooltips={JSON.stringify(tierTooltips)}
+  data-creator-tooltips={JSON.stringify(creatorTooltips)}
   data-initial-index={effectiveIndex}
   data-locked={locked ? 'true' : 'false'}
   data-legacy={legacy ? 'true' : 'false'}
@@ -238,6 +241,7 @@ const priceBuckets = [
     const brandIcons = JSON.parse(section.dataset.brandIcons || '{}');
     const hostTooltips = JSON.parse(section.dataset.hostTooltips || '{}');
     const tierTooltips = JSON.parse(section.dataset.tierTooltips || '{}');
+    const creatorTooltips = JSON.parse(section.dataset.creatorTooltips || '{}');
     const translations = JSON.parse(section.dataset.t || '{}');
     let currentIndex = parseInt(section.dataset.initialIndex || '0', 10);
     const locked = section.dataset.locked === 'true';
@@ -655,13 +659,19 @@ const priceBuckets = [
         const hostTooltip = hostTooltips[model.modelHost] || '';
         const tierTooltip = tierTooltips[modelTier] || '';
         const creatorIcon = brandIcons[model.creator] || '';
+        const creatorTooltip = creatorTooltips[model.creator] || creatorTooltips['Other'] || model.creator;
         row.innerHTML = `
           <td>${hostTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 26rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(hostTooltip)}</span></span>` : `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>`}</td>
           <td><span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${cloudProviderClass} mt-cloud-tag-btn" data-cloud="${escapeHtml(model.cloudProvider)}" title="${escapeHtml(cloudProviderFullName)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(cloudProvider)} cloud in the filter">${escapeHtml(cloudProvider)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(cloudProviderFullName)}</span></span></td>
           ${legacy ? '' : `<td>${tierTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${tierClass} mt-tier-tag-btn" data-tier="${escapeHtml(model.modelTier)}" title="${escapeHtml(tierTooltip || modelTier)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(modelTier)} tier in the filter">${escapeHtml(modelTier)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(tierTooltip)}</span></span>` : `<button type="button" class="plans-tag ${tierClass} mt-tier-tag-btn" data-tier="${escapeHtml(model.modelTier)}" title="${escapeHtml(tierTooltip || modelTier)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(modelTier)} tier in the filter">${escapeHtml(modelTier)}</button>`}</td>`}
           <td>
-            <span class="creator-brand ${creatorIcon ? 'creator-brand--icon' : 'creator-brand--text'}" title="${escapeHtml(model.creator)}" aria-label="${escapeHtml(model.creator)}">
-              ${creatorIcon ? `<img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(model.creator)}" />` : `<span class="creator-brand__label">${escapeHtml(model.creator)}</span>`}
+            <span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;">
+              <span class="ui-tooltip__trigger" tabindex="0">
+                <span class="creator-brand ${creatorIcon ? 'creator-brand--icon' : 'creator-brand--text'}" aria-label="${escapeHtml(model.creator)}">
+                  ${creatorIcon ? `<img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(model.creator)}" />` : `<span class="creator-brand__label">${escapeHtml(model.creator)}</span>`}
+                </span>
+              </span>
+              <span class="ui-tooltip__content" role="tooltip">${escapeHtml(creatorTooltip)}</span>
             </span>
           </td>
           <td>

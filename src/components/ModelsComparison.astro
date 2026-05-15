@@ -1,6 +1,7 @@
 ---
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
+import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import Tooltip from './Tooltip.astro';
 
 type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
@@ -369,6 +370,8 @@ const t = {
     : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
 };
 
+const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
+
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
       Telekom: 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
@@ -575,11 +578,13 @@ const rowDataPayload = allModels.map((m) => ({
               <td><strong>{m.displayModelName}</strong></td>
               {!categoryFilter && <td>{CATEGORY_LABELS[m.category]}</td>}
               <td>
-                <span class="creator-brand" title={m.capabilities.creator} aria-label={m.capabilities.creator}>
-                  {brandIcon
-                    ? <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
-                    : <span class="creator-brand__fallback">{m.capabilities.creator}</span>}
-                </span>
+                <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
+                  <span class="creator-brand" aria-label={m.capabilities.creator}>
+                    {brandIcon
+                      ? <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
+                      : <span class="creator-brand__fallback">{m.capabilities.creator}</span>}
+                  </span>
+                </Tooltip>
               </td>
               <td>
                 <Tooltip text={CLOUD_TOOLTIPS[m.cloud]} maxWidth="22rem">

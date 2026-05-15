@@ -4,6 +4,7 @@ import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/
 import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
 import { modelBrandIcons } from '../shared/lib/modelBrandIcons';
+import { getProviderTooltips } from '../shared/lib/providerTooltips';
 
 interface Props {
   selectedPlanId?: string;
@@ -123,6 +124,8 @@ const hostTooltips: Record<string, string> = {
   'T-Cloud': t.tooltipTCloud,
   External: t.tooltipExternal,
 };
+
+const creatorTooltips = getProviderTooltips(isDE);
 
 const tierTooltips: Record<string, string> = {
   Standard: t.tooltipStandard,
@@ -465,6 +468,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     modelBrandIcons={modelBrandIcons}
     hostTooltips={hostTooltips}
     tierTooltips={tierTooltips}
+    creatorTooltips={creatorTooltips}
     testModelsSectionTitle={modelsSectionTitle}
     legacy={legacy}
   />
