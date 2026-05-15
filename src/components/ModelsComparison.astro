@@ -1,6 +1,7 @@
 ---
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
+import Tooltip from './Tooltip.astro';
 
 type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
@@ -360,7 +361,27 @@ const t = {
   models: isDE ? 'Modellen' : 'models',
   selected: isDE ? 'ausgewählt' : 'selected',
   noResults: isDE ? 'Keine Modelle entsprechen den Filtern.' : 'No models match the current filters.',
+  tooltipStreaming: isDE
+    ? 'Token-für-Token-Ausgabe via Server-Sent Events. Geeignet für niedrige Latenz und Echtzeit-UI.'
+    : 'Token-by-token output via Server-Sent Events. Suitable for low-latency, real-time UI.',
+  tooltipTools: isDE
+    ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
+    : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
 };
+
+const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
+  ? {
+      Telekom: 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
+      Azure:   'Gehostet auf Microsoft Azure (EU-Regionen).',
+      GCP:     'Gehostet auf Google Cloud Platform (EU-Regionen).',
+      Other:   'Bei einem Drittanbieter gehostet.',
+    }
+  : {
+      Telekom: "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
+      Azure:   'Hosted on Microsoft Azure (EU regions).',
+      GCP:     'Hosted on Google Cloud Platform (EU regions).',
+      Other:   'Hosted by a third-party provider.',
+    };
 
 const CATEGORY_LABELS: Record<Category, string> = {
   llms: 'LLM',
@@ -419,7 +440,7 @@ interface FilterChip {
   optionLabel: (v: string) => string;
   defaultChecked?: (v: string) => boolean;
 }
-const boolToTick = (v: string) => (v === 'true' ? '✓' : '—');
+const boolToTick = (v: string) => (v === 'true' ? '✓' : '✗');
 const filterChips: FilterChip[] = [
   ...(categoryFilter
     ? []
@@ -510,26 +531,37 @@ const rowDataPayload = allModels.map((m) => ({
       <thead>
         <tr>
           {[
-            { key: 'model', label: t.colModel, cls: '' },
-            ...(!categoryFilter ? [{ key: 'category', label: t.colCategory, cls: '' }] : []),
-            { key: 'provider', label: t.colProvider, cls: '' },
-            { key: 'cloud', label: t.colCloud, cls: '' },
-            { key: 'input', label: t.colInput, cls: '' },
-            { key: 'output', label: t.colOutput, cls: '' },
-            { key: 'streaming', label: t.colStreaming, cls: 'center' },
-            { key: 'tools', label: t.colTools, cls: 'center' },
-            { key: 'context', label: t.colContext, cls: '' },
-            { key: 'inputPrice', label: t.colInputPrice, cls: 'num' },
-            { key: 'outputPrice', label: t.colOutputPrice, cls: 'num' },
-            { key: 'plans', label: t.colPlans, cls: '' },
+            { key: 'model', label: t.colModel, cls: '', tooltip: undefined as string | undefined },
+            ...(!categoryFilter ? [{ key: 'category', label: t.colCategory, cls: '', tooltip: undefined as string | undefined }] : []),
+            { key: 'provider', label: t.colProvider, cls: '', tooltip: undefined as string | undefined },
+            { key: 'cloud', label: t.colCloud, cls: '', tooltip: undefined as string | undefined },
+            { key: 'input', label: t.colInput, cls: '', tooltip: undefined as string | undefined },
+            { key: 'output', label: t.colOutput, cls: '', tooltip: undefined as string | undefined },
+            { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming },
+            { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
+            { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
+            { key: 'inputPrice', label: t.colInputPrice, cls: 'num', tooltip: undefined as string | undefined },
+            { key: 'outputPrice', label: t.colOutputPrice, cls: 'num', tooltip: undefined as string | undefined },
+            { key: 'plans', label: t.colPlans, cls: '', tooltip: undefined as string | undefined },
           ].map((h) => (
             <th data-sort={h.key} class={h.cls}>
-              <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
-                <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
-                  <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
-                </svg>
-                <span>{h.label}</span>
-              </button>
+              {h.tooltip ? (
+                <Tooltip text={h.tooltip} maxWidth="22rem">
+                  <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
+                    <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
+                      <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
+                    </svg>
+                    <span>{h.label}</span>
+                  </button>
+                </Tooltip>
+              ) : (
+                <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
+                  <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
+                    <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
+                  </svg>
+                  <span>{h.label}</span>
+                </button>
+              )}
             </th>
           ))}
         </tr>
@@ -550,20 +582,29 @@ const rowDataPayload = allModels.map((m) => ({
                 </span>
               </td>
               <td>
-                <button
-                  type="button"
-                  class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
-                  title={`${fullCloud} — click to toggle in filter`}
-                  data-cloud={m.cloud}
-                  aria-label={`Toggle ${m.cloud} cloud in the filter`}
-                >
-                  {m.cloud}
-                </button>
+                <Tooltip text={CLOUD_TOOLTIPS[m.cloud]} maxWidth="22rem">
+                  <button
+                    type="button"
+                    class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
+                    data-cloud={m.cloud}
+                    aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
+                  >
+                    {m.cloud}
+                  </button>
+                </Tooltip>
               </td>
               <td>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
               <td>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
-              <td class="center">{m.capabilities.streaming ? '✓' : '—'}</td>
-              <td class="center">{m.capabilities.toolCalling ? '✓' : '—'}</td>
+              <td class="center">
+                {m.capabilities.streaming
+                  ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
+                  : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
+              </td>
+              <td class="center">
+                {m.capabilities.toolCalling
+                  ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
+                  : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
+              </td>
               <td>{m.contextWindow}</td>
               <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
               <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
@@ -1104,6 +1145,21 @@ const rowDataPayload = allModels.map((m) => ({
     text-align: right;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  /* Capability cells (Streaming output, Tool calling): give the tick/cross a
+     subtle semantic color so it's quick to scan across the table. */
+  .models-comparison .mc-cap {
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1;
+    display: inline-block;
+  }
+  .models-comparison .mc-cap--yes {
+    color: #4ade80; /* green-400 */
+  }
+  .models-comparison .mc-cap--no {
+    color: #94a3b8; /* slate-400 — muted, not alarming */
   }
 
   .models-comparison-table th.center,
