@@ -5,15 +5,29 @@ description: "Wichtige Modellveröffentlichungen, Funktionsupdates und Deprecati
 
 Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdates und Deprecations.
 
-Einträge folgen den Konventionen von [Keep a Changelog](https://keepachangelog.com/). Innerhalb jeder Version sind die Einträge unter den Unterüberschriften `### Hinzugefügt`, `### Geändert`, `### Veraltet`, `### Entfernt` oder `### Behoben` gruppiert.
+Einträge folgen den Konventionen von [Keep a Changelog](https://keepachangelog.com/) und [Semantic Versioning](https://semver.org/). Innerhalb jeder Version sind die Einträge unter den Unterüberschriften `### Hinzugefügt`, `### Geändert`, `### Veraltet`, `### Entfernt` oder `### Behoben` gruppiert.
 
-## 2026-05
+## Versionsrichtlinie
+
+- **Major** (`vX.0.0`) — inkompatible API-Änderungen (Endpunkt entfernt, Request/Response-Schema inkompatibel geändert, Authentifizierung ersetzt).
+- **Minor** (`vX.Y.0`) — Modell hinzugefügt oder entfernt, Tarif hinzugefügt oder entfernt, neues Feature oder neuer Endpunkt, Änderungen am Stilllegungsplan.
+- **Patch** (`vX.Y.Z`) — Text-Korrekturen, Barrierefreiheit, Tippfehler, Link-Korrekturen, interne Refactorings.
+
+Jede Version wird unter `/v<version>/` archiviert, damit ältere Stände weiterhin zugänglich bleiben, wenn die aktuelle Dokumentation weiterzieht.
+
+## v1.1.0 — 2026-05
+
+Archivierter Stand: [v1.1.0](/v1-1-0/).
 
 ### Hinzugefügt
 
-- Neuer Bereich **Modelle** auf oberster Ebene mit eigenen Karten für jedes gehostete Modell — Kontextfenster, Preise, Souveränitäts-Bewertung, Tarifverfügbarkeit und OpenAI-kompatible Endpunkt-Referenz pro Modell.
+- Neuer Bereich **Modelle** auf oberster Ebene mit einer [Vergleichsseite](/de/models/comparison) für jedes gehostete Modell — Kontextfenster, Preise, Cloud, Modalitäten, Tarifverfügbarkeit und OpenAI-kompatible Endpunkt-Referenz. Bild-fähige Modelle erscheinen zusätzlich auf der dedizierten [Vision-Seite](/de/models/vision) über einen Capability-Filter.
 - Seite **Änderungsprotokoll** (die Sie gerade lesen).
 
 ### Entfernt
 
-- Fine-Tuning-API-Dokumentation. Die Funktion wird über AI Foundation Services nicht mehr angeboten.
+- Fine-Tuning-API-Dokumentation. Die Funktion wird über AI Foundation Services nicht mehr angeboten. Aufrufe von `/guides/fine-tuning` werden hierher umgeleitet.
+
+## v1.0.0
+
+Archivierter Stand: [v1.0.0](/v1/) — der ursprünglich veröffentlichte Stand der Dokumentation, bevor das Änderungsprotokoll eingeführt wurde.
