@@ -3,10 +3,16 @@ import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/al
 import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
 
 type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+// Capability-derived filter for pages where "show me every model that can do
+// X" beats curating a category list. Vision is the motivating case: an LLM
+// like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
+// so a category-only model would hide it from /models/vision.
+type CapabilityFilter = 'accepts-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
 interface Props {
   category?: CategoryProp;
+  capabilityFilter?: CapabilityFilter;
 }
-const { category: categoryFilter } = Astro.props as Props;
+const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
 
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
@@ -122,6 +128,16 @@ function inferCreator(exactModelName: string): Creator {
 }
 
 // Default capability shape per category (creator filled in per-model below).
+//
+// Categories describe a model's *primary purpose* (one per model). They drive
+// the category page filters (/models/llms, /models/coding, /models/embeddings,
+// /models/audio, /models/image-generation) and the category column.
+//
+// "Cross-cutting" pages — currently /models/vision — instead use the
+// `capabilityFilter` prop so any model whose modalities qualify shows up,
+// regardless of category. That keeps Gemini-class LLMs (Text+Image input,
+// Text output) visible on the Vision page without forcing every multimodal
+// model into a single Category slot.
 const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
   llms:               { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   coding:             { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
@@ -141,6 +157,39 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'whisper-large-v3-turbo': { creator: 'OpenAI' },
   // Image-input variant of gpt-image-1 accepts an image alongside text:
   'gpt-image-1-image-input': { inputModalities: ['Text', 'Image'] },
+
+  // Image-capable LLMs — Category stays 'llms' (primary purpose is general
+  // language/reasoning), but inputModalities includes 'Image' so they pass
+  // the capabilityFilter='accepts-image' check on /models/vision.
+  //
+  // Sources: vendor model cards published alongside each release. If a model
+  // is added here, sanity-check with the vendor's docs.
+  'gemini-2.5-flash':              { inputModalities: ['Text', 'Image'] },
+  'gemini-2.5-pro':                { inputModalities: ['Text', 'Image'] },
+  'gemini-2.5-pro-long-context':   { inputModalities: ['Text', 'Image'] },
+  'gemini-3-flash':                { inputModalities: ['Text', 'Image'] },
+  'gemini-3-pro':                  { inputModalities: ['Text', 'Image'] },
+  'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image'] },
+  'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
+  'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
+  'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
+  'gpt-4.1-mini-2025-04-14':       { inputModalities: ['Text', 'Image'] },
+  'gpt-4.1-nano-2025-04-14':       { inputModalities: ['Text', 'Image'] },
+  'gpt-5':                         { inputModalities: ['Text', 'Image'] },
+  'gpt-5-mini':                    { inputModalities: ['Text', 'Image'] },
+  'gpt-5-nano':                    { inputModalities: ['Text', 'Image'] },
+  'gpt-5.2':                       { inputModalities: ['Text', 'Image'] },
+  'claude-3-7-sonnet':             { inputModalities: ['Text', 'Image'] },
+  'claude-haiku-4.5':              { inputModalities: ['Text', 'Image'] },
+  'claude-opus-4.5':               { inputModalities: ['Text', 'Image'] },
+  'claude-opus-4.6':               { inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4':               { inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4.5':             { inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4.5-long-context':{ inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4.6':             { inputModalities: ['Text', 'Image'] },
+  'o1-2024-12-17':                 { inputModalities: ['Text', 'Image'] },
+  'o3-2025-04-16':                 { inputModalities: ['Text', 'Image'] },
+  'o4-mini-2025-04-16':            { inputModalities: ['Text', 'Image'] },
 };
 
 function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
@@ -236,8 +285,21 @@ for (const m of byName.values()) {
 // display name. Client-side sort (column-header clicks) can override.
 const CLOUD_RANK: Record<CloudKey, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
 
+function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined): boolean {
+  if (!cap) return true;
+  const inputs = m.capabilities.inputModalities;
+  const outputs = m.capabilities.outputModalities;
+  switch (cap) {
+    case 'accepts-image': return inputs.includes('Image');
+    case 'accepts-audio': return inputs.includes('Audio');
+    case 'emits-audio':   return outputs.includes('Audio');
+    case 'emits-image':   return outputs.includes('Image');
+  }
+}
+
 const allModels = [...byName.values()]
   .filter((m) => (categoryFilter ? m.category === categoryFilter : true))
+  .filter((m) => matchesCapability(m, capabilityFilter))
   .sort((a, b) => {
     const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
     if (rankDiff !== 0) return rankDiff;
