@@ -5,6 +5,10 @@ description: "Install OpenCode, an open-source terminal-based AI coding agent, a
 
 OpenCode is an open-source AI coding agent that runs in the terminal and can be used alongside any editor or IDE.
 
+With OpenCode you can ask questions about your codebase, generate or refactor code, run tests and shell commands, and let the agent carry out multi-step changes across files — all from the terminal, using AI Foundation Services models.
+
+It's a good fit if you prefer a keyboard-driven, editor-agnostic workflow and want a single tool you can drop into any project without switching IDEs.
+
 ## Key Features
 
 - LSP support that loads the right language tooling for the model
@@ -65,6 +69,16 @@ https_proxy=<your-proxy-url:port>
    Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
 
 You can now start a chat and use OpenCode.
+
+## First Steps with OpenCode
+
+Once OpenCode is running, you interact with the agent in natural language. A few prompts to try inside your project directory:
+
+- `Summarize what this repository does and how the main modules fit together.`
+- `Refactor getUserById in src/db/users.ts to use async/await instead of promise chains.`
+- `Run the test suite and fix any failures.`
+
+For the full list of in-session commands and advanced configuration (custom agents, MCP servers, rules), see the upstream [OpenCode documentation](https://opencode.ai/docs).
 
 ## Example Config
 
