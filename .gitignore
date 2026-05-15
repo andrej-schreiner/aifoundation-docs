@@ -24,4 +24,5 @@ yarn-error.log*
 .claude/
 CLAUDE.md
 plan.md
+docs/superpowers/
 .docusaurus/
