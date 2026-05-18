@@ -12,6 +12,10 @@ export default defineConfig({
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
+		'/guides/fine-tuning': '/changelog',
+		'/de/guides/fine-tuning': '/de/changelog',
+		'/getting-started/models': '/models',
+		'/de/getting-started/models': '/de/models',
 	},
 	integrations: [
 		starlight({
@@ -21,6 +25,7 @@ export default defineConfig({
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',
+				alt: 'AI Foundation Services LLM serving',
 			},
 			favicon: '/img/favicon_180x180.png',
 			customCss: ['./src/styles/custom.css'],
@@ -31,6 +36,7 @@ export default defineConfig({
 				starlightVersions({
 					versions: [
 						{ slug: 'v1', label: 'v1.0.0' },
+						{ slug: 'v1-1-0', label: 'v1.1.0' },
 					],
 				}),
 			],
@@ -47,7 +53,6 @@ export default defineConfig({
 					items: [
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
-						{ label: 'Models', translations: { de: 'Verfügbare Modelle' }, slug: 'getting-started/models' },
 					],
 				},
 				{
@@ -62,7 +67,6 @@ export default defineConfig({
 						{ label: 'Function Calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
 						{ label: 'Image Generation', translations: { de: 'Image Generation' }, slug: 'guides/image-generation' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
-						{ label: 'Fine-Tuning', translations: { de: 'Fine-Tuning' }, slug: 'guides/fine-tuning' },
 						{ label: 'Visual RAG', translations: { de: 'Visual RAG' }, slug: 'guides/visual-rag' },
 						{ label: 'Asynchronous Requests', translations: { de: 'Asynchronous Requests' }, slug: 'guides/asynchronous-requests' },
 					],
@@ -84,6 +88,28 @@ export default defineConfig({
 						{ label: 'Continue for JetBrains', translations: { de: 'Continue für JetBrains' }, slug: 'plugins/continue-jetbrains' },
 						{ label: 'OpenCode', translations: { de: 'OpenCode' }, slug: 'plugins/opencode' },
 						{ label: 'Roo Code', translations: { de: 'Roo Code' }, slug: 'plugins/roo-code' },
+					],
+				},
+				{
+					label: 'Models',
+					translations: { de: 'Modelle' },
+					items: [
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'models' },
+						{ label: 'Comparison', translations: { de: 'Vergleich' }, slug: 'models/comparison' },
+						{
+							label: 'Active Models',
+							translations: { de: 'Aktive Modelle' },
+							items: [
+								{ label: 'Chat & Reasoning (LLMs)', translations: { de: 'Chat & Reasoning (LLMs)' }, slug: 'models/llms' },
+								{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
+								{ label: 'Vision', translations: { de: 'Vision' }, slug: 'models/vision' },
+								{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
+								{ label: 'Audio (Speech-to-Text)', translations: { de: 'Audio (Sprache-zu-Text)' }, slug: 'models/audio' },
+								{ label: 'Image Generation', translations: { de: 'Bildgenerierung' }, slug: 'models/image-generation' },
+							],
+						},
+						{ label: 'Scheduled for Retirement', translations: { de: 'Zur Stilllegung vorgesehen' }, slug: 'models/scheduled-for-retirement' },
+						{ label: 'Retired Models', translations: { de: 'Stillgelegte Modelle' }, slug: 'models/retired' },
 					],
 				},
 				{
@@ -123,15 +149,21 @@ export default defineConfig({
 						// { label: 'Standard 4000', translations: { de: 'Standard 4000' }, slug: 'plans/standard-4000' },
 					],
 				},
+				{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 				{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },
 				{
 					label: 'Links',
 					translations: { de: 'Links' },
 					items: [
-						{ label: 'SmartChat ↗', translations: { de: 'SmartChat ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank' } },
-						{ label: 'LLM Playground ↗', translations: { de: 'LLM Playground ↗' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank' } },
-						{ label: 'Model Status ↗', translations: { de: 'Model Status ↗' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank' } },
-						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung-LLM-Serving-Service.pdf', attrs: { target: '_blank' } },
+						// The visible "↗" glyph signals an external link sighted users, but is
+						// not announced meaningfully by screen readers (and would read as "north-east arrow").
+						// `aria-label` overrides the visible text for AT, so it must include the link's
+						// name AND the "(opens in new tab)" hint. `rel="noopener noreferrer"` is
+						// the security-required pairing for `target="_blank"`.
+						{ label: 'SmartChat ↗', translations: { de: 'SmartChat ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'SmartChat (opens in new tab)' } },
+						{ label: 'LLM Playground ↗', translations: { de: 'LLM Playground ↗' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
+						{ label: 'Model Status ↗', translations: { de: 'Model Status ↗' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
+						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung-LLM-Serving-Service.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
 					],
 				},
 			],

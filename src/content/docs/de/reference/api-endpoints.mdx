@@ -1,6 +1,6 @@
 ---
 title: "API-Endpunkte"
-description: "Vollständige Referenz aller REST-Endpunkte der LLM Hub API — Chat-Completions, Embeddings, Audio, Bilder, Fine-Tuning und mehr."
+description: "Vollständige Referenz aller REST-Endpunkte der LLM Hub API — Chat-Completions, Embeddings, Audio, Bilder und mehr."
 ---
 
 AI Foundation Services bietet eine OpenAI-kompatible REST-API. Alle Endpunkte verwenden die Basis-URL:
@@ -26,10 +26,6 @@ Die vollständige OpenAPI-Spezifikation finden Sie in der [interaktiven API-Doku
 | `GET` | `/audio/models` | Verfügbare Audio-Modelle auflisten |
 | `POST` | `/images/generations` | Bilder aus Text generieren |
 | `POST` | `/responses` | Eine Antwort erstellen (Responses API) |
-| `POST` | `/fine_tuning/jobs` | Einen Fine-Tuning-Auftrag erstellen |
-| `GET` | `/fine_tuning/jobs` | Fine-Tuning-Aufträge auflisten |
-| `POST` | `/fine_tuning/jobs/{id}/cancel` | Einen Fine-Tuning-Auftrag abbrechen |
-| `GET` | `/fine_tuning/jobs/{id}/events` | Fine-Tuning-Ereignisse auflisten |
 | `POST` | `/files` | Eine Datei hochladen |
 | `GET` | `/files` | Hochgeladene Dateien auflisten |
 | `DELETE` | `/files/{id}` | Eine Datei löschen |

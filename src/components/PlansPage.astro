@@ -4,6 +4,7 @@ import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/
 import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
 import { modelBrandIcons } from '../shared/lib/modelBrandIcons';
+import { getProviderTooltips } from '../shared/lib/providerTooltips';
 
 interface Props {
   selectedPlanId?: string;
@@ -63,6 +64,7 @@ const t = {
   labelSearch: isDE ? 'Suche' : 'Search',
   labelServerLocation: 'Server Location',
   labelCloud: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
+  labelModelTier: isDE ? 'Modell-Tier' : 'Model Tier',
   labelInputPriceRange: isDE ? 'Input-Preis' : 'Input Price',
   labelOutputPriceRange: isDE ? 'Output-Preis' : 'Output Price',
   placeholderSearch: isDE ? 'Modelle filtern...' : 'Filter models...',
@@ -70,6 +72,10 @@ const t = {
   priceUnder2: 'Under €2/MTok',
   price2to5: '€2-5/MTok',
   priceOver5: 'Over €5/MTok',
+  labelResetFilters: isDE ? 'Filter zurücksetzen' : 'Reset filters',
+  showingPrefix: isDE ? 'Zeige' : 'Showing',
+  ofPrefix: isDE ? 'von' : 'of',
+  modelsLabel: isDE ? 'Modellen' : 'models',
   thDPLocation: 'Data Processing Location',
   thCloudProvider: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
   thCreator: isDE ? 'Anbieter' : 'Creator',
@@ -118,6 +124,8 @@ const hostTooltips: Record<string, string> = {
   'T-Cloud': t.tooltipTCloud,
   External: t.tooltipExternal,
 };
+
+const creatorTooltips = getProviderTooltips(isDE);
 
 const tierTooltips: Record<string, string> = {
   Standard: t.tooltipStandard,
@@ -460,6 +468,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     modelBrandIcons={modelBrandIcons}
     hostTooltips={hostTooltips}
     tierTooltips={tierTooltips}
+    creatorTooltips={creatorTooltips}
     testModelsSectionTitle={modelsSectionTitle}
     legacy={legacy}
   />

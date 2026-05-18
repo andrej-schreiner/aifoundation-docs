@@ -305,6 +305,24 @@
 	opacity: 1;
 }
 
+/* Sidebar — scale nested group labels down so depth-2/depth-3 groups read as
+   children of their parent, not sibling sections. Starlight applies the same
+   .large class to every group <summary> regardless of nesting depth; without
+   this override, "Chat & Reasoning (LLMs)" (depth 3) looks identical to
+   "Models" (depth 1) and the hierarchy is illegible. */
+.sidebar-content details details > summary .large {
+	font-size: var(--sl-text-sm);
+	font-weight: 600;
+}
+
+.sidebar-content details details details > summary .large {
+	font-size: var(--sl-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	opacity: 0.85;
+}
+
 /* Minimum Monthly Commitment explanatory note (Plans page) */
 .commitment-note {
 	display: block;

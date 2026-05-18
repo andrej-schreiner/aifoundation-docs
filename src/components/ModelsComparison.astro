@@ -1,0 +1,1359 @@
+---
+import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
+import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import Tooltip from './Tooltip.astro';
+
+type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+// Capability-derived filter for pages where "show me every model that can do
+// X" beats curating a category list. Vision is the motivating case: an LLM
+// like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
+// so a category-only model would hide it from /models/vision.
+type CapabilityFilter = 'accepts-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
+interface Props {
+  category?: CategoryProp;
+  capabilityFilter?: CapabilityFilter;
+}
+const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
+
+// Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const localePrefix = isDE ? '/de' : '';
+
+// Models that are no longer offered through the regular plans (mirrors AvailableModels.astro)
+const OFFLINE_MODELS = new Set([
+  'gpt-4.1-nano',
+  'gpt-4o-mini',
+  'GPT-5-Codex',
+  'gpt-5-nano',
+  'Mistral-Large-2411',
+  'Mistral-Medium-3',
+  'o1',
+]);
+
+type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+
+// PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
+// models whose primary purpose is NOT general-purpose LLM appear here.
+// Everything else defaults to 'llms'.
+//
+// Additional category membership is *derived* from modalities — see
+// deriveCategories() below. So Qwen3-VL (Text+Image in) is primary 'llms'
+// and gains 'vision' via derivation, surfacing on both /models/llms and
+// /models/vision. Gemini-class multimodal LLMs gain 'vision' AND 'audio'
+// the same way.
+//
+// Why some models need explicit non-llms primaries:
+//   - 'coding': no modality signals coding-specialisation; must be tagged.
+//   - 'audio': Whisper accepts Audio AND outputs Text — without an explicit
+//     primary it would be added to /models/llms (text-out default). Same
+//     logic for embeddings (text-in) and image-generation (image-out).
+const PRIMARY_CATEGORY: Record<string, Category> = {
+  // Coding-specialised (per OpenAI/Alibaba positioning).
+  'Qwen3-Coder-30B-A3B-Instruct': 'coding',
+  'gpt-5-codex': 'coding',
+  // Audio: speech-to-text. Primary 'audio' so they don't pollute /models/llms.
+  'whisper-large-v3': 'audio',
+  'whisper-large-v3-turbo': 'audio',
+  // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
+  'jina-embeddings-v2-base-de': 'embeddings',
+  'text-embedding-ada-002': 'embeddings',
+  'text-embedding-bge-m3': 'embeddings',
+  // Image generation: outputs Image. Primary 'image-generation' keeps them off
+  // /models/llms. They still surface on /models/vision via image-input derivation.
+  'gemini-2.5-flash-image': 'image-generation',
+  'gpt-image-1-image-input': 'image-generation',
+  'gpt-image-1-text-input': 'image-generation',
+};
+
+function resolvePrimaryCategory(exactModelName: string): Category {
+  return PRIMARY_CATEGORY[exactModelName] ?? 'llms';
+}
+
+// Multi-category derivation. A model's `categories` array is its primary
+// plus any modality-driven additions: image input → 'vision', any audio
+// → 'audio', image output → 'image-generation', vector output → 'embeddings'.
+// Returned in stable display order so the Category column renders consistently.
+function deriveCategories(primary: Category, caps: Capabilities): Category[] {
+  const cats = new Set<Category>([primary]);
+  if (caps.inputModalities.includes('Image')) cats.add('vision');
+  if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
+  if (caps.outputModalities.includes('Image')) cats.add('image-generation');
+  if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
+  const ORDER: Category[] = ['llms', 'coding', 'vision', 'image-generation', 'audio', 'embeddings'];
+  return ORDER.filter((c) => cats.has(c));
+}
+
+// ---------------- Capabilities ----------------
+
+type Creator =
+  | 'Meta'
+  | 'OpenAI'
+  | 'Anthropic'
+  | 'Google'
+  | 'Google Gemma'
+  | 'Mistral'
+  | 'Alibaba Cloud'
+  | 'T-Systems'
+  | 'Other';
+type InputModality = 'Text' | 'Image' | 'Audio';
+type OutputModality = 'Text' | 'Image' | 'Audio' | 'Vector';
+
+interface Capabilities {
+  creator: Creator;
+  inputModalities: InputModality[];
+  outputModalities: OutputModality[];
+  streaming: boolean;
+  toolCalling: boolean;
+}
+
+function inferCreator(exactModelName: string): Creator {
+  const n = exactModelName;
+  if (/^Llama-/i.test(n)) return 'Meta';
+  if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
+  if (/^Qwen3-/i.test(n)) return 'Alibaba Cloud';
+  if (/^claude-/i.test(n)) return 'Anthropic';
+  if (/^gemma-/i.test(n)) return 'Google Gemma';
+  if (/^gemini-/i.test(n)) return 'Google';
+  if (/^(gpt-|o1-|o3-|o4-|gpt-image)/i.test(n)) return 'OpenAI';
+  return 'Other';
+}
+
+// Default capability shape per category (creator filled in per-model below).
+//
+// Categories describe a model's *primary purpose* (one per model). They drive
+// the category page filters (/models/llms, /models/coding, /models/embeddings,
+// /models/audio, /models/image-generation) and the category column.
+//
+// "Cross-cutting" pages — currently /models/vision — instead use the
+// `capabilityFilter` prop so any model whose modalities qualify shows up,
+// regardless of category. That keeps Gemini-class LLMs (Text+Image input,
+// Text output) visible on the Vision page without forcing every multimodal
+// model into a single Category slot.
+const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
+  llms:               { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
+  coding:             { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
+  vision:             { inputModalities: ['Text', 'Image'], outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
+  embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
+  audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
+  'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
+};
+
+// Per-model overrides for cases where the category default + inferCreator
+// would produce the wrong answer. Sparse on purpose — everything not listed
+// here resolves from category default + creator inferred from the model name.
+//
+// Audited against vendor model cards. Be specific to the named model when
+// adding entries: "this vendor is multimodal" is not enough — mini/nano/oss
+// variants often differ from their flagship.
+const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
+  // Creator overrides (inferCreator has no pattern for these prefixes):
+  'text-embedding-ada-002': { creator: 'OpenAI' },
+  'whisper-large-v3':       { creator: 'OpenAI' },
+  'whisper-large-v3-turbo': { creator: 'OpenAI' },
+
+  // Image-capable LLMs — Category stays 'llms', but inputModalities includes
+  // 'Image' so they pass capabilityFilter='accepts-image' on /models/vision.
+  // Gemini also accepts Audio input per Google's Gemini API docs.
+  'gemini-2.5-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-2.5-pro':                { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-2.5-pro-long-context':   { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-3-flash':                { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-3-pro':                  { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
+  'gemma-4-31B':                   { inputModalities: ['Text', 'Image'] },
+  // Mistral Small 3.1 (canonical HF release for the "Mistral-Small-3" slot)
+  // added vision; the original Small 3 (2501) was text-only. AIFS deploys the
+  // 3.1 release per the model card audit (2026-05).
+  'Mistral-Small-3':               { inputModalities: ['Text', 'Image'] },
+  // Qwen3-VL = vision-language; primary='llms' (default) so it surfaces on
+  // both /models/llms and /models/vision via multi-category derivation.
+  'Qwen3-VL-30B-A3B-Instruct-FP8': { inputModalities: ['Text', 'Image'] },
+  'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
+  'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
+  'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
+  'gpt-4.1-mini-2025-04-14':       { inputModalities: ['Text', 'Image'] },
+  'gpt-4.1-nano-2025-04-14':       { inputModalities: ['Text', 'Image'] },
+  'gpt-5':                         { inputModalities: ['Text', 'Image'] },
+  'gpt-5-mini':                    { inputModalities: ['Text', 'Image'] },
+  'gpt-5-nano':                    { inputModalities: ['Text', 'Image'] },
+  'gpt-5.2':                       { inputModalities: ['Text', 'Image'] },
+  'mistral-medium-3':              { inputModalities: ['Text', 'Image'] },
+  'claude-3-7-sonnet':             { inputModalities: ['Text', 'Image'] },
+  'claude-haiku-4.5':              { inputModalities: ['Text', 'Image'] },
+  'claude-opus-4.5':               { inputModalities: ['Text', 'Image'] },
+  'claude-opus-4.6':               { inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4':               { inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4.5':             { inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4.5-long-context':{ inputModalities: ['Text', 'Image'] },
+  'claude-sonnet-4.6':             { inputModalities: ['Text', 'Image'] },
+  'o3-2025-04-16':                 { inputModalities: ['Text', 'Image'] },
+  'o4-mini-2025-04-16':            { inputModalities: ['Text', 'Image'] },
+
+  // OpenAI o-series reasoning models — quirks vs the llms default
+  // (streaming: true, toolCalling: true). Audited against OpenAI docs (2026-05):
+  //  - o1: vision + tools, but streaming returns 400 on this snapshot.
+  //  - o1-mini: text-only at launch — no vision, no tools, no streaming.
+  //  - o3 / o4-mini: vision + tools + streaming.
+  //  - o3-mini: text-only reasoning model with tools + streaming (matches default).
+  'o1-2024-12-17':                 { inputModalities: ['Text', 'Image'], streaming: false },
+  'o1-mini-2024-09-12':            { streaming: false, toolCalling: false },
+
+  // Coding-specialised — gpt-5-codex inherits GPT-5's image input via the
+  // Responses API per OpenAI's Codex models docs.
+  'gpt-5-codex':                   { inputModalities: ['Text', 'Image'] },
+
+  // Image generation overrides (category default is text→image, no streaming,
+  // no tools). gpt-image-1 streams partial images; the image-input variant
+  // also accepts an image alongside text. Gemini 2.5 Flash Image ("Nano
+  // Banana") accepts text+image and emits both an image and accompanying text;
+  // per Google's image-generation docs it does NOT support streaming.
+  'gpt-image-1-text-input':        { streaming: true },
+  'gpt-image-1-image-input':       { inputModalities: ['Text', 'Image'], streaming: true },
+  'gemini-2.5-flash-image':        {
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Image', 'Text'],
+    streaming: false,
+  },
+};
+
+function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
+  return {
+    creator: inferCreator(exactModelName),
+    ...CATEGORY_DEFAULTS[category],
+    ...MODEL_CAPABILITY_OVERRIDES[exactModelName],
+  };
+}
+
+// ---------------- Cloud (replaces Sovereignty) ----------------
+
+type CloudKey = 'Telekom' | 'Azure' | 'GCP' | 'Other';
+
+function resolveCloud(deploymentRegion: string): CloudKey {
+  const region = (deploymentRegion ?? '').toLowerCase();
+  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → Telekom
+  if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'Telekom';
+  if (region.startsWith('azure')) return 'Azure';
+  if (region.startsWith('gcp') || region.startsWith('google')) return 'GCP';
+  return 'Other';
+}
+
+function cloudFullName(cloud: CloudKey): string {
+  switch (cloud) {
+    case 'Telekom':
+      return 'T-Cloud Public';
+    case 'Azure':
+      return 'Microsoft Azure';
+    case 'GCP':
+      return 'Google Cloud Platform';
+    default:
+      return 'Other';
+  }
+}
+
+function cloudTagClass(cloud: CloudKey): string {
+  return cloud === 'Telekom' ? 'tag-tcloud' : 'tag-cloud';
+}
+
+// ---------------- Compile model list ----------------
+
+interface CompiledModel {
+  exactModelName: string;
+  displayModelName: string;
+  category: Category;        // primary purpose — drives sort + leads the badge list
+  categories: Category[];    // primary + modality-derived (see deriveCategories)
+  cloud: CloudKey;
+  contextWindow: string;
+  inputPricePerMillionTokens: number;
+  outputPricePerMillionTokens: number;
+  plans: string[];
+  capabilities: Capabilities;
+}
+
+// exactModelName -> CompiledModel; plans accumulate across packages.
+const byName = new Map<string, CompiledModel>();
+
+for (const pkg of pricingData as Array<{
+  packageName: string;
+  modelQuotaConfigs: Array<Record<string, unknown>>;
+}>) {
+  for (const entry of pkg.modelQuotaConfigs ?? []) {
+    const exactModelName = entry.exactModelName as string;
+    if (OFFLINE_MODELS.has(exactModelName)) continue;
+    const existing = byName.get(exactModelName);
+    if (existing) {
+      if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);
+      continue;
+    }
+    const deploymentRegion = entry.deploymentRegion as string;
+    const category = resolvePrimaryCategory(exactModelName);
+    const capabilities = resolveCapabilities(exactModelName, category);
+    byName.set(exactModelName, {
+      exactModelName,
+      displayModelName: entry.displayModelName as string,
+      category,
+      categories: deriveCategories(category, capabilities),
+      cloud: resolveCloud(deploymentRegion),
+      contextWindow: (entry.contextWindow as string) ?? '—',
+      inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,
+      outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
+      plans: [pkg.packageName],
+      capabilities,
+    });
+  }
+}
+
+// Stable plan order
+const planOrder: Record<string, number> = { Essential: 0, Professional: 1, Agentic: 2, Test: 3 };
+for (const m of byName.values()) {
+  m.plans.sort((a, b) => (planOrder[a] ?? 99) - (planOrder[b] ?? 99));
+}
+
+// Default order: Telekom-first by cloud priority, then alphabetical by
+// display name. Client-side sort (column-header clicks) can override.
+const CLOUD_RANK: Record<CloudKey, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+
+function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined): boolean {
+  if (!cap) return true;
+  const inputs = m.capabilities.inputModalities;
+  const outputs = m.capabilities.outputModalities;
+  switch (cap) {
+    case 'accepts-image': return inputs.includes('Image');
+    case 'accepts-audio': return inputs.includes('Audio');
+    case 'emits-audio':   return outputs.includes('Audio');
+    case 'emits-image':   return outputs.includes('Image');
+  }
+}
+
+const allModels = [...byName.values()]
+  .filter((m) => (categoryFilter ? m.categories.includes(categoryFilter) : true))
+  .filter((m) => matchesCapability(m, capabilityFilter))
+  .sort((a, b) => {
+    const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
+    if (rankDiff !== 0) return rankDiff;
+    return a.displayModelName.localeCompare(b.displayModelName);
+  });
+
+// ---------------- Translations & formatters ----------------
+
+const t = {
+  heading: isDE ? 'Modelle im Vergleich' : 'Models Comparison',
+  colModel: isDE ? 'Modell' : 'Model',
+  colCategory: isDE ? 'Kategorie' : 'Category',
+  colProvider: isDE ? 'Anbieter' : 'Provider',
+  colCloud: isDE ? 'Cloud' : 'Cloud',
+  colInput: isDE ? 'Eingabe' : 'Input',
+  colOutput: isDE ? 'Ausgabe' : 'Output',
+  colStreaming: isDE ? 'Streaming-Ausgabe' : 'Streaming output',
+  colTools: isDE ? 'Tool Calling' : 'Tool calling',
+  colContext: isDE ? 'Kontext' : 'Context',
+  colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
+  colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
+  colPlans: isDE ? 'Tarife' : 'Plans',
+  reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
+  showing: isDE ? 'Zeige' : 'Showing',
+  of: isDE ? 'von' : 'of',
+  models: isDE ? 'Modellen' : 'models',
+  selected: isDE ? 'ausgewählt' : 'selected',
+  noResults: isDE ? 'Keine Modelle entsprechen den Filtern.' : 'No models match the current filters.',
+  tooltipStreaming: isDE
+    ? 'Token-für-Token-Ausgabe via Server-Sent Events. Geeignet für niedrige Latenz und Echtzeit-UI.'
+    : 'Token-by-token output via Server-Sent Events. Suitable for low-latency, real-time UI.',
+  tooltipTools: isDE
+    ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
+    : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
+};
+
+const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
+
+const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
+  ? {
+      Telekom: 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
+      Azure:   'Gehostet auf Microsoft Azure (EU-Regionen).',
+      GCP:     'Gehostet auf Google Cloud Platform (EU-Regionen).',
+      Other:   'Bei einem Drittanbieter gehostet.',
+    }
+  : {
+      Telekom: "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
+      Azure:   'Hosted on Microsoft Azure (EU regions).',
+      GCP:     'Hosted on Google Cloud Platform (EU regions).',
+      Other:   'Hosted by a third-party provider.',
+    };
+
+const CATEGORY_LABELS: Record<Category, string> = {
+  llms: 'LLM',
+  coding: 'Coding',
+  vision: 'Vision',
+  embeddings: 'Embedding',
+  audio: 'Audio',
+  'image-generation': isDE ? 'Bildgenerierung' : 'Image Generation',
+};
+
+const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
+  Text: 'Text',
+  Image: isDE ? 'Bild' : 'Image',
+  Audio: 'Audio',
+  Vector: isDE ? 'Vektor' : 'Vector',
+};
+
+function formatPrice(n: number): string {
+  if (!n || n <= 0) return '—';
+  return `€${n.toFixed(2)}`;
+}
+
+function planHref(plan: string): string {
+  return `${localePrefix}/plans/${plan.toLowerCase()}/`;
+}
+
+function planTagClass(plan: string): string {
+  return `tag-plan-${plan.toLowerCase()}`;
+}
+
+// ---------------- Filter values (unique sets) ----------------
+
+// Unique-value sets per filter, pruned to only what's actually in the current row set.
+// Flatten across the multi-category set so the filter chip lists every
+// category any visible row belongs to, not just primary categories.
+const uniqueCategories = [...new Set(allModels.flatMap((m) => m.categories))];
+const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
+const uniqueClouds = (['Telekom', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
+  allModels.some((m) => m.cloud === c),
+);
+const uniqueInputs = (['Text', 'Image', 'Audio'] as InputModality[]).filter((mod) =>
+  allModels.some((m) => m.capabilities.inputModalities.includes(mod)),
+);
+const uniqueOutputs = (['Text', 'Image', 'Audio', 'Vector'] as OutputModality[]).filter((mod) =>
+  allModels.some((m) => m.capabilities.outputModalities.includes(mod)),
+);
+const uniquePlans = ['Essential', 'Professional', 'Agentic', 'Test'].filter((p) =>
+  allModels.some((m) => m.plans.includes(p)),
+);
+
+// Filter chips, declared once. Adding a filter = one entry here + one entry in
+// the runtime filterDefs (in the <script> below). The SSR template loops over
+// this array rather than copy-pasting eight near-identical <details> blocks.
+interface FilterChip {
+  id: string;
+  label: string;
+  values: readonly string[];
+  optionLabel: (v: string) => string;
+  defaultChecked?: (v: string) => boolean;
+}
+const boolToTick = (v: string) => (v === 'true' ? '✓' : '✗');
+const filterChips: FilterChip[] = [
+  ...(categoryFilter
+    ? []
+    : [{
+        id: 'category',
+        label: t.colCategory,
+        values: uniqueCategories,
+        optionLabel: (v: string) => CATEGORY_LABELS[v as Category],
+      }]),
+  { id: 'provider', label: t.colProvider, values: uniqueProviders, optionLabel: (v) => v },
+  { id: 'cloud', label: t.colCloud, values: uniqueClouds, optionLabel: (v) => v },
+  { id: 'input', label: t.colInput, values: uniqueInputs, optionLabel: (v) => MODALITY_LABELS[v as InputModality] },
+  { id: 'output', label: t.colOutput, values: uniqueOutputs, optionLabel: (v) => MODALITY_LABELS[v as OutputModality] },
+  { id: 'streaming', label: t.colStreaming, values: ['true', 'false'], optionLabel: boolToTick },
+  { id: 'tools', label: t.colTools, values: ['true', 'false'], optionLabel: boolToTick },
+  { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => v },
+];
+
+// Build the row-data payload consumed by the client script. We render the
+// table SSR (so non-JS users see all rows); the script only toggles row
+// visibility based on filter state and re-orders rows for sort, so we don't
+// ship full HTML twice.
+function parseContextWindow(raw: string): number {
+  const match = (raw ?? '').match(/^([\d.,]+)\s*([KMkm])?/);
+  if (!match) return Number.NaN;
+  const num = parseFloat(match[1].replace(/,/g, ''));
+  if (!Number.isFinite(num)) return Number.NaN;
+  const suffix = (match[2] ?? '').toLowerCase();
+  if (suffix === 'k') return num * 1_000;
+  if (suffix === 'm') return num * 1_000_000;
+  return num;
+}
+
+const rowDataPayload = allModels.map((m) => ({
+  key: m.exactModelName,
+  displayModelName: m.displayModelName,
+  category: m.category,           // primary — used as the sort key
+  categories: m.categories,       // multi — used by the chip filter
+  provider: m.capabilities.creator,
+  cloud: m.cloud,
+  inputs: m.capabilities.inputModalities,
+  outputs: m.capabilities.outputModalities,
+  streaming: m.capabilities.streaming,
+  toolCalling: m.capabilities.toolCalling,
+  contextWindowRaw: m.contextWindow,
+  contextWindowNum: parseContextWindow(m.contextWindow),
+  inputPrice: m.inputPricePerMillionTokens,
+  outputPrice: m.outputPricePerMillionTokens,
+  plans: m.plans,
+}));
+---
+
+<div
+  class="models-comparison"
+  data-rows={JSON.stringify(rowDataPayload)}>
+  <div class="models-comparison__filterbar" role="group" aria-label={t.heading}>
+    {filterChips.map((chip) => (
+      <details class="mc-filter" data-filter={chip.id}>
+        <summary>
+          <span class="mc-filter__label">{chip.label}</span>
+          <span class="mc-filter__count" data-count></span>
+        </summary>
+        <div class="mc-filter__menu">
+          {chip.values.map((v) => (
+            <label class="mc-filter__option">
+              <input
+                type="checkbox"
+                value={v}
+                checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
+              />
+              <span>{chip.optionLabel(v)}</span>
+            </label>
+          ))}
+        </div>
+      </details>
+    ))}
+
+    <button type="button" class="mc-reset" data-reset>{t.reset}</button>
+  </div>
+
+  <div class="models-comparison__status" aria-live="polite">
+    <span data-status-text>
+      {t.showing} <span data-visible-count>{allModels.length}</span> {t.of} <span data-total-count>{allModels.length}</span> {t.models}
+    </span>
+  </div>
+
+  <div class="models-comparison__scroll">
+    <table class="models-comparison-table">
+      <thead>
+        <tr>
+          {[
+            { key: 'model', label: t.colModel, cls: '', tooltip: undefined as string | undefined },
+            ...(!categoryFilter ? [{ key: 'category', label: t.colCategory, cls: '', tooltip: undefined as string | undefined }] : []),
+            { key: 'provider', label: t.colProvider, cls: '', tooltip: undefined as string | undefined },
+            { key: 'cloud', label: t.colCloud, cls: '', tooltip: undefined as string | undefined },
+            { key: 'input', label: t.colInput, cls: '', tooltip: undefined as string | undefined },
+            { key: 'output', label: t.colOutput, cls: '', tooltip: undefined as string | undefined },
+            { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming },
+            { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
+            { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
+            { key: 'inputPrice', label: t.colInputPrice, cls: 'num', tooltip: undefined as string | undefined },
+            { key: 'outputPrice', label: t.colOutputPrice, cls: 'num', tooltip: undefined as string | undefined },
+            { key: 'plans', label: t.colPlans, cls: '', tooltip: undefined as string | undefined },
+          ].map((h) => (
+            <th data-sort={h.key} class={h.cls}>
+              {h.tooltip ? (
+                <Tooltip text={h.tooltip} maxWidth="22rem">
+                  <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
+                    <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
+                      <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
+                    </svg>
+                    <span>{h.label}</span>
+                  </button>
+                </Tooltip>
+              ) : (
+                <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
+                  <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
+                    <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
+                  </svg>
+                  <span>{h.label}</span>
+                </button>
+              )}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {allModels.map((m) => {
+          const brandIcon = getModelBrandIcon(m.capabilities.creator);
+          const fullCloud = cloudFullName(m.cloud);
+          return (
+            <tr data-key={m.exactModelName}>
+              <td><strong>{m.displayModelName}</strong></td>
+              {!categoryFilter && (
+                <td>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
+              )}
+              <td>
+                <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
+                  <span class="creator-brand" aria-label={m.capabilities.creator}>
+                    {brandIcon
+                      ? <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
+                      : <span class="creator-brand__fallback">{m.capabilities.creator}</span>}
+                  </span>
+                </Tooltip>
+              </td>
+              <td>
+                <Tooltip text={CLOUD_TOOLTIPS[m.cloud]} maxWidth="22rem">
+                  <button
+                    type="button"
+                    class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
+                    data-cloud={m.cloud}
+                    aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
+                  >
+                    {m.cloud}
+                  </button>
+                </Tooltip>
+              </td>
+              <td>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td class="center">
+                {m.capabilities.streaming
+                  ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
+                  : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
+              </td>
+              <td class="center">
+                {m.capabilities.toolCalling
+                  ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
+                  : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
+              </td>
+              <td>{m.contextWindow}</td>
+              <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
+              <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td>
+                <span class="mc-plans">
+                  {m.plans.map((p) => (
+                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{p}</a>
+                  ))}
+                </span>
+              </td>
+            </tr>
+          );
+        })}
+        <tr class="mc-no-results" hidden>
+          <td colspan="12" class="mc-no-results__cell">{t.noResults}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  type RowData = {
+    key: string;
+    displayModelName: string;
+    category: string;        // primary, for sort
+    categories: string[];    // multi, for filter chip
+    provider: string;
+    cloud: string;
+    inputs: string[];
+    outputs: string[];
+    streaming: boolean;
+    toolCalling: boolean;
+    contextWindowRaw: string;
+    contextWindowNum: number;
+    inputPrice: number;
+    outputPrice: number;
+    plans: string[];
+  };
+
+  function initModelsComparison(root: HTMLElement) {
+    if (root.dataset.mcInit === '1') return;
+    root.dataset.mcInit = '1';
+
+    const rows: RowData[] = JSON.parse(root.dataset.rows || '[]');
+    const tableRowsByKey = new Map<string, HTMLTableRowElement>();
+    const tbody = root.querySelector<HTMLTableSectionElement>('tbody');
+    root.querySelectorAll<HTMLTableRowElement>('tbody tr[data-key]').forEach((tr) => {
+      const key = tr.dataset.key;
+      if (key) tableRowsByKey.set(key, tr);
+    });
+
+    const noResultsRow = root.querySelector<HTMLTableRowElement>('.mc-no-results');
+    const visibleCountEl = root.querySelector<HTMLElement>('[data-visible-count]');
+    const totalCountEl = root.querySelector<HTMLElement>('[data-total-count]');
+    if (totalCountEl) totalCountEl.textContent = String(rows.length);
+
+    // Sort state. Default: cloud (Telekom-first via custom rank). SSR-render
+    // is already in this order so the first paint matches; subsequent sorts
+    // reorder the rows in-place.
+    let sortKey = 'cloud';
+    let sortAsc = true;
+    const CLOUD_RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+
+    const filterDefs: Array<{ id: string; type: 'single' | 'multi' | 'bool'; field: keyof RowData }> = [
+      { id: 'category', type: 'multi', field: 'categories' },
+      { id: 'provider', type: 'single', field: 'provider' },
+      { id: 'cloud', type: 'single', field: 'cloud' },
+      { id: 'input', type: 'multi', field: 'inputs' },
+      { id: 'output', type: 'multi', field: 'outputs' },
+      { id: 'streaming', type: 'bool', field: 'streaming' },
+      { id: 'tools', type: 'bool', field: 'toolCalling' },
+      { id: 'plans', type: 'multi', field: 'plans' },
+    ];
+
+    type FilterState = Map<string, Set<string>>;
+
+    function readState(): FilterState {
+      const state: FilterState = new Map();
+      for (const def of filterDefs) {
+        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
+        if (!details) continue;
+        const checked = new Set<string>();
+        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+          if (input.checked) checked.add(input.value);
+        });
+        state.set(def.id, checked);
+      }
+      return state;
+    }
+
+    function valueToString(value: unknown): string {
+      if (typeof value === 'boolean') return value ? 'true' : 'false';
+      return String(value);
+    }
+
+    function rowPasses(row: RowData, state: FilterState): boolean {
+      for (const def of filterDefs) {
+        const checked = state.get(def.id);
+        if (!checked) continue;
+        if (checked.size === 0) return false;
+        if (def.type === 'multi') {
+          const values = row[def.field] as string[];
+          // Row passes this filter if ANY of its values is checked.
+          if (!values.some((v) => checked.has(v))) return false;
+        } else {
+          const v = valueToString(row[def.field]);
+          if (!checked.has(v)) return false;
+        }
+      }
+      return true;
+    }
+
+    // Locale read from <html lang> (set by Starlight per page) so the
+    // aria-label uses the same language as the visible chip label.
+    const isDE = document.documentElement.lang === 'de';
+
+    function updateCounts() {
+      for (const def of filterDefs) {
+        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
+        if (!details) continue;
+        const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+        const checked = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
+        const countEl = details.querySelector<HTMLElement>('[data-count]');
+        const isAll = checked.length === all.length;
+        if (countEl) {
+          countEl.textContent = isAll ? '' : `(${checked.length}/${all.length})`;
+        }
+        details.classList.toggle('mc-filter--active', !isAll);
+
+        // Mirror the visible (N/M) into a screen-reader-friendly aria-label
+        // on the <summary> so AT users hear "Cloud filter, 1 of 3 selected"
+        // (or the German equivalent) instead of "Cloud, 1, 3".
+        const summary = details.querySelector<HTMLElement>('summary');
+        const labelEl = details.querySelector<HTMLElement>('.mc-filter__label');
+        if (summary && labelEl) {
+          const label = (labelEl.textContent || '').trim();
+          if (isAll) {
+            // All options selected = no active filter. Let visible label
+            // speak for itself; removing aria-label avoids redundant readout.
+            summary.removeAttribute('aria-label');
+          } else {
+            summary.setAttribute(
+              'aria-label',
+              isDE
+                ? `Filter ${label}, ${checked.length} von ${all.length} ausgewählt`
+                : `${label} filter, ${checked.length} of ${all.length} selected`,
+            );
+          }
+        }
+      }
+    }
+
+    function compareRows(a: RowData, b: RowData): number {
+      let av: number | string;
+      let bv: number | string;
+      switch (sortKey) {
+        case 'model':
+          av = a.displayModelName.toLowerCase();
+          bv = b.displayModelName.toLowerCase();
+          break;
+        case 'category':
+          av = a.category.toLowerCase();
+          bv = b.category.toLowerCase();
+          break;
+        case 'provider':
+          av = a.provider.toLowerCase();
+          bv = b.provider.toLowerCase();
+          break;
+        case 'cloud': {
+          const ar = CLOUD_RANK[a.cloud] ?? 99;
+          const br = CLOUD_RANK[b.cloud] ?? 99;
+          if (ar !== br) return sortAsc ? ar - br : br - ar;
+          av = a.displayModelName.toLowerCase();
+          bv = b.displayModelName.toLowerCase();
+          break;
+        }
+        case 'input':
+          av = a.inputs.join(',').toLowerCase();
+          bv = b.inputs.join(',').toLowerCase();
+          break;
+        case 'output':
+          av = a.outputs.join(',').toLowerCase();
+          bv = b.outputs.join(',').toLowerCase();
+          break;
+        case 'streaming':
+          // true sorts before false in asc — flip boolean to numeric so the
+          // generic numeric comparator below does the right thing.
+          av = a.streaming ? 0 : 1;
+          bv = b.streaming ? 0 : 1;
+          break;
+        case 'tools':
+          av = a.toolCalling ? 0 : 1;
+          bv = b.toolCalling ? 0 : 1;
+          break;
+        case 'context': {
+          const an = a.contextWindowNum;
+          const bn = b.contextWindowNum;
+          const aValid = Number.isFinite(an);
+          const bValid = Number.isFinite(bn);
+          if (aValid && bValid) {
+            av = an;
+            bv = bn;
+          } else if (aValid) {
+            return -1;
+          } else if (bValid) {
+            return 1;
+          } else {
+            av = a.contextWindowRaw.toLowerCase();
+            bv = b.contextWindowRaw.toLowerCase();
+          }
+          break;
+        }
+        case 'inputPrice':
+          av = a.inputPrice;
+          bv = b.inputPrice;
+          break;
+        case 'outputPrice':
+          av = a.outputPrice;
+          bv = b.outputPrice;
+          break;
+        case 'plans':
+          av = a.plans.length;
+          bv = b.plans.length;
+          break;
+        default:
+          av = a.displayModelName.toLowerCase();
+          bv = b.displayModelName.toLowerCase();
+      }
+      if (typeof av === 'number' && typeof bv === 'number') {
+        return sortAsc ? av - bv : bv - av;
+      }
+      const as = String(av);
+      const bs = String(bv);
+      if (as < bs) return sortAsc ? -1 : 1;
+      if (as > bs) return sortAsc ? 1 : -1;
+      return 0;
+    }
+
+    function updateSortIndicators() {
+      root.querySelectorAll<HTMLElement>('th[data-sort]').forEach((th) => {
+        const icon = th.querySelector<SVGElement>('.mc-sort-icon');
+        const isActive = th.dataset.sort === sortKey;
+        th.classList.toggle('mc-sort-active', isActive);
+        if (icon) {
+          icon.classList.toggle('mc-sort-icon--active', isActive);
+          icon.classList.toggle('mc-sort-icon--asc', isActive && sortAsc);
+          icon.classList.toggle('mc-sort-icon--desc', isActive && !sortAsc);
+        }
+      });
+    }
+
+    function apply() {
+      const state = readState();
+      // Sort the row list, then re-append matching <tr>s to <tbody> in the
+      // new order. Skips the no-results row, which stays at the end.
+      const ordered = [...rows].sort(compareRows);
+      if (tbody) {
+        for (const row of ordered) {
+          const tr = tableRowsByKey.get(row.key);
+          if (tr) tbody.appendChild(tr);
+        }
+        if (noResultsRow) tbody.appendChild(noResultsRow);
+      }
+      let visible = 0;
+      for (const row of ordered) {
+        const tr = tableRowsByKey.get(row.key);
+        if (!tr) continue;
+        const passes = rowPasses(row, state);
+        tr.hidden = !passes;
+        if (passes) visible += 1;
+      }
+      if (visibleCountEl) visibleCountEl.textContent = String(visible);
+      if (noResultsRow) noResultsRow.hidden = visible > 0;
+      updateCounts();
+      updateSortIndicators();
+    }
+
+    // "Reset filters" means "remove all filters" — every option in every
+    // column gets checked, so no constraint is applied and the table shows
+    // the full set. The initial page load also has every option checked
+    // (Telekom-first ordering is achieved via sort, not filter).
+    function reset() {
+      for (const def of filterDefs) {
+        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
+        if (!details) continue;
+        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+          input.checked = true;
+        });
+      }
+      apply();
+    }
+
+    root.addEventListener('change', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      if (target && target instanceof HTMLInputElement && target.type === 'checkbox') {
+        // If the user just unchecked the last option in a filter, auto-revert
+        // that filter to "All" (every option checked). Prevents the table
+        // collapsing to zero rows from an accidentally-empty selection.
+        const filterDetails = target.closest('.mc-filter') as HTMLElement | null;
+        if (filterDetails) {
+          const all = filterDetails.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
+          const anyChecked = Array.from(all).some((input) => input.checked);
+          if (!anyChecked) {
+            all.forEach((input) => {
+              input.checked = true;
+            });
+          }
+        }
+        apply();
+      }
+    });
+
+    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => reset());
+    }
+
+    // Column-header click-to-sort. Delegated on <thead> so we don't bind
+    // one handler per <th>. Clicking the active key flips direction; a new
+    // key starts ascending.
+    const thead = root.querySelector<HTMLElement>('thead');
+    if (thead) {
+      thead.addEventListener('click', (evt) => {
+        const target = evt.target as HTMLElement | null;
+        const th = target?.closest('th[data-sort]') as HTMLElement | null;
+        if (!th) return;
+        const key = th.dataset.sort;
+        if (!key) return;
+        if (sortKey === key) sortAsc = !sortAsc;
+        else {
+          sortKey = key;
+          sortAsc = true;
+        }
+        apply();
+      });
+    }
+
+    // Cloud tag in a row toggles its value in the Cloud filter. Click an
+    // already-selected cloud to remove it; click an unselected cloud to add
+    // it. Delegated so it survives any future row re-render. We dispatch a
+    // synthetic 'change' event so the existing change listener handles both
+    // the apply() call AND the zero-selection auto-revert (uncheck the last
+    // remaining cloud → all three snap back to checked).
+    root.addEventListener('click', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      const btn = target?.closest('.mc-cloud-filter-btn') as HTMLElement | null;
+      if (!btn) return;
+      const cloud = btn.dataset.cloud;
+      if (!cloud) return;
+      const checkbox = root.querySelector<HTMLInputElement>(
+        `.mc-filter[data-filter="cloud"] input[type="checkbox"][value="${cloud}"]`,
+      );
+      if (!checkbox) return;
+      checkbox.checked = !checkbox.checked;
+      checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    });
+
+    // Close open filters when clicking outside
+    document.addEventListener('click', (evt) => {
+      const target = evt.target as Node | null;
+      root.querySelectorAll<HTMLDetailsElement>('details.mc-filter[open]').forEach((d) => {
+        if (target && !d.contains(target)) d.open = false;
+      });
+    });
+
+    apply();
+  }
+
+  function initAll() {
+    document
+      .querySelectorAll<HTMLElement>('.models-comparison')
+      .forEach((root) => initModelsComparison(root));
+  }
+
+  document.addEventListener('astro:page-load', initAll);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAll);
+  } else {
+    initAll();
+  }
+</script>
+
+<style>
+  .models-comparison {
+    margin: 1.5rem 0 2.5rem;
+  }
+
+  .models-comparison__filterbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .mc-filter {
+    position: relative;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    background: var(--sl-color-gray-6);
+    font-size: 0.82rem;
+  }
+
+  .mc-filter > summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 0.3rem 0.65rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    line-height: 1.2;
+    user-select: none;
+  }
+
+  .mc-filter > summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .mc-filter > summary::after {
+    content: '';
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid currentColor;
+    opacity: 0.65;
+    transition: transform 120ms ease;
+  }
+
+  .mc-filter[open] > summary::after {
+    transform: rotate(180deg);
+  }
+
+  .mc-filter__label {
+    font-weight: 600;
+  }
+
+  .mc-filter__count {
+    color: var(--sl-color-text-accent);
+    font-weight: 500;
+  }
+
+  .mc-filter--active > summary {
+    box-shadow: inset 0 0 0 1px var(--sl-color-text-accent);
+    border-radius: 5px;
+  }
+
+  .mc-filter__menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 20;
+    min-width: 11rem;
+    max-height: 22rem;
+    overflow-y: auto;
+    padding: 0.4rem 0.5rem;
+    background: var(--sl-color-bg, var(--sl-color-gray-6));
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .mc-filter__option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.2rem 0.35rem;
+    border-radius: 4px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .mc-filter__option:hover {
+    background: var(--sl-color-gray-5);
+  }
+
+  .mc-filter__option input[type='checkbox'] {
+    accent-color: #e20074;
+  }
+
+  .mc-reset {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: var(--sl-color-text);
+    background: transparent;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 6px;
+    cursor: pointer;
+    margin-left: auto;
+  }
+
+  .mc-reset:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .models-comparison__status {
+    margin-bottom: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--sl-color-gray-3);
+  }
+
+  .models-comparison__scroll {
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+  }
+
+  .models-comparison-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  .models-comparison-table thead th {
+    text-align: left;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+    background: var(--sl-color-gray-6);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .models-comparison-table tbody td {
+    padding: 0.5rem 0.65rem;
+    border-bottom: 1px solid var(--sl-color-gray-6);
+    vertical-align: top;
+  }
+
+  .models-comparison-table tbody tr:hover {
+    background: var(--sl-color-gray-6);
+  }
+
+  .models-comparison-table th.num,
+  .models-comparison-table td.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* Capability cells (Streaming output, Tool calling): give the tick/cross a
+     subtle semantic color so it's quick to scan across the table. */
+  .models-comparison .mc-cap {
+    font-weight: 600;
+    font-size: 1.05rem;
+    line-height: 1;
+    display: inline-block;
+  }
+  .models-comparison .mc-cap--yes {
+    color: #4ade80; /* green-400 */
+  }
+  .models-comparison .mc-cap--no {
+    color: #94a3b8; /* slate-400 — muted, not alarming */
+  }
+
+  .models-comparison-table th.center,
+  .models-comparison-table td.center {
+    text-align: center;
+  }
+
+  .models-comparison-table a {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
+  }
+
+  .models-comparison-table a:hover {
+    text-decoration: underline;
+  }
+
+  .mc-no-results__cell {
+    text-align: center;
+    padding: 1.25rem !important;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Brand-icon: icon-only cell. Creator name lives in aria-label/title for
+     a11y and hover; we only fall back to text when no logo is registered. */
+  .models-comparison .creator-brand {
+    display: inline-flex;
+    align-items: center;
+    vertical-align: middle;
+  }
+
+  .models-comparison .creator-brand__icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    object-fit: contain;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 4px;
+    padding: 1px;
+    background: white;
+  }
+
+  .models-comparison .creator-brand__fallback {
+    font-weight: 500;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  /* Plans-tag styling, scoped — colors match the Plans overview palette */
+  .models-comparison .plans-tag {
+    display: inline-block;
+    padding: 0.14rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+
+  .models-comparison a.plans-tag:hover {
+    filter: brightness(1.08);
+    text-decoration: none;
+  }
+
+  /* Cloud tag in a row is a button (one-click filter); reset native button
+     chrome so it looks identical to the static span versions elsewhere. */
+  .models-comparison button.plans-tag.mc-cloud-filter-btn {
+    border: 0;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    appearance: none;
+  }
+
+  .models-comparison button.plans-tag.mc-cloud-filter-btn:hover {
+    filter: brightness(1.08);
+  }
+
+  .models-comparison button.plans-tag.mc-cloud-filter-btn:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .models-comparison .tag-tcloud {
+    background: #e20074;
+    color: white;
+  }
+
+  .models-comparison .tag-cloud {
+    background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
+    color: var(--sl-color-text);
+  }
+
+  .models-comparison .mc-plans {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+  }
+
+  /* Per-plan colors */
+  .models-comparison .tag-plan-essential {
+    background: rgba(99, 102, 241, 0.18);
+    color: #4338ca;
+    box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.35);
+  }
+
+  .models-comparison .tag-plan-professional {
+    background: rgba(226, 0, 116, 0.16);
+    color: #b3005c;
+    box-shadow: inset 0 0 0 1px rgba(226, 0, 116, 0.4);
+  }
+
+  .models-comparison .tag-plan-agentic {
+    background: rgba(34, 197, 94, 0.16);
+    color: #15803d;
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4);
+  }
+
+  .models-comparison .tag-plan-test {
+    background: transparent;
+    color: var(--sl-color-text);
+    box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
+  }
+
+  :root[data-theme='dark'] .models-comparison .tag-plan-essential {
+    color: #c7d2fe;
+  }
+
+  :root[data-theme='dark'] .models-comparison .tag-plan-professional {
+    color: #fbcfe8;
+  }
+
+  :root[data-theme='dark'] .models-comparison .tag-plan-agentic {
+    color: #bbf7d0;
+  }
+
+  /* Column-header click-to-sort. Mirrors the plans-table .sort-* pattern but
+     scoped with .mc- prefixes so the two components stay independent. */
+  .mc-sort-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    font-weight: 600;
+    color: inherit;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .mc-sort-header:focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+  }
+
+  .mc-sort-icon {
+    width: 0.5rem;
+    height: 0.36rem;
+    flex: 0 0 auto;
+    opacity: 0.4;
+    transform: rotate(0deg);
+    transition:
+      transform 160ms ease,
+      opacity 160ms ease;
+    color: currentColor;
+  }
+
+  .mc-sort-icon path {
+    fill: currentColor;
+  }
+
+  .mc-sort-icon--active {
+    opacity: 1;
+  }
+
+  .mc-sort-icon--asc {
+    transform: rotate(180deg);
+  }
+
+  .mc-sort-icon--desc {
+    transform: rotate(0deg);
+  }
+
+  .models-comparison-table th.mc-sort-active .mc-sort-header {
+    color: var(--sl-color-text-accent);
+  }
+</style>
+</content>
+</invoke>
