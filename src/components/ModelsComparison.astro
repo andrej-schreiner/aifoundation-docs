@@ -29,7 +29,6 @@ const OFFLINE_MODELS = new Set([
   'Mistral-Large-2411',
   'Mistral-Medium-3',
   'o1',
-  'text-embedding-ada-002',
 ]);
 
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
@@ -58,6 +57,7 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   'whisper-large-v3-turbo': 'audio',
   // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
   'jina-embeddings-v2-base-de': 'embeddings',
+  'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
   // /models/llms. They still surface on /models/vision via image-input derivation.
