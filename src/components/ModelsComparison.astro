@@ -32,74 +32,56 @@ const OFFLINE_MODELS = new Set([
   'text-embedding-ada-002',
 ]);
 
-// Category mapping by exactModelName. Unknown models default to 'llms'
-// (see resolveCategory below).
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
-// Category = each model's *primary purpose*. A model can show up on other
-// pages via capabilityFilter (e.g. an LLM with image input still surfaces on
-// /models/vision). Sources for category placement: vendor model cards
-// (OpenAI/Anthropic/Google/Meta/Mistral/Alibaba) audited against the live
-// pricing JSON. Image-output models go under image-generation regardless of
-// whether they also accept image input.
-const CATEGORY_MAP: Record<string, Category> = {
-  // LLMs (general-purpose chat & reasoning; some are multimodal-in, all output Text)
-  'Llama-3.3-70B-Instruct': 'llms',
-  'Mistral-Small-3': 'llms',
-  'Qwen3-Next-80B-A3B-Instruct': 'llms',
-  'claude-3-7-sonnet': 'llms',
-  'claude-haiku-4.5': 'llms',
-  'claude-opus-4.5': 'llms',
-  'claude-opus-4.6': 'llms',
-  'claude-sonnet-4': 'llms',
-  'claude-sonnet-4.5': 'llms',
-  'claude-sonnet-4.5-long-context': 'llms',
-  'claude-sonnet-4.6': 'llms',
-  'gemini-2.5-flash': 'llms',
-  'gemini-2.5-pro': 'llms',
-  'gemini-2.5-pro-long-context': 'llms',
-  'gemini-3-flash': 'llms',
-  'gemini-3-pro': 'llms',
-  'gemini-3-pro-long-context': 'llms',
-  'gemma-4-31B': 'llms',
-  'gpt-4.1-2025-04-14': 'llms',
-  'gpt-4.1-mini-2025-04-14': 'llms',
-  'gpt-4.1-nano-2025-04-14': 'llms',
-  'gpt-4o-2024-11-20': 'llms',
-  'gpt-4o-mini-2024-07-18': 'llms',
-  'gpt-5': 'llms',
-  'gpt-5-mini': 'llms',
-  'gpt-5-nano': 'llms',
-  'gpt-5.2': 'llms',
-  'gpt-oss-120b': 'llms',
-  'mistral-medium-3': 'llms',
-  'o1-2024-12-17': 'llms',
-  'o1-mini-2024-09-12': 'llms',
-  'o3-2025-04-16': 'llms',
-  'o3-mini-2025-01-31': 'llms',
-  'o4-mini-2025-04-16': 'llms',
-  // Coding (specialised for code generation; per OpenAI/Alibaba positioning)
+
+// PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
+// models whose primary purpose is NOT general-purpose LLM appear here.
+// Everything else defaults to 'llms'.
+//
+// Additional category membership is *derived* from modalities — see
+// deriveCategories() below. So Qwen3-VL (Text+Image in) is primary 'llms'
+// and gains 'vision' via derivation, surfacing on both /models/llms and
+// /models/vision. Gemini-class multimodal LLMs gain 'vision' AND 'audio'
+// the same way.
+//
+// Why some models need explicit non-llms primaries:
+//   - 'coding': no modality signals coding-specialisation; must be tagged.
+//   - 'audio': Whisper accepts Audio AND outputs Text — without an explicit
+//     primary it would be added to /models/llms (text-out default). Same
+//     logic for embeddings (text-in) and image-generation (image-out).
+const PRIMARY_CATEGORY: Record<string, Category> = {
+  // Coding-specialised (per OpenAI/Alibaba positioning).
   'Qwen3-Coder-30B-A3B-Instruct': 'coding',
   'gpt-5-codex': 'coding',
-  // Vision (primary purpose is image understanding → Text output)
-  'Qwen3-VL-30B-A3B-Instruct-FP8': 'vision',
-  // Embeddings (Text → Vector)
-  'jina-embeddings-v2-base-de': 'embeddings',
-  'text-embedding-ada-002': 'embeddings',
-  'text-embedding-bge-m3': 'embeddings',
-  // Audio (Audio → Text; STT models)
+  // Audio: speech-to-text. Primary 'audio' so they don't pollute /models/llms.
   'whisper-large-v3': 'audio',
   'whisper-large-v3-turbo': 'audio',
-  // Image generation (outputs Image; gemini-2.5-flash-image a.k.a. "Nano Banana"
-  // belongs here even though it also accepts image input — its purpose is image
-  // generation/editing, which surfaces via /models/image-generation. It still
-  // appears on /models/vision via the capabilityFilter.)
+  // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
+  'jina-embeddings-v2-base-de': 'embeddings',
+  'text-embedding-bge-m3': 'embeddings',
+  // Image generation: outputs Image. Primary 'image-generation' keeps them off
+  // /models/llms. They still surface on /models/vision via image-input derivation.
   'gemini-2.5-flash-image': 'image-generation',
   'gpt-image-1-image-input': 'image-generation',
   'gpt-image-1-text-input': 'image-generation',
 };
 
-function resolveCategory(exactModelName: string): Category {
-  return CATEGORY_MAP[exactModelName] ?? 'llms';
+function resolvePrimaryCategory(exactModelName: string): Category {
+  return PRIMARY_CATEGORY[exactModelName] ?? 'llms';
+}
+
+// Multi-category derivation. A model's `categories` array is its primary
+// plus any modality-driven additions: image input → 'vision', any audio
+// → 'audio', image output → 'image-generation', vector output → 'embeddings'.
+// Returned in stable display order so the Category column renders consistently.
+function deriveCategories(primary: Category, caps: Capabilities): Category[] {
+  const cats = new Set<Category>([primary]);
+  if (caps.inputModalities.includes('Image')) cats.add('vision');
+  if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
+  if (caps.outputModalities.includes('Image')) cats.add('image-generation');
+  if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
+  const ORDER: Category[] = ['llms', 'coding', 'vision', 'image-generation', 'audio', 'embeddings'];
+  return ORDER.filter((c) => cats.has(c));
 }
 
 // ---------------- Capabilities ----------------
@@ -180,6 +162,13 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-pro':                  { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemma-4-31B':                   { inputModalities: ['Text', 'Image'] },
+  // Mistral Small 3.1 (canonical HF release for the "Mistral-Small-3" slot)
+  // added vision; the original Small 3 (2501) was text-only. AIFS deploys the
+  // 3.1 release per the model card audit (2026-05).
+  'Mistral-Small-3':               { inputModalities: ['Text', 'Image'] },
+  // Qwen3-VL = vision-language; primary='llms' (default) so it surfaces on
+  // both /models/llms and /models/vision via multi-category derivation.
+  'Qwen3-VL-30B-A3B-Instruct-FP8': { inputModalities: ['Text', 'Image'] },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
@@ -202,12 +191,13 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'o4-mini-2025-04-16':            { inputModalities: ['Text', 'Image'] },
 
   // OpenAI o-series reasoning models — quirks vs the llms default
-  // (streaming: true, toolCalling: true):
-  //  - o1: vision-capable, tool-capable, but streaming is unsupported by the
-  //    o1-2024-12-17 endpoint (per Azure/OpenAI community confirmation).
-  //  - o1-mini: text-only with no tool/function calling (per OpenAI release).
+  // (streaming: true, toolCalling: true). Audited against OpenAI docs (2026-05):
+  //  - o1: vision + tools, but streaming returns 400 on this snapshot.
+  //  - o1-mini: text-only at launch — no vision, no tools, no streaming.
+  //  - o3 / o4-mini: vision + tools + streaming.
+  //  - o3-mini: text-only reasoning model with tools + streaming (matches default).
   'o1-2024-12-17':                 { inputModalities: ['Text', 'Image'], streaming: false },
-  'o1-mini-2024-09-12':            { toolCalling: false },
+  'o1-mini-2024-09-12':            { streaming: false, toolCalling: false },
 
   // Coding-specialised — gpt-5-codex inherits GPT-5's image input via the
   // Responses API per OpenAI's Codex models docs.
@@ -216,13 +206,14 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // Image generation overrides (category default is text→image, no streaming,
   // no tools). gpt-image-1 streams partial images; the image-input variant
   // also accepts an image alongside text. Gemini 2.5 Flash Image ("Nano
-  // Banana") accepts text+image and emits both an image and accompanying text.
+  // Banana") accepts text+image and emits both an image and accompanying text;
+  // per Google's image-generation docs it does NOT support streaming.
   'gpt-image-1-text-input':        { streaming: true },
   'gpt-image-1-image-input':       { inputModalities: ['Text', 'Image'], streaming: true },
   'gemini-2.5-flash-image':        {
     inputModalities: ['Text', 'Image'],
     outputModalities: ['Image', 'Text'],
-    streaming: true,
+    streaming: false,
   },
 };
 
@@ -269,7 +260,8 @@ function cloudTagClass(cloud: CloudKey): string {
 interface CompiledModel {
   exactModelName: string;
   displayModelName: string;
-  category: Category;
+  category: Category;        // primary purpose — drives sort + leads the badge list
+  categories: Category[];    // primary + modality-derived (see deriveCategories)
   cloud: CloudKey;
   contextWindow: string;
   inputPricePerMillionTokens: number;
@@ -294,17 +286,19 @@ for (const pkg of pricingData as Array<{
       continue;
     }
     const deploymentRegion = entry.deploymentRegion as string;
-    const category = resolveCategory(exactModelName);
+    const category = resolvePrimaryCategory(exactModelName);
+    const capabilities = resolveCapabilities(exactModelName, category);
     byName.set(exactModelName, {
       exactModelName,
       displayModelName: entry.displayModelName as string,
       category,
+      categories: deriveCategories(category, capabilities),
       cloud: resolveCloud(deploymentRegion),
       contextWindow: (entry.contextWindow as string) ?? '—',
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
       plans: [pkg.packageName],
-      capabilities: resolveCapabilities(exactModelName, category),
+      capabilities,
     });
   }
 }
@@ -332,7 +326,7 @@ function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined):
 }
 
 const allModels = [...byName.values()]
-  .filter((m) => (categoryFilter ? m.category === categoryFilter : true))
+  .filter((m) => (categoryFilter ? m.categories.includes(categoryFilter) : true))
   .filter((m) => matchesCapability(m, capabilityFilter))
   .sort((a, b) => {
     const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
@@ -418,7 +412,9 @@ function planTagClass(plan: string): string {
 // ---------------- Filter values (unique sets) ----------------
 
 // Unique-value sets per filter, pruned to only what's actually in the current row set.
-const uniqueCategories = [...new Set(allModels.map((m) => m.category))];
+// Flatten across the multi-category set so the filter chip lists every
+// category any visible row belongs to, not just primary categories.
+const uniqueCategories = [...new Set(allModels.flatMap((m) => m.categories))];
 const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
 const uniqueClouds = (['Telekom', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
   allModels.some((m) => m.cloud === c),
@@ -480,7 +476,8 @@ function parseContextWindow(raw: string): number {
 const rowDataPayload = allModels.map((m) => ({
   key: m.exactModelName,
   displayModelName: m.displayModelName,
-  category: m.category,
+  category: m.category,           // primary — used as the sort key
+  categories: m.categories,       // multi — used by the chip filter
   provider: m.capabilities.creator,
   cloud: m.cloud,
   inputs: m.capabilities.inputModalities,
@@ -576,7 +573,9 @@ const rowDataPayload = allModels.map((m) => ({
           return (
             <tr data-key={m.exactModelName}>
               <td><strong>{m.displayModelName}</strong></td>
-              {!categoryFilter && <td>{CATEGORY_LABELS[m.category]}</td>}
+              {!categoryFilter && (
+                <td>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
+              )}
               <td>
                 <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
                   <span class="creator-brand" aria-label={m.capabilities.creator}>
@@ -635,7 +634,8 @@ const rowDataPayload = allModels.map((m) => ({
   type RowData = {
     key: string;
     displayModelName: string;
-    category: string;
+    category: string;        // primary, for sort
+    categories: string[];    // multi, for filter chip
     provider: string;
     cloud: string;
     inputs: string[];
@@ -674,7 +674,7 @@ const rowDataPayload = allModels.map((m) => ({
     const CLOUD_RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
 
     const filterDefs: Array<{ id: string; type: 'single' | 'multi' | 'bool'; field: keyof RowData }> = [
-      { id: 'category', type: 'single', field: 'category' },
+      { id: 'category', type: 'multi', field: 'categories' },
       { id: 'provider', type: 'single', field: 'provider' },
       { id: 'cloud', type: 'single', field: 'cloud' },
       { id: 'input', type: 'multi', field: 'inputs' },
