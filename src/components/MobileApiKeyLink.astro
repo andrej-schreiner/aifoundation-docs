@@ -1,0 +1,90 @@
+---
+import Default from '@astrojs/starlight/components/SiteTitle.astro';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+
+const label = isDE ? 'API-Key' : 'API Key';
+const ariaLabel = isDE
+  ? 'API-Key generieren (öffnet in neuem Tab)'
+  : 'Get API Key (opens in new tab)';
+---
+
+<Default {...Astro.props}><slot /></Default>
+
+<a
+  class="mobile-cta"
+  href="https://apikey.llmhub.t-systems.net/login"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={ariaLabel}
+>
+  <span class="mobile-cta-label">{label}</span>
+  <span class="mobile-cta-icon" aria-hidden="true">&#8599;</span>
+</a>
+
+<style>
+  /* Mobile-only counterpart to HeaderApiKeyLink.astro. Above md the
+     right-group becomes visible and shows the full-size desktop pill, so
+     we hide this one to avoid showing the CTA twice. */
+  .mobile-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-inline-start: 0.5rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 9999px;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-xs);
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+  }
+
+  .mobile-cta:hover {
+    background: var(--sl-color-accent-high);
+  }
+
+  .mobile-cta:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 2px;
+  }
+
+  .mobile-cta-icon {
+    font-size: 0.95em;
+  }
+
+  /* On the narrowest phones, tighten the pill so the full site title
+     ("AI Foundation Services") still fits without truncation. */
+  @media (max-width: 30rem) {
+    .mobile-cta {
+      padding: 0.25rem 0.45rem;
+      font-size: 0.6875rem; /* 11px */
+      margin-inline-start: 0.125rem;
+    }
+  }
+
+  /* Below 22.5rem (~360px) the title needs every pixel — collapse the CTA
+     to icon-only. The aria-label still announces "Get API Key" so screen
+     reader users aren't affected. */
+  @media (max-width: 22.5rem) {
+    .mobile-cta-label {
+      display: none;
+    }
+    .mobile-cta {
+      padding: 0.3rem 0.4rem;
+      margin-inline-start: 0.25rem;
+    }
+    .mobile-cta-icon {
+      font-size: 1.1em;
+    }
+  }
+
+  @media (min-width: 50rem) {
+    .mobile-cta {
+      display: none;
+    }
+  }
+</style>

@@ -22,6 +22,8 @@ export default defineConfig({
 			title: 'AI Foundation Services',
 			components: {
 				Footer: './src/components/Footer.astro',
+				SocialIcons: './src/components/HeaderApiKeyLink.astro',
+				SiteTitle: './src/components/MobileApiKeyLink.astro',
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',
