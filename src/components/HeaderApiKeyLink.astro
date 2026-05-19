@@ -1,0 +1,57 @@
+---
+import Default from '@astrojs/starlight/components/SocialIcons.astro';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+
+const label = isDE ? 'API-Key holen' : 'Get API Key';
+const ariaLabel = isDE
+  ? 'API-Key holen (öffnet in neuem Tab)'
+  : 'Get API Key (opens in new tab)';
+---
+
+<Default {...Astro.props}><slot /></Default>
+
+<a
+  class="header-cta"
+  href="https://apikey.llmhub.t-systems.net/login"
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={ariaLabel}
+>
+  <span class="header-cta-label">{label}</span>
+  <span class="header-cta-icon" aria-hidden="true">&#8599;</span>
+</a>
+
+<style>
+  /* Desktop pill. Naturally hidden below md (~50rem) because Starlight wraps
+     SocialIcons in a .right-group with `sl-hidden md:sl-flex` — see
+     MobileApiKeyLink.astro for the mobile counterpart. */
+  .header-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 9999px;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease;
+  }
+
+  .header-cta:hover {
+    background: var(--sl-color-accent-high);
+  }
+
+  .header-cta:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 2px;
+  }
+
+  .header-cta-icon {
+    font-size: 0.9em;
+  }
+</style>
