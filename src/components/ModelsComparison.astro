@@ -161,11 +161,12 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-flash':                { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3-pro':                  { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
-  'gemma-4-31B':                   { inputModalities: ['Text', 'Image'] },
+  'gemma-4-31B-it-FP8-preview':    { inputModalities: ['Text', 'Image'] },
   // Mistral Small 3.1 (canonical HF release for the "Mistral-Small-3" slot)
   // added vision; the original Small 3 (2501) was text-only. AIFS deploys the
   // 3.1 release per the model card audit (2026-05).
-  'Mistral-Small-3':               { inputModalities: ['Text', 'Image'] },
+  'Mistral-Small-3':                  { inputModalities: ['Text', 'Image'] },
+  'Mistral-Small-4-119B-2603-Preview':{ inputModalities: ['Text', 'Image'] },
   // Qwen3-VL = vision-language; primary='llms' (default) so it surfaces on
   // both /models/llms and /models/vision via multi-category derivation.
   'Qwen3-VL-30B-A3B-Instruct-FP8': { inputModalities: ['Text', 'Image'] },
