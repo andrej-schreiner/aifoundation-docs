@@ -3,9 +3,9 @@ import Default from '@astrojs/starlight/components/SocialIcons.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
-const label = isDE ? 'API-Key holen' : 'Get API Key';
+const label = isDE ? 'API-Key generieren' : 'Get API Key';
 const ariaLabel = isDE
-  ? 'API-Key holen (öffnet in neuem Tab)'
+  ? 'API-Key generieren (öffnet in neuem Tab)'
   : 'Get API Key (opens in new tab)';
 ---
 
