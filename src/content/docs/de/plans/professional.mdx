@@ -11,9 +11,25 @@ Der monatliche Mindestumsatz für Modelle im Tarif Professional beträgt: 3.000 
 <div style="max-width: 54rem;">
 
 :::note
-Preise gültig ab 1. Mai 2026.
+Preise gültig ab 1. Mai 2026. RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;</a></sup> markiert — klicken Sie auf ein Sternchen für die vollständigen Bedingungen.
 :::
 
 </div>
 
 <PlansPage selectedPlanId="Professional" />
+
+<div style="max-width: 54rem;">
+
+<a id="rpm-tpm-notes"></a>
+
+## Servicehinweis zu den veröffentlichten RPM- und TPM-Werten
+
+<sup>&ast;</sup> Die oben gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
+
+- Diese Werte sind **nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels)**. Das SLA deckt ausschließlich die API-Verfügbarkeit ab; es erstreckt sich nicht auf Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
+- Der tatsächlich erreichte Durchsatz, die End-to-End-Latenz und die Time-to-First-Token variieren mit der Plattformlast. Insbesondere können Open-Source-Modelle auf T-Cloud bei hoher gleichzeitiger Nachfrage unterhalb der veröffentlichten Obergrenzen arbeiten.
+- Kunden, die vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token benötigen, sollten [Dedicated LLM Serving](/de/plans/dedicated) in Betracht ziehen — dort lassen sich solche Zusagen als Performance-SLAs auf reservierter Hardware verhandeln.
+
+Für individuelle Anforderungen wenden Sie sich an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com).
+
+</div>

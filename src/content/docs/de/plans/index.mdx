@@ -7,17 +7,67 @@ tableOfContents: false
 import { LinkCard } from '@astrojs/starlight/components';
 import PlansPage from '../../../../components/PlansPage.astro';
 
-<LinkCard title="Leistungsbeschreibung (PDF)" href="/files/Leistungsbeschreibung-LLM-Serving-Service.pdf" description="Laden Sie das offizielle Leistungsbeschreibungsdokument herunter." />
+<div style="max-width: 54rem;">
+
+LLM Serving wird in zwei Servicemodellen angeboten. Die Tarife **Essential / Professional / Agentic** unten gehören zum **Shared LLM Serving Service** — Multi-Tenant, Pay-as-you-go, Self-Service über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) und das [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login), mit Best-Effort-Obergrenzen für RPM und TPM pro Modell. Für Workloads, die vertragliche Performance-Zusagen, private Modelle oder Single-Tenant-Infrastruktur benötigen, siehe [Dedicated LLM Serving](/de/plans/dedicated).
+
+</div>
+
+<div class="link-card-row">
+  <LinkCard title="Leistungsbeschreibung (PDF)" href="/files/Leistungsbeschreibung-LLM-Serving-Service.pdf" description="Offizielles, verbindliches Leistungsbeschreibungs-Dokument." />
+  <LinkCard title="Shared vs. Dedicated LLM Serving" href="/de/plans/service-models" description="Beide Servicemodelle nebeneinander mit Entscheidungsleitfaden." />
+</div>
 
 <div style="max-width: 54rem;">
 
 :::note
-Preise gültig ab 1. Mai 2026.
+Preise gültig ab 1. Mai 2026. RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;</a></sup> markiert — klicken Sie auf ein Sternchen für die vollständigen Bedingungen.
 :::
 
 </div>
 
 <PlansPage />
+
+<div style="max-width: 54rem;">
+
+## Mehr als der Shared Service?
+
+Die Tarife oben sind der richtige Einstieg für die meisten Produktions-Workloads. **Dedicated LLM Serving** ist die richtige Wahl, wenn eines oder mehrere der folgenden Kriterien zutrifft:
+
+- **Sie bedienen viele Nutzer mit strikten Latenz-SLAs.** Selbst die hohen RPM/TPM-Werte des Agentic-Tarifs sind Best-Effort im Shared Service — es gibt keine vertragliche Zusage für Time-to-First-Token oder End-to-End-Latenz, wenn andere Tenants die Plattformlast erzeugen.
+- **Ihr Workload ist bursty.** Kurze Phasen sehr hoher Nachfrage, die ansonsten die Rate-Limit-Obergrenzen des Shared Service erreichen würden.
+- **Sie müssen ein privates, fine-tuned oder kundenspezifisches Modell hosten,** das nicht im Shared-Katalog steht.
+- **Ihre Compliance verlangt Single-Tenant-Infrastruktur.**
+- **Sie wünschen eine planbare Kostenstruktur** — eine feste Gebühr für die reservierte Hardware und den Managed-Inference-Service statt token-basierter Abrechnung.
+
+### Was Dedicated LLM Serving bietet
+
+- **Keine RPM/TPM-Obergrenzen.** Der Durchsatz wird ausschließlich durch die reservierte GPU-Hardware begrenzt, nicht durch Pro-Minute-Kontingente.
+- **Deterministische Performance.** Keine Konkurrenz durch andere Tenants. Derselbe Prompt erzeugt Lauf für Lauf dasselbe Latenzprofil.
+- **Verhandelbare Performance-SLAs.** Anders als der Shared Service — dessen SLA nur die API-Verfügbarkeit abdeckt — können Dedicated-LLM-Serving-Verträge SLAs zu Time-to-First-Token, End-to-End-Latenz, dauerhaftem Durchsatz, 24/7-Support und strengeren Verfügbarkeitszielen enthalten.
+- **Jedes kompatible Modell.** Jedes Modell aus dem Shared-T-Cloud-Katalog lässt sich auf einer dedizierten Instanz bereitstellen, ergänzt um eigene private oder fine-tuned Varianten.
+
+<div class="link-card-row">
+  <LinkCard title="Dedicated LLM Serving" href="/de/plans/dedicated" description="GPU-Hardware exklusiv für Ihren Vertrag — vollständige Details, Vorteile und Bestellprozess." />
+  <LinkCard title="Shared vs. Dedicated LLM Serving vergleichen" href="/de/plans/service-models" description="Beide Servicemodelle nebeneinander — Preismodell, SLAs, Performance und Entscheidungsleitfaden." />
+</div>
+
+Dedicated LLM Serving erfordert ein individuelles Angebot und ist nicht über den T-Cloud Marketplace verfügbar. Wenden Sie sich an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com) für ein Angebot auf Basis Ihres Workload-Profils und Ihrer SLA-Anforderungen.
+
+
+<a id="rpm-tpm-notes"></a>
+
+## Servicehinweis zu den veröffentlichten RPM- und TPM-Werten
+
+<sup>&ast;</sup> Die in den Tabellen oben gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
+
+- Diese Werte sind **nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels)**. Das SLA deckt ausschließlich die API-Verfügbarkeit ab; es erstreckt sich nicht auf Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
+- Der tatsächlich erreichte Durchsatz, die End-to-End-Latenz und die Time-to-First-Token variieren mit der Plattformlast. Insbesondere können Open-Source-Modelle auf T-Cloud bei hoher gleichzeitiger Nachfrage unterhalb der veröffentlichten Obergrenzen arbeiten.
+- Kunden, die vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token benötigen, sollten [Dedicated LLM Serving](/de/plans/dedicated) in Betracht ziehen — dort lassen sich solche Zusagen als Performance-SLAs auf reservierter Hardware verhandeln.
+
+Für individuelle Anforderungen wenden Sie sich an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com).
+
+</div>
 
 [//]: # (To Update Model & Pricing in Plans Page, Please refer to the instructions present in index.js file)
 [//]: # (Path: 'src/components/PlansPageFeatures/PlansData/PlansModelData/index.js')

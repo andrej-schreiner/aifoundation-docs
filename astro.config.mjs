@@ -140,6 +140,8 @@ export default defineConfig({
 					translations: { de: 'Tarife & Preise' },
 					items: [
 						{ label: 'Plans Overview', translations: { de: 'Tarifübersicht' }, slug: 'plans' },
+						{ label: 'Shared vs Dedicated LLM Serving', translations: { de: 'Shared vs. Dedicated LLM Serving' }, slug: 'plans/service-models' },
+						{ label: 'Dedicated LLM Serving', translations: { de: 'Dedicated LLM Serving' }, slug: 'plans/dedicated' },
 						{ label: 'Essential', translations: { de: 'Essential' }, slug: 'plans/essential' },
 						{ label: 'Professional', translations: { de: 'Professional' }, slug: 'plans/professional' },
 						{ label: 'Agentic', translations: { de: 'Agentic' }, slug: 'plans/agentic' },

@@ -25,7 +25,11 @@ There are components for LLM and RAG. The LLM component offers various tariffs w
 
 ### What are the rate limits?
 
-Rate limits (TPM and RPM) depend on the selected plan and model. For example, GPT-OSS 120B (T-Cloud, Germany) provides 300 RPM and 300,000 input TPM on the Essential plan, scaling up to 1,000 RPM and 2,000,000 input TPM on Agentic. Premium models such as Claude Opus are available on the Professional and Agentic plans. See [Rate Limits](/reference/rate-limits) for the full breakdown.
+Rate limits (TPM and RPM) depend on the selected plan and model. For example, GPT-OSS 120B (T-Cloud, Germany) lists 300 <sup><a href="/reference/rate-limits#about-these-rpm-and-tpm-values">&ast;</a></sup> RPM and 300,000 <sup><a href="/reference/rate-limits#about-these-rpm-and-tpm-values">&ast;</a></sup> input TPM on the Essential plan, scaling up to 1,000 <sup><a href="/reference/rate-limits#about-these-rpm-and-tpm-values">&ast;</a></sup> RPM and 2,000,000 <sup><a href="/reference/rate-limits#about-these-rpm-and-tpm-values">&ast;</a></sup> input TPM on Agentic. Premium models such as Claude Opus are available on the Professional and Agentic plans.
+
+**The published RPM/TPM values are best-effort ceilings on the shared service — not part of the SLA.** For open-source models on T-Cloud, effective throughput can be lower at peak load. The availability SLA covers API reachability only, not throughput or latency. For contractual performance commitments, see [Dedicated LLM Serving](/plans/dedicated).
+
+See [Rate Limits](/reference/rate-limits) for the full breakdown.
 
 ### Can additional LLMs be provided?
 

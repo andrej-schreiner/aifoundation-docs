@@ -9,6 +9,16 @@ Diese Seite fasst die Service-Level-Zusagen aus der [Leistungsbeschreibung (PDF)
 Die folgenden Bedingungen beschreiben das **Standardprodukt**. Unternehmenskunden mit kundenspezifischen Verträgen können abweichende SLAs, Reaktionszeiten und Supportregelungen haben — maßgeblich ist Ihr individueller Vertrag.
 :::
 
+:::caution[Was dieses SLA abdeckt — und was nicht]
+Das unten genannte 99,9%-Ziel deckt ausschließlich die **API-Verfügbarkeit** ab — also, ob der Service-Endpunkt antwortet. Es deckt **nicht** ab:
+
+- **RPM oder TPM** — die veröffentlichten [Rate-Limits](/de/reference/rate-limits) sind Best-Effort-Obergrenzen, kein SLA-gestützter Durchsatz
+- **End-to-End-Latenz** oder **Time-to-First-Token**
+- **Dauerhaften Durchsatz** oder **Token pro Sekunde** auf einem Modell
+
+Performance-Eigenschaften des Shared Service sind Best-Effort und variieren mit der Plattformlast. Für vertragliche Performance-Zusagen — Latenz, Time-to-First-Token, dauerhafter Durchsatz — siehe [Dedicated LLM Serving](/de/plans/dedicated), wo diese als individuelle SLAs auf reservierter Hardware verhandelt werden können.
+:::
+
 
 ## Verfügbarkeit
 
