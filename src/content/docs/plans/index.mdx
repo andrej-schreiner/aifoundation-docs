@@ -7,17 +7,67 @@ tableOfContents: false
 import { LinkCard } from '@astrojs/starlight/components';
 import PlansPage from '../../../components/PlansPage.astro';
 
-<LinkCard title="Service Description (PDF)" href="/files/Leistungsbeschreibung-LLM-Serving-Service.pdf" description="Download the official service description document." />
+<div style="max-width: 54rem;">
+
+LLM Serving is offered in two service models. The **Essential / Professional / Agentic** plans below are the **Shared LLM Serving Service** — multi-tenant, pay-as-you-go, self-service via the [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) and the [API Key self-serve portal](https://apikey.llmhub.t-systems.net/login), with best-effort RPM and TPM ceilings per model. For workloads that need contractual performance guarantees, private models, or single-tenant infrastructure, see [Dedicated LLM Serving](/plans/dedicated).
+
+</div>
+
+<div class="link-card-row">
+  <LinkCard title="Service Description (PDF)" href="/files/Leistungsbeschreibung-LLM-Serving-Service.pdf" description="Official, binding service description document." />
+  <LinkCard title="Shared vs Dedicated LLM Serving" href="/plans/service-models" description="Side-by-side comparison of both service models and when to pick which." />
+</div>
 
 <div style="max-width: 54rem;">
 
 :::note
-Pricing valid from May 1, 2026.
+Pricing valid from May 1, 2026. RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the full conditions.
 :::
 
 </div>
 
 <PlansPage />
+
+<div style="max-width: 54rem;">
+
+## Looking for more than the shared service?
+
+The plans above are the right starting point for most production workloads. **Dedicated LLM Serving** is the right choice when one or more of the following apply:
+
+- **You serve many users with strict latency SLAs.** Even the Agentic plan's high RPM/TPM are best-effort on shared infrastructure — there is no contractual guarantee on time-to-first-token or end-to-end latency when other tenants drive the platform load.
+- **Your workload is bursty.** Short windows of very high demand that would otherwise hit the shared service's rate-limit ceilings.
+- **You need to host a private, fine-tuned, or custom model** that isn't in the shared catalog.
+- **Your compliance posture requires single-tenant infrastructure.**
+- **You want a predictable cost structure** — a fixed fee for the reserved hardware and the managed inference service, instead of per-token billing.
+
+### What Dedicated LLM Serving gives you
+
+- **No RPM or TPM ceilings.** Throughput is limited only by the GPU hardware you reserve, not by per-minute quotas.
+- **Deterministic performance.** No contention from other tenants. The same prompt produces the same latency profile run after run.
+- **Negotiable performance SLAs.** Unlike the shared service — whose SLA covers API availability only — Dedicated LLM Serving contracts can include SLAs on time-to-first-token, end-to-end latency, sustained throughput, 24/7 support, and stricter availability targets.
+- **Any compatible model.** Any model that runs on the shared T-Cloud catalog can be deployed on a dedicated instance, plus your own private or fine-tuned variants.
+
+<div class="link-card-row">
+  <LinkCard title="Dedicated LLM Serving" href="/plans/dedicated" description="Reserve GPU hardware exclusively for your contract — full details, advantages, and how to order." />
+  <LinkCard title="Compare Shared vs Dedicated LLM Serving" href="/plans/service-models" description="Side-by-side comparison of both service models — pricing model, SLAs, performance, and when to pick which." />
+</div>
+
+Dedicated LLM Serving requires a tailored offer and is not available via the T-Cloud Marketplace. Contact the AIFS team at [ai@t-systems.com](mailto:ai@t-systems.com) for a quote based on your workload profile and SLA requirements.
+
+
+<a id="rpm-tpm-notes"></a>
+
+## Service note on the published RPM and TPM values
+
+<sup>&ast;</sup> The Requests-per-Minute (RPM) and Tokens-per-Minute (TPM) figures shown in the tables above are **best-effort, best-case ceilings** for the Shared LLM Serving Service. They denote the maximum traffic permitted under the contract — not a guaranteed level of throughput. The following conditions apply:
+
+- These figures are **not part of the [Service Level Agreement (SLA)](/reference/service-levels)**. The SLA covers API availability only; it does not extend to throughput, end-to-end latency, or time-to-first-token.
+- Realised throughput, end-to-end latency, and time-to-first-token vary with platform load. Open-source models hosted on T-Cloud may operate below the published ceilings during periods of peak concurrent demand.
+- Customers requiring contractual guarantees on throughput, end-to-end latency, or time-to-first-token should consider [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
+
+For workload-specific commitments, contact the AIFS team at [ai@t-systems.com](mailto:ai@t-systems.com).
+
+</div>
 
 [//]: # (To Update Model & Pricing in Plans Page, Please refer to the instructions present in index.js file)
 [//]: # (Path: 'src/components/PlansPageFeatures/PlansData/PlansModelData/index.js')

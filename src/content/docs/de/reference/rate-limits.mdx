@@ -6,7 +6,7 @@ description: "Token- und Anfrage-Rate-Limits je Tarifstufe im LLM Hub, mit Hinwe
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-Rate-Limits schützen den Dienst und gewährleisten eine faire Nutzung. Limits werden pro Tarif definiert und variieren je nach Modell.
+Rate-Limits schützen den Dienst und gewährleisten eine faire Nutzung. Limits werden pro Tarif definiert und variieren je nach Modell. Jeder RPM- und TPM-Wert unten ist mit einem Sternchen <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> markiert — klicken Sie darauf für die vollständigen Bedingungen, unter denen diese Werte angegeben sind.
 
 
 ## Limits nach Tarif
@@ -16,9 +16,7 @@ Limits variieren sowohl nach Tarif als auch nach Modell. Die folgende Tabelle ze
 | Metrik | Essential | Professional | Agentic |
 |---|---|---|---|
 | **Verfügbare Modelle** | 42 | 44 | 44 |
-| **Beispiel-RPM** † | 300 | 600 | 1.000 |
-
-† Beispiel-RPM für ein repräsentatives T-Cloud-Modell — genaue Limits variieren je Modell. Professional und Agentic bieten zusätzlich Premium-Modelle (z. B. Claude Opus), die im Essential-Katalog (nur Standard-Modelle) nicht enthalten sind.
+| **Beispiel-RPM** <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 ### Beispiel: Limits pro Modell je Tarif
 
@@ -26,19 +24,19 @@ Zur Veranschaulichung der Skalierung hier die Limits für zwei repräsentative M
 
 **GPT-OSS 120B** (T-Cloud, Deutschland):
 
-| Tarif | RPM | Eingabe-TPM | Ausgabe-TPM |
+| Tarif | RPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Eingabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Ausgabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 |---|---|---|---|
-| Essential | 300 | 300.000 | 150.000 |
-| Professional | 600 | 600.000 | 300.000 |
-| Agentic | 1.000 | 2.000.000 | 1.000.000 |
+| Essential | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 150.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Professional | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Agentic | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 2.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 **GPT-5.2** (Azure, EU):
 
-| Tarif | RPM | Eingabe-TPM | Ausgabe-TPM |
+| Tarif | RPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Eingabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Ausgabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 |---|---|---|---|
-| Essential | 30.000 | 3.000.000 | 1.500.000 |
-| Professional | 60.000 | 6.000.000 | 3.000.000 |
-| Agentic | 100.000 | 10.000.000 | 5.000.000 |
+| Essential | 30.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 3.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.500.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Professional | 60.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 6.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 3.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Agentic | 100.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 10.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 5.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 :::note
 **Preview-Modelle** (Test-Katalog, z. B. `Gemma 4`) nutzen *dynamische* Rate-Limits anstelle fester RPM/TPM-Werte. Die Telekom kann die Nutzung von Preview-Modellen jederzeit ohne vorherige Ankündigung anpassen oder einschränken.
@@ -49,10 +47,12 @@ Für die vollständige Aufschlüsselung pro Modell für Ihren Tarif besuchen Sie
 
 ## Wie Rate-Limits funktionieren
 
-- **TPM (Token pro Minute)** — Maximale Anzahl verarbeiteter Eingabe-Token pro Minute
-- **RPM (Anfragen pro Minute)** — Maximale Anzahl von API-Anfragen pro Minute
+- **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Eingabe-Token pro Minute; kein SLA-gestützter Durchsatzwert
+- **RPM (Anfragen pro Minute)** — Best-Effort-*Obergrenze* für API-Anfragen pro Minute; kein SLA-gestützter Anfragerate-Wert
 - Limits gelten je Vertrag — alle erzeugten API-Schlüssel teilen sich das Kontingent
 - Sowohl Eingabe- als auch Ausgabe-Token zählen zu den TPM-Limits
+
+Anders gesagt: RPM/TPM zeigen, ab wann die Plattform Ihren Traffic *drosselt*. Sie sagen **nichts** darüber aus, mit welcher Rate die Plattform Ihren Traffic *bedient*. Im Shared Service hängt die tatsächlich erreichte Rate von der Plattformlast und der Nutzung desselben Modells durch andere Tenants ab.
 
 
 ## Rate-Limit-Antwort-Header
@@ -152,8 +152,20 @@ def safe_completion(messages, max_retries=3):
 ```
 
 
+<a id="hinweise-zu-den-rpm--und-tpm-werten"></a>
+
+## Servicehinweis zu den veröffentlichten RPM- und TPM-Werten
+
+<sup>&ast;</sup> Die auf dieser Seite gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
+
+- **Nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels).** Das 99,9%-Verfügbarkeits-SLA deckt ausschließlich die Erreichbarkeit der API ab; es erstreckt sich nicht auf RPM, TPM, Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
+- **Für Open-Source-Modelle auf T-Cloud** kann der tatsächlich erreichte Durchsatz bei hoher gleichzeitiger Nachfrage deutlich unterhalb der veröffentlichten Obergrenzen liegen. End-to-End-Latenz und Time-to-First-Token variieren ebenfalls mit der Plattformlast.
+- **Der "Beispiel-RPM"-Wert** in der Tabelle "Limits nach Tarif" ist ein Richtwert für ein repräsentatives T-Cloud-Modell; präzise Limits variieren je Modell. Professional und Agentic umfassen Premium-Modelle (z. B. Claude Opus) zusätzlich zum Standard-Katalog des Essential-Tarifs.
+- **Für vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token** siehe [Dedicated LLM Serving](/de/plans/dedicated) — dort können solche Zusagen als Performance-SLAs auf reservierter Hardware verhandelt werden.
+
+
 ## Höhere Limits benötigt?
 
 - **Tarif upgraden** — Höhere Stufen haben deutlich höhere TPM- und RPM-Limits
-- **Dedizierte Instanzen** — Für Enterprise-Workloads kontaktieren Sie uns für dedizierte GPU-Ressourcen mit individuellen Rate-Limits
+- **Auf Dedicated LLM Serving wechseln** — Im [Dedicated LLM Serving](/de/plans/dedicated) gibt es keine RPM/TPM-Obergrenzen. Sie reservieren GPU-Hardware und verbrauchen so viele Token, wie diese erzeugen kann — sinnvoll für bursty Traffic oder strikte Latenz-SLAs, die der Shared Service nicht garantieren kann
 - **Kontakt:** [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) oder wenden Sie sich an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com)

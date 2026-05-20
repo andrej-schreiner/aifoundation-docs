@@ -6,4 +6,28 @@ tableOfContents: false
 
 import PlansPage from '../../../../components/PlansPage.astro';
 
+<div style="max-width: 54rem;">
+
+:::note
+Etwaige RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;</a></sup> markiert — klicken Sie auf ein Sternchen für die vollständigen Bedingungen und wichtige Einschränkungen speziell für Preview-Modelle.
+:::
+
+</div>
+
 <PlansPage selectedPlanId="Test" sectionTitle="Test / Vorschau Modelle" modelsSectionTitle="Unsere Modelle" />
+
+<div style="max-width: 54rem;">
+
+<a id="rpm-tpm-notes"></a>
+
+## Servicehinweis zu Test- / Preview-Modellen
+
+<sup>&ast;</sup> Test- und Preview-Modelle nutzen **dynamische Rate-Limits** anstelle fester Werte für Anfragen pro Minute (RPM) oder Token pro Minute (TPM). Es gelten die folgenden Bedingungen:
+
+- Sie werden kostenfrei mit jedem aktiven Tarif bereitgestellt; die Telekom behält sich vor, sie jederzeit ohne vorherige Ankündigung anzupassen, einzuschränken oder abzukündigen.
+- Es gilt **keine Mindestverfügbarkeit** und sie sind **nicht Teil eines Service Level Agreements (SLA)**.
+- Sie sind für Evaluierung und Prototyping vorgesehen; sie sind **nicht für den Produktivbetrieb geeignet**.
+
+Kunden, die vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token benötigen, sollten [Dedicated LLM Serving](/de/plans/dedicated) in Betracht ziehen — dort lassen sich solche Zusagen als Performance-SLAs auf reservierter Hardware verhandeln.
+
+</div>

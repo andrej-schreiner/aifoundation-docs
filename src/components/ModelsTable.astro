@@ -214,6 +214,9 @@ const priceBuckets = [
                   </svg>
                   <span>
                     {header.label}
+                    {!legacy && (header.key === 'rpm' || header.key === 'tpm') && (
+                      <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>
+                    )}
                     {header.unit && <div class="plans-table__small-text">{header.unit}</div>}
                   </span>
                 </span>
@@ -682,8 +685,8 @@ const priceBuckets = [
           <td><strong>&euro; ${formatPrice(model.inputPrice)}</strong></td>
           <td><strong>&euro; ${formatPrice(model.outputPrice)}</strong></td>
           <td><div class="loc-wrapper">${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation)}</div></td>
-          <td>${formatNumber(model.rpm)}</td>
-          <td>${formatNumber(model.tpm)}</td>
+          <td>${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
+          <td>${formatNumber(model.tpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
           ${legacy ? '' : `<td>${model.contextWindow != null ? formatNumber(model.contextWindow) : '-'}</td>`}
           ${legacy ? '' : `<td>
             <span class="model-links">

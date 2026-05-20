@@ -35,10 +35,11 @@ const t = {
   thRPM: isDE ? 'Beispiel RPM' : 'RPM',
   thRPMUnit: isDE ? 'Anfragen/Minute' : 'Requests/Minute',
   thRPMUnitShort: isDE ? 'Anfragen/Min' : 'Requests/Min',
+  rpmTpmAnchor: '#rpm-tpm-notes',
   thCloud: isDE ? 'Cloud Anbieter' : 'Cloud',
   footnote: isDE
-    ? '* Beispielpreise für T-Cloud-gehostete Large Language Models · † Beispiel-RPM für ein repräsentatives T-Cloud-Modell — genaue Limits variieren je Modell'
-    : '* Example pricing for T-Cloud-hosted Large Language Models · † Example RPM for a representative T-Cloud model — exact limits vary by model',
+    ? '† Beispielpreise für T-Cloud-gehostete Large Language Models'
+    : '† Example pricing for T-Cloud-hosted Large Language Models',
   commitmentNoteLead: isDE ? 'Monatlicher Mindestumsatz' : 'Minimum Monthly Commitment',
   commitmentNoteBody: isDE
     ? 'ist die Untergrenze Ihrer monatlichen Abrechnung — keine zusätzliche Gebühr neben den Token-Kosten.'
@@ -398,7 +399,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
                 </th>
                 <th>
-                  {t.thRPM}
+                  {t.thRPM} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}
                   <div class="plans-table__small-text">{t.thRPMUnit}</div>
                 </th>
                 <th>{t.thModelHost}</th>
@@ -416,8 +417,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   <td>
                     <span class="plans-table__main-text">{plan.basePrice}</span>
                   </td>
-                  <td>{plan.tokenPrice} *</td>
-                  <td>{plan.rpm} †</td>
+                  <td>{plan.tokenPrice} †</td>
+                  <td>{plan.rpm} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}</td>
                   <td>
                     {plan.modelHost.map((cloud, i) => (
                       <>

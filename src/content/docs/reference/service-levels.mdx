@@ -9,6 +9,16 @@ This page summarizes the service level commitments from the [Service Description
 The terms below describe the **standard product offering (<span lang="de">Standardprodukt</span>)**. Enterprise customers with custom contracts may have different SLAs, response times, and support arrangements — refer to your individual contract.
 :::
 
+:::caution[What this SLA covers — and what it does not]
+The 99.9% target below covers **API availability only** — whether the service endpoint responds. It does **not** cover:
+
+- **RPM or TPM** — published [rate limits](/reference/rate-limits) are best-effort ceilings, not SLA-backed throughput
+- **End-to-end latency** or **time-to-first-token**
+- **Sustained throughput** or **tokens-per-second** on any model
+
+Performance characteristics on the shared service are best-effort and vary with platform load. For contractual performance commitments — including latency, time-to-first-token, and sustained throughput — see [Dedicated LLM Serving](/plans/dedicated), where these can be negotiated as custom SLAs on top of reserved hardware.
+:::
+
 
 ## Availability
 
