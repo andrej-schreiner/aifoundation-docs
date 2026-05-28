@@ -125,16 +125,7 @@ export default defineConfig({
 						{ label: 'Enterprise Trust', translations: { de: 'Enterprise Trust' }, slug: 'reference/enterprise-trust' },
 					],
 				},
-				{
-					label: 'SmartChat',
-					translations: { de: 'SmartChat' },
-					items: [
-						{ label: 'SmartChat Overview', translations: { de: 'SmartChat Overview' }, slug: 'smartchat/overview' },
-						{ label: 'RAG API Reference', translations: { de: 'RAG API Reference' }, slug: 'smartchat/api-reference' },
-						{ label: 'Local Chat', translations: { de: 'Local Chat' }, slug: 'smartchat/local-chat' },
-						{ label: 'Global Chat', translations: { de: 'Global Chat' }, slug: 'smartchat/global-chat' },
-					],
-				},
+				{ label: 'SmartChat', translations: { de: 'SmartChat' }, slug: 'smartchat/overview' },
 				{
 					label: 'Plans & Pricing',
 					translations: { de: 'Tarife & Preise' },
@@ -164,7 +155,7 @@ export default defineConfig({
 						// `aria-label` overrides the visible text for AT, so it must include the link's
 						// name AND the "(opens in new tab)" hint. `rel="noopener noreferrer"` is
 						// the security-required pairing for `target="_blank"`.
-						{ label: 'SmartChat ↗', translations: { de: 'SmartChat ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'SmartChat (opens in new tab)' } },
+						{ label: 'Try SmartChat ↗', translations: { de: 'SmartChat testen ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Try SmartChat (opens in new tab)' } },
 						{ label: 'LLM Playground ↗', translations: { de: 'LLM Playground ↗' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
 						{ label: 'Model Status ↗', translations: { de: 'Model Status ↗' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
 						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung-LLM-Serving-Service.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
