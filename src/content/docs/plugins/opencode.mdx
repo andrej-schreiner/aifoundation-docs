@@ -34,7 +34,7 @@ It's a good fit if you prefer a keyboard-driven, editor-agnostic workflow and wa
 ## Installation and Setup
 
 :::note[Proxy usage]
-Like most command-line tools, OpenCode may require proxy settings in your shell environment:
+Like most command-line tools, OpenCode may require proxy settings in your shell environment. If you are on Windows and need a proxy, set these variables before starting OpenCode:
 
 ```bash
 http_proxy=<your-proxy-url:port>
@@ -42,45 +42,21 @@ https_proxy=<your-proxy-url:port>
 ```
 :::
 
-1. Add the npm registry:
+1. Follow the OpenCode installation instructions on [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins).
 
-   ```bash
-   npm config set @aie:registry https://plugins.dev.aie.ai.t-systems.net/v1/npm
-   ```
-
-2. Install OpenCode globally:
-
-   ```bash
-   npm install -g @aie/opencode
-   ```
-
-3. If you are on Windows and need a proxy, set the required environment variables before starting OpenCode.
-
-4. Get an API key from the portal:
-
-   - [AI Foundation Services API Key Portal](https://apikey.llmhub.t-systems.net/)
-
-5. Run:
-
-   ```bash
-   opencode auth login https://plugins.dev.aie.ai.t-systems.net
-   ```
-
-   This sets up OpenCode with the configuration published at [https://plugins.dev.aie.ai.t-systems.net/.well-known/opencode](https://plugins.dev.aie.ai.t-systems.net/.well-known/opencode), which we recommend for compliant usage with AI Foundation Services models.
-
-6. Run OpenCode:
+2. Run OpenCode:
 
    ```bash
    opencode
    ```
 
-7. In OpenCode, run the following command to choose your provider and sign in with your API key:
+3. In OpenCode, run the following command to choose your provider and sign in with your API key:
 
    ```bash
    /connect
    ```
 
-   Select **AI Foundation Services** from the provider list, then provide your API key when prompted.
+   Select **AI Foundation Services** from the provider list, then provide your API key when prompted. You can generate an API key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard).
 
 You can now start a chat and use OpenCode.
 
