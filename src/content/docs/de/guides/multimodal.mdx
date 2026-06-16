@@ -150,6 +150,10 @@ print(response.choices[0].message.content)
 
 Die aktuelle Liste finden Sie unter [Verfügbare Modelle](/de/getting-started/models).
 
+:::caution[Bildlimit für T-Cloud-gehostete Modelle]
+Die folgenden T-Cloud-gehosteten Modelle akzeptieren **maximal 10 Bilder pro Anfrage**: `Gemma`, `Qwen3-VL-30B-A3B-Instruct-FP8`, `Mistral-Small-24B`. Das Senden von mehr Bildern führt zu HTTP 400 `BadRequestError: At most 10 image(s) may be provided in one prompt.` Teilen Sie große Batches auf mehrere Anfragen auf.
+:::
+
 
 ## Nächste Schritte
 
