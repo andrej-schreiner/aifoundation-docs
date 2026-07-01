@@ -19,16 +19,20 @@ const t = isDE
   ? {
       eyebrow: 'Jetzt verfügbar · AIFS',
       title: 'GLM‑5.2',
-      sub: '<b>753B Sparse‑Attention MoE</b><br>Frontier‑Reasoning auf souveräner EU‑Infrastruktur.',
-      cta: 'Jetzt testen',
+      sub: 'GLM‑5.2 im Preview‑Modus testen — für kurze Zeit <b>kostenlos</b> in jedem kostenpflichtigen Plan enthalten.',
+      prompt: 'Kostenlos testen?',
+      cta: 'Zugang anfragen',
+      chip: 'Souveräne <span class="k">EU‑Infrastruktur</span>',
       footer: 'OpenAI‑kompatibel &nbsp;·&nbsp; 🇩🇪 Gehostet in München',
       close: 'Ankündigung schließen',
     }
   : {
       eyebrow: 'Now serving · AIFS',
       title: 'GLM‑5.2',
-      sub: '<b>753B sparse‑attention MoE</b><br>Frontier reasoning on sovereign EU infrastructure.',
-      cta: 'Try it now',
+      sub: 'Try GLM‑5.2 in preview mode — <b>included free</b> with every paid plan for a short time.',
+      prompt: 'Want to test it for free?',
+      cta: 'Request access here',
+      chip: 'Sovereign EU <span class="k">Infrastructure</span>',
       footer: 'OpenAI‑compatible &nbsp;·&nbsp; 🇩🇪 Hosted in Munich',
       close: 'Dismiss announcement',
     };
@@ -48,12 +52,13 @@ const t = isDE
       <p class="glm-sub" set:html={t.sub}></p>
 
       <div class="glm-chips">
-        <span class="glm-chip">753B <span class="k">MoE</span></span>
         <span class="glm-chip">1M <span class="k">context</span></span>
         <span class="glm-chip">Blackwell <span class="k">B200</span></span>
+        <span class="glm-chip" set:html={t.chip}></span>
       </div>
 
       <div class="glm-actions">
+        <span class="glm-prompt">{t.prompt}</span>
         <a class="glm-cta" href={GET_ACCESS_URL} target="_blank" rel="noopener noreferrer">{t.cta}</a>
       </div>
 
@@ -94,8 +99,8 @@ const t = isDE
     bottom: 1.5rem;
     z-index: 1000;
     /* no backdrop — this is a corner toast, not a full-screen modal */
-    /* scaled to 92% of its natural size, anchored to the corner it sits in */
-    transform: scale(0.92);
+    /* scaled down slightly, anchored to the corner it sits in */
+    transform: scale(0.85);
     transform-origin: bottom right;
   }
   .glm-overlay.closing {
@@ -104,7 +109,7 @@ const t = isDE
 
   .glm-banner {
     position: relative;
-    width: min(30rem, calc(100vw - 3rem));
+    width: min(25rem, calc(100vw - 3rem));
     background: linear-gradient(180deg, var(--surface-2), var(--surface));
     border: 1px solid var(--gline);
     border-radius: 22px;
@@ -129,11 +134,11 @@ const t = isDE
 
   .glm-close {
     position: absolute;
-    top: 12px;
-    right: 12px;
+    top: 10px;
+    right: 10px;
     z-index: 5;
-    width: 34px;
-    height: 34px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: grid;
     place-items: center;
@@ -148,17 +153,17 @@ const t = isDE
     border-color: rgba(255, 255, 255, 0.5);
   }
   .glm-close svg {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
   }
 
   /* ---------- signature: sparse MoE expert grid ---------- */
   .glm-experts {
     position: relative;
-    height: 44px;
+    height: 30px;
     display: grid;
     gap: 5px;
-    padding: 26px 22px 4px;
+    padding: 16px 20px 2px;
     grid-template-columns: repeat(16, 1fr);
     grid-template-rows: repeat(4, 1fr);
     -webkit-mask-image: radial-gradient(140% 130% at 50% 0%, #000 40%, transparent 92%);
@@ -182,7 +187,7 @@ const t = isDE
   /* ---------- content ---------- */
   .glm-body {
     position: relative;
-    padding: 6px 26px 26px;
+    padding: 4px 22px 18px;
     text-align: left;
   }
 
@@ -196,7 +201,7 @@ const t = isDE
     letter-spacing: 0.18em;
     color: var(--magenta-soft);
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 9px;
   }
   .glm-dot {
     width: 7px;
@@ -210,10 +215,10 @@ const t = isDE
   .glm-title {
     font-family: var(--gdisplay);
     font-weight: 700;
-    font-size: 46px;
+    font-size: 38px;
     line-height: 0.95;
     letter-spacing: -0.03em;
-    margin: 0 0 12px;
+    margin: 0 0 8px;
     background: linear-gradient(100deg, #fff 20%, var(--magenta-soft) 60%, var(--cyan) 105%);
     -webkit-background-clip: text;
     background-clip: text;
@@ -221,10 +226,10 @@ const t = isDE
   }
   .glm-sub {
     color: var(--gmuted);
-    font-size: 15px;
-    line-height: 1.5;
-    margin: 0 0 18px;
-    max-width: 34ch;
+    font-size: 13px;
+    line-height: 1.45;
+    margin: 0 0 12px;
+    max-width: none;
   }
   .glm-sub b {
     color: var(--gtext);
@@ -234,15 +239,15 @@ const t = isDE
   .glm-chips {
     display: flex;
     flex-wrap: wrap;
-    gap: 7px;
-    margin-bottom: 24px;
+    gap: 6px;
+    margin-bottom: 14px;
   }
   .glm-chip {
     font-family: var(--gmono);
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 500;
-    padding: 5px 10px;
-    border-radius: 7px;
+    padding: 4px 9px;
+    border-radius: 6px;
     color: var(--gtext);
     background: rgba(255, 255, 255, 0.045);
     border: 1px solid var(--gline);
@@ -255,17 +260,23 @@ const t = isDE
   .glm-actions {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     flex-wrap: wrap;
+  }
+  .glm-prompt {
+    font-family: var(--gbody);
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--gmuted);
   }
   .glm-cta {
     position: relative;
     overflow: hidden;
     font-family: var(--gbody);
-    font-size: 14.5px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 13px 22px;
-    border-radius: 11px;
+    padding: 10px 18px;
+    border-radius: 10px;
     border: 0;
     cursor: pointer;
     text-decoration: none;
@@ -298,11 +309,11 @@ const t = isDE
   .glm-footnote {
     display: block;
     width: 100%;
-    margin-top: 18px;
-    padding-top: 14px;
+    margin-top: 12px;
+    padding-top: 10px;
     border-top: 1px solid var(--gline);
     font-family: var(--gmono);
-    font-size: 11px;
+    font-size: 10.5px;
     letter-spacing: 0.06em;
     color: var(--gmuted);
     text-align: center;
@@ -325,13 +336,13 @@ const t = isDE
       width: auto;
     }
     .glm-title {
-      font-size: 40px;
+      font-size: 34px;
     }
     .glm-experts {
-      height: 40px;
+      height: 28px;
     }
     .glm-body {
-      padding: 6px 20px 22px;
+      padding: 4px 18px 16px;
     }
   }
 
