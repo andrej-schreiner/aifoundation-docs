@@ -12,9 +12,8 @@
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
-// TODO: replace this placeholder with the real "get access" URL (sales /
-// self-service signup portal) once it is available.
-const GET_ACCESS_URL = 'https://example.com';
+// Access-request form for prospective / non-paying customers.
+const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJVTLzCy0rm55XgD2nG5supwtGRHXVfaX-fw/viewform';
 
 const t = isDE
   ? {
@@ -48,7 +47,13 @@ const t = isDE
   <p class="glm-banner__body">{t.body}</p>
   <p class="glm-banner__cta">
     {t.ctaLead}{' '}
-    <a class="glm-banner__link" href={GET_ACCESS_URL}>{t.ctaLink}</a>
+    <a
+      class="glm-banner__link"
+      href={GET_ACCESS_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={`${t.ctaLink} ${isDE ? '(öffnet in neuem Tab)' : '(opens in new tab)'}`}
+    >{t.ctaLink}</a>
   </p>
 </aside>
 
