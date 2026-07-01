@@ -19,16 +19,20 @@ const t = isDE
   ? {
       eyebrow: 'Jetzt verfügbar · AIFS',
       title: 'GLM‑5.2',
-      sub: '<b>753B Sparse‑Attention MoE</b><br>Frontier‑Reasoning auf souveräner EU‑Infrastruktur.',
-      cta: 'Jetzt testen',
+      sub: 'GLM‑5.2 im Preview‑Modus testen — für kurze Zeit <b>kostenlos</b> in jedem Plan enthalten.',
+      prompt: 'Kostenlos testen?',
+      cta: 'Zugang anfragen',
+      chip: 'Souveräne <span class="k">EU‑Infrastruktur</span>',
       footer: 'OpenAI‑kompatibel &nbsp;·&nbsp; 🇩🇪 Gehostet in München',
       close: 'Ankündigung schließen',
     }
   : {
       eyebrow: 'Now serving · AIFS',
       title: 'GLM‑5.2',
-      sub: '<b>753B sparse‑attention MoE</b><br>Frontier reasoning on sovereign EU infrastructure.',
-      cta: 'Try it now',
+      sub: 'Try GLM‑5.2 in preview mode — <b>included free</b> with every plan for a short time.',
+      prompt: 'Want to test it for free?',
+      cta: 'Request access here',
+      chip: 'Sovereign EU <span class="k">Infrastructure</span>',
       footer: 'OpenAI‑compatible &nbsp;·&nbsp; 🇩🇪 Hosted in Munich',
       close: 'Dismiss announcement',
     };
@@ -51,9 +55,11 @@ const t = isDE
         <span class="glm-chip">753B <span class="k">MoE</span></span>
         <span class="glm-chip">1M <span class="k">context</span></span>
         <span class="glm-chip">Blackwell <span class="k">B200</span></span>
+        <span class="glm-chip" set:html={t.chip}></span>
       </div>
 
       <div class="glm-actions">
+        <span class="glm-prompt">{t.prompt}</span>
         <a class="glm-cta" href={GET_ACCESS_URL} target="_blank" rel="noopener noreferrer">{t.cta}</a>
       </div>
 
@@ -94,8 +100,8 @@ const t = isDE
     bottom: 1.5rem;
     z-index: 1000;
     /* no backdrop — this is a corner toast, not a full-screen modal */
-    /* scaled to 92% of its natural size, anchored to the corner it sits in */
-    transform: scale(0.92);
+    /* scaled down slightly, anchored to the corner it sits in */
+    transform: scale(0.85);
     transform-origin: bottom right;
   }
   .glm-overlay.closing {
@@ -257,6 +263,12 @@ const t = isDE
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
+  }
+  .glm-prompt {
+    font-family: var(--gbody);
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--gmuted);
   }
   .glm-cta {
     position: relative;
