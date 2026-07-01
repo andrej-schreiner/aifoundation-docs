@@ -3311,7 +3311,7 @@
         },
         "displayModelName": "GLM 5.2",
         "modelLabel": "Test model (T-Cloud Public)",
-        "contextWindow": "200K",
+        "contextWindow": "1M",
         "termsOfUseUrl": "https://chat.z.ai/legal-agreement/terms-of-service",
         "dataProtectionUrl": "https://chat.z.ai/legal-agreement/privacy-policy",
         "aiModelId": 990102,
