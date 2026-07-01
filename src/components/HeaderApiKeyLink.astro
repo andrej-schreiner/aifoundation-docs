@@ -8,13 +8,13 @@ const ariaLabel = isDE
   ? 'API-Key generieren (öffnet in neuem Tab)'
   : 'Get API Key (opens in new tab)';
 
-// GLM-5.2 preview note shown alongside the Get API Key CTA.
+// GLM-5.2 preview note shown alongside the Get API Key CTA. The pill links to
+// the access-request form, so "Try …" reads as the invitation to register.
 const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJVTLzCy0rm55XgD2nG5supwtGRHXVfaX-fw/viewform';
-const previewLabel = isDE ? 'GLM 5.2 Preview' : 'GLM 5.2 Preview';
-const previewAction = isDE ? 'Zum Testen registrieren' : 'Register for testing';
+const previewLabel = isDE ? 'GLM 5.2 Preview testen' : 'Try GLM 5.2 Preview';
 const previewAriaLabel = isDE
-  ? 'GLM 5.2 Preview – zum Testen registrieren (öffnet in neuem Tab)'
-  : 'GLM 5.2 Preview – register for testing (opens in new tab)';
+  ? 'GLM 5.2 Preview testen – zum Testen registrieren (öffnet in neuem Tab)'
+  : 'Try GLM 5.2 Preview – register for testing (opens in new tab)';
 ---
 
 <Default {...Astro.props}><slot /></Default>
@@ -28,8 +28,6 @@ const previewAriaLabel = isDE
 >
   <span class="header-preview-dot" aria-hidden="true"></span>
   <span class="header-preview-name">{previewLabel}</span>
-  <span class="header-preview-sep" aria-hidden="true">·</span>
-  <span class="header-preview-action">{previewAction}</span>
 </a>
 
 <a
@@ -92,12 +90,6 @@ const previewAriaLabel = isDE
 
   .header-preview-name {
     font-weight: 600;
-  }
-  .header-preview-sep {
-    opacity: 0.6;
-  }
-  .header-preview-action {
-    font-weight: 500;
   }
 
   @keyframes header-preview-pulse {
