@@ -3295,7 +3295,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "GLM-5.2-preview",
+        "exactModelName": "GLM-5.2-Preview",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": "dynamic",

@@ -79,7 +79,7 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // general-purpose LLM that is also strong at code must be tagged explicitly to
 // appear on /models/coding in addition to its primary category (/models/llms).
 const EXTRA_CATEGORIES: Record<string, Category[]> = {
-  'GLM-5.2-preview': ['coding'],
+  'GLM-5.2-Preview': ['coding'],
 };
 
 function deriveCategories(primary: Category, caps: Capabilities, extra: Category[] = []): Category[] {
