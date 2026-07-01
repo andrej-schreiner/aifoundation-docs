@@ -1,5 +1,5 @@
 ---
-// Floating, dismissible site-wide announcement for the GLM 5.2 preview model.
+// Site-wide announcement modal for the GLM-5.2 preview model (banner_4 design).
 // Rendered from Footer.astro so it appears on every page (there are no splash
 // pages, so the Footer override is truly global).
 //
@@ -17,156 +17,381 @@ const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJ
 
 const t = isDE
   ? {
-      region: 'Produktankündigung',
-      tag: 'Neu',
-      title: 'GLM 5.2 ist jetzt verfügbar',
-      body: 'Testen Sie GLM 5.2 im Preview-Modus — für kurze Zeit in jedem Tarif kostenlos enthalten.',
-      ctaLead: 'Möchten Sie es kostenlos testen?',
-      ctaLink: 'Hier Zugang anfordern',
+      eyebrow: 'Jetzt verfügbar · AIFS',
+      title: 'GLM‑5.2',
+      sub: '<b>753B Sparse‑Attention MoE</b><br>Frontier‑Reasoning auf souveräner EU‑Infrastruktur.',
+      cta: 'Jetzt testen',
+      footer: 'OpenAI‑kompatibel &nbsp;·&nbsp; 🇩🇪 Gehostet in München',
       close: 'Ankündigung schließen',
     }
   : {
-      region: 'Product announcement',
-      tag: 'New',
-      title: 'GLM 5.2 is now available',
-      body: 'Try GLM 5.2 in preview mode — included free with every plan for a short time.',
-      ctaLead: 'Want to test it for free?',
-      ctaLink: 'Request access here',
+      eyebrow: 'Now serving · AIFS',
+      title: 'GLM‑5.2',
+      sub: '<b>753B sparse‑attention MoE</b><br>Frontier reasoning on sovereign EU infrastructure.',
+      cta: 'Try it now',
+      footer: 'OpenAI‑compatible &nbsp;·&nbsp; 🇩🇪 Hosted in Munich',
       close: 'Dismiss announcement',
     };
 ---
 
-<aside id="glm-banner" class="glm-banner" aria-label={t.region} hidden>
-  <button type="button" class="glm-banner__close" aria-label={t.close}>
-    <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true" focusable="false">
-      <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-    </svg>
-  </button>
-  <p class="glm-banner__tag">{t.tag}</p>
-  <p class="glm-banner__title">{t.title}</p>
-  <p class="glm-banner__body">{t.body}</p>
-  <p class="glm-banner__cta">
-    {t.ctaLead}{' '}
-    <a
-      class="glm-banner__link"
-      href={GET_ACCESS_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      aria-label={`${t.ctaLink} ${isDE ? '(öffnet in neuem Tab)' : '(opens in new tab)'}`}
-    >{t.ctaLink}</a>
-  </p>
-</aside>
+<div class="glm-overlay" id="glm-overlay" role="region" aria-labelledby="glm-ttl" hidden>
+  <div class="glm-banner" id="glm-banner">
+    <button type="button" class="glm-close" id="glm-close" aria-label={t.close}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div class="glm-experts" id="glm-experts" aria-hidden="true"></div>
+
+    <div class="glm-body">
+      <span class="glm-eyebrow"><span class="glm-dot"></span>{t.eyebrow}</span>
+      <h1 class="glm-title" id="glm-ttl" set:html={t.title}></h1>
+      <p class="glm-sub" set:html={t.sub}></p>
+
+      <div class="glm-chips">
+        <span class="glm-chip">753B <span class="k">MoE</span></span>
+        <span class="glm-chip">1M <span class="k">context</span></span>
+        <span class="glm-chip">Blackwell <span class="k">B200</span></span>
+      </div>
+
+      <div class="glm-actions">
+        <a class="glm-cta" href={GET_ACCESS_URL} target="_blank" rel="noopener noreferrer">{t.cta}</a>
+      </div>
+
+      <div class="glm-footnote" set:html={t.footer}></div>
+    </div>
+  </div>
+</div>
 
 <style>
-  .glm-banner[hidden] {
+  @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap");
+
+  .glm-overlay {
+    --surface: #17102a;
+    --surface-2: #20163b;
+    --magenta: #ff2d9b;
+    --magenta-soft: #ff6fbe;
+    --cyan: #38e8f2;
+    --gtext: #f6f1ff;
+    --gmuted: #a99cc4;
+    --gline: rgba(255, 255, 255, 0.09);
+    --gdisplay: "Space Grotesk", system-ui, sans-serif;
+    --gbody: "Inter", system-ui, sans-serif;
+    --gmono: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  .glm-overlay[hidden] {
     display: none;
   }
 
-  .glm-banner {
+  .glm-overlay * {
+    box-sizing: border-box;
+  }
+
+  /* ---------- corner toast + card ---------- */
+  .glm-overlay {
     position: fixed;
-    right: 1.25rem;
-    bottom: 1.25rem;
-    z-index: 100;
-    width: min(24rem, calc(100vw - 2rem));
-    padding: 1.05rem 1.2rem 1rem;
-    border: 1px solid var(--sl-color-gray-5);
-    border-left: 4px solid #e20074;
-    border-radius: 0.75rem;
-    background: var(--sl-color-bg-nav, var(--sl-color-bg));
-    color: var(--sl-color-text);
-    box-shadow: 0 10px 34px rgba(0, 0, 0, 0.22);
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1000;
+    /* no backdrop — this is a corner toast, not a full-screen modal */
+    /* scaled to 92% of its natural size, anchored to the corner it sits in */
+    transform: scale(0.92);
+    transform-origin: bottom right;
+  }
+  .glm-overlay.closing {
+    animation: glmFadeOut 0.22s ease forwards;
+  }
+
+  .glm-banner {
+    position: relative;
+    width: min(30rem, calc(100vw - 3rem));
+    background: linear-gradient(180deg, var(--surface-2), var(--surface));
+    border: 1px solid var(--gline);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.8);
+    transform: scale(0.9) translateY(14px);
     opacity: 0;
-    transform: translateY(1rem);
-    transition: opacity 0.25s ease, transform 0.25s ease;
+    animation: glmPop 0.46s cubic-bezier(0.2, 0.9, 0.25, 1.25) 0.08s forwards;
+    color: var(--gtext);
+    font-family: var(--gbody);
   }
-
-  .glm-banner.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .glm-banner__close {
+  /* the glow that pulses — the "pulse-glow" signature */
+  .glm-banner::after {
+    content: "";
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    inset: -1px;
+    border-radius: 22px;
+    pointer-events: none;
+    box-shadow: inset 0 0 0 1px rgba(255, 45, 155, 0.35);
+    animation: glmPulseGlow 3.2s ease-in-out infinite;
+  }
+
+  .glm-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 5;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: var(--gtext);
+    cursor: pointer;
+    transition: 0.18s;
+  }
+  .glm-close:hover {
+    background: rgba(255, 255, 255, 0.28);
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+  .glm-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ---------- signature: sparse MoE expert grid ---------- */
+  .glm-experts {
+    position: relative;
+    height: 44px;
+    display: grid;
+    gap: 5px;
+    padding: 26px 22px 4px;
+    grid-template-columns: repeat(16, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    -webkit-mask-image: radial-gradient(140% 130% at 50% 0%, #000 40%, transparent 92%);
+    mask-image: radial-gradient(140% 130% at 50% 0%, #000 40%, transparent 92%);
+  }
+  .glm-cell {
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.045);
+    transition: background 0.5s, box-shadow 0.5s;
+  }
+  .glm-cell.on {
+    background: var(--magenta);
+    box-shadow: 0 0 10px 1px rgba(255, 45, 155, 0.7);
+    animation: glmTwinkle 2.6s ease-in-out infinite;
+  }
+  .glm-cell.on.alt {
+    background: var(--cyan);
+    box-shadow: 0 0 10px 1px rgba(56, 232, 242, 0.65);
+  }
+
+  /* ---------- content ---------- */
+  .glm-body {
+    position: relative;
+    padding: 6px 26px 26px;
+    text-align: left;
+  }
+
+  .glm-eyebrow {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    padding: 0.3rem;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--sl-color-gray-3);
-    cursor: pointer;
-  }
-
-  .glm-banner__close:hover {
-    color: var(--sl-color-text);
-    background: var(--sl-color-gray-6);
-  }
-
-  .glm-banner__close:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-  }
-
-  .glm-banner__tag {
-    display: inline-block;
-    margin: 0 0 0.45rem;
-    padding: 0.1rem 0.45rem;
-    border-radius: 4px;
-    background: #e20074;
-    color: #fff;
-    font-size: 0.65rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
+    gap: 8px;
+    font-family: var(--gmono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    color: var(--magenta-soft);
     text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .glm-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--magenta);
+    box-shadow: 0 0 0 rgba(255, 45, 155, 0.7);
+    animation: glmLive 1.8s ease-out infinite;
   }
 
-  .glm-banner__title {
-    margin: 0 0 0.35rem;
-    font-size: 1rem;
+  .glm-title {
+    font-family: var(--gdisplay);
+    font-weight: 700;
+    font-size: 46px;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+    background: linear-gradient(100deg, #fff 20%, var(--magenta-soft) 60%, var(--cyan) 105%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .glm-sub {
+    color: var(--gmuted);
+    font-size: 15px;
+    line-height: 1.5;
+    margin: 0 0 18px;
+    max-width: 34ch;
+  }
+  .glm-sub b {
+    color: var(--gtext);
     font-weight: 600;
-    line-height: 1.3;
   }
 
-  .glm-banner__body {
-    margin: 0 0 0.6rem;
-    font-size: 0.85rem;
-    line-height: 1.45;
-    color: var(--sl-color-gray-2);
+  .glm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-bottom: 24px;
   }
-
-  .glm-banner__cta {
-    margin: 0;
-    font-size: 0.85rem;
-    line-height: 1.45;
-  }
-
-  .glm-banner__link {
-    color: var(--sl-color-accent);
-    font-weight: 600;
-    text-decoration: none;
+  .glm-chip {
+    font-family: var(--gmono);
+    font-size: 11.5px;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 7px;
+    color: var(--gtext);
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid var(--gline);
     white-space: nowrap;
   }
+  .glm-chip .k {
+    color: var(--cyan);
+  }
 
-  .glm-banner__link:hover,
-  .glm-banner__link:focus-visible {
-    text-decoration: underline;
+  .glm-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .glm-cta {
+    position: relative;
+    overflow: hidden;
+    font-family: var(--gbody);
+    font-size: 14.5px;
+    font-weight: 600;
+    padding: 13px 22px;
+    border-radius: 11px;
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    color: #1a0512;
+    background: linear-gradient(100deg, var(--magenta), var(--magenta-soft));
+    box-shadow: 0 12px 30px -10px rgba(255, 45, 155, 0.6);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .glm-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px -10px rgba(255, 45, 155, 0.75);
+  }
+  .glm-cta::before {
+    /* shimmer sweep */
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+    transform: skewX(-18deg);
+    transition: left 0.55s ease;
+  }
+  .glm-cta:hover::before {
+    left: 150%;
+  }
+
+  .glm-footnote {
+    display: block;
+    width: 100%;
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px solid var(--gline);
+    font-family: var(--gmono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--gmuted);
+    text-align: center;
+  }
+
+  .glm-overlay :focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 3px;
+    border-radius: 6px;
   }
 
   @media (max-width: 30rem) {
-    .glm-banner {
+    .glm-overlay {
       right: 0.75rem;
       left: 0.75rem;
       bottom: 0.75rem;
+      transform: none;
+    }
+    .glm-banner {
       width: auto;
+    }
+    .glm-title {
+      font-size: 40px;
+    }
+    .glm-experts {
+      height: 40px;
+    }
+    .glm-body {
+      padding: 6px 20px 22px;
+    }
+  }
+
+  /* ---------- motion ---------- */
+  @keyframes glmFadeIn {
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes glmFadeOut {
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes glmPop {
+    to {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+  }
+  @keyframes glmPulseGlow {
+    0%,
+    100% {
+      box-shadow: inset 0 0 0 1px rgba(255, 45, 155, 0.25), 0 0 22px -8px rgba(255, 45, 155, 0.4);
+    }
+    50% {
+      box-shadow: inset 0 0 0 1px rgba(255, 45, 155, 0.6), 0 0 46px -6px rgba(255, 45, 155, 0.75);
+    }
+  }
+  @keyframes glmLive {
+    0% {
+      box-shadow: 0 0 0 0 rgba(255, 45, 155, 0.7);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 8px rgba(255, 45, 155, 0);
+    }
+  }
+  @keyframes glmTwinkle {
+    0%,
+    100% {
+      opacity: 0.55;
+    }
+    50% {
+      opacity: 1;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .glm-overlay *,
+    .glm-overlay {
+      animation: none !important;
+      transition: none !important;
+    }
     .glm-banner {
-      transition: none;
+      transform: none;
+      opacity: 1;
+    }
+    .glm-overlay {
+      opacity: 1;
     }
   }
 </style>
@@ -175,6 +400,9 @@ const t = isDE
   // See the component frontmatter for the dismiss-semantics rationale.
   const GLM_KEY = 'glmBannerDismissed';
   let reloadHandled = false;
+
+  const reduceMotion = () =>
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function isGlmDismissed() {
     try {
@@ -190,7 +418,9 @@ const t = isDE
   function glmClearOnReload() {
     if (reloadHandled) return;
     reloadHandled = true;
-    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    const nav = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
     const isReload = nav ? nav.type === 'reload' : (performance as any).navigation?.type === 1;
     if (isReload) {
       try {
@@ -199,33 +429,66 @@ const t = isDE
     }
   }
 
+  // Light a sparse subset (~16%) of the expert grid, a few in cyan.
+  function buildExpertGrid(grid: HTMLElement) {
+    const COLS = 16,
+      ROWS = 4,
+      N = COLS * ROWS;
+    for (let i = 0; i < N; i++) {
+      grid.appendChild(document.createElement('span')).className = 'glm-cell';
+    }
+    const cells = [...grid.children] as HTMLElement[];
+
+    function route() {
+      cells.forEach((c) => (c.className = 'glm-cell'));
+      const active = Math.round(N * 0.16);
+      const idx = new Set<number>();
+      while (idx.size < active) idx.add(Math.floor(Math.random() * N));
+      [...idx].forEach((k, j) => {
+        cells[k].className = 'glm-cell on' + (j % 4 === 0 ? ' alt' : '');
+        cells[k].style.animationDelay = (Math.random() * 2.2).toFixed(2) + 's';
+      });
+    }
+    route();
+    if (!reduceMotion()) return window.setInterval(route, 2600); // routing drifts
+    return null;
+  }
+
   function dismissGlmBanner() {
     try {
       sessionStorage.setItem(GLM_KEY, '1');
     } catch {}
-    const banner = document.getElementById('glm-banner');
-    if (!banner) return;
-    banner.classList.remove('is-visible');
-    // Remove after the exit transition so it can't be tabbed to meanwhile.
-    window.setTimeout(() => banner.remove(), 250);
+    const overlay = document.getElementById('glm-overlay');
+    if (!overlay) return;
+    if (reduceMotion()) {
+      overlay.remove();
+      return;
+    }
+    overlay.classList.add('closing');
+    overlay.addEventListener('animationend', () => overlay.remove(), { once: true });
   }
 
   function initGlmBanner() {
     glmClearOnReload();
-    const banner = document.getElementById('glm-banner');
-    if (!banner) return;
+    const overlay = document.getElementById('glm-overlay');
+    if (!overlay) return;
 
     // Dismissed earlier in this browsing session → never show it.
     if (isGlmDismissed()) {
-      banner.remove();
+      overlay.remove();
       return;
     }
 
-    // Reveal (start-hidden → reveal avoids a flash-then-hide during navigation).
-    banner.hidden = false;
-    requestAnimationFrame(() => banner.classList.add('is-visible'));
+    const grid = document.getElementById('glm-experts');
+    if (grid && !grid.dataset.built) {
+      grid.dataset.built = '1';
+      buildExpertGrid(grid);
+    }
 
-    const closeBtn = banner.querySelector<HTMLButtonElement>('.glm-banner__close');
+    // Reveal (start-hidden → reveal avoids a flash-then-hide during navigation).
+    overlay.hidden = false;
+
+    const closeBtn = overlay.querySelector<HTMLButtonElement>('.glm-close');
     closeBtn?.addEventListener('click', dismissGlmBanner);
 
     // Bind Escape once globally (init re-runs per navigation, so guard it).
@@ -233,7 +496,7 @@ const t = isDE
       (window as any).__glmBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape' || isGlmDismissed()) return;
-        const el = document.getElementById('glm-banner');
+        const el = document.getElementById('glm-overlay');
         if (el && !el.hidden) dismissGlmBanner();
       });
     }
