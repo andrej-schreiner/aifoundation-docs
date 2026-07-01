@@ -7,9 +7,28 @@ const label = isDE ? 'API-Key generieren' : 'Get API Key';
 const ariaLabel = isDE
   ? 'API-Key generieren (öffnet in neuem Tab)'
   : 'Get API Key (opens in new tab)';
+
+// GLM-5.2 preview note shown alongside the Get API Key CTA. The pill links to
+// the access-request form, so "Try …" reads as the invitation to register.
+const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJVTLzCy0rm55XgD2nG5supwtGRHXVfaX-fw/viewform';
+const previewLabel = isDE ? 'GLM 5.2 Preview testen' : 'Try GLM 5.2 Preview';
+const previewAriaLabel = isDE
+  ? 'GLM 5.2 Preview testen – zum Testen registrieren (öffnet in neuem Tab)'
+  : 'Try GLM 5.2 Preview – register for testing (opens in new tab)';
 ---
 
 <Default {...Astro.props}><slot /></Default>
+
+<a
+  class="header-preview"
+  href={GET_ACCESS_URL}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label={previewAriaLabel}
+>
+  <span class="header-preview-dot" aria-hidden="true"></span>
+  <span class="header-preview-name">{previewLabel}</span>
+</a>
 
 <a
   class="header-cta"
@@ -23,6 +42,79 @@ const ariaLabel = isDE
 </a>
 
 <style>
+  /* GLM-5.2 preview note — a lighter, outlined pill that sits to the left of
+     the solid Get API Key CTA. Reads as a related-but-secondary announcement.
+     Hidden on narrower viewports so it never crowds the CTA (see the media
+     query below); the GlmBanner toast still covers mobile. */
+  .header-preview {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    margin-inline-end: 0.5rem;
+    border-radius: 9999px;
+    border: 1px solid var(--sl-color-accent);
+    background: var(--sl-color-accent-low);
+    color: var(--sl-color-accent-high);
+    font-size: var(--sl-text-xs);
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  .header-preview:hover {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-white);
+  }
+
+  .header-preview:focus-visible {
+    outline: 2px solid var(--sl-color-accent-high);
+    outline-offset: 2px;
+  }
+
+  .header-preview-dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--sl-color-accent);
+    box-shadow: 0 0 0 0 var(--sl-color-accent);
+    animation: header-preview-pulse 1.9s ease-out infinite;
+  }
+  .header-preview:hover .header-preview-dot {
+    background: var(--sl-color-white);
+    box-shadow: none;
+    animation: none;
+  }
+
+  .header-preview-name {
+    font-weight: 600;
+  }
+
+  @keyframes header-preview-pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(226, 0, 116, 0.55);
+    }
+    70%,
+    100% {
+      box-shadow: 0 0 0 0.4rem rgba(226, 0, 116, 0);
+    }
+  }
+
+  /* Below ~62rem the header gets tight; drop the note and keep only the CTA. */
+  @media (max-width: 62rem) {
+    .header-preview {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header-preview-dot {
+      animation: none;
+    }
+  }
+
   /* Desktop pill. Naturally hidden below md (~50rem) because Starlight wraps
      SocialIcons in a .right-group with `sl-hidden md:sl-flex` — see
      MobileApiKeyLink.astro for the mobile counterpart. */
