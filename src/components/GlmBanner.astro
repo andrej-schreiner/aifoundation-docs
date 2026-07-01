@@ -490,6 +490,17 @@ const t = isDE
       return;
     }
 
+    // Portal the overlay to <body>. It's rendered from Footer.astro, which
+    // Starlight nests inside the content column (.main-pane). That element has
+    // `isolation: isolate`, so our position:fixed overlay is trapped in a
+    // stacking context that paints *below* the position:fixed right sidebar —
+    // the sidebar's box covers the bottom-right corner and swallows every click
+    // (close button and CTA alike), no matter how high the overlay's z-index.
+    // Reparenting to <body> lets z-index:1000 compete at the document root.
+    if (overlay.parentElement !== document.body) {
+      document.body.appendChild(overlay);
+    }
+
     const grid = document.getElementById('glm-experts');
     if (grid && !grid.dataset.built) {
       grid.dataset.built = '1';
