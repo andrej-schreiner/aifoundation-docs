@@ -62,6 +62,7 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
   // /models/llms. They still surface on /models/vision via image-input derivation.
   'gemini-2.5-flash-image': 'image-generation',
+  'gemini-3-pro-image': 'image-generation',
   'gpt-image-1-image-input': 'image-generation',
   'gpt-image-1-text-input': 'image-generation',
 };
@@ -222,6 +223,11 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gpt-image-1-text-input':        { streaming: true },
   'gpt-image-1-image-input':       { inputModalities: ['Text', 'Image'], streaming: true },
   'gemini-2.5-flash-image':        {
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Image', 'Text'],
+    streaming: false,
+  },
+  'gemini-3-pro-image':            {
     inputModalities: ['Text', 'Image'],
     outputModalities: ['Image', 'Text'],
     streaming: false,
