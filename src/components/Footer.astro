@@ -1,6 +1,7 @@
 ---
 import Default from '@astrojs/starlight/components/Footer.astro';
 import GlmBanner from './GlmBanner.astro';
+import GaBanner from './GaBanner.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
@@ -19,6 +20,7 @@ const links = isDE
 
 <Default {...Astro.props}><slot /></Default>
 
+<GaBanner />
 <GlmBanner />
 
 <footer class="site-footer" aria-label={isDE ? 'Website' : 'Site'}>
