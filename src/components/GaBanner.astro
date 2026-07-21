@@ -1,0 +1,248 @@
+---
+// Site-wide "now in production (GA)" announcement bar for AIFS-17868 — Mistral
+// Small 4 and Gemma 4 were promoted from the Test / preview catalog to GA on the
+// paid plans. Rendered from Footer.astro so it appears on every page (there are
+// no splash pages, so the Footer override is truly global).
+//
+// Kept deliberately compact: a slim single-line bar anchored just below the
+// Starlight nav (via --sl-nav-height) so it never covers the header and never
+// collides with the bottom-right GLM preview toast (GlmBanner.astro).
+//
+// Dismiss semantics mirror GlmBanner: this site navigates via full page loads,
+// so the closed state lives in sessionStorage (survives navigation between docs
+// pages). A hard reload clears it (detected via PerformanceNavigationTiming
+// "reload"), and a new tab starts a fresh session — so the announcement returns.
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const plansHref = isDE ? '/de/plans' : '/plans';
+
+const t = isDE
+  ? {
+      badge: 'Neu',
+      msg: '<b>Mistral Small 4</b> und <b>Gemma 4</b> sind jetzt in Produktion — allgemein verfügbar in allen kostenpflichtigen Tarifen.',
+      cta: 'Zu den Tarifen',
+      close: 'Ankündigung schließen',
+    }
+  : {
+      badge: 'New',
+      msg: '<b>Mistral Small 4</b> and <b>Gemma 4</b> are now in production — generally available on all paid plans.',
+      cta: 'View plans',
+      close: 'Dismiss announcement',
+    };
+---
+
+<div class="ga-bar" id="ga-bar" role="region" aria-label={t.close} hidden>
+  <span class="ga-badge">{t.badge}</span>
+  <p class="ga-msg" set:html={t.msg}></p>
+  <a class="ga-cta" href={plansHref}>{t.cta}</a>
+  <button type="button" class="ga-close" id="ga-close" aria-label={t.close}>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+  </button>
+</div>
+
+<style>
+  .ga-bar {
+    position: fixed;
+    top: calc(var(--sl-nav-height, 3.5rem) + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 50;
+
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    width: min(46rem, calc(100vw - 1.5rem));
+    padding: 0.5rem 0.75rem;
+
+    background: var(--sl-color-accent-low);
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-accent);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    font-size: var(--sl-text-xs);
+    line-height: 1.35;
+
+    animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
+  }
+  .ga-bar[hidden] {
+    display: none;
+  }
+
+  .ga-badge {
+    flex-shrink: 0;
+    padding: 0.125rem 0.5rem;
+    border-radius: 999px;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .ga-msg {
+    flex: 1 1 auto;
+    margin: 0;
+    color: var(--sl-color-text);
+  }
+  .ga-msg :global(b) {
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+  }
+
+  .ga-cta {
+    flex-shrink: 0;
+    padding: 0.3125rem 0.75rem;
+    border-radius: 7px;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-white);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.15s;
+  }
+  .ga-cta:hover,
+  .ga-cta:focus-visible {
+    background: var(--sl-color-accent-high);
+  }
+
+  .ga-close {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    border: 0;
+    background: transparent;
+    color: var(--sl-color-text);
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .ga-close:hover,
+  .ga-close:focus-visible {
+    background: var(--sl-color-gray-5);
+  }
+  .ga-close svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .ga-bar :focus-visible {
+    outline: 2px solid var(--sl-color-accent);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* On narrow viewports drop the badge and let the message + CTA wrap. */
+  @media (max-width: 30rem) {
+    .ga-bar {
+      top: calc(var(--sl-nav-height, 3.5rem) + 0.375rem);
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .ga-badge {
+      display: none;
+    }
+    .ga-msg {
+      flex-basis: 100%;
+      order: 1;
+    }
+    .ga-cta {
+      order: 2;
+    }
+    .ga-close {
+      order: 3;
+      margin-left: auto;
+    }
+  }
+
+  @keyframes gaSlideIn {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ga-bar {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // Dismiss-semantics rationale: see the component frontmatter.
+  const GA_KEY = 'gaBannerDismissed';
+  let reloadHandled = false;
+
+  function isDismissed() {
+    try {
+      return sessionStorage.getItem(GA_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  // Clear the dismissal on a hard reload so the announcement returns on refresh.
+  function clearOnReload() {
+    if (reloadHandled) return;
+    reloadHandled = true;
+    const nav = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    const isReload = nav ? nav.type === 'reload' : (performance as any).navigation?.type === 1;
+    if (isReload) {
+      try {
+        sessionStorage.removeItem(GA_KEY);
+      } catch {}
+    }
+  }
+
+  function dismiss() {
+    try {
+      sessionStorage.setItem(GA_KEY, '1');
+    } catch {}
+    document.getElementById('ga-bar')?.remove();
+  }
+
+  function initGaBanner() {
+    clearOnReload();
+    const bar = document.getElementById('ga-bar');
+    if (!bar) return;
+
+    if (isDismissed()) {
+      bar.remove();
+      return;
+    }
+
+    // Portal to <body> so our fixed bar isn't trapped in the .main-pane
+    // stacking context (same reasoning as GlmBanner.astro).
+    if (bar.parentElement !== document.body) {
+      document.body.appendChild(bar);
+    }
+
+    bar.hidden = false;
+    document.getElementById('ga-close')?.addEventListener('click', dismiss);
+
+    if (!(window as any).__gaBannerEscBound) {
+      (window as any).__gaBannerEscBound = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || isDismissed()) return;
+        const el = document.getElementById('ga-bar');
+        if (el && !el.hidden) dismiss();
+      });
+    }
+  }
+
+  document.addEventListener('astro:page-load', initGaBanner);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGaBanner);
+  } else {
+    initGaBanner();
+  }
+</script>
