@@ -62,6 +62,7 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
   // /models/llms. They still surface on /models/vision via image-input derivation.
   'gemini-2.5-flash-image': 'image-generation',
+  'gemini-3-pro-image': 'image-generation',
   'gpt-image-1-image-input': 'image-generation',
   'gpt-image-1-text-input': 'image-generation',
 };
@@ -74,8 +75,16 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // plus any modality-driven additions: image input → 'vision', any audio
 // → 'audio', image output → 'image-generation', vector output → 'embeddings'.
 // Returned in stable display order so the Category column renders consistently.
-function deriveCategories(primary: Category, caps: Capabilities): Category[] {
-  const cats = new Set<Category>([primary]);
+// Extra category memberships that cannot be inferred from modalities.
+// 'coding' has no modality signal (see the PRIMARY_CATEGORY note), so a
+// general-purpose LLM that is also strong at code must be tagged explicitly to
+// appear on /models/coding in addition to its primary category (/models/llms).
+const EXTRA_CATEGORIES: Record<string, Category[]> = {
+  'GLM-5.2-Preview': ['coding'],
+};
+
+function deriveCategories(primary: Category, caps: Capabilities, extra: Category[] = []): Category[] {
+  const cats = new Set<Category>([primary, ...extra]);
   if (caps.inputModalities.includes('Image')) cats.add('vision');
   if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
   if (caps.outputModalities.includes('Image')) cats.add('image-generation');
@@ -94,6 +103,7 @@ type Creator =
   | 'Google Gemma'
   | 'Mistral'
   | 'Alibaba Cloud'
+  | 'Zhipu AI'
   | 'T-Systems'
   | 'Other';
 type InputModality = 'Text' | 'Image' | 'Audio';
@@ -112,6 +122,7 @@ function inferCreator(exactModelName: string): Creator {
   if (/^Llama-/i.test(n)) return 'Meta';
   if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
   if (/^Qwen3-/i.test(n)) return 'Alibaba Cloud';
+  if (/^GLM-/i.test(n)) return 'Zhipu AI';
   if (/^claude-/i.test(n)) return 'Anthropic';
   if (/^gemma-/i.test(n)) return 'Google Gemma';
   if (/^gemini-/i.test(n)) return 'Google';
@@ -216,6 +227,11 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
     outputModalities: ['Image', 'Text'],
     streaming: false,
   },
+  'gemini-3-pro-image':            {
+    inputModalities: ['Text', 'Image'],
+    outputModalities: ['Image', 'Text'],
+    streaming: false,
+  },
 };
 
 function resolveCapabilities(exactModelName: string, category: Category): Capabilities {
@@ -293,7 +309,7 @@ for (const pkg of pricingData as Array<{
       exactModelName,
       displayModelName: entry.displayModelName as string,
       category,
-      categories: deriveCategories(category, capabilities),
+      categories: deriveCategories(category, capabilities, EXTRA_CATEGORIES[exactModelName] ?? []),
       cloud: resolveCloud(deploymentRegion),
       contextWindow: (entry.contextWindow as string) ?? '—',
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,

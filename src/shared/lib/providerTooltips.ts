@@ -12,6 +12,7 @@ export type CreatorKey =
   | 'Meta'
   | 'Mistral'
   | 'Alibaba Cloud'
+  | 'Zhipu AI'
   | 'BAAI'
   | 'Jina AI'
   | 'T-Systems'
@@ -26,6 +27,7 @@ const PROVIDER_NAMES: Record<CreatorKey, string> = {
   Meta: 'Meta',
   Mistral: 'Mistral AI',
   'Alibaba Cloud': 'Alibaba',
+  'Zhipu AI': 'Zhipu AI',
   BAAI: 'BAAI',
   'Jina AI': 'Jina AI',
   'T-Systems': 'T-Systems',
