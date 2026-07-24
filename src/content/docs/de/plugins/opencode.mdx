@@ -44,13 +44,19 @@ https_proxy=<your-proxy-url:port>
 
 1. Befolgen Sie die OpenCode-Installationsanweisungen auf [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins).
 
-2. Starten Sie OpenCode:
+2. Authentifizieren Sie sich mit der gesicherten Konfiguration:
+
+   ```bash
+   opencode auth login https://plugins.ai.t-systems.net/
+   ```
+
+3. Starten Sie OpenCode:
 
    ```bash
    opencode
    ```
 
-3. Führen Sie in OpenCode den folgenden Befehl aus, um Ihren Provider auszuwählen und sich mit Ihrem API-Key anzumelden:
+4. Führen Sie in OpenCode den folgenden Befehl aus, um Ihren Provider auszuwählen und sich mit Ihrem API-Key anzumelden:
 
    ```bash
    /connect
