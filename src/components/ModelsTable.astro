@@ -667,7 +667,7 @@ const priceBuckets = [
           <td>${hostTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 26rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(hostTooltip)}</span></span>` : `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>`}</td>
           <td><span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${cloudProviderClass} mt-cloud-tag-btn" data-cloud="${escapeHtml(model.cloudProvider)}" title="${escapeHtml(cloudProviderFullName)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(cloudProvider)} cloud in the filter">${escapeHtml(cloudProvider)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(cloudProviderFullName)}</span></span></td>
           ${legacy ? '' : `<td>${tierTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${tierClass} mt-tier-tag-btn" data-tier="${escapeHtml(model.modelTier)}" title="${escapeHtml(tierTooltip || modelTier)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(modelTier)} tier in the filter">${escapeHtml(modelTier)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(tierTooltip)}</span></span>` : `<button type="button" class="plans-tag ${tierClass} mt-tier-tag-btn" data-tier="${escapeHtml(model.modelTier)}" title="${escapeHtml(tierTooltip || modelTier)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(modelTier)} tier in the filter">${escapeHtml(modelTier)}</button>`}</td>`}
-          <td>
+          <td class="mt-creator-cell">
             <span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;">
               <span class="ui-tooltip__trigger" tabindex="0">
                 <span class="creator-brand ${creatorIcon ? 'creator-brand--icon' : 'creator-brand--text'}" aria-label="${escapeHtml(model.creator)}">
@@ -677,7 +677,7 @@ const priceBuckets = [
               <span class="ui-tooltip__content" role="tooltip">${escapeHtml(creatorTooltip)}</span>
             </span>
           </td>
-          <td>
+          <td class="mt-model-name-cell">
             <div>
             <strong>${escapeHtml(model.displayName)}</strong>
             </div>
@@ -911,6 +911,30 @@ const priceBuckets = [
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
     white-space: wrap;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  /* Creator holds just a small logo, Model Name holds long strings like
+     "NVIDIA Nemotron 3 Super 120B FP8". Starlight renders this table as
+     display:block (its scrollable-table default), which disables
+     table-layout:fixed and makes <col>/th widths inert — so column sizing has
+     to come from the cells themselves: trim Creator's horizontal padding to
+     tighten it, and give Model Name a min-width so it wraps across a few lines
+     instead of one short word per line. Pair with word-break:normal below so
+     names only ever break at spaces, never mid-word. */
+  .models-table-section .plans-table th[data-sort='creator'],
+  .models-table-section .plans-table td.mt-creator-cell {
+    padding-left: 0.4rem;
+    padding-right: 0.4rem;
+  }
+
+  .models-table-section .plans-table th[data-sort='displayName'],
+  .models-table-section .plans-table td.mt-model-name-cell {
+    min-width: 9rem;
+  }
+
+  .models-table-section .plans-table td.mt-model-name-cell {
     overflow-wrap: normal;
     word-break: normal;
   }
@@ -1253,6 +1277,11 @@ const priceBuckets = [
     flex-direction: row;
     align-items: center;
     gap: 0.35rem;
+    white-space: nowrap;
+  }
+
+  .loc-wrapper .fi {
+    flex-shrink: 0;
   }
 
   .model-links {
