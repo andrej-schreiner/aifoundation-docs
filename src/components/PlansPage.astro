@@ -284,6 +284,7 @@ function parseModelCreator(exactModelName: string | undefined, displayModelName:
   if (source.includes('llama') || source.includes('meta')) return 'Meta';
   if (source.includes('mistral')) return 'Mistral';
   if (source.includes('qwen')) return 'Alibaba Cloud';
+  if (source.includes('nemotron') || source.includes('nvidia')) return 'NVIDIA';
   if (source.includes('glm') || source.includes('zhipu') || source.includes('z.ai')) return 'Zhipu AI';
   if (source.includes('jina')) return 'Jina AI';
   if (source.includes('bge')) return 'BAAI';
