@@ -1,5 +1,5 @@
 ---
-// Site-wide announcement modal for the GLM-5.2 preview model (banner_4 design).
+// Site-wide announcement modal for GLM-5.2, now in production (banner_4 design).
 // Rendered from Footer.astro so it appears on every page (there are no splash
 // pages, so the Footer override is truly global).
 //
@@ -12,26 +12,26 @@
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
-// Access-request form for prospective / non-paying customers.
-const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJVTLzCy0rm55XgD2nG5supwtGRHXVfaX-fw/viewform';
+// GLM 5.2 is now on the paid plans; the CTA points at the plans page.
+const plansHref = isDE ? '/de/plans' : '/plans';
 
 const t = isDE
   ? {
-      eyebrow: 'Jetzt verfügbar · AIFS',
+      eyebrow: 'Jetzt in Produktion · AIFS',
       title: 'GLM‑5.2',
-      sub: 'GLM‑5.2 im Preview‑Modus testen — für kurze Zeit <b>kostenlos</b> in jedem kostenpflichtigen Plan enthalten.',
-      prompt: 'Kostenlos testen?',
-      cta: 'Zugang anfragen',
+      sub: 'GLM‑5.2 ist jetzt in Produktion — <b>allgemein verfügbar</b> in allen kostenpflichtigen Tarifen.',
+      prompt: 'Bereit loszulegen?',
+      cta: 'Zu den Tarifen',
       chip: 'Souveräne <span class="k">EU‑Infrastruktur</span>',
       footer: 'OpenAI‑kompatibel &nbsp;·&nbsp; 🇩🇪 Gehostet in München',
       close: 'Ankündigung schließen',
     }
   : {
-      eyebrow: 'Now serving · AIFS',
+      eyebrow: 'Now in production · AIFS',
       title: 'GLM‑5.2',
-      sub: 'Try GLM‑5.2 in preview mode — <b>included free</b> with every paid plan for a short time.',
-      prompt: 'Want to test it for free?',
-      cta: 'Request access here',
+      sub: 'GLM‑5.2 is now in production — <b>generally available</b> on all paid plans.',
+      prompt: 'Ready to get started?',
+      cta: 'View plans',
       chip: 'Sovereign EU <span class="k">Infrastructure</span>',
       footer: 'OpenAI‑compatible &nbsp;·&nbsp; 🇩🇪 Hosted in Munich',
       close: 'Dismiss announcement',
@@ -59,7 +59,7 @@ const t = isDE
 
       <div class="glm-actions">
         <span class="glm-prompt">{t.prompt}</span>
-        <a class="glm-cta" href={GET_ACCESS_URL} target="_blank" rel="noopener noreferrer">{t.cta}</a>
+        <a class="glm-cta" href={plansHref}>{t.cta}</a>
       </div>
 
       <div class="glm-footnote" set:html={t.footer}></div>

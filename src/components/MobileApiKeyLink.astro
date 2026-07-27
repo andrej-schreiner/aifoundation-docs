@@ -8,24 +8,22 @@ const ariaLabel = isDE
   ? 'API-Key generieren (öffnet in neuem Tab)'
   : 'Get API Key (opens in new tab)';
 
-// GLM-5.2 preview note — mobile counterpart of HeaderApiKeyLink.astro.
-const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJVTLzCy0rm55XgD2nG5supwtGRHXVfaX-fw/viewform';
+// GLM-5.2 "now in production" note — mobile counterpart of HeaderApiKeyLink.astro.
+const plansHref = isDE ? '/de/plans' : '/plans';
 const previewAriaLabel = isDE
-  ? 'GLM 5.2 Preview testen – zum Testen registrieren (öffnet in neuem Tab)'
-  : 'Try GLM 5.2 Preview – register for testing (opens in new tab)';
-// "Try"/"testen" is dropped on the narrowest phones (see the media query).
-const previewTry = isDE ? '' : 'Try ';
-const previewName = isDE ? 'GLM 5.2 Preview' : 'GLM 5.2 Preview';
-const previewSuffix = isDE ? ' testen' : '';
+  ? 'GLM 5.2 ist jetzt in Produktion – zu den Tarifen'
+  : 'GLM 5.2 is now in production – view plans';
+// The "now in production" suffix is dropped on the narrowest phones (see the media query).
+const previewTry = '';
+const previewName = 'GLM 5.2';
+const previewSuffix = isDE ? ' jetzt in Produktion' : ' now in production';
 ---
 
 <Default {...Astro.props}><slot /></Default>
 
 <a
   class="mobile-preview"
-  href={GET_ACCESS_URL}
-  target="_blank"
-  rel="noopener noreferrer"
+  href={plansHref}
   aria-label={previewAriaLabel}
 >
   <span class="mobile-preview-dot" aria-hidden="true"></span>

@@ -8,22 +8,21 @@ const ariaLabel = isDE
   ? 'API-Key generieren (öffnet in neuem Tab)'
   : 'Get API Key (opens in new tab)';
 
-// GLM-5.2 preview note shown alongside the Get API Key CTA. The pill links to
-// the access-request form, so "Try …" reads as the invitation to register.
-const GET_ACCESS_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSdBDhCijYUIUeyJVTLzCy0rm55XgD2nG5supwtGRHXVfaX-fw/viewform';
-const previewLabel = isDE ? 'GLM 5.2 Preview testen' : 'Try GLM 5.2 Preview';
+// GLM-5.2 "now in production" note shown alongside the Get API Key CTA. GLM 5.2
+// graduated from the free preview to the paid plans, so the pill now points at
+// the plans page instead of the preview access-request form.
+const plansHref = isDE ? '/de/plans' : '/plans';
+const previewLabel = isDE ? 'GLM 5.2 jetzt in Produktion' : 'GLM 5.2 now in production';
 const previewAriaLabel = isDE
-  ? 'GLM 5.2 Preview testen – zum Testen registrieren (öffnet in neuem Tab)'
-  : 'Try GLM 5.2 Preview – register for testing (opens in new tab)';
+  ? 'GLM 5.2 ist jetzt in Produktion – zu den Tarifen'
+  : 'GLM 5.2 is now in production – view plans';
 ---
 
 <Default {...Astro.props}><slot /></Default>
 
 <a
   class="header-preview"
-  href={GET_ACCESS_URL}
-  target="_blank"
-  rel="noopener noreferrer"
+  href={plansHref}
   aria-label={previewAriaLabel}
 >
   <span class="header-preview-dot" aria-hidden="true"></span>
