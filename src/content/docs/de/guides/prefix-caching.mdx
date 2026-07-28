@@ -1,0 +1,324 @@
+---
+title: "Prefix Caching"
+description: "Wiederholte Prompt-Präfixe auf AI Foundation Services wiederverwenden und die Zeit bis zum ersten Token senken — mit save_cache und cache_salt für Open-Source-Modelle und cache_control-Breakpoints für Claude."
+---
+
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anfang eines Prompts wiederzuverwenden. Wenn zwei Anfragen mit denselben Tokens beginnen — einem langen System-Prompt, einem Dokument, einem Werkzeugkatalog — muss der gemeinsame Teil nicht erneut verarbeitet werden. Das senkt die Zeit bis zum ersten Token und, bei Modellen mit separater Abrechnung zwischengespeicherter Tokens, auch die Kosten der Anfrage.
+
+:::note[Voraussetzungen]
+- Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- Ein Anwendungsfall mit wiederholtem Prompt-Präfix (System-Prompt, RAG-Kontext, Few-Shot-Beispiele, Werkzeugdefinitionen)
+:::
+
+**Was Sie lernen werden:**
+- Wie Prefix Caching funktioniert und wann es hilft
+- Wie Sie es bei T-Cloud-gehosteten Open-Source-Modellen mit `save_cache` aktivieren und mit `cache_salt` den Geltungsbereich wählen
+- Wie Sie `cache_control`-Breakpoints für Anthropic-Modelle setzen
+- Wie Sie die Cache-Nutzung aus der Antwort auslesen
+
+
+## Funktionsweise
+
+Das Modell verarbeitet einen Prompt Token für Token und baut dabei einen internen Key/Value-Cache (KV-Cache) auf. Dieser Cache hängt ausschließlich von den bisher gesehenen Tokens ab — der Eintrag für ein bestimmtes Präfix ist daher für **jede** Anfrage gültig, die mit genau diesen Tokens beginnt. Prefix Caching speichert diese Einträge und verwendet sie bei der nächsten passenden Anfrage wieder.
+
+Daraus ergeben sich zwei Konsequenzen, die allen Empfehlungen auf dieser Seite zugrunde liegen:
+
+1. **Der Abgleich ist exakt und beginnt bei Token 0.** Ein einziges geändertes Zeichen am Anfang des Prompts — ein Zeitstempel, ein Benutzername, ein umsortierter JSON-Schlüssel — macht alles danach ungültig.
+2. **Nur das Präfix wird wiederverwendet.** Alles ab dem ersten abweichenden Token wird normal verarbeitet.
+
+Platzieren Sie die stabilen Teile Ihres Prompts also vorne und die variablen Teile hinten:
+
+```text
+✅ [ System-Prompt ][ Dokument ][ Few-Shot-Beispiele ][ Nutzerfrage ]   ← cachefähiges Präfix, variables Ende
+❌ [ "Aktuelle Zeit: 14:32:07" ][ System-Prompt ][ Dokument ]           ← Präfix bereits im ersten Block zerstört
+```
+
+Ein Coding-Assistent ist das deutlichste Beispiel dafür. Jede Runde sendet dieselben Coding-Anweisungen, dieselben Werkzeugdefinitionen und dieselben Quelldateien erneut; nur die jüngste Anweisung der Entwicklerin oder des Entwicklers ändert sich — nahezu der gesamte Prompt kann also aus dem Cache kommen:
+
+```text
+✅ [ Coding-System-Prompt ][ Werkzeugdefinitionen ][ Repository-Dateien ][ bisheriger Verlauf ][ neue Anweisung ]
+   └──────────────── über die gesamte Sitzung stabil ────────────────┘ └── wächst ──┘ └── ändert sich ──┘
+
+❌ [ "Sitzung 8f3a · 28.07.2026 14:32" ][ Coding-System-Prompt ][ Repository-Dateien ][ neue Anweisung ]
+   └─ ein sitzungsspezifischer Kopf an Position 0 lässt jede Sitzung mit kaltem Cache starten ─┘
+```
+
+Zwei Details sind dabei wichtig:
+
+- **Die Dateiliste in fester Reihenfolge halten.** Wer ein Verzeichnis ausliest und die Dateien in der Reihenfolge des Dateisystems sendet, erzeugt bei jedem Lauf ein anderes Präfix. Sortieren Sie nach Pfad.
+- **Anhängen statt umschreiben.** Wird die aktuelle Runde am Ende angehängt, bleibt der bisherige Prompt als Präfix erhalten. Ein erneutes Zusammenfassen oder Umsortieren früherer Runden macht den Cache ab der Änderung ungültig.
+
+Prefix Caching verändert niemals den Inhalt einer Antwort: Das Modell sieht in beiden Fällen dieselben Tokens. Es beeinflusst ausschließlich Latenz und Token-Abrechnung.
+
+
+## T-Cloud-gehostete Open-Source-Modelle
+
+Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `Llama-3.3-70B-Instruct`, `Qwen3-30B-A3B-FP8`) ist Prefix Caching **pro Anfrage aktiv zu aktivieren**. Zwei zusätzliche Felder der Chat-Completion-Anfrage steuern es:
+
+| Feld | Typ | Standard | Zweck |
+|---|---|---|---|
+| `save_cache` | boolean | `false` | Hauptschalter — muss explizit `true` sein, damit das Prompt-Präfix gespeichert und wiederverwendet wird |
+| `cache_salt` | string | *(leer)* | Legt fest, **wer** das Präfix wiederverwenden darf. Wird nur bei `save_cache: true` ausgewertet |
+
+Beide sind Erweiterungen des OpenAI-Schemas. Mit den OpenAI-SDKs übergeben Sie sie über `extra_body` (Python) bzw. als zusätzliche Anfragefelder — siehe die Beispiele unten.
+
+:::note[DSGVO-Konformität]
+Aus Gründen der DSGVO-Konformität ist Prefix Caching bei allen in T-Cloud gehosteten Open-Source-Modellen **standardmäßig deaktiviert** — es werden also keine Prompt-Inhalte zur Wiederverwendung vorgehalten, sofern Sie dies nicht ausdrücklich anfordern. Die Aktivierung ist eine bewusste Entscheidung pro Anfrage: Senden Sie `save_cache: true` und wählen Sie mit `cache_salt` den Geltungsbereich.
+:::
+
+### Geltungsbereich des Caches
+
+`save_cache` entscheidet, *ob* das Präfix cachefähig ist, `cache_salt` entscheidet, *wie weit* es geteilt wird. Anfragen verwenden das Präfix nur dann gegenseitig wieder, wenn sie denselben Geltungsbereich ergeben:
+
+| `save_cache` | `cache_salt` | Wer das Präfix wiederverwenden kann |
+|---|---|---|
+| `false` oder weggelassen | wird ignoriert | **Niemand** — Prefix Caching ist für diese Anfrage aus |
+| `true` | weggelassen / leer | Anfragen mit **demselben API-Schlüssel** |
+| `true` | eigene Zeichenkette | Anfragen Ihres Projekts mit **demselben Salt** — z. B. eine Chat-Sitzung, ein Dokument, ein Batch-Job |
+| `true` | `"org"` | Alle Anfragen **desselben Projekts bzw. derselben Organisation**, über alle API-Schlüssel hinweg |
+| `true` | `"global"` | Der **gemeinsame globale Pool** des Modells — Wiederverwendung über alle Mandanten hinweg |
+
+:::note
+`"org"` und `"global"` sind reservierte Werte, werden ohne Beachtung der Groß-/Kleinschreibung erkannt und wirken nur zusammen mit `save_cache: true`. Ein eigener `cache_salt` ohne `save_cache: true` aktiviert **kein** Caching.
+:::
+
+Weitere Geltungsbereiche erhöhen die Trefferquote, verringern aber die Isolation der Prompts — deshalb ist der Geltungsbereich immer eine bewusste Entscheidung. Wählen Sie den engsten Bereich, der die gewünschte Wiederverwendung liefert, und halten Sie vertrauliche Prompts aus `"global"` heraus, dessen Pool mit anderen Mandanten geteilt wird.
+
+### Beispiel
+
+System-Prompt und Dokument sind im folgenden Beispiel bei jedem Aufruf identisch, sodass nur die Frage am Ende verarbeitet werden muss. `cache_salt` ist auf einen dokumentbezogenen Wert gesetzt, sodass sich alle Fragen zu diesem Vertrag einen Cache-Eintrag teilen:
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+    ```python showLineNumbers
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    SYSTEM_PROMPT = "You are a contract analyst. Answer only from the document."
+    DOCUMENT = open("contract.txt").read()  # lang, stabil, bei jeder Frage identisch
+
+    def ask(question: str):
+        return client.chat.completions.create(
+            model="Llama-3.3-70B-Instruct",
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": f"{DOCUMENT}\n\nQuestion: {question}"},
+                #                             ^ stabiles Präfix   ^ variables Ende
+            ],
+            temperature=0.1,
+            extra_body={
+                "save_cache": True,              # Prefix Caching aktivieren
+                "cache_salt": "contract-4711",   # gemeinsam für alle Fragen zu diesem Vertrag
+            },
+        )
+
+    for question in ["Who are the parties?", "When does it expire?", "What is the notice period?"]:
+        response = ask(question)
+        print(response.choices[0].message.content)
+        print("Gecachte Tokens:", response.usage.prompt_tokens_details.cached_tokens)
+        # Der erste Aufruf wärmt den Cache; die folgenden nutzen das Dokument-Präfix erneut.
+    ```
+  </TabItem>
+  <TabItem value="curl" label="curl">
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "Llama-3.3-70B-Instruct",
+        "messages": [
+          {"role": "system", "content": "You are a contract analyst. Answer only from the document."},
+          {"role": "user", "content": "<langer Dokumenttext>\n\nQuestion: What is the notice period?"}
+        ],
+        "temperature": 0.1,
+        "save_cache": true,
+        "cache_salt": "contract-4711"
+      }'
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```javascript showLineNumbers
+    import OpenAI from "openai";
+    import { readFileSync } from "node:fs";
+
+    const client = new OpenAI();
+
+    const SYSTEM_PROMPT = "You are a contract analyst. Answer only from the document.";
+    const DOCUMENT = readFileSync("contract.txt", "utf8"); // lang, stabil, bei jeder Frage identisch
+
+    const ask = (question) =>
+      client.chat.completions.create({
+        model: "Llama-3.3-70B-Instruct",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "user", content: `${DOCUMENT}\n\nQuestion: ${question}` },
+        ],
+        temperature: 0.1,
+        // @ts-expect-error — Plattform-Erweiterungen, nicht Teil des OpenAI-Schemas
+        save_cache: true,
+        cache_salt: "contract-4711",
+      });
+
+    for (const question of ["Who are the parties?", "When does it expire?"]) {
+      const response = await ask(question);
+      console.log(response.choices[0].message.content);
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### Den passenden Salt wählen
+
+- **Weglassen**, wenn ein einzelner API-Schlüssel die gesamte Arbeit erledigt — der Standard-Geltungsbereich pro Schlüssel deckt einen einzelnen Dienst bereits ab.
+- **Eigener Salt** für Anfragen, die berechtigterweise ein Präfix teilen: eine Sitzungs-ID, eine Dokument-ID, ein Batch-Job-Name. Unterschiedliche Salts sind voneinander isoliert, selbst bei identischen Prompts.
+- **`"org"`**, wenn mehrere API-Schlüssel desselben Projekts dasselbe Präfix nutzen — etwa ein gemeinsamer System-Prompt mehrerer Dienste.
+- **`"global"`** nur für unkritische Inhalte, zum Beispiel einen öffentlichen Standard-Prompt.
+- `save_cache: false` (oder weglassen) für einmalige oder sensible Prompts, die gar nicht wiederverwendet werden sollen.
+
+:::caution
+Caching erfolgt **nach bestem Bemühen** (best effort): Cache-Einträge werden bei anderem Datenverkehr verdrängt, ein Treffer ist daher eine Optimierung, nie eine Garantie. `save_cache` und `cache_salt` sind die einzigen unterstützten Cache-Parameter — alle anderen cachebezogenen Felder in einer Anfrage werden ignoriert.
+:::
+
+
+## Cache Control für Anthropic-Modelle
+
+Claude-Modelle cachen nicht implizit. Sie markieren das Ende des cachefähigen Bereichs selbst, indem Sie `cache_control` an einen Inhaltsblock anhängen; alles bis einschließlich dieses Blocks wird zum zwischengespeicherten Präfix.
+
+Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Teilen statt einer einfachen Zeichenkette):
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+    ```python showLineNumbers
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    DOCUMENT = open("contract.txt").read()
+
+    response = client.chat.completions.create(
+        model="claude-sonnet-4",
+        messages=[
+            {
+                "role": "system",
+                "content": [
+                    {"type": "text", "text": "You are a contract analyst. Answer only from the document."},
+                    {
+                        "type": "text",
+                        "text": DOCUMENT,
+                        "cache_control": {"type": "ephemeral"},  # ← alles bis hierher cachen
+                    },
+                ],
+            },
+            {"role": "user", "content": "What is the notice period?"},  # variables Ende, nicht gecacht
+        ],
+    )
+
+    print(response.choices[0].message.content)
+    ```
+  </TabItem>
+  <TabItem value="curl" label="curl">
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "claude-sonnet-4",
+        "messages": [
+          {
+            "role": "system",
+            "content": [
+              {"type": "text", "text": "You are a contract analyst. Answer only from the document."},
+              {
+                "type": "text",
+                "text": "<langer Dokumenttext>",
+                "cache_control": {"type": "ephemeral"}
+              }
+            ]
+          },
+          {"role": "user", "content": "What is the notice period?"}
+        ]
+      }'
+    ```
+  </TabItem>
+</Tabs>
+
+Wichtige Punkte:
+
+- **Die erste Anfrage schreibt den Cache, spätere lesen ihn.** Ein kalter Aufruf ist etwas teurer als ein ungecachter; die Ersparnis entsteht ab der zweiten passenden Anfrage.
+- **Einträge sind kurzlebig.** Ein `ephemeral`-Eintrag verfällt wenige Minuten nach seiner letzten Verwendung. Caching lohnt sich daher für Bündel zusammenhängender Aufrufe (eine Agenten-Schleife, eine Chat-Sitzung, ein Batch über ein Dokument) und nicht für über Stunden verteilte Anfragen.
+- **Kurze Präfixe werden nicht gecacht.** Anbieter erzwingen eine Mindestlänge für cachefähige Präfixe — in der Größenordnung von tausend Tokens —, unterhalb derer der Breakpoint ignoriert wird.
+- **Setzen Sie Breakpoints nur auf stabile Inhalte.** Ein Breakpoint hinter Text, der sich bei jedem Aufruf ändert, speichert etwas, das nie wieder gelesen wird.
+
+:::note
+`cache_control` gilt für Anthropic-Modelle. T-Cloud-gehostete Open-Source-Modelle ignorieren das Feld — verwenden Sie dort [`save_cache` und `cache_salt`](#t-cloud-gehostete-open-source-modelle). Siehe die [Modellübersicht](/de/models) für die Unterstützung je Modell.
+:::
+
+
+## Cache-Nutzung auslesen
+
+Das `usage`-Objekt der Antwort gibt an, wie viel des Prompts aus dem Cache kam. Prüfen Sie es vor und nach einer Änderung, um zu bestätigen, dass Ihr Präfix tatsächlich wiederverwendet wird:
+
+```python showLineNumbers
+response = client.chat.completions.create(
+    model="Llama-3.3-70B-Instruct",
+    messages=messages,
+    extra_body={"save_cache": True, "cache_salt": "contract-4711"},
+)
+
+usage = response.usage
+cached = getattr(usage.prompt_tokens_details, "cached_tokens", 0) if usage.prompt_tokens_details else 0
+
+print(f"Prompt-Tokens: {usage.prompt_tokens}")
+print(f"Gecachte Tokens: {cached} ({cached / usage.prompt_tokens:.0%} des Prompts)")
+```
+
+| Feld | Bedeutung |
+|---|---|
+| `usage.prompt_tokens` | Gesamtzahl der Prompt-Tokens der Anfrage |
+| `usage.prompt_tokens_details.cached_tokens` | Aus dem Cache bediente Prompt-Tokens |
+| `usage.completion_tokens` | Generierte Tokens (nie gecacht) |
+
+Bei Claude-Modellen kann die Antwort zusätzlich anbieterspezifische Zähler enthalten — `cache_creation_input_tokens` für in den Cache geschriebene und `cache_read_input_tokens` für daraus gelesene Tokens.
+
+Bleibt `cached_tokens` über wiederholte Aufrufe hinweg bei `0`, prüfen Sie diese Punkte:
+
+1. `save_cache` ist nicht `true` — der Hauptschalter ist aus, es wird nichts gespeichert (Open-Source-Modelle).
+2. Die beiden Anfragen verwenden **unterschiedliche** `cache_salt`-Werte und sind dadurch voneinander isoliert.
+3. Ein variables Token steht am Anfang des Prompts und zerstört den Abgleich.
+4. Das gemeinsame Präfix ist zu kurz — rechnen Sie erst ab etwa tausend Tokens mit einem Treffer.
+
+:::caution
+Cache-Zähler sind Diagnosewerte, keine Abrechnung. Wie zwischengespeicherte Tokens berechnet werden, hängt vom Modell und Ihrem Tarif ab — siehe [Tarife & Preise](/de/plans).
+:::
+
+
+## Best Practices
+
+- **Nach Stabilität sortieren.** System-Prompt → Werkzeugdefinitionen → Dokumente → Few-Shot-Beispiele → Konversation → aktuelle Frage.
+- **Den Geltungsbereich an einer Stelle festlegen.** Leiten Sie `cache_salt` in einer einzigen Hilfsfunktion aus dem zugehörigen Objekt ab (Sitzung, Dokument, Mandant), damit jede Aufrufstelle denselben Wert erzeugt.
+- **Das Präfix bytegleich halten.** Bauen Sie es aus einer Konstanten auf, nicht aus einem f-String mit Zeitstempel, Request-ID oder Benutzernamen. Solche Angaben gehören ans Ende.
+- **Deterministisch serialisieren.** `json.dumps(..., sort_keys=True)` für strukturierte Daten im Präfix; unsortierte Dictionary-Ausgabe zerstört den Abgleich unbemerkt.
+- **Zusammengehörige Aufrufe bündeln.** Zehn Fragen zu einem Dokument, direkt nacheinander gestellt, treffen einen warmen Cache. Über einen Tag verteilt meist nicht.
+- **Prompts nicht blind umbauen.** Verschieben Sie Inhalte nur dann ins Präfix, wenn die Modellausgabe korrekt bleibt — Cache-Effizienz nützt nichts, wenn die Antwortqualität leidet.
+
+
+## Einschränkungen
+
+- **Standardmäßig deaktiviert.** Bei Open-Source-Modellen wird nichts gecacht, solange `save_cache` nicht explizit `true` ist.
+- Caching erfolgt **nach bestem Bemühen**. Einträge werden bei Speicherdruck verdrängt und nicht über Modellversionen oder Deployments hinweg geteilt.
+- **Nur exakter Token-Abgleich.** Inhaltlich gleiche, aber anders formulierte Präfixe passen nicht — und ein abweichender `cache_salt` isoliert sie selbst bei identischen Tokens.
+- Nur der **Prompt** wird gecacht. Generierte Tokens werden immer neu berechnet — Caching beschleunigt lange Ausgaben also nicht.
+- **Kurze Präfixe werden nicht gecacht.** Unterhalb von etwa tausend Tokens gemeinsamem Präfix ist keine messbare Wiederverwendung zu erwarten.
+
+
+## Nächste Schritte
+
+- [Chat Completions](/de/guides/chat-completions) — Standardnutzung der Chat-API
+- [Streaming](/de/guides/streaming) — In Kombination für die geringste wahrgenommene Latenz
+- [Function Calling](/de/guides/function-calling) — Werkzeugdefinitionen im gecachten Präfix halten
+- [Rate Limits](/de/reference/rate-limits) — Durchsatz und Kontingentverhalten
