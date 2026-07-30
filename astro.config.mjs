@@ -73,6 +73,7 @@ export default defineConfig({
 					translations: { de: 'Anleitungen' },
 					items: [
 						{ label: 'Chat Completions', translations: { de: 'Chat Completions' }, slug: 'guides/chat-completions' },
+						{ label: 'Prefix Caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },
 						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'guides/embeddings' },
 						{ label: 'Multimodal', translations: { de: 'Multimodal' }, slug: 'guides/multimodal' },
