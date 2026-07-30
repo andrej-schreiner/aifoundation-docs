@@ -20,6 +20,17 @@ export default defineConfig({
 	integrations: [
 		starlight({
 			title: 'AI Foundation Services',
+			head: [
+				{
+					// Embedded T-Systems chat widget, loaded site-wide. The deferred
+					// IIFE injects the async widget.js from chat.ai.t-systems.net; the
+					// widget renders its own launcher in the bottom-right corner. The
+					// GlmBanner corner toast is raised (see GlmBanner.astro) so the two
+					// don't overlap in that corner.
+					tag: 'script',
+					content: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].q=[];var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);j.async=true;j.src='https://chat.ai.t-systems.net/widget.js';j.setAttribute('data-chatbot-id','5004f2f1-b699-42d9-b170-b937c3ec924e');j.setAttribute('data-api-url','https://chat.ai.t-systems.net');j.setAttribute('data-position','bottom-right');j.setAttribute('data-theme','dark');j.setAttribute('data-primary-color','#E20074');f.parentNode.insertBefore(j,f);})(window,document,'script','TSWidget','ts');`,
+				},
+			],
 			components: {
 				Footer: './src/components/Footer.astro',
 				SocialIcons: './src/components/HeaderApiKeyLink.astro',
