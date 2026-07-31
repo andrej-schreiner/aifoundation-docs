@@ -18,31 +18,17 @@
 	--sl-color-accent-high: #9e0050;
 }
 
-/* Plans page — JS sets data-has-toc so the header search aligns with content.
-   Override the main-pane width back to 100% since there's no actual right sidebar,
-   then widen the sl-container with explicit margin to keep left-edge alignment. */
-@media (min-width: 72rem) {
-	.main-pane:has(.plans-page) {
-		width: 100% !important;
-	}
-	.sl-container:has(.plans-page),
-	.plans-title-panel > .sl-container {
-		max-width: none;
-		margin-inline-start: max(0px, calc((100% - var(--sl-content-width) - var(--sl-sidebar-width)) / 2 - var(--sl-content-pad-x)));
-		margin-inline-end: 0;
-	}
-}
-
-.main-pane:has(.plans-page),
-.main-frame:has(.plans-page) {
-	overflow: visible !important;
-	max-height: none !important;
+/* Plans pages use a wider content column for their tables. Starlight derives
+   content centering AND header search alignment from --sl-content-width, so
+   overriding the variable is all that's needed (no JS, no margin math). */
+:root:has(.plans-page) {
+	--sl-content-width: 85rem;
 }
 
 /* Keep LinkCards and pagination at normal content width on wide plans page */
 .sl-markdown-content:has(.plans-page) .sl-link-card,
 .sl-container:has(.plans-page) .pagination-links {
-	max-width: var(--sl-content-width);
+	max-width: 55rem;
 }
 
 /* Hero Badges */
@@ -68,7 +54,7 @@
 /* Link Card Row — side by side */
 .link-card-row {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
 	gap: 1rem;
 }
 
@@ -209,7 +195,6 @@
 
 .plans-table th {
 	cursor: pointer;
-	white-space: nowrap;
 	user-select: none;
 }
 
@@ -326,6 +311,7 @@
 /* Minimum Monthly Commitment explanatory note (Plans page) */
 .commitment-note {
 	display: block;
+	max-width: min(100%, 54rem);
 	margin-top: 1rem;
 	padding: 0.5rem 0.875rem;
 	border-inline-start: 3px solid var(--sl-color-accent);
