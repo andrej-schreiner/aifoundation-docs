@@ -4,9 +4,9 @@
 // paid plans. Rendered from Footer.astro so it appears on every page (there are
 // no splash pages, so the Footer override is truly global).
 //
-// Kept deliberately compact: a slim single-line bar anchored just below the
-// Starlight nav (via --sl-nav-height) so it never covers the header and never
-// collides with the bottom-right GLM preview toast (GlmBanner.astro).
+// Kept deliberately compact: a slim single-line bar rendered in the content
+// flow above the page title (portaled into <main> by the script below), so it
+// never covers content and scrolls away with the page.
 //
 // Dismiss semantics mirror GlmBanner: this site navigates via full page loads,
 // so the closed state lives in sessionStorage (survives navigation between docs
@@ -19,13 +19,13 @@ const plansHref = isDE ? '/de/plans' : '/plans';
 const t = isDE
   ? {
       badge: 'Neu',
-      msg: '<b>Mistral Small 4</b> und <b>Gemma 4</b> sind jetzt in Produktion — allgemein verfügbar in allen kostenpflichtigen Tarifen.',
+      msg: '<b>GLM-5.2</b>, <b>Nemotron 3</b> und <b>Qwen 3.6</b> sind jetzt in Produktion.',
       cta: 'Zu den Tarifen',
       close: 'Ankündigung schließen',
     }
   : {
       badge: 'New',
-      msg: '<b>Mistral Small 4</b> and <b>Gemma 4</b> are now in production — generally available on all paid plans.',
+      msg: '<b>GLM-5.2</b>, <b>Nemotron 3</b>, and <b>Qwen 3.6</b> are now in production.',
       cta: 'View plans',
       close: 'Dismiss announcement',
     };
@@ -42,16 +42,19 @@ const t = isDE
 
 <style>
   .ga-bar {
-    position: fixed;
-    top: calc(var(--sl-nav-height, 3.5rem) + 0.5rem);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 50;
+    /* In-flow (not fixed): the bar occupies real layout space above the page
+       title, so it can never cover content, and it scrolls away with the
+       page. See the portal logic in the script below. */
+    position: relative;
+    z-index: 1;
 
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    width: min(46rem, calc(100vw - 1.5rem));
+    /* Left-aligned like the rest of the content column (margin:auto centering
+       was a relic of the old fixed centered pill). */
+    width: min(46rem, 100%);
+    margin: 0 0 0.25rem;
     padding: 0.5rem 0.75rem;
 
     background: var(--sl-color-accent-low);
@@ -137,7 +140,6 @@ const t = isDE
   /* On narrow viewports drop the badge and let the message + CTA wrap. */
   @media (max-width: 30rem) {
     .ga-bar {
-      top: calc(var(--sl-nav-height, 3.5rem) + 0.375rem);
       flex-wrap: wrap;
       gap: 0.5rem;
     }
@@ -160,11 +162,11 @@ const t = isDE
   @keyframes gaSlideIn {
     from {
       opacity: 0;
-      transform: translate(-50%, -0.5rem);
+      transform: translateY(-0.5rem);
     }
     to {
       opacity: 1;
-      transform: translateX(-50%);
+      transform: none;
     }
   }
 
@@ -220,10 +222,15 @@ const t = isDE
       return;
     }
 
-    // Portal to <body> so our fixed bar isn't trapped in the .main-pane
-    // stacking context (same reasoning as GlmBanner.astro).
-    if (bar.parentElement !== document.body) {
-      document.body.appendChild(bar);
+    // Portal into the title panel, above the <h1>, so the bar sits in the
+    // content flow — it occupies real space (nothing is ever covered) and
+    // scrolls away with the page. Inside the panel (rather than above it) the
+    // panel's own padding stays above the bar instead of stacking into the
+    // bar-to-title gap.
+    const host =
+      document.querySelector('main .content-panel') || document.querySelector('main');
+    if (host && bar.parentElement !== host) {
+      host.prepend(bar);
     }
 
     bar.hidden = false;
@@ -246,3 +253,4 @@ const t = isDE
     initGaBanner();
   }
 </script>
+
