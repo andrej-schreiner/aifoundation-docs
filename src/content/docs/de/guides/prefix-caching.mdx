@@ -6,6 +6,10 @@ description: "Wiederholte Prompt-Präfixe auf AI Foundation Services wiederverwe
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
+:::note[Caching ist für GLM 5.2 standardmäßig aktiviert]
+Seit dem **01.08.2026** ist Prefix Caching für **GLM 5.2 standardmäßig aktiviert** (die Funktion kann jederzeit ein- oder ausgeschaltet werden). Alle anderen T-Cloud-Modelle bleiben wie unten beschrieben Opt-in; ab dem **01.09.2026** wird Caching auch für die bestehenden T-Cloud-Modelle zum Standard.
+:::
+
 Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anfang eines Prompts wiederzuverwenden. Wenn zwei Anfragen mit denselben Tokens beginnen — einem langen System-Prompt, einem Dokument, einem Werkzeugkatalog — muss der gemeinsame Teil nicht erneut verarbeitet werden. Das senkt die Zeit bis zum ersten Token und, bei Modellen mit separater Abrechnung zwischengespeicherter Tokens, auch die Kosten der Anfrage.
 
 :::note[Voraussetzungen]

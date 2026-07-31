@@ -6,6 +6,10 @@ description: "Reuse repeated prompt prefixes on AI Foundation Services to cut ti
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
+:::note[Caching is on by default for GLM 5.2]
+As of **2026-08-01**, prefix caching is **enabled by default for GLM 5.2** (it can be switched on or off at any time). All other T-Cloud-hosted models remain opt-in as described below; caching becomes the default for the existing T-Cloud models on **2026-09-01**.
+:::
+
 Prefix caching lets the model reuse the work it already did for the beginning of a prompt. When two requests start with the same tokens — a long system prompt, a document, a tool catalogue — the shared part does not have to be processed again, which lowers time-to-first-token and, for models that price cached tokens separately, the cost of the request.
 
 :::note[Prerequisites]
