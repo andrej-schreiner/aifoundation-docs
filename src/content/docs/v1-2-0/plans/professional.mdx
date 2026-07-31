@@ -1,0 +1,35 @@
+---
+title: "Professional"
+description: "Detailed model availability, token limits, and pricing for the LLM Hub Professional rate plan."
+tableOfContents: false
+---
+
+import PlansPage from '../../../components/PlansPage.astro';
+
+The monthly minimum revenue for models on the Professional rate plan is: € 3,000
+
+<div style="max-width: 54rem;">
+
+:::note
+Pricing valid from May 1, 2026. RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the full conditions.
+:::
+
+</div>
+
+<PlansPage selectedPlanId="Professional" />
+
+<div style="max-width: 54rem;">
+
+<a id="rpm-tpm-notes"></a>
+
+## Service note on the published RPM and TPM values
+
+<sup>&ast;</sup> The Requests-per-Minute (RPM) and Tokens-per-Minute (TPM) figures shown above are **best-effort, best-case ceilings** for the Shared LLM Serving Service. They denote the maximum traffic permitted under the contract — not a guaranteed level of throughput. The following conditions apply:
+
+- These figures are **not part of the [Service Level Agreement (SLA)](/reference/service-levels)**. The SLA covers API availability only; it does not extend to throughput, end-to-end latency, or time-to-first-token.
+- Realised throughput, end-to-end latency, and time-to-first-token vary with platform load. Open-source models hosted on T-Cloud may operate below the published ceilings during periods of peak concurrent demand.
+- Customers requiring contractual guarantees on throughput, end-to-end latency, or time-to-first-token should consider [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
+
+For workload-specific commitments, contact the AIFS team at [ai@t-systems.com](mailto:ai@t-systems.com).
+
+</div>
