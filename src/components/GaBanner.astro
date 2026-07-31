@@ -227,8 +227,13 @@ const t = isDE
     // scrolls away with the page. Inside the panel (rather than above it) the
     // panel's own padding stays above the bar instead of stacking into the
     // bar-to-title gap.
+    // Target the .sl-container INSIDE the panel (not the panel itself): the
+    // container carries Starlight's max-width + centering, so the bar gets the
+    // exact same left edge as the <h1> at every viewport width.
     const host =
-      document.querySelector('main .content-panel') || document.querySelector('main');
+      document.querySelector('main .content-panel .sl-container') ||
+      document.querySelector('main .content-panel') ||
+      document.querySelector('main');
     if (host && bar.parentElement !== host) {
       host.prepend(bar);
     }
