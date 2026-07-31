@@ -33,11 +33,11 @@
     {
       "label": "Plugins",
       "items": [
-        { "label": "Cline", "slug": "plugins/cline" },
-        { "label": "Continue for VS Code", "slug": "plugins/continue-vscode" },
-        { "label": "Continue for JetBrains", "slug": "plugins/continue-jetbrains" },
-        { "label": "OpenCode", "slug": "plugins/opencode" },
-        { "label": "Roo Code", "slug": "plugins/roo-code" }
+        { "label": "Cline", "slug": " v1-1-0/plugins/cline" },
+        { "label": "Continue for VS Code", "slug": " v1-1-0/plugins/continue-vscode" },
+        { "label": "Continue for JetBrains", "slug": " v1-1-0/plugins/continue-jetbrains" },
+        { "label": "OpenCode", "slug": " v1-1-0/plugins/opencode" },
+        { "label": "Roo Code", "slug": " v1-1-0/plugins/roo-code" }
       ]
     },
     {
