@@ -493,7 +493,10 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     margin-bottom: 2rem;
   }
 
-  .table-wrapper {
+  /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
+     on the same page (vertical scroller with sticky headers) that must not
+     inherit the padding/margin trick below. */
+  .rate-plans-section .table-wrapper {
     max-width: 100%;
     overflow-x: auto;
     /* Scroll-clipping makes overflow-y compute to auto too; the padding/margin
@@ -504,7 +507,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   @media (min-width: 80rem) {
-    .table-wrapper {
+    .rate-plans-section .table-wrapper {
       overflow-x: visible;
       padding-top: 0;
       margin-top: 0;
