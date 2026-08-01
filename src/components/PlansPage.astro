@@ -447,18 +447,18 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               ))}
             </tbody>
           </table>
-          <small>{t.footnote}</small>
-          <br />
-          <small>
-            <a href={isDE ? '/de/reference/rate-limits' : '/reference/rate-limits'}>
-              {isDE ? 'Mehr zu Rate-Limits →' : 'Learn more about rate limits →'}
-            </a>
-          </small>
-
-          <aside class="commitment-note" aria-label={t.commitmentNoteLead}>
-            <strong class="commitment-note__lead">{t.commitmentNoteLead}</strong> {t.commitmentNoteBody}
-          </aside>
         </div>
+        <small>{t.footnote}</small>
+        <br />
+        <small>
+          <a href={isDE ? '/de/reference/rate-limits' : '/reference/rate-limits'}>
+            {isDE ? 'Mehr zu Rate-Limits →' : 'Learn more about rate limits →'}
+          </a>
+        </small>
+
+        <aside class="commitment-note" aria-label={t.commitmentNoteLead}>
+          <strong class="commitment-note__lead">{t.commitmentNoteLead}</strong> {t.commitmentNoteBody}
+        </aside>
       </section>
     )
   }
@@ -477,32 +477,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   />
 </div>
 
-<script>
-  function initPlansPageLayout() {
-    const container = document.querySelector('.plans-page') as HTMLElement;
-    if (!container) return;
-
-    // Mark the title's content panel so CSS can target it
-    const contentPanel = container.closest('.content-panel');
-    const titlePanel = contentPanel?.previousElementSibling;
-    if (titlePanel?.classList.contains('content-panel')) {
-      titlePanel.classList.add('plans-title-panel');
-    }
-
-    // Tell the header grid to lay out as if there's a right sidebar,
-    // since our content margin already mimics that alignment.
-    document.documentElement.setAttribute('data-has-toc', '');
-  }
-
-  // Run on initial load and on Astro page transitions
-  document.addEventListener('astro:page-load', initPlansPageLayout);
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initPlansPageLayout);
-  } else {
-    initPlansPageLayout();
-  }
-</script>
-
 <style is:global>
   .plans-page {
     width: 100%;
@@ -519,9 +493,43 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     margin-bottom: 2rem;
   }
 
-  .table-wrapper {
-    width: fit-content;
-    overflow: visible;
+  /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
+     on the same page (vertical scroller with sticky headers) that must not
+     inherit the padding/margin trick below. */
+  .rate-plans-section .table-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+    /* Scroll-clipping makes overflow-y compute to auto too; the padding/margin
+       pair keeps room inside the scrollport for the row tooltips that open
+       upward, so they aren't cut off at the wrapper's top edge. */
+    padding-top: 7rem;
+    margin-top: -7rem;
+  }
+
+  @media (min-width: 80rem) {
+    .rate-plans-section .table-wrapper {
+      overflow-x: visible;
+      padding-top: 0;
+      margin-top: 0;
+    }
+  }
+
+  /* The Model-Host / Model-Tier tooltips sit in the last two columns; centered
+     they would poke ~110px past the container's right edge and create a
+     transient page-wide scrollbar on hover. Pin them to the right edge. */
+  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__content {
+    left: auto;
+    right: 0;
+    transform: translateX(0) translateY(0.35rem);
+  }
+  .plans-table td:nth-last-child(-n + 2) .ui-tooltip:hover .ui-tooltip__content,
+  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
+  .plans-table td:nth-last-child(-n + 2) .ui-tooltip:focus-within .ui-tooltip__content {
+    transform: translateX(0) translateY(0);
+  }
+  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__content::after {
+    left: auto;
+    right: 1.5rem;
   }
 
   .table-wrapper > table {

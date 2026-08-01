@@ -7,28 +7,9 @@ const label = isDE ? 'API-Key' : 'API Key';
 const ariaLabel = isDE
   ? 'API-Key generieren (öffnet in neuem Tab)'
   : 'Get API Key (opens in new tab)';
-
-// GLM-5.2 "now in production" note — mobile counterpart of HeaderApiKeyLink.astro.
-const plansHref = isDE ? '/de/plans' : '/plans';
-const previewAriaLabel = isDE
-  ? 'GLM 5.2 ist jetzt in Produktion – zu den Tarifen'
-  : 'GLM 5.2 is now in production – view plans';
-// The "now in production" suffix is dropped on the narrowest phones (see the media query).
-const previewTry = '';
-const previewName = 'GLM 5.2';
-const previewSuffix = isDE ? ' jetzt in Produktion' : ' now in production';
 ---
 
 <Default {...Astro.props}><slot /></Default>
-
-<a
-  class="mobile-preview"
-  href={plansHref}
-  aria-label={previewAriaLabel}
->
-  <span class="mobile-preview-dot" aria-hidden="true"></span>
-  <span class="mobile-preview-label"><span class="mobile-preview-try">{previewTry}</span>{previewName}<span class="mobile-preview-try">{previewSuffix}</span></span>
-</a>
 
 <a
   class="mobile-cta"
@@ -42,90 +23,6 @@ const previewSuffix = isDE ? ' jetzt in Produktion' : ' now in production';
 </a>
 
 <style>
-  /* GLM-5.2 preview note (mobile). Outlined magenta pill mirroring the desktop
-     one, sitting just before the API Key CTA. */
-  .mobile-preview {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    margin-inline-start: 0.5rem;
-    padding: 0.28rem 0.55rem;
-    border-radius: 9999px;
-    border: 1px solid var(--sl-color-accent);
-    background: var(--sl-color-accent-low);
-    color: var(--sl-color-accent-high);
-    font-size: var(--sl-text-xs);
-    font-weight: 600;
-    line-height: 1;
-    text-decoration: none;
-    white-space: nowrap;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-  }
-  .mobile-preview:hover {
-    background: var(--sl-color-accent);
-    border-color: var(--sl-color-accent);
-    color: var(--sl-color-white);
-  }
-  .mobile-preview:focus-visible {
-    outline: 2px solid var(--sl-color-accent-high);
-    outline-offset: 2px;
-  }
-  .mobile-preview-dot {
-    width: 0.4rem;
-    height: 0.4rem;
-    border-radius: 50%;
-    background: var(--sl-color-accent);
-    box-shadow: 0 0 0 0 var(--sl-color-accent);
-    animation: mobile-preview-pulse 1.9s ease-out infinite;
-  }
-  .mobile-preview:hover .mobile-preview-dot {
-    background: var(--sl-color-white);
-    box-shadow: none;
-    animation: none;
-  }
-
-  @keyframes mobile-preview-pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(226, 0, 116, 0.55);
-    }
-    70%,
-    100% {
-      box-shadow: 0 0 0 0.35rem rgba(226, 0, 116, 0);
-    }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mobile-preview-dot {
-      animation: none;
-    }
-  }
-
-  /* Tight phones: drop the "Try"/"testen" word so only "GLM 5.2 Preview" shows. */
-  @media (max-width: 30rem) {
-    .mobile-preview {
-      padding: 0.24rem 0.45rem;
-      font-size: 0.6875rem; /* 11px */
-      margin-inline-start: 0.25rem;
-    }
-    .mobile-preview-try {
-      display: none;
-    }
-  }
-
-  /* Below ~26rem (~416px) the site title needs the room — hide the note.
-     The GlmBanner corner toast still promotes GLM 5.2 on these viewports. */
-  @media (max-width: 26rem) {
-    .mobile-preview {
-      display: none;
-    }
-  }
-
-  /* Shown only below md; above it the desktop HeaderApiKeyLink note takes over. */
-  @media (min-width: 50rem) {
-    .mobile-preview {
-      display: none;
-    }
-  }
-
   /* Mobile-only counterpart to HeaderApiKeyLink.astro. Above md the
      right-group becomes visible and shows the full-size desktop pill, so
      we hide this one to avoid showing the CTA twice. */
