@@ -894,7 +894,7 @@ const priceBuckets = [
 
   .models-table-section .plans-table th,
   .models-table-section .plans-table td {
-    padding: 0.55rem 0.8rem;
+    padding: 0.55rem 0.4rem;
     line-height: 1.25;
     white-space: normal;
     overflow-wrap: anywhere;
@@ -930,7 +930,7 @@ const priceBuckets = [
 
   .models-table-section .plans-table th[data-sort='displayName'],
   .models-table-section .plans-table td.mt-model-name-cell {
-    min-width: 9rem;
+    min-width: 7rem;
   }
 
   .models-table-section .plans-table td.mt-model-name-cell {
@@ -1089,7 +1089,7 @@ const priceBuckets = [
   .sort-header {
     display: inline-flex;
     align-items: center;
-    gap: 0.38rem;
+    gap: 0.15rem;
     color: inherit;
   }
 
@@ -1098,8 +1098,8 @@ const priceBuckets = [
   }
 
   .sort-icon {
-    width: 0.48rem;
-    height: 0.36rem;
+    width: 0.4rem;
+    height: 0.3rem;
     flex: 0 0 auto;
     display: inline-block;
     opacity: 0.85;
@@ -1302,9 +1302,12 @@ const priceBuckets = [
 
   .model-links {
     display: inline-flex;
-    gap: 0.65rem;
+    /* Wrapping keeps the column at the width of the widest single link
+       instead of both links side by side — the two links stack on narrower
+       tables. Each link stays on one line via the item's nowrap below. */
+    flex-wrap: wrap;
+    gap: 0.15rem 0.65rem;
     align-items: center;
-    white-space: nowrap;
   }
 
   .model-links__item {
@@ -1314,6 +1317,7 @@ const priceBuckets = [
     color: var(--model-link-color);
     text-decoration-color: currentColor;
     font-size: 0.74rem;
+    white-space: nowrap;
   }
 
   .model-links__item:visited,
