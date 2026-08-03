@@ -50,6 +50,7 @@ export default defineConfig({
 					versions: [
 						{ slug: 'v1', label: 'v1.0.0' },
 						{ slug: 'v1-1-0', label: 'v1.1.0' },
+						{ slug: 'v1-2-0', label: 'v1.2.0' },
 					],
 				}),
 			],
@@ -93,17 +94,7 @@ export default defineConfig({
 						{ label: 'Llama Index', translations: { de: 'Llama Index' }, slug: 'integrations/llama-index' },
 					],
 				},
-				{
-					label: 'Plugins',
-					translations: { de: 'Plugins' },
-					items: [
-						{ label: 'Cline', translations: { de: 'Cline' }, slug: 'plugins/cline' },
-						{ label: 'Continue for VS Code', translations: { de: 'Continue für VS Code' }, slug: 'plugins/continue-vscode' },
-						{ label: 'Continue for JetBrains', translations: { de: 'Continue für JetBrains' }, slug: 'plugins/continue-jetbrains' },
-						{ label: 'OpenCode', translations: { de: 'OpenCode' }, slug: 'plugins/opencode' },
-						{ label: 'Roo Code', translations: { de: 'Roo Code' }, slug: 'plugins/roo-code' },
-					],
-				},
+				{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },

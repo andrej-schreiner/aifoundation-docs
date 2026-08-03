@@ -5,10 +5,6 @@ description: "Install OpenCode, an open-source terminal-based AI coding agent, a
 
 OpenCode is an open-source AI coding agent that runs in the terminal and can be used alongside any editor or IDE.
 
-With OpenCode you can ask questions about your codebase, generate or refactor code, run tests and shell commands, and let the agent carry out multi-step changes across files — all from the terminal, using AI Foundation Services models.
-
-It's a good fit if you prefer a keyboard-driven, editor-agnostic workflow and want a single tool you can drop into any project without switching IDEs.
-
 ## Key Features
 
 - LSP support that loads the right language tooling for the model
@@ -16,20 +12,6 @@ It's a good fit if you prefer a keyboard-driven, editor-agnostic workflow and wa
 - Shareable session links for collaboration and debugging
 - MCP support for external tools and data sources
 - Editor-agnostic workflow that works in any IDE
-
-## Usage Guidelines
-
-:::caution[Please Read Before Installation]
-- OpenCode is a custom version of the plugin for enterprise usecases with no telemetry. This custom version has telemetry and communication to third-party providers disabled, and some features have been improved for enterprise-compliant usage.
-- Please carefully review all AI-generated content before using or sharing it. Do so in the same manner as you would with your manual work (using peer reviews, the four-eyes principle, etc.). The AI components of AIFS can make mistakes.
-- Do not enter any personal data.
-- If you have further questions about the AI components of AIFS, please refer to the corresponding documentation. For additional questions or suggestions, please contact AI Engineer Support team. 
-- Use the assistant exclusively for your professional inquiries.
-- The entered data will not be used for training the large language models.
-- The assistant usually works quickly, but it may take some time for complex inquiries or document searches. Please be patient and wait for the assistant's complete response.
-- AI models like ChatGPT are generative models, meaning they generate text without explicitly verifiable facts. This can result in the assistant providing plausible but not necessarily correct information.
-- Deployment of AI Engineer in high-risk areas [Annex III AIA](https://ai-act-service-desk.ec.europa.eu/en/ai-act/annex-3) or for customers in regulated sectors [Annex I AIA](https://ai-act-service-desk.ec.europa.eu/en/ai-act/annex-1) is not allowed.
-:::
 
 ## Installation and Setup
 
@@ -65,16 +47,6 @@ https_proxy=<your-proxy-url:port>
    Select **AI Foundation Services** from the provider list, then provide your API key when prompted. You can generate an API key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard).
 
 You can now start a chat and use OpenCode.
-
-## First Steps with OpenCode
-
-Once OpenCode is running, you interact with the agent in natural language. A few prompts to try inside your project directory:
-
-- `Summarize what this repository does and how the main modules fit together.`
-- `Refactor getUserById in src/db/users.ts to use async/await instead of promise chains.`
-- `Run the test suite and fix any failures.`
-
-For the full list of in-session commands and advanced configuration (custom agents, MCP servers, rules), see the upstream [OpenCode documentation](https://opencode.ai/docs).
 
 ## Example Config
 

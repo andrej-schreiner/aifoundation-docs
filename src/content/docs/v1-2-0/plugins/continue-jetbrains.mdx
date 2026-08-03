@@ -1,5 +1,6 @@
 ---
 title: "Continue for JetBrains"
+description: "Install and configure the Continue plugin for JetBrains IDEs with chat, inline edits, autocomplete, and coding agents on AI Foundation Services."
 ---
 
 Continue for AI Engineer is a custom version of the Continue plugin for JetBrains IDEs. It brings chat, inline edits, autocomplete, and coding agents directly into IntelliJ-based workflows so you can work with AI models without leaving your editor.
@@ -24,7 +25,7 @@ Continue for AI Engineer is a custom version of the Continue plugin for JetBrain
 
 After the first installation, open the AI Engineer Continue plugin and choose **Local config**. This opens an empty `config.yaml` file that you can update with your model, base URL, and API key details.
 
-1. Choose a model ID from [Available Models](https://docs.llmhub.t-systems.net/getting-started/models):
+1. Choose a model ID from [Available Models](/getting-started/models):
 
 ```yaml
 model: gpt-oss-120b
@@ -49,14 +50,14 @@ roles:
   - chat
 ```
 
-::::note[Windows only]
+:::note[Windows only]
 If you use IntelliJ or PyCharm on Windows, add your proxy settings to the configuration file:
 
 ```yaml
 requestOptions:
   proxy: YourProxyHost:Port
 ```
-::::
+:::
 
 ### Example `config.yaml`
 
