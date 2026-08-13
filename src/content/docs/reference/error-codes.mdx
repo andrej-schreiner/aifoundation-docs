@@ -28,7 +28,7 @@ When an API request fails, the response includes an HTTP status code and an erro
 ```
 
 :::note
-Some endpoints (e.g., Azure-proxied models like GPT-4.1) may return OpenAI-style error objects:
+Some endpoints (e.g., Azure-proxied models like GPT-5) may return OpenAI-style error objects:
 ```json
 {
   "error": {
@@ -55,7 +55,7 @@ def call_with_retry(messages, max_retries=3):
     for attempt in range(max_retries):
         try:
             return client.chat.completions.create(
-                model="Llama-3.3-70B-Instruct",
+                model="gpt-oss-120b",
                 messages=messages,
             )
         except RateLimitError:

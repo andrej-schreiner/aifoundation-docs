@@ -80,7 +80,7 @@ All POST requests use JSON:
 curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
-  -d '{"model": "Llama-3.3-70B-Instruct", "messages": [{"role": "user", "content": "Hello"}]}'
+  -d '{"model": "gpt-oss-120b", "messages": [{"role": "user", "content": "Hello"}]}'
 ```
 
 
@@ -93,7 +93,7 @@ Responses follow the OpenAI response format. For chat completions:
   "id": "chatcmpl-abc123",
   "object": "chat.completion",
   "created": 1710000000,
-  "model": "Llama-3.3-70B-Instruct",
+  "model": "gpt-oss-120b",
   "choices": [
     {
       "index": 0,

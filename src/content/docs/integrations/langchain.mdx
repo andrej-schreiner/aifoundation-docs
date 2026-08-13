@@ -23,7 +23,7 @@ from langchain_openai import ChatOpenAI
 llm = ChatOpenAI(
     openai_api_key=os.getenv("OPENAI_API_KEY"),
     openai_api_base=os.getenv("OPENAI_BASE_URL"),
-    model_name="Llama-3.3-70B-Instruct",
+    model_name="gpt-oss-120b",
     streaming=True,
 )
 

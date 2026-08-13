@@ -61,7 +61,7 @@ Prefix caching never changes the content of a response: the model sees the same 
 
 ## T-Cloud Hosted Open-Source Models
 
-For T-Cloud-hosted open-source models (for example `Llama-3.3-70B-Instruct`, `Qwen3-30B-A3B-FP8`), prefix caching is **opt-in per request**. Two extra fields on the chat completion request control it:
+For T-Cloud-hosted open-source models (for example `gpt-oss-120b`, `Qwen-3.6-35B-FP8`), prefix caching is **opt-in per request**. Two extra fields on the chat completion request control it:
 
 | Field | Type | Default | Purpose |
 |---|---|---|---|
@@ -108,7 +108,7 @@ The system prompt and the document below are identical on every call, so only th
 
     def ask(question: str):
         return client.chat.completions.create(
-            model="Llama-3.3-70B-Instruct",
+            model="gpt-oss-120b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": f"{DOCUMENT}\n\nQuestion: {question}"},
@@ -134,7 +134,7 @@ The system prompt and the document below are identical on every call, so only th
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Llama-3.3-70B-Instruct",
+        "model": "gpt-oss-120b",
         "messages": [
           {"role": "system", "content": "You are a contract analyst. Answer only from the document."},
           {"role": "user", "content": "<long document text>\n\nQuestion: What is the notice period?"}
@@ -157,7 +157,7 @@ The system prompt and the document below are identical on every call, so only th
 
     const ask = (question) =>
       client.chat.completions.create({
-        model: "Llama-3.3-70B-Instruct",
+        model: "gpt-oss-120b",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: `${DOCUMENT}\n\nQuestion: ${question}` },
@@ -205,7 +205,7 @@ This requires the structured content-block form of a message (a list of parts in
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4",
+        model="claude-sonnet-4.6",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ This requires the structured content-block form of a message (a list of parts in
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-4",
+        "model": "claude-sonnet-4.6",
         "messages": [
           {
             "role": "system",
@@ -269,7 +269,7 @@ The `usage` object of the response reports how much of the prompt came from cach
 
 ```python showLineNumbers
 response = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=messages,
     extra_body={"save_cache": True, "cache_salt": "contract-4711"},
 )

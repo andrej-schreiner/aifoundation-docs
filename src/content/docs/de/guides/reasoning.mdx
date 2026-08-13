@@ -1,6 +1,6 @@
 ---
 title: "Reasoning"
-description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf unterstützten Modellen wie o1, Gemini 2.5 und Claude 4 steuern."
+description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf unterstützten Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
 ---
 
 
@@ -17,17 +17,17 @@ Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Ti
 **Was Sie lernen werden:**
 - Welche Modelle Reasoning unterstützen
 - Wie Sie den Parameter `reasoning_effort` verwenden
-- Wie Sie Reasoning für Qwen3-Modelle deaktivieren
+- Wie Sie Reasoning für Qwen 3.6-Modelle deaktivieren
 
 
 ## Unterstützte Modelle
 
 | Modell | Reasoning |
 |---|---|
-| o1, o1-mini, o3, o3-mini, o4-mini | Parameter `reasoning_effort` |
-| Gemini 2.5 | Parameter `reasoning_effort` |
-| Claude 3.7, Claude 4 | Parameter `reasoning_effort` |
-| Qwen3 | Prompt-Schlüsselwort `/no_think` |
+| GPT-5, GPT-5 mini, GPT-5 nano | Parameter `reasoning_effort` |
+| Gemini 3 | Parameter `reasoning_effort` |
+| Claude 4.6, Claude Opus 5 | Parameter `reasoning_effort` |
+| Qwen 3.6 | Prompt-Schlüsselwort `/no_think` |
 
 
 ## Verwendung von reasoning_effort
@@ -40,7 +40,7 @@ Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Ti
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4",
+        model="claude-sonnet-4.6",
         messages=[
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
@@ -59,9 +59,9 @@ Der Parameter `reasoning_effort` akzeptiert drei Werte:
 - **`high`** — Tiefgehendes Reasoning für komplexe Probleme
 
 
-## Reasoning für Qwen3 deaktivieren
+## Reasoning für Qwen 3.6 deaktivieren
 
-Für Qwen3-Modelle stellen Sie `/no_think` Ihrem Prompt voran, um Reasoning zu deaktivieren:
+Für Qwen 3.6-Modelle stellen Sie `/no_think` Ihrem Prompt voran, um Reasoning zu deaktivieren:
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -69,7 +69,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen3-30B-A3B-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},

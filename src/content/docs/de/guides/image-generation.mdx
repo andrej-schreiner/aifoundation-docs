@@ -36,7 +36,7 @@ Generieren Sie Bilder aus Textbeschreibungen mithilfe der OpenAI-kompatiblen Ima
     """
 
     result = client.images.generate(
-        model="gpt-image-1",
+        model="gpt-image-2",
         prompt=prompt,
     )
 
@@ -54,7 +54,7 @@ Generieren Sie Bilder aus Textbeschreibungen mithilfe der OpenAI-kompatiblen Ima
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "gpt-image-1",
+        "model": "gpt-image-2",
         "prompt": "A futuristic data center at sunrise with blue LED lights"
       }'
     ```
@@ -66,7 +66,7 @@ Generieren Sie Bilder aus Textbeschreibungen mithilfe der OpenAI-kompatiblen Ima
 
 | Modell | Anbieter | Beschreibung |
 |---|---|---|
-| `gpt-image-1` | Azure | OpenAIs Image Generation Modell |
+| `gpt-image-2` | Azure | OpenAIs Image Generation Modell |
 
 
 ## Nächste Schritte
