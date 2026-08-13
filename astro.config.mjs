@@ -31,14 +31,17 @@ export default defineConfig({
 					content: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].q=[];var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);j.async=true;j.src='https://chat.ai.t-systems.net/widget.js';j.setAttribute('data-chatbot-id','5004f2f1-b699-42d9-b170-b937c3ec924e');j.setAttribute('data-api-url','https://chat.ai.t-systems.net');j.setAttribute('data-position','bottom-right');j.setAttribute('data-theme','dark');j.setAttribute('data-primary-color','#E20074');f.parentNode.insertBefore(j,f);})(window,document,'script','TSWidget','ts');`,
 				},
 				{
-					// Language-aware Service Description PDF link. The sidebar "Links" entry
-					// (and any other link) is authored with the German PDF as the single
-					// config-level default; Starlight's sidebar config has no per-locale
-					// href. On English pages (<html lang="en">) we rewrite the href to the
-					// English variant (…_EN.pdf). German pages keep the default. Runs on
+					// Language-aware Service Description PDF link, normalized at runtime.
+					// The sidebar "Links" entry is authored as an ABSOLUTE production URL
+					// in the config on purpose: Starlight localizes root-relative sidebar
+					// links (…/files → /de/files, a 404), and the link-checker skips
+					// external URLs. At runtime this script overrides every Service
+					// Description link to a host-relative /files/… path (…_EN.pdf on
+					// English pages), so it resolves against the current origin — working
+					// in local dev and on any deployed host, for both locales. Runs on
 					// first load and on Starlight view-transition navigations.
 					tag: 'script',
-					content: `(function(){function fix(){if(document.documentElement.lang!=='en')return;document.querySelectorAll('a[href$="Leistungsbeschreibung-LLM-Serving-Service.pdf"]').forEach(function(a){a.href=a.href.replace('Leistungsbeschreibung-LLM-Serving-Service.pdf','Leistungsbeschreibung-LLM-Serving-Service_EN.pdf');});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
+					content: `(function(){function fix(){var en=document.documentElement.lang==='en';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/Leistungsbeschreibung-LLM-Serving-Service'+(en?'_EN':'')+'.pdf');});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 			],
 			components: {
@@ -171,7 +174,7 @@ export default defineConfig({
 						{ label: 'Try SmartChat ↗', translations: { de: 'SmartChat testen ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Try SmartChat (opens in new tab)' } },
 						{ label: 'LLM Playground ↗', translations: { de: 'LLM Playground ↗' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
 						{ label: 'Model Status ↗', translations: { de: 'Model Status ↗' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
-						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: '/files/Leistungsbeschreibung-LLM-Serving-Service.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
+						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung-LLM-Serving-Service.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
 					],
 				},
 			],
