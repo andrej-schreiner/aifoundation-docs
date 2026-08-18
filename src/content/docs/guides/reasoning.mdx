@@ -1,6 +1,6 @@
 ---
 title: "Reasoning Control"
-description: "Control chain-of-thought depth with the `reasoning_effort` parameter on supported models including o1, Gemini 2.5, and Claude 4."
+description: "Control chain-of-thought depth with the `reasoning_effort` parameter on supported models including GPT-5, Gemini 3, and Claude 4.6."
 ---
 
 
@@ -17,17 +17,17 @@ For models that support reasoning (chain-of-thought), you can control the depth 
 **What you'll learn:**
 - Which models support reasoning control
 - How to use the `reasoning_effort` parameter
-- How to disable reasoning for Qwen3 models
+- How to disable reasoning for Qwen 3.6 models
 
 
 ## Supported Models
 
 | Model | Reasoning Control |
 |---|---|
-| o1, o1-mini, o3, o3-mini, o4-mini | `reasoning_effort` parameter |
-| Gemini 2.5 | `reasoning_effort` parameter |
-| Claude 3.7, Claude 4 | `reasoning_effort` parameter |
-| Qwen3 | `/no_think` prompt keyword |
+| GPT-5, GPT-5 mini, GPT-5 nano | `reasoning_effort` parameter |
+| Gemini 3 | `reasoning_effort` parameter |
+| Claude 4.6, Claude Opus 5 | `reasoning_effort` parameter |
+| Qwen 3.6 | `/no_think` prompt keyword |
 
 
 ## Using reasoning_effort
@@ -40,7 +40,7 @@ For models that support reasoning (chain-of-thought), you can control the depth 
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4",
+        model="claude-sonnet-4.6",
         messages=[
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
@@ -59,9 +59,9 @@ The `reasoning_effort` parameter accepts three values:
 - **`high`** — Deep reasoning for complex problems
 
 
-## Disabling Reasoning for Qwen3
+## Disabling Reasoning for Qwen 3.6
 
-For Qwen3 models, prepend `/no_think` to your prompt to disable reasoning:
+For Qwen 3.6 models, prepend `/no_think` to your prompt to disable reasoning:
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -69,7 +69,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen3-30B-A3B-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},

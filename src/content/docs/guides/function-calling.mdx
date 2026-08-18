@@ -60,7 +60,7 @@ Function calling lets models generate structured JSON arguments for functions yo
     ]
 
     response = client.chat.completions.create(
-        model="gpt-4.1",
+        model="gpt-5",
         messages=messages,
         tools=tools,
     )
@@ -116,7 +116,7 @@ tools = [
 ]
 
 response = client.responses.create(
-    model="gpt-4.1",
+    model="gpt-5",
     input=[{"role": "user", "content": "What is the weather like in Paris today?"}],
     tools=tools,
 )
@@ -142,7 +142,7 @@ Price: $79.99, on sale for $64.99.
 """
 
 response = client.responses.create(
-    model="gpt-4.1",
+    model="gpt-5",
     input=f"Extract structured product information: {description}",
     text={
         "format": {

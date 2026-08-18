@@ -30,17 +30,17 @@ const OFFLINE_MODELS = new Set([
   'o1',
 ]);
 
-const EXTRA_MODELS = [
-  { modelId: 'gpt-5.2', name: 'GPT 5.2', provider: 'Azure', hosted: 'Sweden', countryCode: 'se', dataProcessing: 'EU' },
-  {
-    modelId: 'Qwen3-Coder-30B-A3B-Instruct-FP8',
-    name: 'Qwen 3 Coder 30B',
-    provider: 'T-Cloud',
-    hosted: 'Germany',
-    countryCode: 'de',
-    dataProcessing: 'Germany',
-  },
-];
+// Models not present in the pricing JSON but that should still appear on the
+// featured grid. Keep this list current: entries for retired models (see
+// /models/retired) render dead cards. Empty is fine.
+const EXTRA_MODELS: Array<{
+  modelId: string;
+  name: string;
+  provider: string;
+  hosted: string;
+  countryCode: string;
+  dataProcessing: string;
+}> = [];
 
 // Per-model cloud label overrides, keyed by exactModelName. Use when a model's
 // cloud should read differently from what parseRegion() derives from its region
@@ -51,9 +51,11 @@ const CLOUD_OVERRIDES: Record<string, string> = {
 
 const SORT_ORDER = [
   'GLM 5.2',
+  'NVIDIA Nemotron 3 Super 120B FP8',
   'Gemma 4',
   'Mistral Small 4',
   'GPT-OSS 120B',
+  'Qwen 3.6 35B FP8',
   'Qwen3-Next 80B',
   'Qwen3-VL 30B',
   'Qwen3 Coder 30B',

@@ -29,7 +29,7 @@ The Chat Completions API is the primary way to interact with LLMs on AI Foundati
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Llama-3.3-70B-Instruct",
+        "model": "gpt-oss-120b",
         "messages": [
           {"role": "system", "content": "You are a helpful assistant."},
           {"role": "user", "content": "What is T-Cloud?"}
@@ -46,7 +46,7 @@ The Chat Completions API is the primary way to interact with LLMs on AI Foundati
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="Llama-3.3-70B-Instruct",
+        model="gpt-oss-120b",
         messages=[
             {"role": "system", "content": "You are a helpful assistant."},
             {"role": "user", "content": "What is T-Cloud?"},
@@ -65,7 +65,7 @@ The Chat Completions API is the primary way to interact with LLMs on AI Foundati
     const client = new OpenAI();
 
     const response = await client.chat.completions.create({
-      model: "Llama-3.3-70B-Instruct",
+      model: "gpt-oss-120b",
       messages: [
         { role: "system", content: "You are a helpful assistant." },
         { role: "user", content: "What is T-Cloud?" },
@@ -86,7 +86,7 @@ Enable streaming to receive tokens as they're generated. Set `stream: true` in y
 
 ```python
 stream = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=[{"role": "user", "content": "Write a short poem about AI."}],
     stream=True,
 )
@@ -111,7 +111,7 @@ The Completion API sends raw text directly to the LLM without the chat message f
     client = OpenAI()
 
     completion = client.completions.create(
-        model="Llama-3.3-70B-Instruct",
+        model="gpt-oss-120b",
         prompt="What is the Python programming language?",
         stream=False,
         temperature=0.2,
@@ -140,7 +140,7 @@ Using an up-to-date version of the OpenAI Python package, you can use the Respon
     client = OpenAI()
 
     response = client.responses.create(
-        model="gpt-4.1",
+        model="gpt-5",
         input="Write a one-sentence bedtime story about a unicorn.",
     )
 
@@ -153,7 +153,7 @@ You can also use both input and instructions fields:
 
 ```python showLineNumbers
 response = client.responses.create(
-    model="gpt-4.1",
+    model="gpt-5",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
     temperature=0.7,
@@ -164,7 +164,7 @@ print(response.output[0].content[0].text)
 ```
 
 :::note
-The Responses API is currently fully supported only for OpenAI models (e.g., `gpt-4.1`, `gpt-4o`). T-Cloud-hosted open-source models have limited support.
+The Responses API is currently fully supported only for OpenAI models (e.g., `gpt-5`, `gpt-5-mini`). T-Cloud-hosted open-source models have limited support.
 :::
 
 
@@ -172,7 +172,7 @@ The Responses API is currently fully supported only for OpenAI models (e.g., `gp
 
 | Parameter | Type | Description |
 |---|---|---|
-| `model` | string | Model ID (e.g., `Llama-3.3-70B-Instruct`) |
+| `model` | string | Model ID (e.g., `gpt-oss-120b`) |
 | `messages` | array | List of message objects with `role` and `content` |
 | `temperature` | float | Sampling temperature (0-2). Lower = more deterministic |
 | `max_tokens` | integer | Maximum tokens to generate |

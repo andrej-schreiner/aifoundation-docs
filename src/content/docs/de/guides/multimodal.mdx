@@ -29,7 +29,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "gemini-2.5-flash",
+        "model": "gemini-3-flash",
         "messages": [
           {
             "role": "user",
@@ -50,7 +50,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="gemini-2.5-flash",
+        model="gemini-3-flash",
         messages=[
             {
                 "role": "user",
@@ -78,7 +78,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
     const client = new OpenAI();
 
     const response = await client.chat.completions.create({
-      model: "gemini-2.5-flash",
+      model: "gemini-3-flash",
       messages: [
         {
           role: "user",
@@ -120,7 +120,7 @@ def encode_image(image_path):
 base64_image = encode_image("/path/to/your/image.jpg")
 
 response = client.chat.completions.create(
-    model="Qwen3-VL-30B-A3B-Instruct-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {
             "role": "user",
@@ -144,14 +144,14 @@ print(response.choices[0].message.content)
 
 | Modell | Anbieter | Fähigkeiten |
 |---|---|---|
-| `Qwen3-VL-30B-A3B-Instruct-FP8` | T-Cloud (Deutschland) | Bildverständnis, OCR |
-| `gemini-2.5-flash` | Google Cloud | Bild- + Videoverständnis |
-| `gpt-4.1` | Azure | Bildverständnis |
+| `Qwen-3.6-35B-FP8` | T-Cloud (Deutschland) | Bild-, Dokument- & Videoverständnis, OCR |
+| `gemini-3-flash` | Google Cloud | Bild- + Videoverständnis |
+| `gpt-5` | Azure | Bildverständnis |
 
 Die aktuelle Liste finden Sie unter [Verfügbare Modelle](/de/getting-started/models).
 
 :::caution[Bildlimit für T-Cloud-gehostete Modelle]
-Die folgenden T-Cloud-gehosteten Modelle akzeptieren **maximal 10 Bilder pro Anfrage**: `Gemma`, `Qwen3-VL-30B-A3B-Instruct-FP8`, `Mistral-Small-24B`. Das Senden von mehr Bildern führt zu HTTP 400 `BadRequestError: At most 10 image(s) may be provided in one prompt.` Teilen Sie große Batches auf mehrere Anfragen auf.
+Die folgenden T-Cloud-gehosteten Modelle akzeptieren **maximal 10 Bilder pro Anfrage**: `Gemma`, `Qwen-3.6-35B-FP8`, `Mistral-Small-24B`. Das Senden von mehr Bildern führt zu HTTP 400 `BadRequestError: At most 10 image(s) may be provided in one prompt.` Teilen Sie große Batches auf mehrere Anfragen auf.
 :::
 
 

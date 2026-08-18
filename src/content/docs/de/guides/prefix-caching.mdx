@@ -61,7 +61,7 @@ Prefix Caching verändert niemals den Inhalt einer Antwort: Das Modell sieht in 
 
 ## T-Cloud-gehostete Open-Source-Modelle
 
-Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `Llama-3.3-70B-Instruct`, `Qwen3-30B-A3B-FP8`) ist Prefix Caching **pro Anfrage aktiv zu aktivieren**. Zwei zusätzliche Felder der Chat-Completion-Anfrage steuern es:
+Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen-3.6-35B-FP8`) ist Prefix Caching **pro Anfrage aktiv zu aktivieren**. Zwei zusätzliche Felder der Chat-Completion-Anfrage steuern es:
 
 | Feld | Typ | Standard | Zweck |
 |---|---|---|---|
@@ -108,7 +108,7 @@ System-Prompt und Dokument sind im folgenden Beispiel bei jedem Aufruf identisch
 
     def ask(question: str):
         return client.chat.completions.create(
-            model="Llama-3.3-70B-Instruct",
+            model="gpt-oss-120b",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": f"{DOCUMENT}\n\nQuestion: {question}"},
@@ -134,7 +134,7 @@ System-Prompt und Dokument sind im folgenden Beispiel bei jedem Aufruf identisch
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Llama-3.3-70B-Instruct",
+        "model": "gpt-oss-120b",
         "messages": [
           {"role": "system", "content": "You are a contract analyst. Answer only from the document."},
           {"role": "user", "content": "<langer Dokumenttext>\n\nQuestion: What is the notice period?"}
@@ -157,7 +157,7 @@ System-Prompt und Dokument sind im folgenden Beispiel bei jedem Aufruf identisch
 
     const ask = (question) =>
       client.chat.completions.create({
-        model: "Llama-3.3-70B-Instruct",
+        model: "gpt-oss-120b",
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: `${DOCUMENT}\n\nQuestion: ${question}` },
@@ -205,7 +205,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4",
+        model="claude-sonnet-4.6",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-4",
+        "model": "claude-sonnet-4.6",
         "messages": [
           {
             "role": "system",
@@ -269,7 +269,7 @@ Das `usage`-Objekt der Antwort gibt an, wie viel des Prompts aus dem Cache kam. 
 
 ```python showLineNumbers
 response = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=messages,
     extra_body={"save_cache": True, "cache_salt": "contract-4711"},
 )

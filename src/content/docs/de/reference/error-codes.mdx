@@ -28,7 +28,7 @@ Wenn eine API-Anfrage fehlschlägt, enthält die Antwort einen HTTP-Statuscode u
 ```
 
 :::note
-Einige Endpunkte (z. B. über Azure bereitgestellte Modelle wie GPT-4.1) können OpenAI-formatierte Fehlerobjekte zurückgeben:
+Einige Endpunkte (z. B. über Azure bereitgestellte Modelle wie GPT-5) können OpenAI-formatierte Fehlerobjekte zurückgeben:
 ```json
 {
   "error": {
@@ -55,7 +55,7 @@ def call_with_retry(messages, max_retries=3):
     for attempt in range(max_retries):
         try:
             return client.chat.completions.create(
-                model="Llama-3.3-70B-Instruct",
+                model="gpt-oss-120b",
                 messages=messages,
             )
         except RateLimitError:

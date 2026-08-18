@@ -61,7 +61,7 @@ curl -X POST "https://llm-server.llmhub.t-systems.net/queue/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "Llama-3.3-70B-Instruct",
+    "model": "gpt-oss-120b",
     "messages": [
       {"role": "system", "content": "You are a helpful assistant."},
       {"role": "user", "content": "Write a detailed analysis of renewable energy trends in Europe."}
@@ -81,7 +81,7 @@ client = OpenAI(
 )
 
 response = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "Write a detailed analysis of renewable energy trends in Europe."},
@@ -103,7 +103,7 @@ const client = new OpenAI({
 });
 
 const response = await client.chat.completions.create({
-  model: "Llama-3.3-70B-Instruct",
+  model: "gpt-oss-120b",
   messages: [
     { role: "system", content: "You are a helpful assistant." },
     { role: "user", content: "Write a detailed analysis of renewable energy trends in Europe." },
@@ -142,7 +142,7 @@ prompts = [
 
 async def process_prompt(prompt):
     response = await client.chat.completions.create(
-        model="Llama-3.3-70B-Instruct",
+        model="gpt-oss-120b",
         messages=[{"role": "user", "content": prompt}],
         max_tokens=500,
     )
@@ -177,7 +177,7 @@ const prompts = [
 const results = await Promise.all(
   prompts.map((prompt) =>
     client.chat.completions.create({
-      model: "Llama-3.3-70B-Instruct",
+      model: "gpt-oss-120b",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 500,
     })
@@ -241,7 +241,7 @@ client = OpenAI(
 )
 
 result = client.images.generate(
-    model="gpt-image-1",
+    model="gpt-image-2",
     prompt="A futuristic data center powered by renewable energy",
 )
 

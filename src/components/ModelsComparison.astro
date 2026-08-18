@@ -38,7 +38,7 @@ type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-g
 // Everything else defaults to 'llms'.
 //
 // Additional category membership is *derived* from modalities — see
-// deriveCategories() below. So Qwen3-VL (Text+Image in) is primary 'llms'
+// deriveCategories() below. So Qwen 3.6 35B (Text+Image in) is primary 'llms'
 // and gains 'vision' via derivation, surfacing on both /models/llms and
 // /models/vision. Gemini-class multimodal LLMs gain 'vision' AND 'audio'
 // the same way.
@@ -61,10 +61,8 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
   // /models/llms. They still surface on /models/vision via image-input derivation.
-  'gemini-2.5-flash-image': 'image-generation',
   'gemini-3-pro-image': 'image-generation',
-  'gpt-image-1-image-input': 'image-generation',
-  'gpt-image-1-text-input': 'image-generation',
+  'gpt-image-2': 'image-generation',
 };
 
 function resolvePrimaryCategory(exactModelName: string): Category {
@@ -121,7 +119,7 @@ function inferCreator(exactModelName: string): Creator {
   const n = exactModelName;
   if (/^Llama-/i.test(n)) return 'Meta';
   if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
-  if (/^Qwen3-/i.test(n)) return 'Alibaba Cloud';
+  if (/^Qwen/i.test(n)) return 'Alibaba Cloud';
   if (/^GLM-/i.test(n)) return 'Zhipu AI';
   if (/^claude-/i.test(n)) return 'Anthropic';
   if (/^gemma-/i.test(n)) return 'Google Gemma';
@@ -172,15 +170,15 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-flash':                { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3-pro':                  { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
-  'gemma-4-31B-it-FP8-preview':    { inputModalities: ['Text', 'Image'] },
-  // Mistral Small 3.1 (canonical HF release for the "Mistral-Small-3" slot)
-  // added vision; the original Small 3 (2501) was text-only. AIFS deploys the
-  // 3.1 release per the model card audit (2026-05).
-  'Mistral-Small-3':                  { inputModalities: ['Text', 'Image'] },
-  'Mistral-Small-4-119B-2603-Preview':{ inputModalities: ['Text', 'Image'] },
-  // Qwen3-VL = vision-language; primary='llms' (default) so it surfaces on
-  // both /models/llms and /models/vision via multi-category derivation.
-  'Qwen3-VL-30B-A3B-Instruct-FP8': { inputModalities: ['Text', 'Image'] },
+  'gemma-4-31B-it-FP8':            { inputModalities: ['Text', 'Image'] },
+  // Mistral Small 4 is multimodal (Text+Image in). Keys match the GA ids in the
+  // pricing catalog (the earlier `-Preview`/`-preview` suffixes are retired).
+  'Mistral-Small-4-119B-2603':     { inputModalities: ['Text', 'Image'] },
+  // Qwen 3.6 35B (Qwen3.6-35B-A3B) is a natively multimodal vision-language
+  // model — Text+Image in — replacing the retired Qwen3-VL as the T-Cloud
+  // vision option. primary='llms' (default) so it surfaces on both
+  // /models/llms and /models/vision via multi-category derivation.
+  'Qwen-3.6-35B-FP8': { inputModalities: ['Text', 'Image'] },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
@@ -216,17 +214,10 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gpt-5-codex':                   { inputModalities: ['Text', 'Image'] },
 
   // Image generation overrides (category default is text→image, no streaming,
-  // no tools). gpt-image-1 streams partial images; the image-input variant
-  // also accepts an image alongside text. Gemini 2.5 Flash Image ("Nano
-  // Banana") accepts text+image and emits both an image and accompanying text;
-  // per Google's image-generation docs it does NOT support streaming.
-  'gpt-image-1-text-input':        { streaming: true },
-  'gpt-image-1-image-input':       { inputModalities: ['Text', 'Image'], streaming: true },
-  'gemini-2.5-flash-image':        {
-    inputModalities: ['Text', 'Image'],
-    outputModalities: ['Image', 'Text'],
-    streaming: false,
-  },
+  // no tools). GPT Image 2 accepts text+image input (text→image and image→image)
+  // and streams partial images. Gemini 3 Pro Image accepts text+image and emits
+  // both an image and accompanying text; per Google's docs it does NOT stream.
+  'gpt-image-2':                   { inputModalities: ['Text', 'Image'], streaming: true },
   'gemini-3-pro-image':            {
     inputModalities: ['Text', 'Image'],
     outputModalities: ['Image', 'Text'],

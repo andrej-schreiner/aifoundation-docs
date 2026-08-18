@@ -42,7 +42,7 @@ curl -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "Llama-3.3-70B-Instruct",
+    "model": "gpt-oss-120b",
     "messages": [{"role": "user", "content": "Explain quantum computing"}],
     "stream": true
   }'
@@ -71,7 +71,7 @@ from openai import OpenAI
 client = OpenAI()
 
 stream = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=[{"role": "user", "content": "Explain quantum computing"}],
     stream=True,
 )
@@ -93,7 +93,7 @@ import OpenAI from "openai";
 const client = new OpenAI();
 
 const stream = await client.chat.completions.create({
-  model: "Llama-3.3-70B-Instruct",
+  model: "gpt-oss-120b",
   messages: [{ role: "user", content: "Explain quantum computing" }],
   stream: true,
 });
@@ -125,7 +125,7 @@ from openai import OpenAI
 client = OpenAI()
 
 stream = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=[{"role": "user", "content": "List 5 EU countries"}],
     stream=True,
 )
@@ -152,7 +152,7 @@ import OpenAI from "openai";
 const client = new OpenAI();
 
 const stream = await client.chat.completions.create({
-  model: "Llama-3.3-70B-Instruct",
+  model: "gpt-oss-120b",
   messages: [{ role: "user", content: "List 5 EU countries" }],
   stream: true,
 });
@@ -202,7 +202,7 @@ tools = [
 ]
 
 stream = client.chat.completions.create(
-    model="gpt-4.1",
+    model="gpt-5",
     messages=[{"role": "user", "content": "What's the weather in Berlin?"}],
     tools=tools,
     stream=True,
@@ -244,7 +244,7 @@ def stream_with_retry(messages, max_retries=3):
     for attempt in range(max_retries):
         try:
             stream = client.chat.completions.create(
-                model="Llama-3.3-70B-Instruct",
+                model="gpt-oss-120b",
                 messages=messages,
                 stream=True,
             )
@@ -278,7 +278,7 @@ from openai import OpenAI
 client = OpenAI()
 
 stream = client.chat.completions.create(
-    model="Llama-3.3-70B-Instruct",
+    model="gpt-oss-120b",
     messages=[{"role": "user", "content": "Hello!"}],
     stream=True,
     stream_options={"include_usage": True},
