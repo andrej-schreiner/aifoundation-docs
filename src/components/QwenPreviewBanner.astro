@@ -1,47 +1,51 @@
 ---
-// Site-wide "now in production (GA)" announcement bar for AIFS-17868 — Mistral
-// Small 4 and Gemma 4 were promoted from the Test / preview catalog to GA on the
-// paid plans. Rendered from Footer.astro so it appears on every page (there are
-// no splash pages, so the Footer override is truly global).
+// Site-wide "new in preview" announcement bar — Qwen 3.8 27B FP8 joins the
+// Test / preview catalog. Rendered from Footer.astro so it appears on every
+// page (there are no splash pages, so the Footer override is truly global).
+//
+// Replaces the earlier GA bar (Mistral Small 4 / Gemma 4 promotion), which in
+// turn replaced GlmBanner: one announcement at a time, never stacked.
 //
 // Kept deliberately compact: a slim single-line bar rendered in the content
 // flow above the page title (portaled into <main> by the script below), so it
 // never covers content and scrolls away with the page.
 //
-// Dismiss semantics mirror GlmBanner: this site navigates via full page loads,
-// so the closed state lives in sessionStorage (survives navigation between docs
+// Dismiss semantics are unchanged: this site navigates via full page loads, so
+// the closed state lives in sessionStorage (survives navigation between docs
 // pages). A hard reload clears it (detected via PerformanceNavigationTiming
-// "reload"), and a new tab starts a fresh session — so the announcement returns.
+// "reload"), and a new tab starts a fresh session — so the announcement
+// returns. The storage key is new, so visitors who dismissed the GA bar still
+// see this one.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
-const plansHref = isDE ? '/de/plans' : '/plans';
+const testHref = isDE ? '/de/plans/test' : '/plans/test';
 
 const t = isDE
   ? {
       badge: 'Neu',
-      msg: '<b>GLM-5.2</b>, <b>Nemotron 3</b> und <b>Qwen 3.6</b> sind jetzt in Produktion.',
-      cta: 'Zu den Tarifen',
+      msg: '<b>Qwen 3.8 27B</b> ist jetzt als Preview verfügbar — kostenlos testbar.',
+      cta: 'Preview testen',
       close: 'Ankündigung schließen',
     }
   : {
       badge: 'New',
-      msg: '<b>GLM-5.2</b>, <b>Nemotron 3</b>, and <b>Qwen 3.6</b> are now in production.',
-      cta: 'View plans',
+      msg: '<b>Qwen 3.8 27B</b> is now available in preview — free to try.',
+      cta: 'Try the preview',
       close: 'Dismiss announcement',
     };
 ---
 
-<div class="ga-bar" id="ga-bar" role="region" aria-label={t.close} hidden>
-  <span class="ga-badge">{t.badge}</span>
-  <p class="ga-msg" set:html={t.msg}></p>
-  <a class="ga-cta" href={plansHref}>{t.cta}</a>
-  <button type="button" class="ga-close" id="ga-close" aria-label={t.close}>
+<div class="qp-bar" id="qp-bar" role="region" aria-label={t.close} hidden>
+  <span class="qp-badge">{t.badge}</span>
+  <p class="qp-msg" set:html={t.msg}></p>
+  <a class="qp-cta" href={testHref}>{t.cta}</a>
+  <button type="button" class="qp-close" id="qp-close" aria-label={t.close}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
 </div>
 
 <style>
-  .ga-bar {
+  .qp-bar {
     /* In-flow (not fixed): the bar occupies real layout space above the page
        title, so it can never cover content, and it scrolls away with the
        page. See the portal logic in the script below. */
@@ -67,11 +71,11 @@ const t = isDE
 
     animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
   }
-  .ga-bar[hidden] {
+  .qp-bar[hidden] {
     display: none;
   }
 
-  .ga-badge {
+  .qp-badge {
     flex-shrink: 0;
     padding: 0.125rem 0.5rem;
     border-radius: 999px;
@@ -83,17 +87,17 @@ const t = isDE
     text-transform: uppercase;
   }
 
-  .ga-msg {
+  .qp-msg {
     flex: 1 1 auto;
     margin: 0;
     color: var(--sl-color-text);
   }
-  .ga-msg :global(b) {
+  .qp-msg :global(b) {
     color: var(--sl-color-text-accent);
     font-weight: 600;
   }
 
-  .ga-cta {
+  .qp-cta {
     flex-shrink: 0;
     padding: 0.3125rem 0.75rem;
     border-radius: 7px;
@@ -104,12 +108,12 @@ const t = isDE
     white-space: nowrap;
     transition: background 0.15s;
   }
-  .ga-cta:hover,
-  .ga-cta:focus-visible {
+  .qp-cta:hover,
+  .qp-cta:focus-visible {
     background: var(--sl-color-accent-high);
   }
 
-  .ga-close {
+  .qp-close {
     flex-shrink: 0;
     display: grid;
     place-items: center;
@@ -122,16 +126,16 @@ const t = isDE
     cursor: pointer;
     transition: background 0.15s;
   }
-  .ga-close:hover,
-  .ga-close:focus-visible {
+  .qp-close:hover,
+  .qp-close:focus-visible {
     background: var(--sl-color-gray-5);
   }
-  .ga-close svg {
+  .qp-close svg {
     width: 0.875rem;
     height: 0.875rem;
   }
 
-  .ga-bar :focus-visible {
+  .qp-bar :focus-visible {
     outline: 2px solid var(--sl-color-accent);
     outline-offset: 2px;
     border-radius: 6px;
@@ -139,21 +143,21 @@ const t = isDE
 
   /* On narrow viewports drop the badge and let the message + CTA wrap. */
   @media (max-width: 30rem) {
-    .ga-bar {
+    .qp-bar {
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .ga-badge {
+    .qp-badge {
       display: none;
     }
-    .ga-msg {
+    .qp-msg {
       flex-basis: 100%;
       order: 1;
     }
-    .ga-cta {
+    .qp-cta {
       order: 2;
     }
-    .ga-close {
+    .qp-close {
       order: 3;
       margin-left: auto;
     }
@@ -171,7 +175,7 @@ const t = isDE
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ga-bar {
+    .qp-bar {
       animation: none;
     }
   }
@@ -179,12 +183,12 @@ const t = isDE
 
 <script>
   // Dismiss-semantics rationale: see the component frontmatter.
-  const GA_KEY = 'gaBannerDismissed';
+  const QP_KEY = 'qwenPreviewBannerDismissed';
   let reloadHandled = false;
 
   function isDismissed() {
     try {
-      return sessionStorage.getItem(GA_KEY) === '1';
+      return sessionStorage.getItem(QP_KEY) === '1';
     } catch {
       return false;
     }
@@ -200,21 +204,21 @@ const t = isDE
     const isReload = nav ? nav.type === 'reload' : (performance as any).navigation?.type === 1;
     if (isReload) {
       try {
-        sessionStorage.removeItem(GA_KEY);
+        sessionStorage.removeItem(QP_KEY);
       } catch {}
     }
   }
 
   function dismiss() {
     try {
-      sessionStorage.setItem(GA_KEY, '1');
+      sessionStorage.setItem(QP_KEY, '1');
     } catch {}
-    document.getElementById('ga-bar')?.remove();
+    document.getElementById('qp-bar')?.remove();
   }
 
-  function initGaBanner() {
+  function initQwenPreviewBanner() {
     clearOnReload();
-    const bar = document.getElementById('ga-bar');
+    const bar = document.getElementById('qp-bar');
     if (!bar) return;
 
     if (isDismissed()) {
@@ -239,23 +243,23 @@ const t = isDE
     }
 
     bar.hidden = false;
-    document.getElementById('ga-close')?.addEventListener('click', dismiss);
+    document.getElementById('qp-close')?.addEventListener('click', dismiss);
 
-    if (!(window as any).__gaBannerEscBound) {
-      (window as any).__gaBannerEscBound = true;
+    if (!(window as any).__qwenPreviewBannerEscBound) {
+      (window as any).__qwenPreviewBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape' || isDismissed()) return;
-        const el = document.getElementById('ga-bar');
+        const el = document.getElementById('qp-bar');
         if (el && !el.hidden) dismiss();
       });
     }
   }
 
-  document.addEventListener('astro:page-load', initGaBanner);
+  document.addEventListener('astro:page-load', initQwenPreviewBanner);
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initGaBanner);
+    document.addEventListener('DOMContentLoaded', initQwenPreviewBanner);
   } else {
-    initGaBanner();
+    initQwenPreviewBanner();
   }
 </script>
 

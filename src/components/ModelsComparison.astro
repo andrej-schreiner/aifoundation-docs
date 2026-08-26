@@ -79,6 +79,10 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // appear on /models/coding in addition to its primary category (/models/llms).
 const EXTRA_CATEGORIES: Record<string, Category[]> = {
   'GLM-5.2-Preview': ['coding'],
+  // Qwen 3.8 27B (preview) is coding-strong per Qwen's model card — it leads
+  // Qwen3.6-27B on SWE-bench Pro and Terminal Bench — but stays primary 'llms'
+  // as a general-purpose model.
+  'Qwen3.8-27B-FP8-Preview': ['coding'],
 };
 
 function deriveCategories(primary: Category, caps: Capabilities, extra: Category[] = []): Category[] {
@@ -179,6 +183,10 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // vision option. primary='llms' (default) so it surfaces on both
   // /models/llms and /models/vision via multi-category derivation.
   'Qwen-3.6-35B-FP8': { inputModalities: ['Text', 'Image'] },
+  // Qwen 3.8 27B (preview) is a native vision-language model (image + video
+  // understanding per the model card). Video has no InputModality member, so
+  // only Text+Image are declared here.
+  'Qwen3.8-27B-FP8-Preview': { inputModalities: ['Text', 'Image'] },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
