@@ -13,6 +13,14 @@ exclude = [
   "docs\\.llmhub\\.t-systems\\.net",
   "llmhub\\.t-systems\\.net",
   "llm-serving\\.llmhub\\.t-systems\\.net",
+  # TEMPORARY — the plugin registry serves an expired TLS certificate
+  # (observed 2026-08-26), which fails every PR regardless of its contents.
+  # This unblocks CI but is NOT a fix: the same expiry gives real users a
+  # browser warning on the Continue for VS Code VSIX download link in
+  # plugins/continue-vscode.mdx. There is no alternative host —
+  # plugins.aie.ai.t-systems.net (without "dev") is NXDOMAIN.
+  # Remove this entry once the certificate is renewed.
+  "plugins\\.dev\\.aie\\.ai\\.t-systems\\.net",
   # starlight-versions generates "current version" links on frozen v1
   # SmartChat subpages whose current-version counterparts were moved to
   # docs.smartchat.ai.t-systems.net

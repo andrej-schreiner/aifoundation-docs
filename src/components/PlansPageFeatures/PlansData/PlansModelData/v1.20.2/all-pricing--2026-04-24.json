@@ -2699,7 +2699,35 @@
     "parentPackageId": null,
     "inheritUpdates": false,
     "childrenPackages": [],
-    "modelQuotaConfigs": [],
+    "modelQuotaConfigs": [
+      {
+        "exactModelName": "Qwen3.8-27B-FP8-Preview",
+        "inputTokenPerMinute": 0,
+        "outputTokenPerMinute": 0,
+        "inputTokenPerMinuteLimit": "dynamic",
+        "outputTokenPerMinuteLimit": "dynamic",
+        "lifetimeTokenLimit": 0,
+        "requestPerMinute": 0,
+        "requestPerMinuteLimit": "dynamic",
+        "inputPricePerMillionTokens": 0.0,
+        "outputPricePerMillionTokens": 0.0,
+        "modelQuotaMetadata": {
+          "quotaType": "Dynamic",
+          "note": "Limits are dynamically allocated for test models"
+        },
+        "displayModelName": "Qwen 3.8 27B FP8",
+        "modelLabel": "Test model (T-Cloud Public)",
+        "contextWindow": "256K",
+        "termsOfUseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+        "dataProtectionUrl": "https://qwen.ai/privacypolicy",
+        "aiModelId": 990103,
+        "deploymentRegion": "otc-germany",
+        "modelQuotaConfigId": 990103,
+        "createdAt": "2026-08-26T10:00:00.000000",
+        "updatedAt": "2026-08-26T10:00:00.000000",
+        "modelTier": "standard"
+      }
+    ],
     "createdAt": "2026-04-23T10:00:00.000000",
     "updatedAt": "2026-04-24T10:00:00.000000",
     "userId": 53,
