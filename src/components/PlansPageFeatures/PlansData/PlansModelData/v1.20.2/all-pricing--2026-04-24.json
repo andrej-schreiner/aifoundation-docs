@@ -579,10 +579,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990123,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990123,
         "createdAt": "2026-07-17T10:00:00.000000",
-        "updatedAt": "2026-07-17T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -606,10 +606,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 910039,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 920039,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -630,10 +630,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990108,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990108,
         "createdAt": "2026-07-06T10:00:00.000000",
-        "updatedAt": "2026-07-06T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -657,10 +657,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 910040,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 920040,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -684,10 +684,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 910041,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 920041,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -708,10 +708,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990107,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990107,
         "createdAt": "2026-07-06T10:00:00.000000",
-        "updatedAt": "2026-07-06T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -1516,10 +1516,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990124,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990124,
         "createdAt": "2026-07-17T10:00:00.000000",
-        "updatedAt": "2026-07-17T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -1543,10 +1543,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 930041,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 940041,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -1567,10 +1567,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990114,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990114,
         "createdAt": "2026-07-06T10:00:00.000000",
-        "updatedAt": "2026-07-06T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -1594,10 +1594,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 930042,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 940042,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -1621,10 +1621,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 930043,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 940043,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -1645,10 +1645,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990113,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990113,
         "createdAt": "2026-07-06T10:00:00.000000",
-        "updatedAt": "2026-07-06T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -2597,10 +2597,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990125,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990125,
         "createdAt": "2026-07-17T10:00:00.000000",
-        "updatedAt": "2026-07-17T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -2624,10 +2624,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 950041,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 960041,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -2648,10 +2648,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990121,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990121,
         "createdAt": "2026-07-06T10:00:00.000000",
-        "updatedAt": "2026-07-06T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -2675,10 +2675,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 950042,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 960042,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -2702,10 +2702,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 950043,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 960043,
         "createdAt": "2026-04-24T10:00:00.000000",
-        "updatedAt": "2026-04-24T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {
@@ -2726,10 +2726,10 @@
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": 990120,
-        "deploymentRegion": "gcp-europe-west1",
+        "deploymentRegion": "gcp-worldwide",
         "modelQuotaConfigId": 990120,
         "createdAt": "2026-07-06T10:00:00.000000",
-        "updatedAt": "2026-07-06T10:00:00.000000",
+        "updatedAt": "2026-09-02T10:00:00.000000",
         "modelTier": "standard"
       },
       {

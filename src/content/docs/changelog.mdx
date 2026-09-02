@@ -15,6 +15,11 @@ Major changes to AI Foundation Services — new models, feature updates, and dep
 ### Changed
 
 - **GLM 5.2** token prices reduced on all plans: input **€4.00 → €1.50** and output **€8.00 → €3.50** per million tokens. Its cached input tokens are therefore €0.225 per million.
+- Server location and data processing for the **Gemini 3 family** — Gemini 3 Pro (≤200k), Gemini 3 Pro (>200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro and Gemini 3 Pro Image — now read **Worldwide** instead of Europe. Google runs these models on its own infrastructure and may process data outside the EU/EEA; see [Enterprise Trust](/reference/enterprise-trust) for the data-handling regime of third-party models.
+
+### Fixed
+
+- **OpenCode** setup: corrected the authentication URL in step 2 of the [OpenCode plugin instructions](/plugins/opencode) to `https://plugins.ai.t-systems.net/external/`.
 
 ## v1.2.1 — 2026-08
 

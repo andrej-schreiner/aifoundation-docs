@@ -237,6 +237,14 @@ const priceBuckets = [
   </div>
   <small>* EU/EEA includes countries with an adequacy decision by the EU Commission.</small>
   {
+    !legacy && translations.worldwideLocationNote && (
+      <small id="worldwide-location-notes">
+        {translations.worldwideLocationNote}{' '}
+        <a href={translations.enterpriseTrustHref}>{translations.enterpriseTrustLabel}</a>
+      </small>
+    )
+  }
+  {
     !legacy && translations.cachedPriceNote && (
       <small id="cached-token-notes">&dagger; {translations.cachedPriceNote}</small>
     )

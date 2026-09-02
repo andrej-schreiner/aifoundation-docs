@@ -123,10 +123,15 @@ function parseRegion(region: string): { provider: string; hosted: string; countr
   const provider = PROVIDER_MAP[raw] ?? raw.charAt(0).toUpperCase() + raw.slice(1);
 
   let country = parts[1] ?? '';
+  const isWorldwide = country.toLowerCase() === 'worldwide';
   country = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+  // No flag icon for a worldwide region — getCountryCode returns '' for it,
+  // which the card template already treats as "no flag".
   const countryCode = getCountryCode(country);
 
-  const dataProcessing = raw === 'otc' ? 'Germany' : 'EU';
+  // A `worldwide` region means the third-party provider may run the model —
+  // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
+  const dataProcessing = raw === 'otc' ? 'Germany' : isWorldwide ? 'Worldwide' : 'EU';
   return { provider, hosted: country, countryCode, dataProcessing };
 }
 

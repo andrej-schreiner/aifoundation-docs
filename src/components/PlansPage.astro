@@ -93,6 +93,11 @@ const t = {
     ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
     : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only; cached token pricing for models on external providers will be added later.`,
   cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  worldwideLocationNote: isDE
+    ? 'Weltweit (Worldwide) bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
+    : 'Worldwide means the third-party provider runs the model on its own infrastructure and may process data outside the EU/EEA.',
+  enterpriseTrustLabel: isDE ? 'Enterprise Trust' : 'Enterprise Trust',
+  enterpriseTrustHref: isDE ? '/de/reference/enterprise-trust/' : '/reference/enterprise-trust/',
   thTPM: 'TPM',
   thTPMUnit: 'Tokens/Min',
   thContextWindow: 'Context Window',
