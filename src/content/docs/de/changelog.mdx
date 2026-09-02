@@ -7,21 +7,28 @@ Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdate
 
 ## v1.2.2 — 2026-09
 
+Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung v1.23](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf)** (31. August 2026), die für alle folgenden Punkte die verbindliche Quelle ist.
+
 ### Hinzugefügt
 
-- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.6 Terra** (`gpt-5.6-terra`) und **GPT-5.6 Luna** (`gpt-5.6-luna`) von OpenAI, bereitgestellt aus Azure Schweden. Die Preise stehen noch nicht fest und werden in den Tarif- und Vergleichstabellen bis zur Veröffentlichung als `xx` angezeigt.
+- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.6 Terra** (`gpt-5.6-terra`) für **3,52 € / 15,82 €** pro Million Input-/Output-Tokens und **GPT-5.6 Luna** (`gpt-5.6-luna`) für **0,20 € / 1,20 €**. Beide werden aus Azure Schweden mit 1050K Kontextfenster bereitgestellt.
+- **Gemini 3.1 Pro wird nun nach Kontextlänge bepreist**, entsprechend der Leistungsbeschreibung: **≤200k** Input-Tokens für 1,80 € / 10,80 €, **>200k** für 3,60 € / 16,20 €. Bislang eine einzelne Zeile.
 - **Preise für zwischengespeicherte Input-Tokens.** Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden bei T-Cloud-gehosteten Modellen mit **15 % des normalen Input-Token-Preises** abgerechnet. Der Preis pro Modell steht in der neuen Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cached €/M** im [Modellvergleich](/de/models/comparison). Für Modelle externer Anbieter (Azure, GCP) wird die Preisgestaltung später ergänzt. Siehe [Prefix Caching](/de/guides/prefix-caching#preise-für-zwischengespeicherte-tokens).
+- Die **Service-Credit-Staffelung** steht nun auf der Seite [Service-Level](/de/reference/service-levels#service-credits) — 5 %, 10 % oder 25 % des vereinbarten Mindestumsatzes je nach Verfügbarkeitsunterschreitung, mit einer Mindestgutschrift von 1,00 € — statt nur auf die Leistungsbeschreibung zu verweisen.
+- Die **optionalen Leistungen** sind auf der Seite [Dedicated LLM Serving](/de/plans/dedicated#optionale-leistungen) dokumentiert: LLMs auf dedizierter Instanz, **Feintuning von Modellen**, Installation auf einer kundeneigenen Umgebung, zusätzliche Modelle sowie Implementierungssupport / Beratung / Schulung.
 
 ### Geändert
 
-- **GLM 5.2** — Token-Preise in allen Tarifen gesenkt: Input **4,00 € → 1,50 €** und Output **8,00 € → 3,50 €** pro Million Tokens. Zwischengespeicherte Input-Tokens kosten damit 0,225 € pro Million.
-- **GLM 5.2** wurde in allen Tarifen (Essential, Professional, Agentic) vom Tier **Premium** in das Tier **Standard** überführt.
-- Die [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) liegt nun als **v1.23** (31. August 2026) vor und ersetzt v1.20. Sie erscheint ausschließlich auf Deutsch; beide Sprachversionen der Dokumentation verweisen daher auf dasselbe Dokument, die frühere englische Übersetzung wurde entfernt.
-- Serverstandort und Datenverarbeitung der **Gemini-3-Familie** — Gemini 3 Pro (≤200k), Gemini 3 Pro (>200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro und Gemini 3 Pro Image — werden nun als **Worldwide** ausgewiesen statt als Europa. Google betreibt diese Modelle auf eigener Infrastruktur und kann Daten auch außerhalb der EU/EWR verarbeiten; siehe [Enterprise Trust](/de/reference/enterprise-trust) zum Datenverarbeitungsregime von Drittanbieter-Modellen.
-
-### Geändert
-
-- Abgleich der Dokumentation mit **Leistungsbeschreibung v1.23**: Die Mindestverfügbarkeit beträgt **99,5 %** (zuvor als 99,9 % ausgewiesen), und die [Service-Credit-Staffelung](/de/reference/service-levels#service-credits) steht nun auf der Seite. **Gemini 3.1 Pro** ist in die Varianten **≤200k** (1,80 € / 10,80 €) und **>200k** (3,60 € / 16,20 €) aufgeteilt. **GPT-5.6 Terra** (3,52 € / 15,82 €) und **GPT-5.6 Luna** (0,20 € / 1,20 €) haben ihre bestätigten Preise und Rate-Limits. **GPT-Image-2** kostet 4,39 € / 26,33 €. Prefix Caching ist bei T-Cloud-gehosteten Modellen als **standardmäßig aktiv** dokumentiert und wird pro Anfrage mit `save_cache: false` abgeschaltet. Anthropic-Modelle sind mit **GCP / Azure** gekennzeichnet, und **Feintuning** ist unter den [optionalen Leistungen](/de/plans/dedicated#optionale-leistungen) aufgeführt.
+- **Die Mindestverfügbarkeit beträgt 99,5 %**, nicht die zuvor ausgewiesenen 99,9 %. Korrigiert auf [Service-Level](/de/reference/service-levels), [Rate-Limits](/de/reference/rate-limits), [Dedicated LLM Serving](/de/plans/dedicated) und [Shared vs. Dedicated](/de/plans/service-models).
+- **GLM 5.2** — Token-Preise in allen Tarifen gesenkt: Input **4,00 € → 1,50 €**, Output **8,00 € → 3,50 €** pro Million Tokens. Zwischengespeicherte Input-Tokens kosten damit 0,225 € pro Million.
+- **GLM 5.2** wurde in allen Tarifen vom Tier **Premium** in das Tier **Standard** überführt.
+- **GPT-Image-2** kostet **4,39 € / 26,33 €** pro Million Tokens (zuvor als 9,55 € / 38,20 € ausgewiesen).
+- **Prefix Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiv** und kann pro Anfrage mit `save_cache: false` abgeschaltet werden. Die [Anleitung](/de/guides/prefix-caching) hat Caching bisher als Opt-in beschrieben.
+- Serverstandort und Datenverarbeitung der **Gemini-3-Familie** — Gemini 3 Pro (≤200k und >200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro und Gemini 3 Pro Image — werden nun als **Worldwide** ausgewiesen statt als Europa. Google betreibt diese Modelle auf eigener Infrastruktur und kann Daten auch außerhalb der EU/EWR verarbeiten; siehe [Enterprise Trust](/de/reference/enterprise-trust).
+- Die **Anthropic**-Modelle sind mit **GCP / Azure** gekennzeichnet, da eine Anfrage aus beiden Clouds bedient werden kann.
+- Die mit der Dokumentation ausgelieferte **Leistungsbeschreibung** liegt nun als **v1.23** vor und ersetzt v1.20. Sie erscheint ausschließlich auf Deutsch, beide Sprachversionen verweisen daher auf dasselbe Dokument. Wer eine [archivierte Version](/de/v1-2-0/) der Dokumentation liest, erhält weiterhin die Leistungsbeschreibung v1.20, auf die sich diese Version bezieht.
+- **Feintuning von Modellen** ist als optionale Leistung auf Anfrage verfügbar (§ 3.4.2 der Leistungsbeschreibung). Dies ersetzt den Hinweis unter v1.1.0, der die Entfernung der Fine-Tuning-API-Dokumentation festhält.
+- **Enterprise Trust**, Kategorie 1, führt nun die Modelle auf, die die Leistungsbeschreibung nennt — Gemma 4 31B, Mistral Small 4, Qwen 3.6 35B, Nemotron 3 Super, GLM 5.2, GPT-OSS-120B, Whisper und die Embedding-Modelle.
 
 ### Entfernt
 
@@ -30,6 +37,7 @@ Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdate
 ### Behoben
 
 - **OpenCode**: Die Authentifizierungs-URL in Schritt 2 der [OpenCode-Plugin-Anleitung](/plugins/opencode) wurde auf `https://plugins.ai.t-systems.net/external/` korrigiert.
+- `/category/model-serving`, die in § 2.2 der Leistungsbeschreibung abgedruckte URL zur API-Dokumentation, leitet nun auf die [Anleitungen](/de/guides) weiter statt einen 404 zu liefern.
 
 ## v1.2.1 — 2026-08
 
@@ -71,7 +79,7 @@ Archivierter Stand: [v1.1.0](/v1-1-0/).
 
 ### Entfernt
 
-- Fine-Tuning-API-Dokumentation. Die Funktion wird über AI Foundation Services nicht mehr angeboten. Aufrufe von `/guides/fine-tuning` werden hierher umgeleitet.
+- Fine-Tuning-API-Dokumentation. Aufrufe von `/guides/fine-tuning` werden nun auf die [optionalen Leistungen](/de/plans/dedicated#optionale-leistungen) umgeleitet. *In v1.2.2 überholt: Feintuning wird als optionale Leistung auf Anfrage angeboten — siehe § 3.4.2 der Leistungsbeschreibung. Die Self-Service-API-Dokumentation bleibt zurückgezogen.*
 
 ## v1.0.0
 
