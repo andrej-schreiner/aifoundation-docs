@@ -38,6 +38,7 @@ const sortableHeaders = [
   { key: 'displayName', label: translations.thModelName },
   { key: 'inputPrice', label: translations.thInputPrice, unit: 'M Tokens' },
   { key: 'outputPrice', label: translations.thOutputPrice, unit: 'M Tokens' },
+  ...(legacy ? [] : [{ key: 'cachedInputPrice', label: translations.thCachedInputPrice, unit: 'M Tokens' }]),
   { key: 'serverLocation', label: translations.thServerLocation },
   { key: 'rpm', label: translations.thRPMLimit, unit: translations.thRPMUnitShort },
   { key: 'tpm', label: translations.thTPM, unit: translations.thTPMUnit },
@@ -217,6 +218,9 @@ const priceBuckets = [
                     {!legacy && (header.key === 'rpm' || header.key === 'tpm') && (
                       <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>
                     )}
+                    {!legacy && header.key === 'cachedInputPrice' && (
+                      <sup><a href="#cached-token-notes" onclick="event.stopPropagation()">†</a></sup>
+                    )}
                     {header.unit && <div class="plans-table__small-text">{header.unit}</div>}
                   </span>
                 </span>
@@ -232,6 +236,11 @@ const priceBuckets = [
     </table>
   </div>
   <small>* EU/EEA includes countries with an adequacy decision by the EU Commission.</small>
+  {
+    !legacy && translations.cachedPriceNote && (
+      <small id="cached-token-notes">&dagger; {translations.cachedPriceNote}</small>
+    )
+  }
 </section>
 
 <script>
@@ -588,6 +597,15 @@ const priceBuckets = [
             if (lname > rname) return 1;
             return 0;
           }
+          // Price columns can hold null — either a price that has not been
+          // published yet or, for cached tokens, an externally hosted model.
+          // Those rows sort last in both directions instead of being compared
+          // as the string "null".
+          if (sortKey === 'inputPrice' || sortKey === 'outputPrice' || sortKey === 'cachedInputPrice') {
+            const lp = left[sortKey] == null ? Number.POSITIVE_INFINITY : left[sortKey];
+            const rp = right[sortKey] == null ? Number.POSITIVE_INFINITY : right[sortKey];
+            return sortAsc ? lp - rp : rp - lp;
+          }
           let leftValue = left[sortKey];
           let rightValue = right[sortKey];
           if (typeof leftValue === 'number' && typeof rightValue === 'number') {
@@ -609,7 +627,22 @@ const priceBuckets = [
     }
 
     function formatPrice(value: number | null | undefined) {
-      return value != null ? value.toFixed(2) : '-';
+      // `null` = price not published yet (placeholder rows for newly
+      // announced models), rendered as "xx" rather than a dash.
+      return value != null ? value.toFixed(2) : 'xx';
+    }
+
+    // Cached input tokens are only priced for T-Cloud-hosted models; external
+    // providers show as not available until their pricing is published.
+    function formatCachedPrice(model: any) {
+      if (!model.cachedPricingPublished) return translations.cachedPriceUnavailable || 'n/a';
+      const value = model.cachedInputPrice;
+      if (value == null) return `&euro; xx`;
+      // A cached price is 15% of the input price, so two decimals would round
+      // most of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01).
+      // Keep up to four decimals and drop trailing zeros.
+      const text = value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
+      return `&euro; ${text}`;
     }
 
     function capitalize(value: string = '') {
@@ -684,6 +717,7 @@ const priceBuckets = [
           </td>
           <td><strong>&euro; ${formatPrice(model.inputPrice)}</strong></td>
           <td><strong>&euro; ${formatPrice(model.outputPrice)}</strong></td>
+          ${legacy ? '' : `<td><strong>${formatCachedPrice(model)}</strong></td>`}
           <td><div class="loc-wrapper">${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation)}</div></td>
           <td>${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
           <td>${formatNumber(model.tpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>

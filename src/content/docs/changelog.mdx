@@ -5,6 +5,17 @@ description: "Major model releases, feature updates, and deprecations for AI Fou
 
 Major changes to AI Foundation Services — new models, feature updates, and deprecations.
 
+## v1.2.2 — 2026-09
+
+### Added
+
+- New models on the Essential, Professional, and Agentic plans: **GPT-5.6 Terra** (`gpt-5.6-terra`) and **GPT-5.6 Luna** (`gpt-5.6-luna`) from OpenAI, served from Azure Sweden. Pricing is not confirmed yet and shows as `xx` on the plan and comparison tables until it is published.
+- **Cached input token pricing.** Prompt tokens served from the prefix cache are billed at **15% of the model's normal input token price** on T-Cloud-hosted models. The per-model price is shown in the new **Cached Input Token Price** column on each [rate plan page](/plans) and the **Cached €/M** column of the [models comparison](/models/comparison). Cached-token pricing for models on external providers (Azure, GCP) will be added later. See [Prefix Caching](/guides/prefix-caching#pricing-for-cached-tokens).
+
+### Changed
+
+- **GLM 5.2** token prices reduced on all plans: input **€4.00 → €1.50** and output **€8.00 → €3.50** per million tokens. Its cached input tokens are therefore €0.225 per million.
+
 ## v1.2.1 — 2026-08
 
 ### Added

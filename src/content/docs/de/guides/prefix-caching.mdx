@@ -297,8 +297,27 @@ Bleibt `cached_tokens` über wiederholte Aufrufe hinweg bei `0`, prüfen Sie die
 4. Das gemeinsame Präfix ist zu kurz — rechnen Sie erst ab etwa tausend Tokens mit einem Treffer.
 
 :::caution
-Cache-Zähler sind Diagnosewerte, keine Abrechnung. Wie zwischengespeicherte Tokens berechnet werden, hängt vom Modell und Ihrem Tarif ab — siehe [Tarife & Preise](/de/plans).
+Cache-Zähler sind Diagnosewerte, keine Abrechnung. Nutzen Sie sie, um zu prüfen, ob ein Präfix tatsächlich wiederverwendet wird — was ein Cache-Treffer kostet, steht unter [Preise für zwischengespeicherte Tokens](#preise-für-zwischengespeicherte-tokens).
 :::
+
+
+## Preise für zwischengespeicherte Tokens
+
+Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden mit **15 % des normalen Input-Token-Preises** des Modells abgerechnet — der zwischengespeicherte Teil des Prompts kostet damit 85 % weniger als eine erneute Verarbeitung. Der Rabatt gilt ausschließlich für die zwischengespeicherten Tokens:
+
+| Tokens | Preis |
+|---|---|
+| Aus dem Cache bediente Prompt-Tokens (`cached_tokens`) | 15 % des Input-Token-Preises des Modells |
+| Übrige Prompt-Tokens | Voller Input-Token-Preis |
+| Completion-Tokens (nie zwischengespeichert) | Voller Output-Token-Preis |
+
+Beispiel: GLM 5.2 kostet 1,50 € pro Million Input-Tokens, zwischengespeicherte Prompt-Tokens also 0,225 € pro Million.
+
+:::note[Nur T-Cloud-gehostete Modelle]
+Der Preis von 15 % für zwischengespeicherte Tokens gilt für **T-Cloud-gehostete Modelle** — also die im [Modellvergleich](/de/models/comparison) mit `T-Cloud` gekennzeichneten Modelle. Für Modelle externer Anbieter (Azure, GCP) ist die Preisgestaltung für zwischengespeicherte Tokens noch nicht veröffentlicht und wird später ergänzt; bis dahin zeigen diese Modelle in der Cached-Preis-Spalte **n. v.**
+:::
+
+Der Preis pro Modell steht in der Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cached €/M** im [Modellvergleich](/de/models/comparison).
 
 
 ## Best Practices

@@ -5,6 +5,17 @@ description: "Wichtige Modellveröffentlichungen, Funktionsupdates und Deprecati
 
 Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdates und Deprecations.
 
+## v1.2.2 — 2026-09
+
+### Hinzugefügt
+
+- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.6 Terra** (`gpt-5.6-terra`) und **GPT-5.6 Luna** (`gpt-5.6-luna`) von OpenAI, bereitgestellt aus Azure Schweden. Die Preise stehen noch nicht fest und werden in den Tarif- und Vergleichstabellen bis zur Veröffentlichung als `xx` angezeigt.
+- **Preise für zwischengespeicherte Input-Tokens.** Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden bei T-Cloud-gehosteten Modellen mit **15 % des normalen Input-Token-Preises** abgerechnet. Der Preis pro Modell steht in der neuen Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cached €/M** im [Modellvergleich](/de/models/comparison). Für Modelle externer Anbieter (Azure, GCP) wird die Preisgestaltung später ergänzt. Siehe [Prefix Caching](/de/guides/prefix-caching#preise-für-zwischengespeicherte-tokens).
+
+### Geändert
+
+- **GLM 5.2** — Token-Preise in allen Tarifen gesenkt: Input **4,00 € → 1,50 €** und Output **8,00 € → 3,50 €** pro Million Tokens. Zwischengespeicherte Input-Tokens kosten damit 0,225 € pro Million.
+
 ## v1.2.1 — 2026-08
 
 ### Hinzugefügt

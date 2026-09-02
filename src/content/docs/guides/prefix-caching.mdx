@@ -297,8 +297,27 @@ If `cached_tokens` stays at `0` across repeated calls, work through this list:
 4. The shared prefix is too short — aim for roughly a thousand tokens or more before expecting a hit.
 
 :::caution
-Cache counters are diagnostics, not a billing statement. How cached tokens are charged depends on the model and your plan — see [Plans & Pricing](/plans).
+Cache counters are diagnostics, not a billing statement. Use them to confirm that a prefix is actually being reused — what a cache hit costs is covered in [Pricing for Cached Tokens](#pricing-for-cached-tokens).
 :::
+
+
+## Pricing for Cached Tokens
+
+Prompt tokens served from the prefix cache are billed at **15% of the model's normal input token price** — the cached part of the prompt costs 85% less than processing it again. The discount applies to the cached tokens only:
+
+| Tokens | Price |
+|---|---|
+| Prompt tokens served from cache (`cached_tokens`) | 15% of the model's input token price |
+| Remaining prompt tokens | Full input token price |
+| Completion tokens (never cached) | Full output token price |
+
+For example, GLM 5.2 is priced at €1.50 per million input tokens, so its cached prompt tokens cost €0.225 per million.
+
+:::note[T-Cloud-hosted models only]
+The 15% cached-token price applies to **T-Cloud-hosted models** — the models tagged `T-Cloud` in the [models comparison](/models/comparison). Cached-token pricing for models served from external providers (Azure, GCP) has not been published yet and will be added later; until then those models show **n/a** in the cached price column.
+:::
+
+The per-model cached price is listed in the **Cached Input Token Price** column on each [rate plan page](/plans) and in the **Cached €/M** column of the [models comparison](/models/comparison).
 
 
 ## Best Practices
