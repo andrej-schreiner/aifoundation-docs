@@ -12,8 +12,13 @@ export default defineConfig({
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
-		'/guides/fine-tuning': '/changelog',
-		'/de/guides/fine-tuning': '/de/changelog',
+		'/guides/fine-tuning': '/plans/dedicated#optional-services',
+		'/de/guides/fine-tuning': '/de/plans/dedicated#optionale-leistungen',
+		// The Service Description (v1.23, § 2.2) sends customers to
+		// /category/model-serving for the API documentation. That path never
+		// existed on this site, so it is redirected to the guides index.
+		'/category/model-serving': '/guides',
+		'/de/category/model-serving': '/de/guides',
 		'/getting-started/models': '/models',
 		'/de/getting-started/models': '/de/models',
 	},
@@ -35,13 +40,17 @@ export default defineConfig({
 					// The sidebar "Links" entry is authored as an ABSOLUTE production URL
 					// in the config on purpose: Starlight localizes root-relative sidebar
 					// links (…/files → /de/files, a 404), and the link-checker skips
-					// external URLs. At runtime this script overrides every Service
-					// Description link to a host-relative /files/… path (…_EN.pdf on
-					// English pages), so it resolves against the current origin — working
-					// in local dev and on any deployed host, for both locales. Runs on
+					// external URLs. At runtime this script rewrites absolute Service
+					// Description links to a host-relative /files/… path, so they resolve
+					// against the current origin — working in local dev and on any
+					// deployed host. It keeps whichever file a page asked for, so the
+					// archived versions keep linking their own v1.20 snapshot instead of
+					// the current document. On German pages an `_EN` suffix is dropped so
+					// the archived snapshots serve their German edition; the current
+					// v1.23 exists in German only and has no suffix to strip. Runs on
 					// first load and on Starlight view-transition navigations.
 					tag: 'script',
-					content: `(function(){function fix(){var en=document.documentElement.lang==='en';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/Leistungsbeschreibung-LLM-Serving-Service'+(en?'_EN':'')+'.pdf');});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
+					content: `(function(){function fix(){var de=document.documentElement.lang==='de';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){var file=(a.getAttribute('href')||'').split('/').pop();if(!file)return;if(de)file=file.replace(/_EN\\.pdf$/,'.pdf');a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 			],
 			components: {

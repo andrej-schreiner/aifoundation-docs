@@ -158,7 +158,7 @@ def safe_completion(messages, max_retries=3):
 
 <sup>&ast;</sup> Die auf dieser Seite gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
 
-- **Nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels).** Das 99,9%-Verfügbarkeits-SLA deckt ausschließlich die Erreichbarkeit der API ab; es erstreckt sich nicht auf RPM, TPM, Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
+- **Nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels).** Das 99,5%-Verfügbarkeits-SLA deckt ausschließlich die Erreichbarkeit der API ab; es erstreckt sich nicht auf RPM, TPM, Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
 - **Für Open-Source-Modelle auf T-Cloud** kann der tatsächlich erreichte Durchsatz bei hoher gleichzeitiger Nachfrage deutlich unterhalb der veröffentlichten Obergrenzen liegen. End-to-End-Latenz und Time-to-First-Token variieren ebenfalls mit der Plattformlast.
 - **Der "Beispiel-RPM"-Wert** in der Tabelle "Limits nach Tarif" ist ein Richtwert für ein repräsentatives T-Cloud-Modell; präzise Limits variieren je Modell. Professional und Agentic umfassen Premium-Modelle (z. B. Claude Opus) zusätzlich zum Standard-Katalog des Essential-Tarifs.
 - **Für vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token** siehe [Dedicated LLM Serving](/de/plans/dedicated) — dort können solche Zusagen als Performance-SLAs auf reservierter Hardware verhandelt werden.

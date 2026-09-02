@@ -3,14 +3,14 @@ title: "Service-Level"
 description: "Verfügbarkeitsziel, Service Credits, Support-Zeiten und Wartungsrichtlinien für AI Foundation Services gemäß Leistungsbeschreibung."
 ---
 
-Diese Seite fasst die Service-Level-Zusagen aus der [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.20) zusammen. Das PDF ist die verbindliche Quelle — diese Seite ist eine entwicklerfreundliche Übersicht.
+Diese Seite fasst die Service-Level-Zusagen aus der [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.23) zusammen. Das PDF ist die verbindliche Quelle — diese Seite ist eine entwicklerfreundliche Übersicht.
 
 :::note
 Die folgenden Bedingungen beschreiben das **Standardprodukt**. Unternehmenskunden mit kundenspezifischen Verträgen können abweichende SLAs, Reaktionszeiten und Supportregelungen haben — maßgeblich ist Ihr individueller Vertrag.
 :::
 
 :::caution[Was dieses SLA abdeckt — und was nicht]
-Das unten genannte 99,9%-Ziel deckt ausschließlich die **API-Verfügbarkeit** ab — also, ob der Service-Endpunkt antwortet. Es deckt **nicht** ab:
+Das unten genannte 99,5%-Ziel deckt ausschließlich die **API-Verfügbarkeit** ab — also, ob der Service-Endpunkt antwortet. Es deckt **nicht** ab:
 
 - **RPM oder TPM** — die veröffentlichten [Rate-Limits](/de/reference/rate-limits) sind Best-Effort-Obergrenzen, kein SLA-gestützter Durchsatz
 - **End-to-End-Latenz** oder **Time-to-First-Token**
@@ -22,7 +22,7 @@ Performance-Eigenschaften des Shared Service sind Best-Effort und variieren mit 
 
 ## Verfügbarkeit
 
-Die Mindestverfügbarkeit des LLM-Serving-Services am Leistungsübergabepunkt (API-Endpunkt im Rechenzentrum der Telekom) liegt bei **99,9%** innerhalb der betreuten Betriebszeit eines Kalendermonats und wird wie folgt berechnet:
+Die Mindestverfügbarkeit des LLM-Serving-Services am Leistungsübergabepunkt (API-Endpunkt im Rechenzentrum der Telekom) liegt bei **99,5%** innerhalb der betreuten Betriebszeit eines Kalendermonats und wird wie folgt berechnet:
 
 > (Gesamte Serviceminuten − Gesamte Ausfallminuten) ÷ Gesamte Serviceminuten × 100%
 
@@ -49,7 +49,19 @@ Folgende Ausfälle gelten nicht als Ausfallminuten in der Verfügbarkeitsberechn
 
 ### Service Credits
 
-Bei Nichteinhaltung der 99,9%-Verfügbarkeit, die ausschließlich von der Telekom zu vertreten ist, kann der Kunde innerhalb von drei Monaten nach dem betroffenen Abrechnungszeitraum Service Credits geltend machen. Die Credit-Staffelung und das Antragsverfahren sind in der [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) definiert. Service Credits sind der ausschließliche Anspruch bei Verfügbarkeitsunterschreitungen.
+Bei Nichteinhaltung der 99,5%-Verfügbarkeit, die ausschließlich von der Telekom zu vertreten ist, kann der Kunde innerhalb von drei Monaten nach dem betroffenen Abrechnungszeitraum Service Credits per E-Mail an die bei der Bereitstellung mitgeteilte Adresse geltend machen.
+
+Die Höhe richtet sich nach dem für den Abrechnungszeitraum tatsächlich gezahlten Mindestumsatz:
+
+| Verfügbarkeit im Abrechnungszeitraum | Service Credit |
+|---|---|
+| &lt;99,5 % – 99,3 % | 5 % des vereinbarten Mindestumsatzes |
+| &lt;99,3 % – 95 % | 10 % des vereinbarten Mindestumsatzes |
+| &lt;95 % | 25 % des vereinbarten Mindestumsatzes |
+
+Eine Gutschrift erfolgt nur, wenn sie für den Abrechnungszeitraum mindestens **1,00 €** beträgt. Die Telekom prüft den Anspruch, teilt die Höhe der Erstattung mit und verrechnet sie mit der folgenden Monatsrechnung — oder überweist sie nach Beendigung der Leistung auf die benannte Bankverbindung.
+
+Service Credits werden auf etwaige Schadensersatzansprüche und sonstige Ansprüche aus der Verfügbarkeitsunterschreitung angerechnet und sind der ausschließliche Anspruch bei Verfügbarkeitsunterschreitungen.
 
 
 ## Kundensupport

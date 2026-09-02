@@ -5,6 +5,37 @@ description: "Major model releases, feature updates, and deprecations for AI Fou
 
 Major changes to AI Foundation Services — new models, feature updates, and deprecations.
 
+## v1.2.2 — 2026-09
+
+Aligns the documentation with **[Service Description v1.23](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf)** (31 August 2026), which is the binding source for everything below.
+
+### Added
+
+- New models on the Essential, Professional and Agentic plans: **GPT-5.6 Terra** (`gpt-5.6-terra`) at **€3.52 / €15.82** per million input / output tokens, and **GPT-5.6 Luna** (`gpt-5.6-luna`) at **€0.20 / €1.20**. Both are served from Azure Sweden with a 1050K context window.
+- **Gemini 3.1 Pro is now priced by context length**, matching the Service Description: **≤200k** input tokens at €1.80 / €10.80, **>200k** at €3.60 / €16.20. Previously a single row.
+- **Cached input token pricing.** Prompt tokens served from the prefix cache are billed at **15% of the model's normal input token price** on T-Cloud-hosted models. The per-model price appears in the new **Cached Input Token Price** column on each [rate plan page](/plans) and the **Cached €/M** column of the [models comparison](/models/comparison). Cached-token pricing for models on external providers (Azure, GCP) will be added later. See [Prefix Caching](/guides/prefix-caching#pricing-for-cached-tokens).
+
+### Changed
+
+- **The availability target is 99.5%**, not the 99.9% previously published. Corrected on [Service Levels](/reference/service-levels), [Rate Limits](/reference/rate-limits), [Dedicated LLM Serving](/plans/dedicated) and [Shared vs Dedicated](/plans/service-models).
+- **GLM 5.2** token prices reduced on all plans: input **€4.00 → €1.50**, output **€8.00 → €3.50** per million tokens. Cached input tokens are therefore €0.225 per million.
+- **GLM 5.2** moved from the **premium** to the **standard** model tier on all plans.
+- **GPT-Image-2** is **€4.39 / €26.33** per million tokens (previously published as €9.55 / €38.20).
+- **Prefix caching is on by default** on T-Cloud-hosted models and can be switched off per request with `save_cache: false`. The [guide](/guides/prefix-caching) previously described caching as opt-in.
+- Server location and data processing for the **Gemini 3 family** — Gemini 3 Pro (≤200k and >200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro and Gemini 3 Pro Image — now read **Worldwide** instead of Europe. Google runs these models on its own infrastructure and may process data outside the EU/EEA; see [Enterprise Trust](/reference/enterprise-trust).
+- The **Anthropic** models are labelled **GCP / Azure**, since a request may be served from either cloud.
+- The **Service Description** shipped with the docs is now **v1.23**, replacing v1.20. It is published in German only, so both language versions link to the same document. Readers on an [archived docs version](/v1-2-0/) still get the v1.20 document that version was written against.
+- **Enterprise Trust** category 1 now lists the models the Service Description names — Gemma 4 31B, Mistral Small 4, Qwen 3.6 35B, Nemotron 3 Super, GLM 5.2, GPT-OSS-120B, Whisper, and the embedding models.
+
+### Removed
+
+- **Llama 3.3 70B**, **Claude 4.5 Sonnet** (both context tiers) and **Claude 4.5 Opus** reached their **2026-09-01** retirement date and have left the catalog. See [Retired Models](/models/retired) for replacements.
+
+### Fixed
+
+- **OpenCode** setup: corrected the authentication URL in step 2 of the [OpenCode plugin instructions](/plugins/opencode) to `https://plugins.ai.t-systems.net/external/`.
+- `/category/model-serving`, the API documentation URL printed in § 2.2 of the Service Description, now redirects to the [guides](/guides) instead of returning a 404.
+
 ## v1.2.1 — 2026-08
 
 ### Added
@@ -45,7 +76,7 @@ Archived snapshot: [v1.1.0](/v1-1-0/).
 
 ### Removed
 
-- Fine-Tuning API documentation. The feature is no longer offered through AI Foundation Services. Requests to `/guides/fine-tuning` redirect here.
+- Fine-Tuning API documentation. Requests to `/guides/fine-tuning` now redirect to the [optional services](/plans/dedicated#optional-services). *Superseded: fine-tuning is offered as an optional service on request — see § 3.4.2 of the Service Description. The self-service API documentation remains withdrawn.*
 
 ## v1.0.0
 

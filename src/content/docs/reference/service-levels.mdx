@@ -3,14 +3,14 @@ title: "Service Levels"
 description: "Availability target, service credits, support hours, and maintenance policy for AI Foundation Services as defined in the Service Description."
 ---
 
-This page summarizes the service level commitments from the [Service Description (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service_EN.pdf) (v1.20). The PDF is the binding source — this page is a developer-friendly summary.
+This page summarizes the service level commitments from the [Service Description (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.23). The PDF is the binding source — this page is a developer-friendly summary.
 
 :::note
 The terms below describe the **standard product offering (<span lang="de">Standardprodukt</span>)**. Enterprise customers with custom contracts may have different SLAs, response times, and support arrangements — refer to your individual contract.
 :::
 
 :::caution[What this SLA covers — and what it does not]
-The 99.9% target below covers **API availability only** — whether the service endpoint responds. It does **not** cover:
+The 99.5% target below covers **API availability only** — whether the service endpoint responds. It does **not** cover:
 
 - **RPM or TPM** — published [rate limits](/reference/rate-limits) are best-effort ceilings, not SLA-backed throughput
 - **End-to-end latency** or **time-to-first-token**
@@ -22,11 +22,11 @@ Performance characteristics on the shared service are best-effort and vary with 
 
 ## Availability
 
-The minimum availability of the LLM-Serving-Service at the service handover point (the API endpoint in T-Systems' data center) is **99.9%** during business hours within a calendar month, calculated as:
+The minimum availability of the LLM-Serving-Service at the service handover point (the API endpoint in T-Systems' data center) is **99.5%** during business hours within a calendar month, calculated as:
 
 > (Total service minutes − Total downtime minutes) ÷ Total service minutes × 100%
 
-Availability applies to all plans with a minimum monthly revenue commitment (Essential, Professional, Agentic). Per-plan revenue commitments are defined in the [Service Description PDF](/files/Leistungsbeschreibung-LLM-Serving-Service_EN.pdf).
+Availability applies to all plans with a minimum monthly revenue commitment (Essential, Professional, Agentic). Per-plan revenue commitments are defined in the [Service Description PDF](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf).
 
 :::note
 Availability is measured against **business hours** (Mon–Fri, 9:00–17:00 CET/CEST, excluding German federal holidays), not 24/7.
@@ -49,7 +49,19 @@ The following downtime is excluded from the availability calculation:
 
 ### Service credits
 
-If Telekom fails to meet the 99.9% availability target and is solely responsible for the breach, customers may claim service credits within three months of the affected billing period. The credit tiers and claim procedure are defined in the [Service Description PDF](/files/Leistungsbeschreibung-LLM-Serving-Service_EN.pdf). Service credits are the exclusive remedy for availability shortfalls.
+If Telekom fails to meet the 99.5% availability target and is solely responsible for the breach, customers may claim service credits within three months of the affected billing period, by email to the address provided during onboarding.
+
+The credit is calculated on the minimum monthly revenue actually paid for that billing period:
+
+| Availability in the billing period | Service credit |
+|---|---|
+| &lt;99.5% – 99.3% | 5% of the agreed minimum revenue |
+| &lt;99.3% – 95% | 10% of the agreed minimum revenue |
+| &lt;95% | 25% of the agreed minimum revenue |
+
+A credit is only issued where it amounts to at least **€1.00** for the billing period. Telekom reviews the claim, confirms the amount, and offsets it against the following month's invoice — or transfers it to the customer's bank account once the service has ended.
+
+Service credits are offset against any damages or other claims arising from the availability shortfall, and are the exclusive remedy for it.
 
 
 ## Customer Support

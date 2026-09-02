@@ -20,7 +20,7 @@ Beide Modelle nutzen dieselbe OpenAI-kompatible API und denselben Katalog an Ope
 | **Rate-Limits** | Tarifabhängige RPM- und TPM-Obergrenzen — Best-Effort, nicht Teil des SLA | Keine — limitiert nur durch Ihre reservierte Hardware |
 | **Modelle** | Voller Katalog laut [Tarife & Preise](/de/plans) | Jedes Modell, das auf die reservierte Hardware passt (inkl. privater Fine-Tuning-Modelle) |
 | **Performance (Latenz, Durchsatz)** | Best-Effort, variiert mit Plattformlast; nicht Teil des SLA | Vorhersagbar auf der reservierten Hardware; Performance-SLAs verhandelbar |
-| **Verfügbarkeits-SLA** | 99,9% API-Verfügbarkeit im Standardprodukt (Betriebszeit); deckt nur Erreichbarkeit ab | Individuelle Verfügbarkeits- und Performance-SLAs verhandelbar |
+| **Verfügbarkeits-SLA** | 99,5% API-Verfügbarkeit im Standardprodukt (Betriebszeit); deckt nur Erreichbarkeit ab | Individuelle Verfügbarkeits- und Performance-SLAs verhandelbar |
 | **Bestellung** | Self-Service über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) und das [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login) | Angebotsanfrage beim AIFS-Team |
 | **Geeignet für** | Stetigen Produktionsverkehr, Exploration, Prototyping | Strikte Latenz-SLAs, bursty Workloads, hohen Dauerdurchsatz, private Modelle |
 
@@ -39,7 +39,7 @@ Diese veröffentlichten Werte sind **Best-Effort-/Best-Case-Obergrenzen — der 
 - **Closed-Source-Modelle** (GPT, Claude, Gemini) — die Telekom leitet Anfragen an den Upstream-Anbieter weiter. Die veröffentlichten RPM/TPM sind die vertraglichen Drosselungs-Obergrenzen; das tatsächliche Rate-Limit setzt der Upstream-Anbieter durch, und der erreichte Durchsatz hängt von dessen Kapazität ab.
 - **Open-Source-Modelle auf T-Cloud** (Llama, Mistral, Qwen, GPT-OSS, …) — laufen auf gemeinsam genutzter GPU-Infrastruktur bei T-Systems. Die veröffentlichten RPM/TPM sind ebenfalls Obergrenzen, aber **der effektive Durchsatz kann bei Lastspitzen deutlich darunter liegen**, wenn viele Tenants dasselbe Modell parallel nutzen. Auch End-to-End-Latenz und Time-to-First-Token variieren mit der Plattformlast.
 
-Das [SLA](/de/reference/service-levels) des Shared LLM Serving Service sichert ausschließlich 99,9% **API-Verfügbarkeit** zu. Es deckt RPM, TPM, Durchsatz, Latenz oder Time-to-First-Token **nicht** ab.
+Das [SLA](/de/reference/service-levels) des Shared LLM Serving Service sichert ausschließlich 99,5% **API-Verfügbarkeit** zu. Es deckt RPM, TPM, Durchsatz, Latenz oder Time-to-First-Token **nicht** ab.
 
 In **Dedicated LLM Serving** gibt es keine Pro-Minute-Obergrenzen. Sie verbrauchen so viele Token, wie Ihre reservierte Hardware physisch erzeugen kann. Durchsatz, Latenz und Time-to-First-Token werden deterministisch — sie hängen von Ihrem Modell, der Batch-Größe und der Prompt-Länge ab, nicht vom Verhalten anderer Kunden — und lassen sich mit **vertraglichen Performance-SLAs** verknüpfen.
 

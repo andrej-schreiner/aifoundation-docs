@@ -5,6 +5,12 @@ import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
 import { modelBrandIcons } from '../shared/lib/modelBrandIcons';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
+import {
+  CACHED_INPUT_PRICE_PERCENT,
+  cachedInputPrice,
+  hasCachedTokenPricing,
+} from '../shared/lib/cachedTokenPricing';
 
 interface Props {
   selectedPlanId?: string;
@@ -83,6 +89,16 @@ const t = {
   thModelName: isDE ? 'Modellname' : 'Model Name',
   thInputPrice: 'Input Token Price',
   thOutputPrice: 'Output Token Price',
+  thCachedInputPrice: isDE ? 'Cached-Input-Token-Preis' : 'Cached Input Token Price',
+  cachedPriceNote: isDE
+    ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
+    : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only; cached token pricing for models on external providers will be added later.`,
+  cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  worldwideLocationNote: isDE
+    ? 'Weltweit (Worldwide) bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
+    : 'Worldwide means the third-party provider runs the model on its own infrastructure and may process data outside the EU/EEA.',
+  enterpriseTrustLabel: isDE ? 'Enterprise Trust' : 'Enterprise Trust',
+  enterpriseTrustHref: isDE ? '/de/reference/enterprise-trust/' : '/reference/enterprise-trust/',
   thTPM: 'TPM',
   thTPMUnit: 'Tokens/Min',
   thContextWindow: 'Context Window',
@@ -299,6 +315,8 @@ const COUNTRY_CODES: Record<string, string> = {
   france: 'fr',
   europe: 'eu',
   us: 'us',
+  // Not a flag — `.fi-globe` is defined in src/styles/custom.css.
+  worldwide: 'globe',
 };
 
 function parseLocation(deploymentRegion: string): { name: string; code: string } {
@@ -328,10 +346,24 @@ function mapModelRow(
     creator: parseModelCreator(exactModelName, displayName),
     exactModelName: model.exactModelName,
     modelTier: model.modelTier || 'Standard',
+    // Display-only: some models run on two clouds, which one region cannot say.
+    cloudProviderLabel: cloudLabelFor(exactModelName, parseCloudProvider(
+      model.deploymentRegion ?? fallbackModel.deploymentRegion,
+    )),
+    cloudProviderFullName: cloudFullNameFor(exactModelName, ''),
     displayName,
     subName: model.modelLabel || '',
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
+    // Cached input tokens are a fixed fraction of the input price, and only
+    // priced for T-Cloud-hosted models — see shared/lib/cachedTokenPricing.
+    cachedInputPrice: cachedInputPrice(
+      model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
+      model.deploymentRegion ?? fallbackModel.deploymentRegion,
+    ),
+    cachedPricingPublished: hasCachedTokenPricing(
+      model.deploymentRegion ?? fallbackModel.deploymentRegion,
+    ),
     tpm: model.inputTokenPerMinuteLimit ?? fallbackModel.inputTokenPerMinuteLimit,
     contextWindow: model.contextWindow ?? fallbackModel.contextWindow ?? null,
     termsOfUseUrl: model.termsOfUseUrl ?? fallbackModel.termsOfUseUrl ?? '',

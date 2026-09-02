@@ -2,6 +2,12 @@
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
+import {
+  CACHED_INPUT_PRICE_PERCENT,
+  cachedInputPrice,
+  hasCachedTokenPricing,
+} from '../shared/lib/cachedTokenPricing';
 import Tooltip from './Tooltip.astro';
 
 type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
@@ -280,8 +286,10 @@ interface CompiledModel {
   categories: Category[];    // primary + modality-derived (see deriveCategories)
   cloud: CloudKey;
   contextWindow: string;
-  inputPricePerMillionTokens: number;
-  outputPricePerMillionTokens: number;
+  inputPricePerMillionTokens: number | null;
+  outputPricePerMillionTokens: number | null;
+  cachedInputPricePerMillionTokens: number | null;
+  cachedPricingPublished: boolean;
   plans: string[];
   capabilities: Capabilities;
 }
@@ -311,8 +319,13 @@ for (const pkg of pricingData as Array<{
       categories: deriveCategories(category, capabilities, EXTRA_CATEGORIES[exactModelName] ?? []),
       cloud: resolveCloud(deploymentRegion),
       contextWindow: (entry.contextWindow as string) ?? '—',
-      inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? 0,
-      outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? 0,
+      inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
+      outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
+      cachedInputPricePerMillionTokens: cachedInputPrice(
+        entry.inputPricePerMillionTokens as number | null,
+        deploymentRegion,
+      ),
+      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion),
       plans: [pkg.packageName],
       capabilities,
     });
@@ -365,6 +378,7 @@ const t = {
   colContext: isDE ? 'Kontext' : 'Context',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
   colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
+  colCachedPrice: isDE ? 'Cached €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
   showing: isDE ? 'Zeige' : 'Showing',
@@ -378,6 +392,10 @@ const t = {
   tooltipTools: isDE
     ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
     : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
+  tooltipCachedPrice: isDE
+    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle — für externe Anbieter wird die Cache-Preisgestaltung später ergänzt.`
+    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only — cached pricing for external providers will be added later.`,
+  cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
 };
 
 const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
@@ -412,9 +430,23 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
   Vector: isDE ? 'Vektor' : 'Vector',
 };
 
-function formatPrice(n: number): string {
-  if (!n || n <= 0) return '—';
+// `null` means the price has not been published yet (placeholder rows for
+// newly announced models); `0` means the model is genuinely free of charge.
+function formatPrice(n: number | null | undefined): string {
+  if (n == null) return 'xx';
+  if (n <= 0) return '—';
   return `€${n.toFixed(2)}`;
+}
+
+function formatCachedPrice(m: CompiledModel): string {
+  if (!m.cachedPricingPublished) return t.cachedPriceUnavailable;
+  const value = m.cachedInputPricePerMillionTokens;
+  if (value == null) return 'xx';
+  if (value <= 0) return '—';
+  // A cached price is 15% of the input price, so two decimals would round most
+  // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
+  // four decimals and drop trailing zeros.
+  return `€${value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`;
 }
 
 function planHref(plan: string): string {
@@ -504,6 +536,7 @@ const rowDataPayload = allModels.map((m) => ({
   contextWindowNum: parseContextWindow(m.contextWindow),
   inputPrice: m.inputPricePerMillionTokens,
   outputPrice: m.outputPricePerMillionTokens,
+  cachedInputPrice: m.cachedInputPricePerMillionTokens,
   plans: m.plans,
 }));
 ---
@@ -558,6 +591,7 @@ const rowDataPayload = allModels.map((m) => ({
             { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
             { key: 'inputPrice', label: t.colInputPrice, cls: 'num', tooltip: undefined as string | undefined },
             { key: 'outputPrice', label: t.colOutputPrice, cls: 'num', tooltip: undefined as string | undefined },
+            { key: 'cachedInputPrice', label: t.colCachedPrice, cls: 'num', tooltip: t.tooltipCachedPrice },
             { key: 'plans', label: t.colPlans, cls: '', tooltip: undefined as string | undefined },
           ].map((h) => (
             <th data-sort={h.key} class={h.cls}>
@@ -602,14 +636,14 @@ const rowDataPayload = allModels.map((m) => ({
                 </Tooltip>
               </td>
               <td>
-                <Tooltip text={CLOUD_TOOLTIPS[m.cloud]} maxWidth="22rem">
+                <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
                   <button
                     type="button"
                     class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
                     data-cloud={m.cloud}
                     aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
                   >
-                    {m.cloud}
+                    {cloudLabelFor(m.exactModelName, m.cloud)}
                   </button>
                 </Tooltip>
               </td>
@@ -628,6 +662,7 @@ const rowDataPayload = allModels.map((m) => ({
               <td>{m.contextWindow}</td>
               <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
               <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td class="num">{formatCachedPrice(m)}</td>
               <td>
                 <span class="mc-plans">
                   {m.plans.map((p) => (
@@ -639,7 +674,7 @@ const rowDataPayload = allModels.map((m) => ({
           );
         })}
         <tr class="mc-no-results" hidden>
-          <td colspan="12" class="mc-no-results__cell">{t.noResults}</td>
+          <td colspan="13" class="mc-no-results__cell">{t.noResults}</td>
         </tr>
       </tbody>
     </table>
@@ -660,10 +695,17 @@ const rowDataPayload = allModels.map((m) => ({
     toolCalling: boolean;
     contextWindowRaw: string;
     contextWindowNum: number;
-    inputPrice: number;
-    outputPrice: number;
+    inputPrice: number | null;
+    outputPrice: number | null;
+    cachedInputPrice: number | null;
     plans: string[];
   };
+
+  // Rows whose price is not published yet (null) sort after every priced row,
+  // in both directions, instead of being string-compared as "null".
+  function priceSortValue(v: number | null): number {
+    return v == null ? Number.POSITIVE_INFINITY : v;
+  }
 
   function initModelsComparison(root: HTMLElement) {
     if (root.dataset.mcInit === '1') return;
@@ -839,12 +881,16 @@ const rowDataPayload = allModels.map((m) => ({
           break;
         }
         case 'inputPrice':
-          av = a.inputPrice;
-          bv = b.inputPrice;
+          av = priceSortValue(a.inputPrice);
+          bv = priceSortValue(b.inputPrice);
           break;
         case 'outputPrice':
-          av = a.outputPrice;
-          bv = b.outputPrice;
+          av = priceSortValue(a.outputPrice);
+          bv = priceSortValue(b.outputPrice);
+          break;
+        case 'cachedInputPrice':
+          av = priceSortValue(a.cachedInputPrice);
+          bv = priceSortValue(b.cachedInputPrice);
           break;
         case 'plans':
           av = a.plans.length;

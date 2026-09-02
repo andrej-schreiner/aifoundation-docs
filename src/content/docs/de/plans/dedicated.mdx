@@ -40,7 +40,7 @@ Sie zahlen eine feste Gebühr für die reservierte Hardware und eine feste Gebü
 
 ### 5. Individuelle SLAs
 
-Das Standard-SLA des Shared Service (99,9% **API-Verfügbarkeit** in der Betriebszeit, keine zugesagten Lösungszeiten) deckt ausschließlich die Erreichbarkeit ab — *nicht* Durchsatz, Latenz, Time-to-First-Token oder RPM/TPM. Im Dedicated LLM Serving können Sie **individuelle SLAs verhandeln**, die über das Standardprodukt hinausgehen: 24/7-Abdeckung, schnellere Reaktionszeiten, strengere Verfügbarkeitsziele und — exklusiv für Dedicated LLM Serving — Performance-SLAs auf der reservierten Hardware (Latenz, Time-to-First-Token, dauerhafter Durchsatz). Sprechen Sie mit Ihrem Telekom-Ansprechpartner.
+Das Standard-SLA des Shared Service (99,5% **API-Verfügbarkeit** in der Betriebszeit, keine zugesagten Lösungszeiten) deckt ausschließlich die Erreichbarkeit ab — *nicht* Durchsatz, Latenz, Time-to-First-Token oder RPM/TPM. Im Dedicated LLM Serving können Sie **individuelle SLAs verhandeln**, die über das Standardprodukt hinausgehen: 24/7-Abdeckung, schnellere Reaktionszeiten, strengere Verfügbarkeitsziele und — exklusiv für Dedicated LLM Serving — Performance-SLAs auf der reservierten Hardware (Latenz, Time-to-First-Token, dauerhafter Durchsatz). Sprechen Sie mit Ihrem Telekom-Ansprechpartner.
 
 
 ## Kommerzielle Struktur
@@ -80,6 +80,17 @@ Viele Enterprise-Kunden kombinieren beide Modelle:
 - **Shared LLM Serving Service** für alles andere — interne Tools, Batch-Jobs, Evaluation, Exploration.
 
 Beide nutzen dieselbe OpenAI-kompatible API und dieselben SDKs. Eine Anfrage von Dedicated auf Shared umzuleiten ist eine Konfigurations-, keine Code-Änderung.
+
+
+## Optionale Leistungen
+
+Die Leistungsbeschreibung führt Leistungen auf, die die Telekom bei gesonderter Beauftragung gegen zusätzliche Vergütung und nach erfolgreicher Prüfung erbringt (§ 3.4). Ihr Telekom-Vertriebskontakt stellt Ihnen dazu ein Angebot sowie detaillierte Leistungsbeschreibungen bereit.
+
+- **LLMs auf dedizierter Instanz** (§ 3.4.1) — exklusiver Zugang zu einem Modell, ohne es mit anderen Kunden zu teilen. Das ist das oben beschriebene Dedicated LLM Serving.
+- **Feintuning von Modellen** (§ 3.4.2) — auf Anfrage stellt die Telekom die Funktionalität samt Dokumentation zur Verfügung und unterstützt bei der Erstellung des feingetunten Modells und dessen Integration in die Gesamtlösung.
+- **Installation auf einer kundeneigenen Umgebung** (§ 3.4.3) — siehe [Bestellung](#bestellung) unten.
+- **Zusätzliche LLMs und Embedding-Modelle** (§ 3.4.4) — Modelle außerhalb des aktuellen Katalogs, bereitgestellt auf einer kundeneigenen oder dedizierten Instanz, sofern die technische Machbarkeitsprüfung positiv ausfällt.
+- **Weitere Unterstützungsleistungen** (§ 3.4.5) — Implementierungssupport, Beratung/Coaching und Schulung auf Basis von Time & Material.
 
 
 ## Bestellung

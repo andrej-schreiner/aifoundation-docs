@@ -40,7 +40,7 @@ You pay a fixed fee for the reserved hardware and a fixed fee for the managed in
 
 ### 5. Custom SLAs
 
-The shared service's standard SLA (99.9% **API availability** during business hours, no committed resolution times) covers reachability only — it does *not* cover throughput, latency, time-to-first-token, or RPM/TPM. On Dedicated LLM Serving, you can **negotiate custom SLAs** that go beyond the standard product, including 24/7 coverage, faster response times, stricter availability targets, and — uniquely — performance SLAs tied to the reserved hardware (latency, time-to-first-token, sustained throughput). Discuss your needs with your Telekom account representative.
+The shared service's standard SLA (99.5% **API availability** during business hours, no committed resolution times) covers reachability only — it does *not* cover throughput, latency, time-to-first-token, or RPM/TPM. On Dedicated LLM Serving, you can **negotiate custom SLAs** that go beyond the standard product, including 24/7 coverage, faster response times, stricter availability targets, and — uniquely — performance SLAs tied to the reserved hardware (latency, time-to-first-token, sustained throughput). Discuss your needs with your Telekom account representative.
 
 
 ## Commercial Structure
@@ -82,6 +82,17 @@ Many enterprise customers combine both:
 Both expose the same OpenAI-compatible API and the same SDKs. Switching a request between Dedicated and Shared is a configuration change, not a code change.
 
 
+## Optional Services
+
+The Service Description covers a set of services Telekom provides on separate order, against additional remuneration, after a feasibility check (§ 3.4). Ask your Telekom sales contact for an offer and the detailed service descriptions.
+
+- **Models on a dedicated instance** (§ 3.4.1) — exclusive access to a model, not shared with other customers. This is Dedicated LLM Serving as described above.
+- **Fine-tuning of models** (§ 3.4.2) — on request, Telekom provides the fine-tuning functionality together with its documentation, and supports building the fine-tuned model and integrating it into the overall solution.
+- **Installation in a customer-owned environment** (§ 3.4.3) — see [How to Order](#how-to-order) below.
+- **Additional LLMs and embedding models** (§ 3.4.4) — models outside the current catalog, provided on a customer-owned or dedicated instance where the technical feasibility check is positive.
+- **Further support services** (§ 3.4.5) — implementation support, consulting/coaching and training, billed on a time-and-material basis.
+
+
 ## How to Order
 
 Dedicated LLM Serving is **not** available via the T-Cloud Marketplace — it requires a tailored offer. To get a quote:
@@ -90,7 +101,7 @@ Dedicated LLM Serving is **not** available via the T-Cloud Marketplace — it re
 2. The team will produce a tailored price indication based on your inputs.
 3. You receive a formal offer including the chosen GPU configuration, the infrastructure and inference-service fees, contract term, and the negotiated SLA scope.
 
-For very large or compliance-driven deployments, the AIFS team can also assess installation on a **customer-owned environment** ([§ 3.4.3 of the Service Description](/files/Leistungsbeschreibung-LLM-Serving-Service_EN.pdf)), subject to feasibility checks. Mention this in your initial enquiry if relevant.
+For very large or compliance-driven deployments, the AIFS team can also assess installation on a **customer-owned environment** ([§ 3.4.3 of the Service Description](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf)), subject to feasibility checks. Mention this in your initial enquiry if relevant.
 
 
 ## Related Resources
@@ -99,4 +110,4 @@ For very large or compliance-driven deployments, the AIFS team can also assess i
 - **[Plans & Pricing](/plans)** — Pricing for the shared Essential / Professional / Agentic plans
 - **[Rate Limits](/reference/rate-limits)** — How RPM/TPM work on the shared service
 - **[Service Levels](/reference/service-levels)** — Standard SLA terms (and how Dedicated LLM Serving can extend them)
-- **[Service Description (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service_EN.pdf)** — Binding service description document
+- **[Service Description (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf)** — Binding service description document

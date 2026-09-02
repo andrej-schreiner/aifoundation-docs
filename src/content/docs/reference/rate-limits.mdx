@@ -42,7 +42,7 @@ To illustrate how limits scale, here are the limits for two representative model
 **Preview models** (the Test catalog, e.g. `Qwen 3.8 27B FP8`) use *dynamic* rate limits rather than fixed RPM/TPM. Telekom may adjust or restrict preview-model usage at any time without prior notice.
 :::
 
-For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans) page or download the [Service Description PDF](/files/Leistungsbeschreibung-LLM-Serving-Service_EN.pdf).
+For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans) page or download the [Service Description PDF](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf).
 
 
 ## How Rate Limits Work
@@ -158,7 +158,7 @@ def safe_completion(messages, max_retries=3):
 
 <sup>&ast;</sup> The Requests-per-Minute (RPM) and Tokens-per-Minute (TPM) figures throughout this page are **best-effort, best-case ceilings** for the Shared LLM Serving Service. They denote the maximum traffic permitted under the contract — not a guaranteed level of throughput. The following conditions apply:
 
-- **Not part of the [Service Level Agreement (SLA)](/reference/service-levels).** The 99.9% availability SLA covers API reachability only; it does not extend to RPM, TPM, throughput, end-to-end latency, or time-to-first-token.
+- **Not part of the [Service Level Agreement (SLA)](/reference/service-levels).** The 99.5% availability SLA covers API reachability only; it does not extend to RPM, TPM, throughput, end-to-end latency, or time-to-first-token.
 - **For open-source models hosted on T-Cloud**, realised throughput may fall substantially below the published ceilings during periods of peak concurrent demand. End-to-end latency and time-to-first-token also vary with platform load.
 - **The "Representative RPM" figure** in the Limits-by-Plan table is an illustrative value for a representative T-Cloud model; precise limits vary by model. Professional and Agentic include Premium-tier models (e.g. Claude Opus) in addition to the Standard catalogue available on Essential.
 - **For contractual guarantees on throughput, end-to-end latency, or time-to-first-token**, see [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
