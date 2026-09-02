@@ -2,6 +2,7 @@
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
@@ -635,14 +636,14 @@ const rowDataPayload = allModels.map((m) => ({
                 </Tooltip>
               </td>
               <td>
-                <Tooltip text={CLOUD_TOOLTIPS[m.cloud]} maxWidth="22rem">
+                <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
                   <button
                     type="button"
                     class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
                     data-cloud={m.cloud}
                     aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
                   >
-                    {m.cloud}
+                    {cloudLabelFor(m.exactModelName, m.cloud)}
                   </button>
                 </Tooltip>
               </td>

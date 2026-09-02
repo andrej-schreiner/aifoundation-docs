@@ -6,8 +6,8 @@ description: "Reuse repeated prompt prefixes on AI Foundation Services to cut ti
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-:::note[Caching is on by default for GLM 5.2]
-As of **2026-08-01**, prefix caching is **enabled by default for GLM 5.2** (it can be switched on or off at any time). All other T-Cloud-hosted models remain opt-in as described below; caching becomes the default for the existing T-Cloud models on **2026-09-01**.
+:::note[Caching is on by default on T-Cloud-hosted models]
+Per the [Service Description](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.23, § 2.3.1), the cache function is **enabled by default** for the models Telekom operates itself, and you can switch it on or off at any time — per request, with `save_cache`, as described below.
 :::
 
 Prefix caching lets the model reuse the work it already did for the beginning of a prompt. When two requests start with the same tokens — a long system prompt, a document, a tool catalogue — the shared part does not have to be processed again, which lowers time-to-first-token and, for models that price cached tokens separately, the cost of the request.
@@ -20,7 +20,7 @@ Prefix caching lets the model reuse the work it already did for the beginning of
 
 **What you'll learn:**
 - How prefix caching works and when it helps
-- How to enable it for T-Cloud-hosted open-source models with `save_cache` and pick a sharing scope with `cache_salt`
+- How to switch it off for a single request with `save_cache`, and pick a sharing scope with `cache_salt`
 - How to place `cache_control` breakpoints for Anthropic models
 - How to read cache usage from the response
 
@@ -61,17 +61,17 @@ Prefix caching never changes the content of a response: the model sees the same 
 
 ## T-Cloud Hosted Open-Source Models
 
-For T-Cloud-hosted open-source models (for example `gpt-oss-120b`, `Qwen-3.6-35B-FP8`), prefix caching is **opt-in per request**. Two extra fields on the chat completion request control it:
+For T-Cloud-hosted open-source models (for example `gpt-oss-120b`, `Qwen-3.6-35B-FP8`), prefix caching is **on by default** and controlled per request. Two extra fields on the chat completion request govern it:
 
 | Field | Type | Default | Purpose |
 |---|---|---|---|
-| `save_cache` | boolean | `false` | Master switch — must be explicitly `true` for the prompt prefix to be stored and reused |
-| `cache_salt` | string | *(empty)* | Selects **who** may reuse the prefix. Only evaluated when `save_cache` is `true` |
+| `save_cache` | boolean | `true` | Master switch — send `false` to keep this request's prefix out of the cache |
+| `cache_salt` | string | *(empty)* | Selects **who** may reuse the prefix. Not evaluated when `save_cache` is `false` |
 
 Both are extensions to the OpenAI schema, so with the OpenAI SDKs you pass them through `extra_body` (Python) or as extra request fields — see the examples below.
 
-:::note[GDPR compliance]
-For GDPR compliance, prefix caching is **disabled by default** on all open-source models hosted in T-Cloud, so no prompt content is retained for reuse unless you ask for it. Enabling it is an explicit, per-request decision: send `save_cache: true`, and choose the sharing scope with `cache_salt`.
+:::note[Switching it off]
+Caching keeps already-processed requests for a limited time so that similar or repeated requests can be answered faster. If a prompt should not be retained for reuse at all — a one-off, or content you do not want held even briefly — send `save_cache: false` on that request and nothing from it is stored. The default sharing scope is your own API key, so a cached prefix is never reused by another customer unless you widen the scope yourself with `cache_salt`.
 :::
 
 ### Cache Scope
@@ -80,17 +80,17 @@ For GDPR compliance, prefix caching is **disabled by default** on all open-sourc
 
 | `save_cache` | `cache_salt` | Who can reuse the prefix |
 |---|---|---|
-| `false` or omitted | ignored | **Nobody** — prefix caching is off for this request |
-| `true` | omitted / empty | Requests using the **same API key** |
+| `false` | ignored | **Nobody** — prefix caching is switched off for this request |
+| omitted or `true` | omitted / empty | Requests using the **same API key** (the default) |
 | `true` | custom string | Requests in your project using the **same salt** — e.g. one chat session, one document, one batch job |
 | `true` | `"org"` | Any request in the **same project / organisation**, across all its API keys |
 | `true` | `"global"` | The model's **shared global pool** — reuse across all tenants on that model |
 
 :::note
-`"org"` and `"global"` are reserved values, matched case-insensitively, and only take effect together with `save_cache: true`. A custom `cache_salt` without `save_cache: true` does **not** enable caching.
+`"org"` and `"global"` are reserved values and are matched case-insensitively. Sending `save_cache: false` switches caching off for the request, and any `cache_salt` on it is then ignored.
 :::
 
-Wider scopes raise the hit rate but reduce prompt isolation, so the scope is always an explicit opt-in. Pick the narrowest one that gives you the reuse you need — and keep confidential prompts out of `"global"`, whose pool is shared with other tenants.
+Wider scopes raise the hit rate but reduce prompt isolation, and are never applied unless you ask for them — the default stays scoped to your own API key. Pick the narrowest one that gives you the reuse you need — and keep confidential prompts out of `"global"`, whose pool is shared with other tenants.
 
 ### Example
 
@@ -291,7 +291,7 @@ For Claude models the response may additionally carry provider-specific counters
 
 If `cached_tokens` stays at `0` across repeated calls, work through this list:
 
-1. `save_cache` is not `true` — the master switch is off, so nothing is stored (open-source models).
+1. The request was sent with `save_cache: false`, which switches caching off, so nothing is stored (open-source models).
 2. The two requests use **different** `cache_salt` values, which isolates them from each other.
 3. A variable token sits near the start of the prompt and breaks the match.
 4. The shared prefix is too short — aim for roughly a thousand tokens or more before expecting a hit.
@@ -332,7 +332,7 @@ The per-model cached price is listed in the **Cached Input Token Price** column 
 
 ## Limitations
 
-- **Off by default.** For open-source models nothing is cached unless `save_cache` is explicitly `true`.
+- **On by default, off on request.** Send `save_cache: false` to keep a single request's prefix out of the cache.
 - Caching is **best-effort**. Entries are evicted under memory pressure and are not shared across model versions or deployments.
 - **Exact token match only.** Semantically identical but differently worded prefixes do not match, and a different `cache_salt` isolates them even when the tokens are identical.
 - Only the **prompt** is cached. Generated tokens are always computed fresh, so caching does not speed up long outputs.

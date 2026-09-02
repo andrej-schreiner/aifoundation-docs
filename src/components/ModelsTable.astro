@@ -697,8 +697,9 @@ const priceBuckets = [
 
         const hostClass = model.modelHost?.toLowerCase() === 't-cloud' ? 'tag-tcloud' : 'tag-cloud';
         const tierClass = modelTier.toLowerCase() === 'premium' ? 'tag-premium' : 'tag-tier';
-        const cloudProvider = normalizeCloudProvider(model.cloudProvider);
-        const cloudProviderFullName = getCloudProviderFullName(model.cloudProvider);
+        const cloudProvider = model.cloudProviderLabel || normalizeCloudProvider(model.cloudProvider);
+        const cloudProviderFullName =
+          model.cloudProviderFullName || getCloudProviderFullName(model.cloudProvider);
         const cloudProviderClass = getCloudProviderTagClass(model.cloudProvider);
         const hostTooltip = hostTooltips[model.modelHost] || '';
         const tierTooltip = tierTooltips[modelTier] || '';

@@ -5,6 +5,7 @@ import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
 import { modelBrandIcons } from '../shared/lib/modelBrandIcons';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
@@ -345,6 +346,11 @@ function mapModelRow(
     creator: parseModelCreator(exactModelName, displayName),
     exactModelName: model.exactModelName,
     modelTier: model.modelTier || 'Standard',
+    // Display-only: some models run on two clouds, which one region cannot say.
+    cloudProviderLabel: cloudLabelFor(exactModelName, parseCloudProvider(
+      model.deploymentRegion ?? fallbackModel.deploymentRegion,
+    )),
+    cloudProviderFullName: cloudFullNameFor(exactModelName, ''),
     displayName,
     subName: model.modelLabel || '',
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,

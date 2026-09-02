@@ -19,6 +19,14 @@ Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdate
 - Die [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) liegt nun als **v1.23** (31. August 2026) vor und ersetzt v1.20. Sie erscheint ausschließlich auf Deutsch; beide Sprachversionen der Dokumentation verweisen daher auf dasselbe Dokument, die frühere englische Übersetzung wurde entfernt.
 - Serverstandort und Datenverarbeitung der **Gemini-3-Familie** — Gemini 3 Pro (≤200k), Gemini 3 Pro (>200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro und Gemini 3 Pro Image — werden nun als **Worldwide** ausgewiesen statt als Europa. Google betreibt diese Modelle auf eigener Infrastruktur und kann Daten auch außerhalb der EU/EWR verarbeiten; siehe [Enterprise Trust](/de/reference/enterprise-trust) zum Datenverarbeitungsregime von Drittanbieter-Modellen.
 
+### Geändert
+
+- Abgleich der Dokumentation mit **Leistungsbeschreibung v1.23**: Die Mindestverfügbarkeit beträgt **99,5 %** (zuvor als 99,9 % ausgewiesen), und die [Service-Credit-Staffelung](/de/reference/service-levels#service-credits) steht nun auf der Seite. **Gemini 3.1 Pro** ist in die Varianten **≤200k** (1,80 € / 10,80 €) und **>200k** (3,60 € / 16,20 €) aufgeteilt. **GPT-5.6 Terra** (3,52 € / 15,82 €) und **GPT-5.6 Luna** (0,20 € / 1,20 €) haben ihre bestätigten Preise und Rate-Limits. **GPT-Image-2** kostet 4,39 € / 26,33 €. Prefix Caching ist bei T-Cloud-gehosteten Modellen als **standardmäßig aktiv** dokumentiert und wird pro Anfrage mit `save_cache: false` abgeschaltet. Anthropic-Modelle sind mit **GCP / Azure** gekennzeichnet, und **Feintuning** ist unter den [optionalen Leistungen](/de/plans/dedicated#optionale-leistungen) aufgeführt.
+
+### Entfernt
+
+- **Llama 3.3 70B**, **Claude 4.5 Sonnet** (beide Kontextvarianten) und **Claude 4.5 Opus** haben ihr Stilllegungsdatum **01.09.2026** erreicht und wurden aus dem Katalog entfernt. Ersatzmodelle siehe [Stillgelegte Modelle](/de/models/retired).
+
 ### Behoben
 
 - **OpenCode**: Die Authentifizierungs-URL in Schritt 2 der [OpenCode-Plugin-Anleitung](/plugins/opencode) wurde auf `https://plugins.ai.t-systems.net/external/` korrigiert.

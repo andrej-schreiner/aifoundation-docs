@@ -6,8 +6,8 @@ description: "Wiederholte Prompt-Präfixe auf AI Foundation Services wiederverwe
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-:::note[Caching ist für GLM 5.2 standardmäßig aktiviert]
-Seit dem **01.08.2026** ist Prefix Caching für **GLM 5.2 standardmäßig aktiviert** (die Funktion kann jederzeit ein- oder ausgeschaltet werden). Alle anderen T-Cloud-Modelle bleiben wie unten beschrieben Opt-in; ab dem **01.09.2026** wird Caching auch für die bestehenden T-Cloud-Modelle zum Standard.
+:::note[Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiviert]
+Gemäß [Leistungsbeschreibung](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.23, § 2.3.1) ist die Cache-Funktion für die von der Telekom selbst betriebenen Modelle **standardmäßig eingeschaltet** und kann jederzeit ein- oder ausgeschaltet werden — pro Anfrage über `save_cache`, wie unten beschrieben.
 :::
 
 Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anfang eines Prompts wiederzuverwenden. Wenn zwei Anfragen mit denselben Tokens beginnen — einem langen System-Prompt, einem Dokument, einem Werkzeugkatalog — muss der gemeinsame Teil nicht erneut verarbeitet werden. Das senkt die Zeit bis zum ersten Token und, bei Modellen mit separater Abrechnung zwischengespeicherter Tokens, auch die Kosten der Anfrage.
@@ -20,7 +20,7 @@ Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anf
 
 **Was Sie lernen werden:**
 - Wie Prefix Caching funktioniert und wann es hilft
-- Wie Sie es bei T-Cloud-gehosteten Open-Source-Modellen mit `save_cache` aktivieren und mit `cache_salt` den Geltungsbereich wählen
+- Wie Sie es für eine einzelne Anfrage mit `save_cache` abschalten und mit `cache_salt` den Geltungsbereich wählen
 - Wie Sie `cache_control`-Breakpoints für Anthropic-Modelle setzen
 - Wie Sie die Cache-Nutzung aus der Antwort auslesen
 
@@ -61,17 +61,17 @@ Prefix Caching verändert niemals den Inhalt einer Antwort: Das Modell sieht in 
 
 ## T-Cloud-gehostete Open-Source-Modelle
 
-Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen-3.6-35B-FP8`) ist Prefix Caching **pro Anfrage aktiv zu aktivieren**. Zwei zusätzliche Felder der Chat-Completion-Anfrage steuern es:
+Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen-3.6-35B-FP8`) ist Prefix Caching **standardmäßig eingeschaltet** und wird pro Anfrage gesteuert. Zwei zusätzliche Felder der Chat-Completion-Anfrage regeln es:
 
 | Feld | Typ | Standard | Zweck |
 |---|---|---|---|
-| `save_cache` | boolean | `false` | Hauptschalter — muss explizit `true` sein, damit das Prompt-Präfix gespeichert und wiederverwendet wird |
-| `cache_salt` | string | *(leer)* | Legt fest, **wer** das Präfix wiederverwenden darf. Wird nur bei `save_cache: true` ausgewertet |
+| `save_cache` | boolean | `true` | Hauptschalter — mit `false` bleibt das Präfix dieser Anfrage aus dem Cache |
+| `cache_salt` | string | *(leer)* | Legt fest, **wer** das Präfix wiederverwenden darf. Wird bei `save_cache: false` nicht ausgewertet |
 
 Beide sind Erweiterungen des OpenAI-Schemas. Mit den OpenAI-SDKs übergeben Sie sie über `extra_body` (Python) bzw. als zusätzliche Anfragefelder — siehe die Beispiele unten.
 
-:::note[DSGVO-Konformität]
-Aus Gründen der DSGVO-Konformität ist Prefix Caching bei allen in T-Cloud gehosteten Open-Source-Modellen **standardmäßig deaktiviert** — es werden also keine Prompt-Inhalte zur Wiederverwendung vorgehalten, sofern Sie dies nicht ausdrücklich anfordern. Die Aktivierung ist eine bewusste Entscheidung pro Anfrage: Senden Sie `save_cache: true` und wählen Sie mit `cache_salt` den Geltungsbereich.
+:::note[Abschalten]
+Beim Caching werden bereits verarbeitete Anfragen für eine begrenzte Zeit vorgehalten, damit ähnliche oder wiederkehrende Anfragen schneller beantwortet werden können. Soll ein Prompt gar nicht zur Wiederverwendung vorgehalten werden — eine Einzelanfrage oder Inhalte, die auch nicht kurzzeitig gespeichert werden sollen — senden Sie für diese Anfrage `save_cache: false`; dann wird daraus nichts gespeichert. Der Standard-Geltungsbereich ist Ihr eigener API-Schlüssel: Ein gecachtes Präfix wird also nie von anderen Kunden wiederverwendet, sofern Sie den Bereich nicht selbst über `cache_salt` erweitern.
 :::
 
 ### Geltungsbereich des Caches
@@ -80,17 +80,17 @@ Aus Gründen der DSGVO-Konformität ist Prefix Caching bei allen in T-Cloud geho
 
 | `save_cache` | `cache_salt` | Wer das Präfix wiederverwenden kann |
 |---|---|---|
-| `false` oder weggelassen | wird ignoriert | **Niemand** — Prefix Caching ist für diese Anfrage aus |
-| `true` | weggelassen / leer | Anfragen mit **demselben API-Schlüssel** |
+| `false` | wird ignoriert | **Niemand** — Prefix Caching ist für diese Anfrage abgeschaltet |
+| weggelassen oder `true` | weggelassen / leer | Anfragen mit **demselben API-Schlüssel** (Standard) |
 | `true` | eigene Zeichenkette | Anfragen Ihres Projekts mit **demselben Salt** — z. B. eine Chat-Sitzung, ein Dokument, ein Batch-Job |
 | `true` | `"org"` | Alle Anfragen **desselben Projekts bzw. derselben Organisation**, über alle API-Schlüssel hinweg |
 | `true` | `"global"` | Der **gemeinsame globale Pool** des Modells — Wiederverwendung über alle Mandanten hinweg |
 
 :::note
-`"org"` und `"global"` sind reservierte Werte, werden ohne Beachtung der Groß-/Kleinschreibung erkannt und wirken nur zusammen mit `save_cache: true`. Ein eigener `cache_salt` ohne `save_cache: true` aktiviert **kein** Caching.
+`"org"` und `"global"` sind reservierte Werte und werden ohne Beachtung der Groß-/Kleinschreibung erkannt. Mit `save_cache: false` ist Caching für die Anfrage abgeschaltet; ein `cache_salt` darin wird dann ignoriert.
 :::
 
-Weitere Geltungsbereiche erhöhen die Trefferquote, verringern aber die Isolation der Prompts — deshalb ist der Geltungsbereich immer eine bewusste Entscheidung. Wählen Sie den engsten Bereich, der die gewünschte Wiederverwendung liefert, und halten Sie vertrauliche Prompts aus `"global"` heraus, dessen Pool mit anderen Mandanten geteilt wird.
+Weitere Geltungsbereiche erhöhen die Trefferquote, verringern aber die Isolation der Prompts, und gelten nur, wenn Sie sie ausdrücklich anfordern — standardmäßig bleibt der Bereich auf Ihren eigenen API-Schlüssel beschränkt. Wählen Sie den engsten Bereich, der die gewünschte Wiederverwendung liefert, und halten Sie vertrauliche Prompts aus `"global"` heraus, dessen Pool mit anderen Mandanten geteilt wird.
 
 ### Beispiel
 
@@ -291,7 +291,7 @@ Bei Claude-Modellen kann die Antwort zusätzlich anbieterspezifische Zähler ent
 
 Bleibt `cached_tokens` über wiederholte Aufrufe hinweg bei `0`, prüfen Sie diese Punkte:
 
-1. `save_cache` ist nicht `true` — der Hauptschalter ist aus, es wird nichts gespeichert (Open-Source-Modelle).
+1. Die Anfrage wurde mit `save_cache: false` gesendet — damit ist Caching abgeschaltet und es wird nichts gespeichert (Open-Source-Modelle).
 2. Die beiden Anfragen verwenden **unterschiedliche** `cache_salt`-Werte und sind dadurch voneinander isoliert.
 3. Ein variables Token steht am Anfang des Prompts und zerstört den Abgleich.
 4. Das gemeinsame Präfix ist zu kurz — rechnen Sie erst ab etwa tausend Tokens mit einem Treffer.
@@ -332,7 +332,7 @@ Der Preis pro Modell steht in der Spalte **Cached-Input-Token-Preis** auf jeder 
 
 ## Einschränkungen
 
-- **Standardmäßig deaktiviert.** Bei Open-Source-Modellen wird nichts gecacht, solange `save_cache` nicht explizit `true` ist.
+- **Standardmäßig aktiv, auf Wunsch aus.** Senden Sie `save_cache: false`, um das Präfix einer einzelnen Anfrage aus dem Cache zu halten.
 - Caching erfolgt **nach bestem Bemühen**. Einträge werden bei Speicherdruck verdrängt und nicht über Modellversionen oder Deployments hinweg geteilt.
 - **Nur exakter Token-Abgleich.** Inhaltlich gleiche, aber anders formulierte Präfixe passen nicht — und ein abweichender `cache_salt` isoliert sie selbst bei identischen Tokens.
 - Nur der **Prompt** wird gecacht. Generierte Tokens werden immer neu berechnet — Caching beschleunigt lange Ausgaben also nicht.

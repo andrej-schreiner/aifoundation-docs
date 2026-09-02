@@ -19,6 +19,14 @@ Major changes to AI Foundation Services — new models, feature updates, and dep
 - The [Service Description (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) is now **v1.23** (31 August 2026), replacing v1.20. It is published in German only, so both language versions of the docs link to the same document; the previous English translation has been removed.
 - Server location and data processing for the **Gemini 3 family** — Gemini 3 Pro (≤200k), Gemini 3 Pro (>200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro and Gemini 3 Pro Image — now read **Worldwide** instead of Europe. Google runs these models on its own infrastructure and may process data outside the EU/EEA; see [Enterprise Trust](/reference/enterprise-trust) for the data-handling regime of third-party models.
 
+### Changed
+
+- Aligned the docs with **Service Description v1.23**: the availability target is **99.5%** (previously published as 99.9%) and the [service credit tiers](/reference/service-levels#service-credits) are now stated on the page. **Gemini 3.1 Pro** is split into **≤200k** (€1.80 / €10.80) and **>200k** (€3.60 / €16.20) input-token rows. **GPT-5.6 Terra** (€3.52 / €15.82) and **GPT-5.6 Luna** (€0.20 / €1.20) have their confirmed prices and rate limits. **GPT-Image-2** is €4.39 / €26.33. Prefix caching is documented as **on by default** for T-Cloud-hosted models, switched off per request with `save_cache: false`. Anthropic models are labelled **GCP / Azure**, and **fine-tuning** is listed among the [optional services](/plans/dedicated#optional-services).
+
+### Removed
+
+- **Llama 3.3 70B**, **Claude 4.5 Sonnet** (both context tiers) and **Claude 4.5 Opus** reached their **2026-09-01** retirement date and have left the catalog. See [Retired Models](/models/retired) for replacements.
+
 ### Fixed
 
 - **OpenCode** setup: corrected the authentication URL in step 2 of the [OpenCode plugin instructions](/plugins/opencode) to `https://plugins.ai.t-systems.net/external/`.
