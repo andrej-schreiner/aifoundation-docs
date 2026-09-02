@@ -40,6 +40,7 @@ const EXTRA_MODELS: Array<{
   hosted: string;
   countryCode: string;
   dataProcessing: string;
+  dataProcessingCode: string;
 }> = [];
 
 // Per-model cloud label overrides, keyed by exactModelName. Use when a model's
@@ -110,13 +111,21 @@ const COUNTRY_TO_CODE: Record<string, string> = {
   france: 'fr',
   europe: 'eu',
   us: 'us',
+  // Not a flag — `.fi-globe` is defined in src/styles/custom.css.
+  worldwide: 'globe',
 };
 
 function getCountryCode(countryName: string): string {
   return COUNTRY_TO_CODE[countryName.toLowerCase()] ?? '';
 }
 
-function parseRegion(region: string): { provider: string; hosted: string; countryCode: string } {
+function parseRegion(region: string): {
+  provider: string;
+  hosted: string;
+  countryCode: string;
+  dataProcessing: string;
+  dataProcessingCode: string;
+} {
   const parts = region.split('-');
   const raw = parts[0].toLowerCase();
   const PROVIDER_MAP: Record<string, string> = { otc: 'T-Cloud', azure: 'Azure', gcp: 'GCP' };
@@ -125,14 +134,15 @@ function parseRegion(region: string): { provider: string; hosted: string; countr
   let country = parts[1] ?? '';
   const isWorldwide = country.toLowerCase() === 'worldwide';
   country = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
-  // No flag icon for a worldwide region — getCountryCode returns '' for it,
-  // which the card template already treats as "no flag".
+  // A worldwide region resolves to the globe glyph rather than a country flag.
   const countryCode = getCountryCode(country);
 
   // A `worldwide` region means the third-party provider may run the model —
   // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
   const dataProcessing = raw === 'otc' ? 'Germany' : isWorldwide ? 'Worldwide' : 'EU';
-  return { provider, hosted: country, countryCode, dataProcessing };
+  // Only worldwide processing carries a glyph; Germany and EU stay text-only.
+  const dataProcessingCode = isWorldwide ? 'globe' : '';
+  return { provider, hosted: country, countryCode, dataProcessing, dataProcessingCode };
 }
 
 // Pull from the Agentic and Test plans so preview-only models (e.g. Gemma 4) are included.
@@ -149,6 +159,7 @@ interface ModelCard {
   hosted: string;
   countryCode: string;
   dataProcessing: string;
+  dataProcessingCode: string;
   preview?: boolean;
 }
 
@@ -156,7 +167,9 @@ interface ModelCard {
 const pricingModels: ModelCard[] = configs
   .filter((c: { exactModelName: string }) => !OFFLINE_MODELS.has(c.exactModelName))
   .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; isPreview: boolean }) => {
-    const { provider, hosted, countryCode, dataProcessing } = parseRegion(c.deploymentRegion);
+    const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
+      c.deploymentRegion,
+    );
     return {
       modelId: c.exactModelName,
       name: c.displayModelName,
@@ -164,6 +177,7 @@ const pricingModels: ModelCard[] = configs
       hosted,
       countryCode,
       dataProcessing,
+      dataProcessingCode,
       preview: c.isPreview,
     };
   });
@@ -264,7 +278,15 @@ const INITIAL_COUNT = 6;
               )}
             </span>
             <span>
-              {t.dataProcessing}: <strong>{model.dataProcessing}</strong>
+              {t.dataProcessing}: <strong>{model.dataProcessing}</strong>{' '}
+              {model.dataProcessingCode && (
+                <span
+                  class={`fi fi-${model.dataProcessingCode}`}
+                  style="margin-left: 4px;"
+                  role="presentation"
+                  aria-hidden="true"
+                />
+              )}
             </span>
           </div>
         </div>

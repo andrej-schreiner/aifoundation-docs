@@ -314,6 +314,8 @@ const COUNTRY_CODES: Record<string, string> = {
   france: 'fr',
   europe: 'eu',
   us: 'us',
+  // Not a flag — `.fi-globe` is defined in src/styles/custom.css.
+  worldwide: 'globe',
 };
 
 function parseLocation(deploymentRegion: string): { name: string; code: string } {
