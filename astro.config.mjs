@@ -36,12 +36,13 @@ export default defineConfig({
 					// in the config on purpose: Starlight localizes root-relative sidebar
 					// links (…/files → /de/files, a 404), and the link-checker skips
 					// external URLs. At runtime this script overrides every Service
-					// Description link to a host-relative /files/… path (…_EN.pdf on
-					// English pages), so it resolves against the current origin — working
-					// in local dev and on any deployed host, for both locales. Runs on
-					// first load and on Starlight view-transition navigations.
+					// Description link to a host-relative /files/… path, so it resolves
+					// against the current origin — working in local dev and on any
+					// deployed host. The Service Description is published in German only,
+					// so both locales point at the same file. Runs on first load and on
+					// Starlight view-transition navigations.
 					tag: 'script',
-					content: `(function(){function fix(){var en=document.documentElement.lang==='en';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/Leistungsbeschreibung-LLM-Serving-Service'+(en?'_EN':'')+'.pdf');});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
+					content: `(function(){function fix(){document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/Leistungsbeschreibung-LLM-Serving-Service.pdf');});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 			],
 			components: {
