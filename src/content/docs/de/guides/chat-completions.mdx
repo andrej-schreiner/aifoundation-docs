@@ -156,11 +156,10 @@ response = client.responses.create(
     model="gpt-5",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
-    temperature=0.7,
-    max_output_tokens=200,
+    max_output_tokens=2000,
 )
 
-print(response.output[0].content[0].text)
+print(response.output_text)
 ```
 
 :::note

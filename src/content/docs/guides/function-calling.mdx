@@ -144,6 +144,7 @@ Price: $79.99, on sale for $64.99.
 response = client.responses.create(
     model="gpt-5",
     input=f"Extract structured product information: {description}",
+    max_output_tokens=2000,
     text={
         "format": {
             "type": "json_schema",
@@ -173,7 +174,7 @@ response = client.responses.create(
     },
 )
 
-print(json.dumps(json.loads(response.output[0].content[0].text), indent=2))
+print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
 
