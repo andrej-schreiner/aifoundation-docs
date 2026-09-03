@@ -33,7 +33,15 @@ Die folgende Tabelle zeigt einige gängige Modelle und wie Reasoning dort gesteu
 | Claude 4.6, Claude Opus 5 | Parameter `reasoning_effort` |
 | Qwen 3.6 | Prompt-Schlüsselwort `/no_think` |
 
-Die meisten Reasoning-Modelle folgen einem dieser beiden Muster: dem OpenAI-kompatiblen Parameter `reasoning_effort` oder einem Prompt-Schlüsselwort. Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat & Reasoning (LLMs)](/de/models/llms).
+Die meisten Reasoning-Modelle folgen einem dieser beiden Muster: dem OpenAI-kompatiblen Parameter `reasoning_effort` oder einem Prompt-Schlüsselwort. `reasoning_effort` wird deutlich breiter akzeptiert, als die Tabelle vermuten lässt — auch GLM, Mistral, Gemma, Nemotron und die T-Cloud-gehosteten Open-Source-Modelle nehmen ihn entgegen.
+
+Einige Modelle bilden Ausnahmen:
+
+- **Mistral-Modelle** akzeptieren nur `none` und `high`. `low` oder `medium` führen zu HTTP 400 mit `reasoning_effort=... is not supported by Mistral models.`
+- **Einzelne neuere Anthropic-Modelle** lehnen `reasoning_effort` ab und steuern Thinking anders; die Fehlermeldung nennt die zu verwendende Alternative.
+- **Auf Code spezialisierte Modelle** weisen den Parameter mit `The requested operation is unsupported.` zurück.
+
+Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat & Reasoning (LLMs)](/de/models/llms).
 
 
 ## Verwendung von reasoning_effort
@@ -75,7 +83,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},

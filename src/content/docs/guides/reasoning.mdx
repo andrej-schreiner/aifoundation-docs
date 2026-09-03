@@ -33,7 +33,15 @@ The table below shows a few common models and how reasoning is controlled on eac
 | Claude 4.6, Claude Opus 5 | `reasoning_effort` parameter |
 | Qwen 3.6 | `/no_think` prompt keyword |
 
-Most reasoning models follow one of these two patterns: an OpenAI-compatible `reasoning_effort` parameter, or a prompt keyword. If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning models](/models/llms).
+Most reasoning models follow one of these two patterns: an OpenAI-compatible `reasoning_effort` parameter, or a prompt keyword. `reasoning_effort` is accepted far more widely than the table suggests — GLM, Mistral, Gemma, Nemotron and the T-Cloud-hosted open-source models take it too.
+
+A few models are exceptions worth knowing about:
+
+- **Mistral models** accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
+- **Some newer Anthropic models** reject `reasoning_effort` and control thinking differently; the error names the alternative to use.
+- **Code-specialised models** may reject the parameter outright with `The requested operation is unsupported.`
+
+If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning models](/models/llms).
 
 
 ## Using reasoning_effort
@@ -75,7 +83,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},

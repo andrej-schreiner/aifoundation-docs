@@ -164,7 +164,7 @@ print(response.output[0].content[0].text)
 ```
 
 :::note
-Die Responses API wird derzeit vollständig nur für OpenAI-Modelle unterstützt (z. B. `gpt-5`, `gpt-5-mini`). T-Cloud-gehostete Open-Source-Modelle haben eingeschränkte Unterstützung.
+Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Calls und Streaming sind bestätigt für OpenAI-Modelle (`gpt-5`), Google-Modelle (`gemini-3-flash`), Anthropic-Modelle (`claude-sonnet-4.6`) und T-Cloud-gehostete Open-Source-Modelle (`gpt-oss-120b`). Die Abdeckung ist jedoch noch nicht vollständig: Einzelne Modelle weisen Responses-API-Anfragen mit HTTP 400 zurück. Nutzen Sie in dem Fall die Chat Completions API, die überall unterstützt wird.
 :::
 
 

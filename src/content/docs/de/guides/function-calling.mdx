@@ -182,7 +182,7 @@ print(json.dumps(json.loads(response.output[0].content[0].text), indent=2))
 :::note
 Function Calling funktioniert mit einer breiten Auswahl an Modellen auf der Plattform — darunter Modelle von OpenAI, Google und Anthropic sowie viele Open-Source-Modelle. Die in diesem Guide verwendeten Modellnamen sind lediglich Beispiele und nicht die einzigen Modelle, die die Funktion unterstützen. Einige auf T-Cloud gehostete Open-Source-Modelle unterstützen Function Calling noch nicht; prüfen Sie den Eintrag des Modells unter [Verfügbare Modelle](/de/models), bevor Sie sich darauf verlassen.
 
-Die Responses API wird derzeit nur für OpenAI-Modelle vollständig unterstützt.
+Auch die Responses API ist nicht auf OpenAI-Modelle beschränkt — Tool Calls darüber sind ebenso für Google-, Anthropic- und T-Cloud-gehostete Open-Source-Modelle bestätigt, einzelne Modelle weisen Responses-API-Anfragen allerdings noch zurück.
 :::
 
 

@@ -17,7 +17,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
 **Was Sie lernen werden:**
 - Wie Sie Bilder von URLs analysieren
 - Wie Sie lokale Bilder per Base64-Kodierung senden
-- Welche Modelle Vision-Funktionen unterstützen
+- Wie Sie herausfinden, welche Modelle Bilder akzeptieren
 
 
 ## Ein Bild von einer URL analysieren
@@ -120,7 +120,7 @@ def encode_image(image_path):
 base64_image = encode_image("/path/to/your/image.jpg")
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {
             "role": "user",
@@ -148,12 +148,14 @@ Die folgenden Modelle sind Beispiele aus diesem Guide. Auch andere Modelle auf d
 
 | Modell (Beispiel) | Anbieter | Fähigkeiten |
 |---|---|---|
-| `Qwen-3.6-35B-FP8` | T-Cloud (Deutschland) | Bild-, Dokument- & Videoverständnis, OCR |
+| `Qwen3.6-35B-A3B-FP8` | T-Cloud (Deutschland) | Bild-, Dokument- & Videoverständnis, OCR |
 | `gemini-3-flash` | Google Cloud | Bild- + Videoverständnis |
 | `gpt-5` | Azure | Bildverständnis |
 
-:::caution[Bildlimit für T-Cloud-gehostete Modelle]
-Die folgenden T-Cloud-gehosteten Modelle akzeptieren **maximal 10 Bilder pro Anfrage**: `Gemma`, `Qwen-3.6-35B-FP8`, `Mistral-Small-24B`. Das Senden von mehr Bildern führt zu HTTP 400 `BadRequestError: At most 10 image(s) may be provided in one prompt.` Teilen Sie große Batches auf mehrere Anfragen auf.
+:::caution[Bildlimits pro Anfrage unterscheiden sich je Modell]
+T-Cloud-gehostete Modelle begrenzen, wie viele Bilder eine Anfrage enthalten darf — **das Limit ist nicht bei allen Modellen gleich**. Prüfen Sie es für das von Ihnen genutzte Modell, statt einen einheitlichen Wert anzunehmen. Gemessene Beispiele: `gemma-4-31B-it-FP8` und `Qwen3-VL-30B-A3B-Instruct-FP8` akzeptieren 10, `Qwen3.6-35B-A3B-FP8` dagegen nur 8.
+
+Wird das Limit überschritten, folgt HTTP 400 — entweder `At most 10 image(s) may be provided in one prompt.` oder `Image count 9 exceeds limit 8 per request.` Teilen Sie große Batches auf mehrere Anfragen auf.
 :::
 
 

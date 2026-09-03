@@ -17,7 +17,7 @@ AI Foundation Services provides vision models that can analyze images alongside 
 **What you'll learn:**
 - How to analyze images from URLs
 - How to send local images via base64 encoding
-- Which models support vision capabilities
+- How to find out which models accept images
 
 
 ## Analyze an Image from URL
@@ -120,7 +120,7 @@ def encode_image(image_path):
 base64_image = encode_image("/path/to/your/image.jpg")
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {
             "role": "user",
@@ -148,12 +148,14 @@ The models below are examples used in this guide. Other models on the platform a
 
 | Model (example) | Provider | Capabilities |
 |---|---|---|
-| `Qwen-3.6-35B-FP8` | T-Cloud (Germany) | Image, document & video understanding, OCR |
+| `Qwen3.6-35B-A3B-FP8` | T-Cloud (Germany) | Image, document & video understanding, OCR |
 | `gemini-3-flash` | Google Cloud | Image + video understanding |
 | `gpt-5` | Azure | Image understanding |
 
-:::caution[Image limit for T-Cloud-hosted models]
-The following T-Cloud-hosted models accept **at most 10 images per request**: `Gemma`, `Qwen-3.6-35B-FP8`, `Mistral-Small-24B`. Sending more images returns HTTP 400 `BadRequestError: At most 10 image(s) may be provided in one prompt.` Split large batches into multiple requests.
+:::caution[Per-request image limits differ by model]
+T-Cloud-hosted models cap how many images one request may contain, and **the cap is not the same for every model** — check it for the model you use rather than assuming a common value. Measured examples: `gemma-4-31B-it-FP8` and `Qwen3-VL-30B-A3B-Instruct-FP8` accept 10, while `Qwen3.6-35B-A3B-FP8` accepts only 8.
+
+Exceeding the cap returns HTTP 400, either `At most 10 image(s) may be provided in one prompt.` or `Image count 9 exceeds limit 8 per request.` Split large batches into multiple requests.
 :::
 
 
