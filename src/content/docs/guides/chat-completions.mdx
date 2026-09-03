@@ -156,15 +156,14 @@ response = client.responses.create(
     model="gpt-5",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
-    temperature=0.7,
-    max_output_tokens=200,
+    max_output_tokens=2000,
 )
 
-print(response.output[0].content[0].text)
+print(response.output_text)
 ```
 
 :::note
-The Responses API is currently fully supported only for OpenAI models (e.g., `gpt-5`, `gpt-5-mini`). T-Cloud-hosted open-source models have limited support.
+The Responses API works with models from several providers — text, tool calls and streaming are all confirmed on OpenAI models (`gpt-5`), Google models (`gemini-3-flash`), Anthropic models (`claude-sonnet-4.6`) and T-Cloud-hosted open-source models (`gpt-oss-120b`). Coverage is still not universal: a few models reject Responses API requests and return HTTP 400. If you hit one, use the Chat Completions API, which is supported everywhere.
 :::
 
 

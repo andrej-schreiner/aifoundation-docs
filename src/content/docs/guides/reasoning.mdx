@@ -1,6 +1,6 @@
 ---
 title: "Reasoning Control"
-description: "Control chain-of-thought depth with the `reasoning_effort` parameter on supported models including GPT-5, Gemini 3, and Claude 4.6."
+description: "Control chain-of-thought depth with the `reasoning_effort` parameter on reasoning-capable models such as GPT-5, Gemini 3, and Claude 4.6."
 ---
 
 
@@ -11,23 +11,37 @@ For models that support reasoning (chain-of-thought), you can control the depth 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
-- A reasoning-capable model (see table below)
+- A reasoning-capable model (see [Chat & Reasoning models](/models/llms))
 :::
 
 **What you'll learn:**
-- Which models support reasoning control
+- How to tell whether a model supports reasoning control
 - How to use the `reasoning_effort` parameter
 - How to disable reasoning for Qwen 3.6 models
 
 
-## Supported Models
+## Examples of Reasoning Control
 
-| Model | Reasoning Control |
+:::note[These are examples, not a complete list]
+The table below shows a few common models and how reasoning is controlled on each. It is **not** an exhaustive list — other models on the platform support reasoning control too, and the catalogue changes over time. For the current list, see [Chat & Reasoning models](/models/llms) or query the [models endpoint](/reference/api-endpoints).
+:::
+
+| Model (example) | Reasoning Control |
 |---|---|
 | GPT-5, GPT-5 mini, GPT-5 nano | `reasoning_effort` parameter |
 | Gemini 3 | `reasoning_effort` parameter |
 | Claude 4.6, Claude Opus 5 | `reasoning_effort` parameter |
 | Qwen 3.6 | `/no_think` prompt keyword |
+
+Most reasoning models follow one of these two patterns: an OpenAI-compatible `reasoning_effort` parameter, or a prompt keyword. `reasoning_effort` is accepted far more widely than the table suggests — GLM, Mistral, Gemma, Nemotron and the T-Cloud-hosted open-source models take it too.
+
+A few models are exceptions worth knowing about:
+
+- **Mistral models** accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
+- **Some newer Anthropic models** reject `reasoning_effort` and control thinking differently; the error names the alternative to use.
+- **Code-specialised models** may reject the parameter outright with `The requested operation is unsupported.`
+
+If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning models](/models/llms).
 
 
 ## Using reasoning_effort
@@ -69,7 +83,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},
