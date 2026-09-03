@@ -140,15 +140,17 @@ print(response.choices[0].message.content)
 ```
 
 
-## Available Vision Models
+## Examples of Vision Models
 
-| Model | Provider | Capabilities |
+:::note[These are examples, not a complete list]
+The models below are examples used in this guide. Other models on the platform also handle images — see [Vision models](/models/vision) for the current list.
+:::
+
+| Model (example) | Provider | Capabilities |
 |---|---|---|
 | `Qwen-3.6-35B-FP8` | T-Cloud (Germany) | Image, document & video understanding, OCR |
 | `gemini-3-flash` | Google Cloud | Image + video understanding |
 | `gpt-5` | Azure | Image understanding |
-
-Check [Available Models](/getting-started/models) for the latest list.
 
 :::caution[Image limit for T-Cloud-hosted models]
 The following T-Cloud-hosted models accept **at most 10 images per request**: `Gemma`, `Qwen-3.6-35B-FP8`, `Mistral-Small-24B`. Sending more images returns HTTP 400 `BadRequestError: At most 10 image(s) may be provided in one prompt.` Split large batches into multiple requests.

@@ -11,7 +11,7 @@ Function Calling ermöglicht es Modellen, strukturierte JSON-Argumente für von 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installiert ([Quickstart](/de/getting-started/quickstart))
-- Ein Modell, das Function Calling unterstützt (OpenAI-, Google- oder Anthropic-Modelle)
+- Ein Modell, das Function Calling unterstützt (die meisten gehosteten Modelle tun das — siehe [Verfügbare Modelle](/de/models))
 :::
 
 **Was Sie lernen werden:**
@@ -180,7 +180,7 @@ print(json.dumps(json.loads(response.output[0].content[0].text), indent=2))
 ## Kompatibilität
 
 :::note
-Function Calling wird von OpenAI-, Google- und Anthropic-Modellen unterstützt. Nicht alle auf T-Cloud gehosteten Open-Source-Modelle unterstützen diese Funktion bereits. Für die beste Erfahrung auf T-Cloud empfehlen wir die Verwendung von Modellen mit vollständiger Function-Calling-Kompatibilität.
+Function Calling funktioniert mit einer breiten Auswahl an Modellen auf der Plattform — darunter Modelle von OpenAI, Google und Anthropic sowie viele Open-Source-Modelle. Die in diesem Guide verwendeten Modellnamen sind lediglich Beispiele und nicht die einzigen Modelle, die die Funktion unterstützen. Einige auf T-Cloud gehostete Open-Source-Modelle unterstützen Function Calling noch nicht; prüfen Sie den Eintrag des Modells unter [Verfügbare Modelle](/de/models), bevor Sie sich darauf verlassen.
 
 Die Responses API wird derzeit nur für OpenAI-Modelle vollständig unterstützt.
 :::

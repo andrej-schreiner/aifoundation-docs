@@ -11,7 +11,7 @@ Function calling lets models generate structured JSON arguments for functions yo
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
-- A model that supports function calling (OpenAI, Google, or Anthropic models)
+- A model that supports function calling (most hosted models do — see [Available Models](/models))
 :::
 
 **What you'll learn:**
@@ -180,7 +180,7 @@ print(json.dumps(json.loads(response.output[0].content[0].text), indent=2))
 ## Compatibility
 
 :::note
-Function calling is supported by OpenAI, Google, and Anthropic models. Not all T-Cloud-hosted open-source models support it yet. For the best experience on T-Cloud, we recommend using models with full function-calling compatibility.
+Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available Models](/models) before relying on it.
 
 The Responses API is currently fully supported only for OpenAI models.
 :::

@@ -1,6 +1,6 @@
 ---
 title: "Reasoning"
-description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf unterstützten Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
+description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf Reasoning-fähigen Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
 ---
 
 
@@ -11,23 +11,29 @@ Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Ti
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installiert ([Quickstart](/de/getting-started/quickstart))
-- Ein Reasoning-fähiges Modell (siehe Tabelle unten)
+- Ein Reasoning-fähiges Modell (siehe [Chat & Reasoning (LLMs)](/de/models/llms))
 :::
 
 **Was Sie lernen werden:**
-- Welche Modelle Reasoning unterstützen
+- Wie Sie erkennen, ob ein Modell Reasoning-Steuerung unterstützt
 - Wie Sie den Parameter `reasoning_effort` verwenden
 - Wie Sie Reasoning für Qwen 3.6-Modelle deaktivieren
 
 
-## Unterstützte Modelle
+## Beispiele für Reasoning-Steuerung
 
-| Modell | Reasoning |
+:::note[Beispiele, keine vollständige Liste]
+Die folgende Tabelle zeigt einige gängige Modelle und wie Reasoning dort gesteuert wird. Sie ist **keine** vollständige Aufzählung — weitere Modelle auf der Plattform unterstützen Reasoning-Steuerung ebenfalls, und der Katalog ändert sich laufend. Die aktuelle Liste finden Sie unter [Chat & Reasoning (LLMs)](/de/models/llms) oder über den [Models-Endpunkt](/de/reference/api-endpoints).
+:::
+
+| Modell (Beispiel) | Reasoning |
 |---|---|
 | GPT-5, GPT-5 mini, GPT-5 nano | Parameter `reasoning_effort` |
 | Gemini 3 | Parameter `reasoning_effort` |
 | Claude 4.6, Claude Opus 5 | Parameter `reasoning_effort` |
 | Qwen 3.6 | Prompt-Schlüsselwort `/no_think` |
+
+Die meisten Reasoning-Modelle folgen einem dieser beiden Muster: dem OpenAI-kompatiblen Parameter `reasoning_effort` oder einem Prompt-Schlüsselwort. Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat & Reasoning (LLMs)](/de/models/llms).
 
 
 ## Verwendung von reasoning_effort
