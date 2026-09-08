@@ -9,11 +9,15 @@ import PlansPage from '../../../components/PlansPage.astro';
 <div style="max-width: 54rem;">
 
 :::tip[New in preview]
-**Qwen 3.8 27B FP8** (`Qwen3.8-27B-FP8-Preview`) is now available to try — a natively multimodal model (text and image input) with a 256K context window, free of charge on any active plan. It is Apache-2.0 licensed and hosted in T-Cloud Public (Germany).
+**GLM 5.3 Flash** (`GLM-5.3-Flash-Preview`) — the first natively multimodal model in the GLM-5 series, 320B parameters with 18B active, 1M context window, MIT licensed.
+
+**Qwen 3.8 27B FP8** (`Qwen3.8-27B-FP8-Preview`) — natively multimodal, 256K context window, Apache-2.0 licensed.
+
+Both accept text and image input, run in T-Cloud Public (Germany), and are free of charge on any active plan.
 :::
 
 :::note
-Any RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the full conditions and important caveats specific to preview models.
+RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the conditions that apply.
 :::
 
 </div>
@@ -26,9 +30,9 @@ Any RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes"
 
 ## Service note on Test / Preview models
 
-<sup>&ast;</sup> Test and Preview models operate under **dynamic rate limits** rather than fixed Requests-per-Minute (RPM) or Tokens-per-Minute (TPM) ceilings. The following conditions apply:
+<sup>&ast;</sup> Test and Preview models operate under **dynamic rate limits** rather than fixed Requests-per-Minute (RPM) or Tokens-per-Minute (TPM) ceilings. In addition:
 
-- They are provided free of charge with any active plan; Telekom reserves the right to adjust, restrict, or discontinue them at any time without prior notice.
+- Telekom may adjust, restrict, or discontinue them at any time without prior notice.
 - They carry **no minimum-availability commitment** and are **not part of any Service Level Agreement (SLA)**.
 - They are intended for evaluation and prototyping; they are **not suitable for production workloads**.
 

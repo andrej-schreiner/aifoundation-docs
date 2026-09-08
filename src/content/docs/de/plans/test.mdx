@@ -9,11 +9,15 @@ import PlansPage from '../../../../components/PlansPage.astro';
 <div style="max-width: 54rem;">
 
 :::tip[Neu in der Vorschau]
-**Qwen 3.8 27B FP8** (`Qwen3.8-27B-FP8-Preview`) steht ab sofort zum Testen bereit — ein nativ multimodales Modell (Text- und Bildeingabe) mit 256K Kontextfenster, kostenlos mit jedem aktiven Tarif. Es ist Apache-2.0-lizenziert und wird in T-Cloud Public (Deutschland) betrieben.
+**GLM 5.3 Flash** (`GLM-5.3-Flash-Preview`) — das erste nativ multimodale Modell der GLM-5-Reihe, 320 Mrd. Parameter (18 Mrd. aktiv), 1M Kontextfenster, MIT-lizenziert.
+
+**Qwen 3.8 27B FP8** (`Qwen3.8-27B-FP8-Preview`) — nativ multimodal, 256K Kontextfenster, Apache-2.0-lizenziert.
+
+Beide akzeptieren Text- und Bildeingabe, werden in T-Cloud Public (Deutschland) betrieben und sind mit jedem aktiven Tarif kostenlos.
 :::
 
 :::note
-Etwaige RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;</a></sup> markiert — klicken Sie auf ein Sternchen für die vollständigen Bedingungen und wichtige Einschränkungen speziell für Preview-Modelle.
+RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;</a></sup> markiert — klicken Sie auf ein Sternchen für die geltenden Bedingungen.
 :::
 
 </div>
@@ -26,9 +30,9 @@ Etwaige RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes
 
 ## Servicehinweis zu Test- / Preview-Modellen
 
-<sup>&ast;</sup> Test- und Preview-Modelle nutzen **dynamische Rate-Limits** anstelle fester Werte für Anfragen pro Minute (RPM) oder Token pro Minute (TPM). Es gelten die folgenden Bedingungen:
+<sup>&ast;</sup> Test- und Preview-Modelle nutzen **dynamische Rate-Limits** anstelle fester Werte für Anfragen pro Minute (RPM) oder Token pro Minute (TPM). Darüber hinaus gilt:
 
-- Sie werden kostenfrei mit jedem aktiven Tarif bereitgestellt; die Telekom behält sich vor, sie jederzeit ohne vorherige Ankündigung anzupassen, einzuschränken oder abzukündigen.
+- Die Telekom behält sich vor, sie jederzeit ohne vorherige Ankündigung anzupassen, einzuschränken oder abzukündigen.
 - Es gilt **keine Mindestverfügbarkeit** und sie sind **nicht Teil eines Service Level Agreements (SLA)**.
 - Sie sind für Evaluierung und Prototyping vorgesehen; sie sind **nicht für den Produktivbetrieb geeignet**.
 

@@ -46,11 +46,12 @@ const EXTRA_MODELS: Array<{
 // Per-model cloud label overrides, keyed by exactModelName. Use when a model's
 // cloud should read differently from what parseRegion() derives from its region
 // prefix (e.g. otc → "T-Cloud"), without changing the mapping for every otc model.
-const CLOUD_OVERRIDES: Record<string, string> = {
-  'GLM-5.2-Preview': 'T-Cloud / Industrial AI Cloud',
-};
+// Empty is fine — every model in the catalog currently reads correctly from its
+// deployment region.
+const CLOUD_OVERRIDES: Record<string, string> = {};
 
 const SORT_ORDER = [
+  'GLM 5.3 Flash',
   'GLM 5.2',
   'NVIDIA Nemotron 3 Super 120B FP8',
   'Gemma 4',

@@ -84,7 +84,11 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // general-purpose LLM that is also strong at code must be tagged explicitly to
 // appear on /models/coding in addition to its primary category (/models/llms).
 const EXTRA_CATEGORIES: Record<string, Category[]> = {
-  'GLM-5.2-Preview': ['coding'],
+  'GLM-5.2': ['coding'],
+  // GLM-5.3-Flash (preview) is positioned by Z.ai as a coding/agentic model —
+  // its model card reports it approaching Claude Opus 4.8 on coding and
+  // agentic benchmarks — but stays primary 'llms' as a general-purpose model.
+  'GLM-5.3-Flash-Preview': ['coding'],
   // Qwen 3.8 27B (preview) is coding-strong per Qwen's model card — it leads
   // Qwen3.6-27B on SWE-bench Pro and Terminal Bench — but stays primary 'llms'
   // as a general-purpose model.
@@ -193,6 +197,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // understanding per the model card). Video has no InputModality member, so
   // only Text+Image are declared here.
   'Qwen3.8-27B-FP8-Preview': { inputModalities: ['Text', 'Image'] },
+  // GLM-5.3-Flash (preview) is the first natively multimodal model in the
+  // GLM-5 series — Text+Image in, Text out per the model card.
+  'GLM-5.3-Flash-Preview': { inputModalities: ['Text', 'Image'] },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },

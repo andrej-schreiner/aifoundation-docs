@@ -2653,6 +2653,33 @@
     "childrenPackages": [],
     "modelQuotaConfigs": [
       {
+        "exactModelName": "GLM-5.3-Flash-Preview",
+        "inputTokenPerMinute": 0,
+        "outputTokenPerMinute": 0,
+        "inputTokenPerMinuteLimit": "dynamic",
+        "outputTokenPerMinuteLimit": "dynamic",
+        "lifetimeTokenLimit": 0,
+        "requestPerMinute": 0,
+        "requestPerMinuteLimit": "dynamic",
+        "inputPricePerMillionTokens": 0.0,
+        "outputPricePerMillionTokens": 0.0,
+        "modelQuotaMetadata": {
+          "quotaType": "Dynamic",
+          "note": "Limits are dynamically allocated for test models"
+        },
+        "displayModelName": "GLM 5.3 Flash",
+        "modelLabel": "Test model (T-Cloud Public)",
+        "contextWindow": "1M",
+        "termsOfUseUrl": "https://opensource.org/license/mit",
+        "dataProtectionUrl": "https://chat.z.ai/legal-agreement/privacy-policy",
+        "aiModelId": 990104,
+        "deploymentRegion": "otc-germany",
+        "modelQuotaConfigId": 990104,
+        "createdAt": "2026-09-08T10:00:00.000000",
+        "updatedAt": "2026-09-08T10:00:00.000000",
+        "modelTier": "standard"
+      },
+      {
         "exactModelName": "Qwen3.8-27B-FP8-Preview",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
@@ -2681,7 +2708,7 @@
       }
     ],
     "createdAt": "2026-04-23T10:00:00.000000",
-    "updatedAt": "2026-04-24T10:00:00.000000",
+    "updatedAt": "2026-09-08T10:00:00.000000",
     "userId": 53,
     "username": "test"
   }

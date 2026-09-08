@@ -11,58 +11,49 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung v1
 
 ### Hinzugefügt
 
-- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.6 Terra** (`gpt-5.6-terra`) für **3,52 € / 15,82 €** pro Million Input-/Output-Tokens und **GPT-5.6 Luna** (`gpt-5.6-luna`) für **0,20 € / 1,20 €**. Beide werden aus Azure Schweden mit 1050K Kontextfenster bereitgestellt.
-- **Gemini 3.1 Pro wird nun nach Kontextlänge bepreist**, entsprechend der Leistungsbeschreibung: **≤200k** Input-Tokens für 1,80 € / 10,80 €, **>200k** für 3,60 € / 16,20 €. Bislang eine einzelne Zeile.
-- **Preise für zwischengespeicherte Input-Tokens.** Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden bei T-Cloud-gehosteten Modellen mit **15 % des normalen Input-Token-Preises** abgerechnet. Der Preis pro Modell steht in der neuen Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cached €/M** im [Modellvergleich](/de/models/comparison). Für Modelle externer Anbieter (Azure, GCP) wird die Preisgestaltung später ergänzt. Siehe [Prefix Caching](/de/guides/prefix-caching#preise-für-zwischengespeicherte-tokens).
+- Neues Preview-Modell im Test-Katalog: **GLM 5.3 Flash** — nativ multimodal, kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/plans/test).
+- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.6 Terra** und **GPT-5.6 Luna**. Siehe [Tarife & Preise](/de/plans).
+- **Gemini 3.1 Pro wird nun nach Kontextlänge bepreist.**
+- **Preise für zwischengespeicherte Input-Tokens** bei T-Cloud-gehosteten Modellen. Siehe [Prefix Caching](/de/guides/prefix-caching#preise-für-zwischengespeicherte-tokens).
 
 ### Geändert
 
-- **Die Mindestverfügbarkeit beträgt 99,5 %**, nicht die zuvor ausgewiesenen 99,9 %. Korrigiert auf [Service-Level](/de/reference/service-levels), [Rate-Limits](/de/reference/rate-limits), [Dedicated LLM Serving](/de/plans/dedicated) und [Shared vs. Dedicated](/de/plans/service-models).
-- **GLM 5.2** — Token-Preise in allen Tarifen gesenkt: Input **4,00 € → 1,50 €**, Output **8,00 € → 3,50 €** pro Million Tokens. Zwischengespeicherte Input-Tokens kosten damit 0,225 € pro Million.
-- **GLM 5.2** wurde in allen Tarifen vom Tier **Premium** in das Tier **Standard** überführt.
-- **GPT-Image-2** kostet **4,39 € / 26,33 €** pro Million Tokens (zuvor als 9,55 € / 38,20 € ausgewiesen).
-- **Prefix Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiv** und kann pro Anfrage mit `save_cache: false` abgeschaltet werden. Die [Anleitung](/de/guides/prefix-caching) hat Caching bisher als Opt-in beschrieben.
-- Serverstandort und Datenverarbeitung der **Gemini-3-Familie** — Gemini 3 Pro (≤200k und >200k), Gemini 3 Flash, Gemini 3.5 Flash, Gemini 3.1 Pro und Gemini 3 Pro Image — werden nun als **Worldwide** ausgewiesen statt als Europa. Google betreibt diese Modelle auf eigener Infrastruktur und kann Daten auch außerhalb der EU/EWR verarbeiten; siehe [Enterprise Trust](/de/reference/enterprise-trust).
-- Die **Anthropic**-Modelle sind mit **GCP / Azure** gekennzeichnet, da eine Anfrage aus beiden Clouds bedient werden kann.
-- Die mit der Dokumentation ausgelieferte **Leistungsbeschreibung** liegt nun als **v1.23** vor und ersetzt v1.20. Sie erscheint ausschließlich auf Deutsch, beide Sprachversionen verweisen daher auf dasselbe Dokument. Wer eine [archivierte Version](/de/v1-2-0/) der Dokumentation liest, erhält weiterhin die Leistungsbeschreibung v1.20, auf die sich diese Version bezieht.
-- **Enterprise Trust**, Kategorie 1, führt nun die Modelle auf, die die Leistungsbeschreibung nennt — Gemma 4 31B, Mistral Small 4, Qwen 3.6 35B, Nemotron 3 Super, GLM 5.2, GPT-OSS-120B, Whisper und die Embedding-Modelle.
+- **Die Mindestverfügbarkeit beträgt 99,5 %**, nicht die zuvor ausgewiesenen 99,9 %.
+- **GLM 5.2** — Token-Preise gesenkt, und das Modell wurde in das Tier **Standard** überführt.
+- **GPT-Image-2** — Preise korrigiert.
+- **Prefix Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiv**, nicht Opt-in.
+- Serverstandort und Datenverarbeitung der **Gemini-3-Familie** werden nun als **Worldwide** ausgewiesen statt als Europa. Siehe [Enterprise Trust](/de/reference/enterprise-trust).
+- Die **Anthropic**-Modelle sind mit **GCP / Azure** gekennzeichnet.
+- Die mit der Dokumentation ausgelieferte **Leistungsbeschreibung** liegt nun als **v1.23** vor.
+- **Enterprise Trust**, Kategorie 1, führt nun die Modelle auf, die die Leistungsbeschreibung nennt.
 
 ### Entfernt
 
-- **Llama 3.3 70B**, **Claude 4.5 Sonnet** (beide Kontextvarianten) und **Claude 4.5 Opus** haben ihr Stilllegungsdatum **01.09.2026** erreicht und wurden aus dem Katalog entfernt. Ersatzmodelle siehe [Stillgelegte Modelle](/de/models/retired).
+- **Llama 3.3 70B**, **Claude 4.5 Sonnet** und **Claude 4.5 Opus** haben ihr Stilllegungsdatum erreicht. Ersatzmodelle siehe [Stillgelegte Modelle](/de/models/retired).
 
 ### Behoben
 
-- **OpenCode**: Die Authentifizierungs-URL in Schritt 2 der [OpenCode-Plugin-Anleitung](/plugins/opencode) wurde auf `https://plugins.ai.t-systems.net/external/` korrigiert.
-- `/category/model-serving`, die in § 2.2 der Leistungsbeschreibung abgedruckte URL zur API-Dokumentation, leitet nun auf die [Anleitungen](/de/guides) weiter statt einen 404 zu liefern.
+- **GLM 5.2** erscheint wieder unter [Coding-Modelle](/de/models/coding).
+- **OpenCode**: Die Authentifizierungs-URL in der [Plugin-Anleitung](/plugins/opencode) wurde korrigiert.
+- `/category/model-serving` leitet nun auf die [Anleitungen](/de/guides) weiter statt einen 404 zu liefern.
 
 ## v1.2.1 — 2026-08
 
 ### Hinzugefügt
 
-- Neues Preview-Modell im Test-Katalog: `Qwen 3.8 27B FP8` (`Qwen3.8-27B-FP8-Preview`) von Alibaba Cloud — ein nativ multimodales Modell (Text- und Bildeingabe) mit 256K Kontextfenster, Apache-2.0-lizenziert. Kostenlos testbar mit jedem aktiven Tarif (Essential / Professional / Agentic). Siehe [Rate-Limits](/de/reference/rate-limits) für die Richtlinie zu Preview-Modellen.
+- Neues Preview-Modell im Test-Katalog: **Qwen 3.8 27B FP8** — nativ multimodal, kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/plans/test).
 
 ## v1.2.0 — 2026-07
 
 ### Hinzugefügt
 
-- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.4**, **GPT-5.4 mini**, **GPT-5.5** und **GPT-Image-2** (OpenAI, über Azure); **Gemini 3.1 Pro** und **Gemini 3.5 Flash** (Google). **Claude 4.8 Opus** (Anthropic) ist in den Tarifen Professional und Agentic verfügbar. Siehe [Tarife & Preise](/de/plans) für Rate-Limits und Preise je Tarif.
-- **Mistral Small 4** (`Mistral-Small-4-119B-2603`) und **Gemma 4** (`gemma-4-31B-it-FP8`) sind jetzt **allgemein verfügbar (GA)** in den Tarifen Essential, Professional und Agentic — mit festen RPM/TPM-Limits und regulärem Preis. Zuvor waren sie nur als Preview im Test-Katalog verfügbar. Siehe [Tarife & Preise](/de/plans) für Rate-Limits und Preise je Tarif.
-- Neues Preview-Modell im Test-Katalog: `GLM 5.2` (`GLM-5.2-Preview`) von Zhipu AI — kostenlos testbar mit jedem aktiven Tarif (Essential / Professional / Agentic). Siehe [Rate-Limits](/de/reference/rate-limits) für die Richtlinie zu Preview-Modellen.
+- Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.4**, **GPT-5.4 mini**, **GPT-5.5** und **GPT-Image-2** (OpenAI); **Gemini 3.1 Pro** und **Gemini 3.5 Flash** (Google). **Claude 4.8 Opus** (Anthropic) in Professional und Agentic. Siehe [Tarife & Preise](/de/plans).
+- **Mistral Small 4** und **Gemma 4** sind jetzt **allgemein verfügbar**, zuvor nur als Preview. Siehe [Tarife & Preise](/de/plans).
+- Neues Preview-Modell im Test-Katalog: **GLM 5.2** — kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/plans/test).
 
 ### Veraltet
 
-Die folgenden Modelle sind **zur Stilllegung am 01.08.2026 vorgesehen**. Falls Sie eines davon nutzen, migrieren Sie bitte vor diesem Datum auf das empfohlene Ersatzmodell. Siehe [Zur Stilllegung vorgesehen](/de/models/scheduled-for-retirement) für die vollständige Tabelle.
-
-- **Mistral Small 3** → Mistral Small 4
-- **Qwen3-VL**, **Qwen3 Coder**, **Qwen3-Next** → Qwen3.6 35B
-- **GPT-4.1 / GPT-4.1 mini / GPT-4.1 nano**, **GPT-5 mini** → GPT-5.4 mini
-- **GPT-4o / GPT-4o mini**, **GPT-5 / GPT-5.2**, **o1 / o1-mini / o3 / o3-mini / o4-mini** → GPT-5.4
-- **GPT Image 1** → GPT-Image-2
-- **Claude 3.7 Sonnet**, **Claude 4 Sonnet** → Claude 4.6 Sonnet
-- **Claude 4.5 Opus / Claude 4.6 Opus** → Claude 4.8 Opus
-- **Gemini 2.5 Flash / Flash Image / Pro** → Gemini 3.5 Flash / Gemini 3 Pro Image / Gemini 3.1 Pro
-- **Gemini 3 Pro / Gemini 3 Flash** → Gemini 3.1 Pro / Gemini 3.5 Flash
+- Modelle der Familien **GPT-4.1**, **GPT-4o**, **o-Serie**, **Qwen3**, **Gemini 2.5**, **Gemini 3** und **Claude Sonnet / Opus** sind **zur Stilllegung am 01.08.2026 vorgesehen**, ebenso **Mistral Small 3** und **GPT Image 1**. Siehe [Zur Stilllegung vorgesehen](/de/models/scheduled-for-retirement) für die Tabelle und die Ersatzmodelle.
 
 ## v1.1.0 — 2026-05
 

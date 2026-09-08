@@ -1,10 +1,13 @@
 ---
-// Site-wide "new in preview" announcement bar — Qwen 3.8 27B FP8 joins the
-// Test / preview catalog. Rendered from Footer.astro so it appears on every
-// page (there are no splash pages, so the Footer override is truly global).
+// Site-wide "new in preview" announcement bar — currently GLM 5.3 Flash
+// joining Qwen 3.8 27B FP8 in the Test / preview catalog. Rendered from
+// Footer.astro so it appears on every page (there are no splash pages, so the
+// Footer override is truly global).
 //
-// Replaces the earlier GA bar (Mistral Small 4 / Gemma 4 promotion), which in
-// turn replaced GlmBanner: one announcement at a time, never stacked.
+// Named generically (it was QwenPreviewBanner) because the copy is swapped
+// whenever the preview catalog changes: one announcement at a time, never
+// stacked. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
+// replaced GlmBanner.
 //
 // Kept deliberately compact: a slim single-line bar rendered in the content
 // flow above the page title (portaled into <main> by the script below), so it
@@ -23,14 +26,14 @@ const testHref = isDE ? '/de/plans/test' : '/plans/test';
 const t = isDE
   ? {
       badge: 'Neu',
-      msg: '<b>Qwen 3.8 27B</b> ist jetzt als Preview verfügbar — kostenlos testbar.',
-      cta: 'Preview testen',
+      msg: '<b>GLM 5.3 Flash</b> ist zusätzlich zu <b>Qwen 3.8 27B</b> als Preview verfügbar — kostenlos testbar.',
+      cta: 'Previews testen',
       close: 'Ankündigung schließen',
     }
   : {
       badge: 'New',
-      msg: '<b>Qwen 3.8 27B</b> is now available in preview — free to try.',
-      cta: 'Try the preview',
+      msg: '<b>GLM 5.3 Flash</b> joins <b>Qwen 3.8 27B</b> in preview — free to try.',
+      cta: 'Try the previews',
       close: 'Dismiss announcement',
     };
 ---
@@ -183,7 +186,7 @@ const t = isDE
 
 <script>
   // Dismiss-semantics rationale: see the component frontmatter.
-  const QP_KEY = 'qwenPreviewBannerDismissed';
+  const QP_KEY = 'previewModelsBannerDismissed';
   let reloadHandled = false;
 
   function isDismissed() {
@@ -216,7 +219,7 @@ const t = isDE
     document.getElementById('qp-bar')?.remove();
   }
 
-  function initQwenPreviewBanner() {
+  function initPreviewModelsBanner() {
     clearOnReload();
     const bar = document.getElementById('qp-bar');
     if (!bar) return;
@@ -245,8 +248,8 @@ const t = isDE
     bar.hidden = false;
     document.getElementById('qp-close')?.addEventListener('click', dismiss);
 
-    if (!(window as any).__qwenPreviewBannerEscBound) {
-      (window as any).__qwenPreviewBannerEscBound = true;
+    if (!(window as any).__previewModelsBannerEscBound) {
+      (window as any).__previewModelsBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape' || isDismissed()) return;
         const el = document.getElementById('qp-bar');
@@ -255,11 +258,11 @@ const t = isDE
     }
   }
 
-  document.addEventListener('astro:page-load', initQwenPreviewBanner);
+  document.addEventListener('astro:page-load', initPreviewModelsBanner);
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initQwenPreviewBanner);
+    document.addEventListener('DOMContentLoaded', initPreviewModelsBanner);
   } else {
-    initQwenPreviewBanner();
+    initPreviewModelsBanner();
   }
 </script>
 
