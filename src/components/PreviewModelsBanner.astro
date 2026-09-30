@@ -1,6 +1,6 @@
 ---
-// Site-wide "new in preview" announcement bar — currently GLM 5.3 Flash
-// joining Qwen 3.8 27B FP8 in the Test / preview catalog. Rendered from
+// Site-wide model announcement bar — currently GLM 5.3 Flash and Qwen 3.8
+// 27B FP8 moving from the Test / preview catalog to production. Rendered from
 // Footer.astro so it appears on every page (there are no splash pages, so the
 // Footer override is truly global).
 //
@@ -17,23 +17,23 @@
 // the closed state lives in sessionStorage (survives navigation between docs
 // pages). A hard reload clears it (detected via PerformanceNavigationTiming
 // "reload"), and a new tab starts a fresh session — so the announcement
-// returns. The storage key is new, so visitors who dismissed the GA bar still
-// see this one.
+// returns. The storage key changes with each announcement, so visitors who
+// dismissed the previous one still see this one.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
-const testHref = isDE ? '/de/plans/test' : '/plans/test';
+const plansHref = isDE ? '/de/plans' : '/plans';
 
 const t = isDE
   ? {
       badge: 'Neu',
-      msg: '<b>GLM 5.3 Flash</b> ist zusätzlich zu <b>Qwen 3.8 27B</b> als Preview verfügbar — kostenlos testbar.',
-      cta: 'Previews testen',
+      msg: '<b>GLM 5.3 Flash</b> und <b>Qwen 3.8 27B</b> sind jetzt in Produktion, in allen kostenpflichtigen Tarifen.',
+      cta: 'Zu den Tarifen',
       close: 'Ankündigung schließen',
     }
   : {
       badge: 'New',
-      msg: '<b>GLM 5.3 Flash</b> joins <b>Qwen 3.8 27B</b> in preview — free to try.',
-      cta: 'Try the previews',
+      msg: '<b>GLM 5.3 Flash</b> and <b>Qwen 3.8 27B</b> are now in production on all paid plans.',
+      cta: 'View plans',
       close: 'Dismiss announcement',
     };
 ---
@@ -41,7 +41,7 @@ const t = isDE
 <div class="qp-bar" id="qp-bar" role="region" aria-label={t.close} hidden>
   <span class="qp-badge">{t.badge}</span>
   <p class="qp-msg" set:html={t.msg}></p>
-  <a class="qp-cta" href={testHref}>{t.cta}</a>
+  <a class="qp-cta" href={plansHref}>{t.cta}</a>
   <button type="button" class="qp-close" id="qp-close" aria-label={t.close}>
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
   </button>
@@ -186,7 +186,7 @@ const t = isDE
 
 <script>
   // Dismiss-semantics rationale: see the component frontmatter.
-  const QP_KEY = 'previewModelsBannerDismissed';
+  const QP_KEY = 'gaGlmQwenBannerDismissed';
   let reloadHandled = false;
 
   function isDismissed() {
