@@ -128,7 +128,7 @@ Wenn Sie ein Rate-Limit überschreiten, gibt die API einen `429 Too Many Request
 2. **Exponentielles Backoff implementieren** — Verlängern Sie die Wartezeit zwischen Wiederholungsversuchen
 3. **Anfragen bündeln** — Fassen Sie mehrere kleine Anfragen zu weniger größeren zusammen
 4. **Antworten cachen** — Vermeiden Sie das Wiederholen identischer Anfragen
-5. **Queue-API verwenden** — Für Batch-Workloads warten [`/queue`-Endpunkte](/de/guides/queued-requests) bis zu zwei Minuten auf Ihr Limit, statt sofort `429` zurückzugeben
+5. **Queue-API verwenden** — Für Batch-Workloads warten [`/queue`-Endpunkte](/de/guides/queued-requests), bis Ihr Limit wieder frei ist, statt sofort `429` zurückzugeben
 
 ```python
 import time
