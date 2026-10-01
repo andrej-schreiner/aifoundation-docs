@@ -128,7 +128,7 @@ When you exceed a rate limit, the API returns a `429 Too Many Requests` error. B
 2. **Implement exponential backoff** — Wait longer between retries
 3. **Batch requests** — Combine multiple small requests into fewer larger ones
 4. **Cache responses** — Avoid repeating identical requests
-5. **Use the Queue API** — For batch workloads, use [asynchronous requests](/guides/asynchronous-requests) to spread load
+5. **Use the Queue API** — For batch workloads, [`/queue` endpoints](/guides/queued-requests) wait up to two minutes for your limit instead of returning `429` right away
 
 ```python
 import time

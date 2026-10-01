@@ -30,19 +30,19 @@ Die vollständige OpenAPI-Spezifikation finden Sie in der [interaktiven API-Doku
 | `GET` | `/files` | Hochgeladene Dateien auflisten |
 | `DELETE` | `/files/{id}` | Eine Datei löschen |
 
-### Queue-Endpunkte (Asynchron)
+### Queue-Endpunkte
 
-Alle wichtigen Endpunkte haben `/queue`-Varianten für asynchrone Verarbeitung. Weitere Details finden Sie im [Leitfaden für asynchrone Anfragen](/de/guides/asynchronous-requests).
+Alle wichtigen Endpunkte haben `/queue`-Varianten. Sie funktionieren wie `/v2`, warten aber bei überschrittenem Rate-Limit bis zu zwei Minuten, statt sofort `429` zurückzugeben. Sie sind nicht asynchron. Siehe den [Leitfaden zu Queued Requests](/de/guides/queued-requests).
 
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
-| `POST` | `/queue/chat/completions` | Asynchronous Chat Completion |
-| `POST` | `/queue/completions` | Asynchronous Text Completion |
-| `POST` | `/queue/embeddings` | Asynchronous Embeddings |
-| `POST` | `/queue/audio/transcriptions` | Asynchronous Audio Transcription |
-| `POST` | `/queue/audio/translations` | Asynchronous Audio Translation |
-| `POST` | `/queue/images/generations` | Asynchronous Image Generation |
-| `POST` | `/queue/images/edits` | Asynchronous Image Edit |
+| `POST` | `/queue/chat/completions` | Chat Completion (Queue) |
+| `POST` | `/queue/completions` | Text Completion (Queue) |
+| `POST` | `/queue/embeddings` | Embeddings (Queue) |
+| `POST` | `/queue/audio/transcriptions` | Audio Transcription (Queue) |
+| `POST` | `/queue/audio/translations` | Audio Translation (Queue) |
+| `POST` | `/queue/images/generations` | Image Generation (Queue) |
+| `POST` | `/queue/images/edits` | Image Edit (Queue) |
 | `GET` | `/queue/models` | Modelle auflisten (Queue) |
 
 
@@ -54,11 +54,11 @@ Die API verwendet versionierte Pfade:
 |---|---|---|
 | `/v2` | **Standard** — LLM-Inferenz, Embeddings, Audio, Bilder | `/v2/chat/completions`, `/v2/embeddings` |
 | `/v1` | Visual RAG, Vektorspeicher, Dateiverwaltung | `/v1/vector_stores`, `/v1/files` |
-| `/queue` | Asynchrone Verarbeitung (spiegelt `/v2`-Endpunkte) | `/queue/chat/completions` |
+| `/queue` | Wie `/v2`, wartet aber bei überschrittenem Rate-Limit bis zu zwei Minuten | `/queue/chat/completions` |
 
 - Verwenden Sie `/v2` für alle Standard-LLM-API-Aufrufe (dies ist der Standard bei Verwendung von OpenAI-SDKs mit unserer Basis-URL)
 - Verwenden Sie `/v1` für Visual RAG und Dateiverwaltungsoperationen
-- Verwenden Sie `/queue` für lang laufende oder Batch-Workloads
+- Verwenden Sie `/queue` für Batch-Jobs, die gelegentlich über dem Rate-Limit liegen
 
 
 ## Authentifizierung
