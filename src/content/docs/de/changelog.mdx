@@ -18,7 +18,7 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung v1
 
 ### Geändert
 
-- **Die Queue API ist nicht asynchron.** `/queue`-Endpunkte funktionieren wie `/v2`, warten aber bei überschrittenem Rate-Limit bis zu zwei Minuten, statt sofort `429` zurückzugeben; danach antworten sie mit `429` und `Retry-After`. Der Leitfaden erwähnt kein Job-Polling und keine Hintergrundverarbeitung mehr. Siehe [Queued Requests](/de/guides/queued-requests).
+- **Die Queue API ist nicht asynchron.** `/queue`-Endpunkte funktionieren wie `/v2`, warten aber bei überschrittenem Rate-Limit, bis es wieder frei ist, statt sofort `429` zurückzugeben. Der Leitfaden erwähnt kein Job-Polling und keine Hintergrundverarbeitung mehr. Siehe [Queued Requests](/de/guides/queued-requests).
 - **Die Mindestverfügbarkeit beträgt 99,5 %**, nicht die zuvor ausgewiesenen 99,9 %.
 - **GLM 5.2** — Token-Preise gesenkt, und das Modell wurde in das Tier **Standard** überführt.
 - **GPT-Image-2** — Preise korrigiert.

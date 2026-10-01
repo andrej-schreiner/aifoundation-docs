@@ -32,7 +32,7 @@ For the complete OpenAPI specification, see the [interactive API docs (Redoc)](h
 
 ### Queue Endpoints
 
-All major endpoints have `/queue` variants. They work like `/v2`, but when you are over your rate limit they wait up to two minutes instead of returning `429` right away. They are not asynchronous. See the [Queued Requests guide](/guides/queued-requests).
+All major endpoints have `/queue` variants. They work like `/v2`, but when you are over your rate limit they wait until it frees up instead of returning `429` right away. They are not asynchronous. See the [Queued Requests guide](/guides/queued-requests).
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -54,7 +54,7 @@ The API uses versioned paths:
 |---|---|---|
 | `/v2` | **Default** — LLM inference, embeddings, audio, images | `/v2/chat/completions`, `/v2/embeddings` |
 | `/v1` | Visual RAG, vector stores, file management | `/v1/vector_stores`, `/v1/files` |
-| `/queue` | Same as `/v2`, but waits up to two minutes when over the rate limit | `/queue/chat/completions` |
+| `/queue` | Same as `/v2`, but waits when over the rate limit | `/queue/chat/completions` |
 
 - Use `/v2` for all standard LLM API calls (this is the default when using OpenAI SDKs with our base URL)
 - Use `/v1` for Visual RAG and file management operations
