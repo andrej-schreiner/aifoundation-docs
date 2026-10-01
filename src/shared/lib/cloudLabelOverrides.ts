@@ -1,7 +1,7 @@
 // Display-only cloud labels, keyed by exactModelName.
 //
 // A model's cloud is normally derived from its single `deploymentRegion`, but
-// the Service Description (v1.24, § 2.3.2 and § 7.2) lists the Anthropic models and Mistral Medium 3.5
+// the Service Description (v1.24, § 2.3.2 and § 7.2) lists the Anthropic models
 // as running on "Google Cloud Platform & Microsoft Azure" — the request may be
 // served from either. The region field cannot express that, so these labels
 // override the rendered text only. Filtering, sorting and tag colours keep
@@ -17,8 +17,6 @@ const CLOUD_LABEL_OVERRIDES: Record<string, string> = {
   'claude-fable-5': 'GCP / Azure',
   'claude-sonnet-5.5': 'GCP / Azure',
   'claude-opus-5.5': 'GCP / Azure',
-  'claude-fable-5.1': 'GCP / Azure',
-  'mistral-medium-3.5': 'GCP / Azure',
 };
 
 /** Cloud label to render for a model, falling back to the region-derived one. */
