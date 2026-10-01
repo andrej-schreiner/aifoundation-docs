@@ -1,34 +1,38 @@
 ---
-title: "Asynchronous Requests (Queue API)"
-description: "Submit long-running or batch inference jobs to the Queue API on AI Foundation Services and poll for results asynchronously."
+title: "Queued Requests (Queue API)"
+description: "Use the /queue endpoints on AI Foundation Services to wait up to two minutes for rate-limit budget instead of getting an immediate 429."
 ---
 
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-Submit long-running API requests to a queue for asynchronous processing. The Queue API mirrors the standard endpoints but processes requests in the background, making it ideal for batch workloads and large inference jobs.
+The `/queue` endpoints work like the `/v2` endpoints, with one difference: when you are over your [rate limit](/reference/rate-limits), `/v2` returns `429 Too Many Requests` right away, while `/queue` waits up to two minutes for your limit to free up and then runs the request.
+
+:::caution
+`/queue` is not asynchronous. There is no job ID and nothing to poll: you get the response on the same connection, as with `/v2`. It does not make requests faster or extend their timeouts.
+:::
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK or HTTP client installed ([Quickstart](/getting-started/quickstart))
 :::
 
-**What you'll learn:**
-- How to submit requests to the Queue API
-- When to use async vs. synchronous endpoints
-- How to poll for and retrieve results
+
+## How It Works
+
+- **Within your limit:** the request runs immediately.
+- **Over your limit:** the request waits. Limits reset every minute, so it is checked again at the start of each minute.
+- **Still over your limit after two minutes:** you get `429 Too Many Requests` with a `Retry-After` header telling you how many seconds to wait before retrying.
+
+If you close the connection while waiting, the request is cancelled.
+
+A `429` from `/queue` means you are sending more than your limit allows, not just a short burst. Slow down, or [ask for a higher limit](/reference/rate-limits).
 
 
 ## When to Use the Queue API
 
-Use the `/queue` endpoints when:
-
-- **Long-running inference** — Large models or complex prompts that may exceed synchronous timeout limits
-- **Batch processing** — Submitting many requests without waiting for each to complete
-- **Background jobs** — Fire-and-forget workloads where you process results later
-- **Rate limit management** — Spreading load across time instead of bursting
-
-For interactive or real-time use cases (chatbots, streaming), use the standard `/v2` endpoints instead.
+- **Use `/queue`** for batch jobs that sometimes go over the limit, so short bursts wait instead of failing.
+- **Use `/v2`** for interactive apps, where an immediate `429` is better than waiting, and for long-running requests (use [streaming](/guides/streaming)).
 
 
 ## Endpoint Mapping

@@ -21,6 +21,10 @@ export default defineConfig({
 		'/de/category/model-serving': '/de/guides',
 		'/getting-started/models': '/models',
 		'/de/getting-started/models': '/de/models',
+		// Renamed when the page stopped describing /queue as asynchronous.
+		// Archived versions and external links still use the old path.
+		'/guides/asynchronous-requests': '/guides/queued-requests',
+		'/de/guides/asynchronous-requests': '/de/guides/queued-requests',
 	},
 	integrations: [
 		starlight({
@@ -105,7 +109,7 @@ export default defineConfig({
 						{ label: 'Image Generation', translations: { de: 'Image Generation' }, slug: 'guides/image-generation' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
 						{ label: 'Visual RAG', translations: { de: 'Visual RAG' }, slug: 'guides/visual-rag' },
-						{ label: 'Asynchronous Requests', translations: { de: 'Asynchronous Requests' }, slug: 'guides/asynchronous-requests' },
+						{ label: 'Queued Requests', translations: { de: 'Queued Requests' }, slug: 'guides/queued-requests' },
 					],
 				},
 				{
