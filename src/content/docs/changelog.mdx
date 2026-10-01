@@ -7,9 +7,17 @@ Major changes to AI Foundation Services — new models, feature updates, and dep
 
 ## v1.2.3 — 2026-10
 
+Aligns the documentation with **[Service Description v1.24](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf)** (30 September 2026), which is the binding source for everything below.
+
 ### Added
 
-- New models on the Essential, Professional and Agentic plans: **GPT-6.1 Sol**, **GPT-6 Luna**, **Claude Sonnet 5.5** and **Gemini 3.8 Flash**. **Claude Opus 5.5** and **Claude Fable 5.1** on Professional and Agentic. Prices and limits follow. See [Plans & Pricing](/plans).
+- New models on the Essential, Professional and Agentic plans: **GPT-6.1 Sol**, **GPT-6 Luna**, **Claude Sonnet 5.5**, **Gemini 3.8 Flash** and **Mistral Medium 3.5**. **Claude Opus 5.5** and **Claude Fable 5.1** on Professional and Agentic. See [Plans & Pricing](/plans).
+- **GPT-6.1 Sol** and **GPT-6 Luna** are priced by context length, with separate rates above 272k input tokens.
+
+### Changed
+
+- **Gemini 3.1 Pro**, **Gemini 3.5 Flash** and **Gemini 3 Pro Image** now run on Dynamic Shared Quota instead of fixed RPM/TPM limits.
+- The **Service Description** shipped with the docs is now **v1.24**.
 
 ### Deprecated
 
