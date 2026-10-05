@@ -49,10 +49,24 @@ For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans
 
 - **TPM (Tokens per Minute)** — best-effort *ceiling* on input tokens processed per minute; not an SLA-backed throughput target
 - **RPM (Requests per Minute)** — best-effort *ceiling* on API requests per minute; not an SLA-backed request-rate target
-- Limits apply at the contract level — all API keys you generate share the same quota
+- Limits apply at the project level — all API keys you generate in a project share the same quota
 - Both input and output tokens count toward TPM limits
 
 In other words, RPM/TPM tell you when the platform will start *throttling* your traffic. They do **not** tell you the rate at which the platform will *serve* your traffic. On the shared service, the realized rate depends on platform load and other tenants' usage of the same model.
+
+### How the minute window is counted
+
+The "minute" in RPM and TPM is a **calendar minute**, not a sliding 60-second window. Every counter runs from `hh:mm:00` to `hh:mm:59` UTC and resets to zero at the start of the next minute. Counters are kept per project and per model: all API keys in the same project share one set of counters for a model.
+
+- **RPM** is charged by one for each request when it is admitted.
+- **Input TPM** is charged when the request is admitted, using an estimate made from the request text. An estimate is used because the request must be admitted before any model runs, so it can differ from the `prompt_tokens` the model later reports in `usage`, in either direction. Keep some margin below the limit rather than planning on the exact figure. Once the response is known, cached prompt tokens are refunded to the window at a 75% discount. For example, 100 cached tokens use 25 tokens of your input TPM.
+- **Output TPM** is charged with the completion tokens the model reports when the response completes.
+
+The estimate is used for rate limiting only. Billing always uses the exact token counts the model reports in `usage`.
+
+Because the window is aligned to the clock, the counters reset at the top of each minute, not 60 seconds after your last request. A request at `12:00:59` and one at `12:01:00` fall into different windows.
+
+Some `429` responses are caused by this: requests spaced 60 seconds apart by a client-side timer can still fall into the same calendar minute on the gateway. The `429` body states the seconds left in the current window.
 
 
 ## Rate Limit Response Headers

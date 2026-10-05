@@ -49,10 +49,24 @@ Für die vollständige Aufschlüsselung pro Modell für Ihren Tarif besuchen Sie
 
 - **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Eingabe-Token pro Minute; kein SLA-gestützter Durchsatzwert
 - **RPM (Anfragen pro Minute)** — Best-Effort-*Obergrenze* für API-Anfragen pro Minute; kein SLA-gestützter Anfragerate-Wert
-- Limits gelten je Vertrag — alle erzeugten API-Schlüssel teilen sich das Kontingent
+- Limits gelten je Projekt — alle in einem Projekt erzeugten API-Schlüssel teilen sich das Kontingent
 - Sowohl Eingabe- als auch Ausgabe-Token zählen zu den TPM-Limits
 
 Anders gesagt: RPM/TPM zeigen, ab wann die Plattform Ihren Traffic *drosselt*. Sie sagen **nichts** darüber aus, mit welcher Rate die Plattform Ihren Traffic *bedient*. Im Shared Service hängt die tatsächlich erreichte Rate von der Plattformlast und der Nutzung desselben Modells durch andere Tenants ab.
+
+### Wie das Minutenfenster gezählt wird
+
+Die „Minute" in RPM und TPM ist eine **Kalenderminute**, kein gleitendes 60-Sekunden-Fenster. Jeder Zähler läuft von `hh:mm:00` bis `hh:mm:59` UTC und wird zu Beginn der nächsten Minute auf null zurückgesetzt. Die Zähler werden je Projekt und je Modell geführt: Alle API-Schlüssel desselben Projekts teilen sich einen Satz Zähler pro Modell.
+
+- **RPM** wird bei Annahme der Anfrage um eins erhöht.
+- **Eingabe-TPM** wird bei Annahme der Anfrage belastet, auf Basis einer Schätzung aus dem Anfragetext. Eine Schätzung ist nötig, weil die Anfrage angenommen werden muss, bevor ein Modell läuft. Sie kann daher in beide Richtungen von den `prompt_tokens` abweichen, die das Modell später in `usage` meldet. Planen Sie etwas Spielraum unter dem Limit ein, statt mit dem exakten Wert zu rechnen. Sobald die Antwort vorliegt, werden gecachte Prompt-Token mit 75 % Rabatt dem Fenster gutgeschrieben. Sie zählen also nur zu einem Viertel gegen das Limit: 100 gecachte Token verbrauchen 25 Token Ihres Eingabe-TPM.
+- **Ausgabe-TPM** wird mit den Completion-Token belastet, die das Modell nach Abschluss der Antwort meldet.
+
+Die Schätzung wird nur für das Rate Limiting verwendet. Die Abrechnung basiert immer auf den exakten Token-Zahlen, die das Modell in `usage` meldet.
+
+Da das Fenster an der Uhr ausgerichtet ist, werden die Zähler zu Beginn jeder Minute zurückgesetzt, nicht 60 Sekunden nach Ihrer letzten Anfrage. Eine Anfrage um `12:00:59` und eine um `12:01:00` fallen in verschiedene Fenster.
+
+Manche `429`-Antworten haben diese Ursache: Anfragen, die ein clientseitiger Timer im Abstand von 60 Sekunden sendet, können auf dem Gateway dennoch in dieselbe Kalenderminute fallen. Der `429`-Body nennt die verbleibenden Sekunden im aktuellen Fenster.
 
 
 ## Rate-Limit-Antwort-Header
