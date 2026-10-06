@@ -14,7 +14,7 @@ export default defineConfig({
 		'/Services and Pricing': '/plans',
 		'/guides/fine-tuning': '/plans/dedicated#optional-services',
 		'/de/guides/fine-tuning': '/de/plans/dedicated#optionale-leistungen',
-		// The Service Description (v1.23, § 2.2) sends customers to
+		// The Service Description (v1.24, § 2.2) sends customers to
 		// /category/model-serving for the API documentation. That path never
 		// existed on this site, so it is redirected to the guides index.
 		'/category/model-serving': '/guides',
@@ -51,7 +51,7 @@ export default defineConfig({
 					// archived versions keep linking their own v1.20 snapshot instead of
 					// the current document. On German pages an `_EN` suffix is dropped so
 					// the archived snapshots serve their German edition; the current
-					// v1.23 exists in German only and has no suffix to strip. Runs on
+					// v1.24 exists in German only and has no suffix to strip. Runs on
 					// first load and on Starlight view-transition navigations.
 					tag: 'script',
 					content: `(function(){function fix(){var de=document.documentElement.lang==='de';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){var file=(a.getAttribute('href')||'').split('/').pop();if(!file)return;if(de)file=file.replace(/_EN\\.pdf$/,'.pdf');a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,

@@ -5,8 +5,20 @@ description: "Models scheduled to be retired from AI Foundation Services, with r
 
 Models scheduled for retirement from AI Foundation Services. Customers should plan migration to the suggested replacement before the retirement date.
 
-:::note[Nothing is currently scheduled]
-No model is scheduled for retirement at the moment. Llama 3.3 70B, Claude 4.5 Sonnet and Claude 4.5 Opus were retired on **2026-09-01** and have moved to [Retired Models](/models/retired).
+| Provider | Model | Retirement date | Suggested replacement |
+|---|---|---|---|
+| OpenAI | GPT-5 nano / GPT-5 mini / GPT 5.4 mini | 2026-10-31 | GPT-6 Luna |
+| OpenAI | GPT-5 / GPT-5 Codex / GPT 5.4 / GPT 5.5 | 2026-10-31 | GPT-6.1 Sol |
+| Anthropic | Claude 4.5 Haiku / Claude 4.6 Sonnet | 2026-10-31 | Claude Sonnet 5.5 |
+| Anthropic | Claude 4.6 Opus / Claude Opus 4.8 | 2026-10-31 | Claude Opus 5.5 |
+| Google | Gemini 3 Pro (≤200k) | 2026-10-31 | Gemini 3.1 Pro (≤200k) |
+| Google | Gemini 3 Pro (>200k) | 2026-10-31 | Gemini 3.1 Pro (>200k) |
+| Google | Gemini 3 Flash | 2026-11-30 | Gemini 3.8 Flash |
+
+After the retirement date, requests to these model IDs return an error that names the replacement.
+
+:::caution[Important]
+If you use any of the models above, migrate to the replacement before **2026-10-31** (Gemini 3 Flash: **2026-11-30**).
 :::
 
 Major changes are also announced on the [Changelog](/changelog).
