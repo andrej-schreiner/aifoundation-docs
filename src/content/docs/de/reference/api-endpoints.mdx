@@ -54,7 +54,7 @@ Die API verwendet versionierte Pfade:
 |---|---|---|
 | `/v2` | **Standard** — LLM-Inferenz, Embeddings, Audio, Bilder | `/v2/chat/completions`, `/v2/embeddings` |
 | `/v1` | Visual RAG, Vektorspeicher, Dateiverwaltung | `/v1/vector_stores`, `/v1/files` |
-| `/queue` | Wie `/v2`, wartet aber bei überschrittenem Rate-Limit | `/queue/chat/completions` |
+| `/queue` | Wie `/v2`, wartet aber bei überschrittenem Rate-Limit bis zu zwei Minuten | `/queue/chat/completions` |
 
 - Verwenden Sie `/v2` für alle Standard-LLM-API-Aufrufe (dies ist der Standard bei Verwendung von OpenAI-SDKs mit unserer Basis-URL)
 - Verwenden Sie `/v1` für Visual RAG und Dateiverwaltungsoperationen

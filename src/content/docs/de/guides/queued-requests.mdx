@@ -1,12 +1,12 @@
 ---
 title: "Queued Requests (Queue API)"
-description: "Mit den /queue-Endpunkten auf AI Foundation Services auf freies Rate-Limit warten, statt sofort einen 429 zu erhalten."
+description: "Mit den /queue-Endpunkten auf AI Foundation Services bis zu zwei Minuten auf freies Rate-Limit warten, statt sofort einen 429 zu erhalten."
 ---
 
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-Die `/queue`-Endpunkte funktionieren wie die `/v2`-Endpunkte, mit einem Unterschied: Wenn Sie Ihr [Rate-Limit](/de/reference/rate-limits) überschreiten, antwortet `/v2` sofort mit `429 Too Many Requests`, während `/queue` wartet, bis Ihr Limit wieder frei ist, und die Anfrage dann ausführt.
+Die `/queue`-Endpunkte funktionieren wie die `/v2`-Endpunkte, mit einem Unterschied: Wenn Sie Ihr [Rate-Limit](/de/reference/rate-limits) überschreiten, antwortet `/v2` sofort mit `429 Too Many Requests`, während `/queue` bis zu zwei Minuten wartet, bis Ihr Limit wieder frei ist, und die Anfrage dann ausführt.
 
 :::caution
 `/queue` ist nicht asynchron. Es gibt keine Job-ID und nichts abzufragen: Sie erhalten die Antwort auf derselben Verbindung wie bei `/v2`. Anfragen werden dadurch weder schneller noch verlängern sich ihre Timeouts.
@@ -22,11 +22,13 @@ Die `/queue`-Endpunkte funktionieren wie die `/v2`-Endpunkte, mit einem Untersch
 
 - **Innerhalb Ihres Limits:** Die Anfrage wird sofort ausgeführt.
 - **Über Ihrem Limit:** Die Anfrage wartet. Limits werden jede Minute zurückgesetzt, daher wird sie zu Beginn jeder Minute erneut geprüft.
-- **Es gibt keine maximale Wartezeit.** Die Anfrage wartet, bis sie passt oder bis sie in ein Timeout läuft (das Timeout Ihres Clients oder ein Netzwerk-Timeout). Stellen Sie das Client-Timeout so ein, dass es die Wartezeit plus die Antwortzeit abdeckt.
+- **Nach zwei Minuten noch über Ihrem Limit:** Die Wartezeit ist begrenzt. Die Anfrage wartet nicht länger, und Sie erhalten `429 Too Many Requests` mit einem `Retry-After`-Header, der angibt, nach wie vielen Sekunden Sie es erneut versuchen können. Der Body enthält `Queue wait limit of 120 seconds reached`. Diese Obergrenze sorgt dafür, dass ein ausgehungertes Projekt eine klare Antwort erhält statt eines undurchsichtigen `504 Gateway Timeout` aus der Netzwerkschicht.
 
-Wenn Sie die Verbindung während des Wartens schließen, wird die Anfrage abgebrochen.
+Die Obergrenze richtet sich nach der [Kalenderminute](/de/reference/rate-limits#wie-das-minutenfenster-gezählt-wird), nicht nach dem Zeitpunkt, zu dem Ihre Anfrage eintrifft: Die Anfrage wird beim Eintreffen geprüft und erneut bei den nächsten beiden Minutenwechseln; nach dem zweiten gibt sie auf. Die tatsächliche Wartezeit liegt daher zwischen einer und zwei Minuten, je nachdem, wann innerhalb der Minute Sie die Anfrage gesendet haben.
 
-Eine einzelne Anfrage mit mehr Input-Tokens als Ihr Token-Limit pro Minute passt nie und wartet daher bis zum Timeout. Wenn Ihre Anfragen oft länger als ein bis zwei Minuten warten, senden Sie mehr, als Ihr Limit erlaubt: Senden Sie langsamer oder [beantragen Sie ein höheres Limit](/de/reference/rate-limits).
+Stellen Sie das Client-Timeout auf mindestens zwei Minuten plus die erwartete Antwortzeit ein, sonst gibt Ihr Client möglicherweise auf, bevor die Queue es tut. Wenn Sie die Verbindung während des Wartens schließen, wird die Anfrage abgebrochen.
+
+Ein `429` von `/queue` bedeutet, dass Sie dauerhaft mehr senden, als Ihr Limit erlaubt, nicht nur eine kurze Spitze. Eine einzelne Anfrage mit mehr Input-Tokens als Ihr Token-Limit pro Minute passt nie und läuft daher immer nach zwei Minuten in den Timeout. Senden Sie langsamer oder [beantragen Sie ein höheres Limit](/de/reference/rate-limits).
 
 
 ## Wann die Queue API verwenden

@@ -1,12 +1,12 @@
 ---
 title: "Queued Requests (Queue API)"
-description: "Use the /queue endpoints on AI Foundation Services to wait for rate-limit budget instead of getting an immediate 429."
+description: "Use the /queue endpoints on AI Foundation Services to wait up to two minutes for rate-limit budget instead of getting an immediate 429."
 ---
 
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-The `/queue` endpoints work like the `/v2` endpoints, with one difference: when you are over your [rate limit](/reference/rate-limits), `/v2` returns `429 Too Many Requests` right away, while `/queue` waits until your limit frees up and then runs the request.
+The `/queue` endpoints work like the `/v2` endpoints, with one difference: when you are over your [rate limit](/reference/rate-limits), `/v2` returns `429 Too Many Requests` right away, while `/queue` waits up to two minutes for your limit to free up and then runs the request.
 
 :::caution
 `/queue` is not asynchronous. There is no job ID and nothing to poll: you get the response on the same connection, as with `/v2`. It does not make requests faster or extend their timeouts.
@@ -22,11 +22,13 @@ The `/queue` endpoints work like the `/v2` endpoints, with one difference: when 
 
 - **Within your limit:** the request runs immediately.
 - **Over your limit:** the request waits. Limits reset every minute, so it is checked again at the start of each minute.
-- **There is no maximum wait.** The request keeps waiting until it fits or until it times out (your client's timeout or a network timeout). Set your client timeout to cover the wait plus the response time.
+- **Still over your limit after two minutes:** the wait is capped. The request stops waiting and you get `429 Too Many Requests` with a `Retry-After` header telling you how many seconds to wait before retrying. The body says `Queue wait limit of 120 seconds reached`. The cap exists so that a starved project gets a clear answer instead of an opaque `504 Gateway Timeout` from the network layer.
 
-If you close the connection while waiting, the request is cancelled.
+The cap is measured against the [calendar minute](/reference/rate-limits#how-the-minute-window-is-counted), not from the moment your request arrives: the request is checked when it arrives and again at the next two minute resets, and gives up after the second one. So the actual wait is between one and two minutes, depending on when in the minute you sent the request.
 
-A single request with more input tokens than your per-minute token limit never fits, so it waits until it times out. If your requests often wait more than a minute or two, you are sending more than your limit allows: slow down, or [ask for a higher limit](/reference/rate-limits).
+Set your client timeout to at least two minutes plus the expected response time, otherwise your client may give up before the queue does. If you close the connection while waiting, the request is cancelled.
+
+A `429` from `/queue` means you are sending more than your limit allows, not just a short burst. A single request with more input tokens than your per-minute token limit never fits and always times out after two minutes. Slow down, or [ask for a higher limit](/reference/rate-limits).
 
 
 ## When to Use the Queue API
