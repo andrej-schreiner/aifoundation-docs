@@ -136,7 +136,7 @@ function inferCreator(exactModelName: string): Creator {
   if (/^Qwen/i.test(n)) return 'Alibaba Cloud';
   if (/^GLM-/i.test(n)) return 'Zhipu AI';
   if (/^claude-/i.test(n)) return 'Anthropic';
-  if (/^gemma-/i.test(n)) return 'Google Gemma';
+  if (/^(diffusion)?gemma-/i.test(n)) return 'Google Gemma';
   if (/^gemini-/i.test(n)) return 'Google';
   if (/^(gpt-|o1-|o3-|o4-|gpt-image)/i.test(n)) return 'OpenAI';
   return 'Other';
@@ -201,6 +201,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // GLM-5.3-Flash is the first natively multimodal model in the
   // GLM-5 series — Text+Image in, Text out per the model card.
   'GLM-5.3-Flash': { inputModalities: ['Text', 'Image'] },
+  // DiffusionGemma 26B A4B (preview) takes Text+Image on chat completions.
+  // Its /decisions endpoint is text-only, which this table does not model.
+  'diffusiongemma-26B-A4B-it-Preview': { inputModalities: ['Text', 'Image'] },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
