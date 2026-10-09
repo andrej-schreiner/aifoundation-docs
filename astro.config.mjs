@@ -106,7 +106,7 @@ export default defineConfig({
 						{ label: 'Multimodal', translations: { de: 'Multimodal' }, slug: 'guides/multimodal' },
 						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'guides/audio' },
 						{ label: 'Function Calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
-						{ label: 'Decisions (JEV)', translations: { de: 'Decisions (JEV)' }, slug: 'guides/decisions' },
+						{ label: 'Decisions (Jefan)', translations: { de: 'Decisions (Jefan)' }, slug: 'guides/decisions' },
 						{ label: 'Image Generation', translations: { de: 'Image Generation' }, slug: 'guides/image-generation' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
 						{ label: 'Visual RAG', translations: { de: 'Visual RAG' }, slug: 'guides/visual-rag' },

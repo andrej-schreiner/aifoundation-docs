@@ -1,5 +1,5 @@
 ---
-title: "Decisions (JEV)"
+title: "Decisions (Jefan)"
 description: "Get typed answers (a probability, a choice or a score) instead of text from the /decisions endpoint, for fast agent steps such as tool routing, approval gates and grounding checks."
 ---
 
@@ -17,7 +17,7 @@ In an agent, use decisions for the small judgement steps (which tool to call, wh
 
 **What you'll learn:**
 - The three question types and what they return
-- The two request formats: native JEV and OpenAI-compatible
+- The two request formats: native Jefan and OpenAI-compatible
 - Agent use cases you can copy
 - How to combine decisions and chat in one agent loop
 
@@ -35,7 +35,7 @@ The model is in [Test / Preview](/plans/test): it is free on any active plan and
 
 Each request carries one piece of state and one or more named questions. Every question gets one answer.
 
-| Native (JEV) | OpenAI-compatible | You provide | You get back |
+| Native (Jefan) | OpenAI-compatible | You provide | You get back |
 |---|---|---|---|
 | `noul` | `predicate` | `instructions` | A probability in [0, 1] that the statement is true |
 | `choice` | `choice` | `instructions` + the options | The chosen option, a probability per option, and `confidence` |
@@ -46,7 +46,7 @@ Each request carries one piece of state and one or more named questions. Every q
 
 The endpoint accepts two request shapes and detects which one you sent. Both return the same answers.
 
-| | Native (JEV) | OpenAI-compatible |
+| | Native (Jefan) | OpenAI-compatible |
 |---|---|---|
 | Client | Any HTTP client | OpenAI SDK, `client.decisions.create` |
 | What to evaluate | `state`: text or a JSON object | `input`: text, or user messages with `input_text` parts |
@@ -63,7 +63,7 @@ Use the native format if you want structured state without serialising it yourse
 Ask the model which tool an agent should call first.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Native (JEV)" default>
+  <TabItem value="native" label="Native (Jefan)" default>
     ```python showLineNumbers
     import os
     import httpx
@@ -203,7 +203,7 @@ Ask the model which tool an agent should call first.
       }'
     ```
 
-    The response has the same shape as in the **Native (JEV)** tab.
+    The response has the same shape as in the **Native (Jefan)** tab.
   </TabItem>
 </Tabs>
 
@@ -213,7 +213,7 @@ Ask the model which tool an agent should call first.
 The examples below reuse a small setup. Run it once, then pick the format you prefer: the tabs switch together across this page.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Native (JEV)" default>
+  <TabItem value="native" label="Native (Jefan)" default>
     ```python showLineNumbers
     import os
     import httpx
@@ -248,7 +248,7 @@ The examples below reuse a small setup. Run it once, then pick the format you pr
 Rate the risk of a planned action and decide whether a human must approve it before it runs.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Native (JEV)" default>
+  <TabItem value="native" label="Native (Jefan)" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -330,7 +330,7 @@ A score of about 2.3 on the 0–3 scale sits between "high" and "critical". Use 
 Decide whether the agent loop is done or needs another step.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Native (JEV)" default>
+  <TabItem value="native" label="Native (Jefan)" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -393,7 +393,7 @@ The goal asks for three flights and only two were found, so the agent keeps sear
 Check whether the retrieved context answers the question, and whether the draft answer is supported by it, before you show the answer to the user.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Native (JEV)" default>
+  <TabItem value="native" label="Native (Jefan)" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -457,7 +457,7 @@ The context is relevant (close to the top level, 2), but the draft answer contra
 Check content that a tool fetched (a web page, a document, an email) before it reaches the agent or leaves your system. One request can ask several questions about the same content.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Native (JEV)" default>
+  <TabItem value="native" label="Native (Jefan)" default>
     ```python showLineNumbers
     answers = decide(
         {
