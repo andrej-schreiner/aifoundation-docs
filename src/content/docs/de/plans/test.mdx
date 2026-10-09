@@ -8,8 +8,11 @@ import PlansPage from '../../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
-:::tip[Jetzt in Produktion]
-**GLM 5.3 Flash** (`GLM-5.3-Flash`) und **Qwen 3.8 27B FP8** (`Qwen3.8-27B-FP8`) sind nicht mehr in der Preview. Sie sind in den Tarifen Essential, Professional und Agentic allgemein verfügbar, mit festen Rate-Limits. Siehe [Tarife & Preise](/de/plans).
+:::tip[Neu in der Preview: DiffusionGemma 26B A4B]
+**DiffusionGemma 26B A4B** (`diffusiongemma-26B-A4B-it-Preview`) ist ein diffusionsbasiertes Gemma-Modell von Google mit einem Kontextfenster von 256K. Sie können es auf zwei Arten nutzen:
+
+- **Chat**: `/chat/completions` mit Text- und Bildeingabe, Streaming, Function Calling und optionalem Thinking-Modus. Siehe [Chat Completions](/de/guides/chat-completions).
+- **Decisions (JEV)**: `/decisions` liefert typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text – für schnelle Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks. Nur Texteingabe. Siehe [Decisions](/de/guides/decisions).
 :::
 
 :::note
