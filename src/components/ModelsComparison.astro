@@ -12,6 +12,8 @@ import Tooltip from './Tooltip.astro';
 // Per-model reasoning_effort values from the platform datasheet; refreshed by
 // scripts/fetch-model-parameters.mjs before each build, kept as last known good.
 import reasoningEffortData from '../data/reasoning-effort.json';
+// Where each model reports its reasoning token count in `usage` (engine-dependent).
+import reasoningTokensUsageData from '../data/reasoning-tokens-usage.json';
 
 type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
@@ -303,6 +305,7 @@ interface CompiledModel {
   cloud: CloudKey;
   contextWindow: string;
   reasoningEffort: string[];  // accepted reasoning_effort values; empty when none is published
+  reasoningTokensUsage: ReasoningTokensUsage | null;  // where usage reports reasoning tokens; null = not documented
   inputPricePerMillionTokens: number | null;
   outputPricePerMillionTokens: number | null;
   cachedInputPricePerMillionTokens: number | null;
@@ -314,6 +317,17 @@ interface CompiledModel {
 // Datasheet model names are matched to exactModelName case-insensitively: the
 // datasheet keeps the Bifrost spelling (e.g. `GPT-5-Codex`), the pricing export
 // the LLM Hub one.
+// 'completion_tokens_details' = the OpenAI field completion_tokens_details.reasoning_tokens
+// (vLLM-served models); 'usage' = top-level usage.reasoning_tokens (SGLang-served models);
+// 'none' = the model reports no reasoning token count.
+type ReasoningTokensUsage = 'completion_tokens_details' | 'usage' | 'none';
+const reasoningTokensUsageByName = new Map<string, ReasoningTokensUsage>(
+  Object.entries(reasoningTokensUsageData.models as Record<string, ReasoningTokensUsage>).map(([name, v]) => [
+    name.toLowerCase(),
+    v,
+  ]),
+);
+
 const reasoningEffortByName = new Map<string, string[]>(
   Object.entries(reasoningEffortData.models as Record<string, { values: string[] }>).map(([name, v]) => [
     name.toLowerCase(),
@@ -347,6 +361,7 @@ for (const pkg of pricingData as Array<{
       cloud: resolveCloud(deploymentRegion),
       contextWindow: (entry.contextWindow as string) ?? '—',
       reasoningEffort: reasoningEffortByName.get(exactModelName.toLowerCase()) ?? [],
+      reasoningTokensUsage: reasoningTokensUsageByName.get(exactModelName.toLowerCase()) ?? null,
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
       cachedInputPricePerMillionTokens: cachedInputPrice(
@@ -429,6 +444,12 @@ const t = {
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
     : 'Accepted values of the reasoning_effort parameter, from the platform model datasheet. "-": no values are published for this model. See the Reasoning Control guide.',
   reasoningEffortNone: '-',
+  colReasoningTokensUsage: isDE ? 'Reasoning-Tokens in usage' : 'Reasoning tokens in usage',
+  tooltipReasoningTokensUsage: isDE
+    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder not reported (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
+    : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
+  reasoningTokensNotReported: 'not reported',
+  reasoningTokensUnknown: '-',
 };
 
 const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
@@ -568,6 +589,7 @@ const rowDataPayload = allModels.map((m) => ({
   contextWindowRaw: m.contextWindow,
   contextWindowNum: parseContextWindow(m.contextWindow),
   reasoningEffort: m.reasoningEffort,
+  reasoningTokensUsage: m.reasoningTokensUsage,
   inputPrice: m.inputPricePerMillionTokens,
   outputPrice: m.outputPricePerMillionTokens,
   cachedInputPrice: m.cachedInputPricePerMillionTokens,
@@ -624,6 +646,7 @@ const rowDataPayload = allModels.map((m) => ({
             { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
             { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
             { key: 'reasoningEffort', label: t.colReasoningEffort, cls: '', tooltip: t.tooltipReasoningEffort },
+            { key: 'reasoningTokensUsage', label: t.colReasoningTokensUsage, cls: '', tooltip: t.tooltipReasoningTokensUsage },
             { key: 'inputPrice', label: t.colInputPrice, cls: 'num', tooltip: undefined as string | undefined },
             { key: 'outputPrice', label: t.colOutputPrice, cls: 'num', tooltip: undefined as string | undefined },
             { key: 'cachedInputPrice', label: t.colCachedPrice, cls: 'num', tooltip: t.tooltipCachedPrice },
@@ -697,8 +720,20 @@ const rowDataPayload = allModels.map((m) => ({
               <td>{m.contextWindow}</td>
               <td class="mc-reasoning-effort">
                 {m.reasoningEffort.length > 0
-                  ? m.reasoningEffort.map((v) => <code>{v}</code>)
+                  ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
                   : <span aria-label="No reasoning_effort values published">{t.reasoningEffortNone}</span>}
+              </td>
+              <td class="mc-usage-field">
+                {m.reasoningTokensUsage === 'completion_tokens_details' && (
+                  <code>completion_tokens_details<wbr />.reasoning_tokens</code>
+                )}
+                {m.reasoningTokensUsage === 'usage' && <code>usage<wbr />.reasoning_tokens</code>}
+                {m.reasoningTokensUsage === 'none' && (
+                  <span class="mc-usage-field__none">{t.reasoningTokensNotReported}</span>
+                )}
+                {m.reasoningTokensUsage === null && (
+                  <span aria-label="Not documented">{t.reasoningTokensUnknown}</span>
+                )}
               </td>
               <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
               <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
@@ -714,7 +749,7 @@ const rowDataPayload = allModels.map((m) => ({
           );
         })}
         <tr class="mc-no-results" hidden>
-          <td colspan="14" class="mc-no-results__cell">{t.noResults}</td>
+          <td colspan="15" class="mc-no-results__cell">{t.noResults}</td>
         </tr>
       </tbody>
     </table>
@@ -736,6 +771,7 @@ const rowDataPayload = allModels.map((m) => ({
     contextWindowRaw: string;
     contextWindowNum: number;
     reasoningEffort: string[];
+    reasoningTokensUsage: 'completion_tokens_details' | 'usage' | 'none' | null;
     inputPrice: number | null;
     outputPrice: number | null;
     cachedInputPrice: number | null;
@@ -938,6 +974,13 @@ const rowDataPayload = allModels.map((m) => ({
           av = a.reasoningEffort.length > 0 ? -a.reasoningEffort.length : Number.POSITIVE_INFINITY;
           bv = b.reasoningEffort.length > 0 ? -b.reasoningEffort.length : Number.POSITIVE_INFINITY;
           break;
+        case 'reasoningTokensUsage': {
+          // Standard field first, then top-level, then "not reported", then "-".
+          const rank = { completion_tokens_details: 0, usage: 1, none: 2 } as const;
+          av = a.reasoningTokensUsage ? rank[a.reasoningTokensUsage] : 3;
+          bv = b.reasoningTokensUsage ? rank[b.reasoningTokensUsage] : 3;
+          break;
+        }
         case 'plans':
           av = a.plans.length;
           bv = b.plans.length;
@@ -1268,15 +1311,27 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1;
     display: inline-block;
   }
-  /* One value per line, so a model with six levels does not widen the row. */
-  .models-comparison .mc-reasoning-effort code {
-    display: block;
-    width: fit-content;
+  /* Values flow inline and wrap onto a second line once they exceed the cap,
+     so six levels take two short lines instead of one long row. */
+  .models-comparison .mc-effort-values {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.3rem;
+    max-width: 11rem;
+  }
+
+  .models-comparison .mc-effort-values code {
     white-space: nowrap;
   }
 
-  .models-comparison .mc-reasoning-effort code + code {
-    margin-top: 0.2rem;
+  /* Field paths may break after the dot (<wbr>) instead of widening the row. */
+  .models-comparison .mc-usage-field code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .models-comparison .mc-usage-field__none {
+    color: var(--sl-color-gray-3);
   }
 
   .models-comparison .mc-cap--yes {

@@ -117,11 +117,17 @@ async function main() {
 
 /**
  * Datasheet entries replace the matching hand-researched ones (matched on the
- * model name, case-insensitively); all other entries are kept. The datasheet's
- * entry carries no `source`, which marks it as datasheet-backed.
+ * model name, case-insensitively); hand-researched entries for other models are
+ * kept. The datasheet's entry carries no `source`, which marks it as
+ * datasheet-backed.
  */
 export function mergeModels(previousModels, fromDatasheet) {
-  const merged = { ...previousModels };
+  // A datasheet-backed entry (no `source`) whose model no longer has values in
+  // the datasheet is dropped; hand-researched entries are kept.
+  const fresh = new Set(Object.keys(fromDatasheet).map((n) => n.toLowerCase()));
+  const merged = Object.fromEntries(
+    Object.entries(previousModels).filter(([name, entry]) => entry.source || fresh.has(name.toLowerCase())),
+  );
   const byLower = new Map(Object.keys(merged).map((name) => [name.toLowerCase(), name]));
   for (const [name, entry] of Object.entries(fromDatasheet)) {
     const existingName = byLower.get(name.toLowerCase());

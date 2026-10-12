@@ -1,26 +1,73 @@
 {
   "source": "https://portal-api.dev.ai.t-systems.net/v1/datasheet/model-parameters",
   "models": {
-    "claude-fable-5": {
+    "GLM-5.2": {
       "values": [
-        "low",
-        "medium",
+        "none",
         "high",
-        "xhigh",
         "max"
       ],
-      "default": "high"
+      "default": "max"
     },
-    "claude-haiku-4.5": {
+    "GLM-5.2-B200-Lab": {
+      "values": [
+        "none",
+        "high",
+        "max"
+      ],
+      "default": "max"
+    },
+    "GLM-5.3-Flash": {
+      "values": [
+        "low",
+        "high",
+        "max"
+      ],
+      "default": "max"
+    },
+    "Mistral-Small-4-119B-2603": {
+      "values": [
+        "none",
+        "high"
+      ],
+      "default": "none"
+    },
+    "Mistral-Small-4-B200-Lab": {
+      "values": [
+        "none",
+        "high"
+      ],
+      "default": "none"
+    },
+    "Nemotron-3-Super-120B-FP8": {
+      "values": [],
+      "source": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
+      "verified": "2026-10-12",
+      "note": "Hybrid thinking, on by default, but the model does not read reasoning_effort and the vLLM version in production (0.20.x) predates the none-to-enable_thinking mapping (vLLM 0.22). Control thinking with chat_template_kwargs enable_thinking and low_effort instead."
+    },
+    "Qwen-3.6-35B-FP8": {
       "values": [
         "none",
         "low",
         "medium",
-        "high",
-        "xhigh",
-        "max"
+        "high"
+      ]
+    },
+    "Qwen3.8-27B-FP8": {
+      "values": [
+        "none",
+        "low",
+        "medium",
+        "xhigh"
       ],
-      "default": "none"
+      "default": "low"
+    },
+    "claude-haiku-4.5": {
+      "values": [
+        "low",
+        "medium",
+        "high"
+      ]
     },
     "claude-opus-4-5@20251101": {
       "values": [
@@ -32,79 +79,46 @@
     },
     "claude-opus-4.6": {
       "values": [
-        "none",
-        "low",
-        "medium",
-        "high",
-        "max"
-      ],
-      "default": "none"
-    },
-    "claude-opus-4.8": {
-      "values": [
-        "none",
+        "minimal",
         "low",
         "medium",
         "high",
         "xhigh",
         "max"
-      ],
-      "default": "none"
-    },
-    "claude-opus-5": {
-      "values": [
-        "none",
-        "low",
-        "medium",
-        "high",
-        "xhigh",
-        "max"
-      ],
-      "default": "high"
+      ]
     },
     "claude-opus-5.5": {
       "values": [
+        "none",
+        "minimal",
         "low",
         "medium",
         "high",
         "xhigh",
         "max"
-      ],
-      "default": "medium"
+      ]
     },
     "claude-sonnet-4.6": {
       "values": [
-        "none",
         "low",
         "medium",
-        "high",
-        "max"
-      ],
-      "default": "none"
-    },
-    "claude-sonnet-5": {
-      "values": [
-        "none",
-        "low",
-        "medium",
-        "high",
-        "xhigh",
-        "max"
-      ],
-      "default": "high"
+        "high"
+      ]
     },
     "claude-sonnet-5.5": {
       "values": [
+        "none",
+        "minimal",
         "low",
         "medium",
         "high",
         "xhigh",
         "max"
-      ],
-      "default": "high"
+      ]
     },
     "gemini-3-flash": {
       "values": [
+        "none",
         "minimal",
         "low",
         "medium",
@@ -144,6 +158,7 @@
     },
     "gemini-3.5-flash": {
       "values": [
+        "none",
         "minimal",
         "low",
         "medium",
@@ -170,36 +185,10 @@
     },
     "gemma-4-31B-it-FP8": {
       "values": [
-        "none",
         "low",
         "medium",
         "high"
-      ],
-      "default": "none"
-    },
-    "GLM-5.2": {
-      "values": [
-        "none",
-        "high",
-        "max"
-      ],
-      "default": "max"
-    },
-    "GLM-5.2-B200-Lab": {
-      "values": [
-        "none",
-        "high",
-        "max"
-      ],
-      "default": "max"
-    },
-    "GLM-5.3-Flash": {
-      "values": [
-        "low",
-        "high",
-        "max"
-      ],
-      "default": "max"
+      ]
     },
     "gpt-5": {
       "values": [
@@ -207,7 +196,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "default": "medium"
     },
     "gpt-5-mini": {
       "values": [
@@ -215,7 +205,8 @@
         "low",
         "medium",
         "high"
-      ]
+      ],
+      "default": "medium"
     },
     "gpt-5-nano": {
       "values": [
@@ -261,8 +252,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -272,8 +262,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -283,8 +272,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -294,8 +282,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -305,8 +292,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -315,8 +301,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -325,8 +310,7 @@
         "low",
         "medium",
         "high",
-        "xhigh",
-        "max"
+        "xhigh"
       ],
       "default": "medium"
     },
@@ -344,26 +328,6 @@
       "verified": "2026-10-12",
       "note": "Not a reasoning model; reasoning_effort is not supported. Mistral documents it only for Mistral Small 4, Medium 3.5 and later."
     },
-    "Mistral-Small-4-119B-2603": {
-      "values": [
-        "none",
-        "high"
-      ],
-      "default": "none"
-    },
-    "Mistral-Small-4-B200-Lab": {
-      "values": [
-        "none",
-        "high"
-      ],
-      "default": "none"
-    },
-    "Nemotron-3-Super-120B-FP8": {
-      "values": [],
-      "source": "https://huggingface.co/nvidia/NVIDIA-Nemotron-3-Super-120B-A12B-FP8",
-      "verified": "2026-10-12",
-      "note": "Hybrid thinking, on by default, but the model does not read reasoning_effort and the vLLM version in production (0.20.x) predates the none-to-enable_thinking mapping (vLLM 0.22). Control thinking with chat_template_kwargs enable_thinking and low_effort instead."
-    },
     "o3": {
       "values": [
         "low",
@@ -371,23 +335,6 @@
         "high"
       ],
       "default": "medium"
-    },
-    "Qwen-3.6-35B-FP8": {
-      "values": [
-        "none",
-        "low",
-        "medium",
-        "high"
-      ]
-    },
-    "Qwen3.8-27B-FP8": {
-      "values": [
-        "none",
-        "low",
-        "medium",
-        "xhigh"
-      ],
-      "default": "low"
     }
   }
 }
