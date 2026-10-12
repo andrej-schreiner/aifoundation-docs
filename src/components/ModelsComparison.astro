@@ -1268,12 +1268,15 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1;
     display: inline-block;
   }
-  .models-comparison .mc-reasoning-effort {
+  /* One value per line, so a model with six levels does not widen the row. */
+  .models-comparison .mc-reasoning-effort code {
+    display: block;
+    width: fit-content;
     white-space: nowrap;
   }
 
   .models-comparison .mc-reasoning-effort code + code {
-    margin-left: 0.3rem;
+    margin-top: 0.2rem;
   }
 
   .models-comparison .mc-cap--yes {
