@@ -9,6 +9,9 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import Tooltip from './Tooltip.astro';
+// Per-model reasoning_effort values from the platform datasheet; refreshed by
+// scripts/fetch-model-parameters.mjs before each build, kept as last known good.
+import reasoningEffortData from '../data/reasoning-effort.json';
 
 type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
@@ -299,6 +302,7 @@ interface CompiledModel {
   categories: Category[];    // primary + modality-derived (see deriveCategories)
   cloud: CloudKey;
   contextWindow: string;
+  reasoningEffort: string[];  // accepted reasoning_effort values; empty when none is published
   inputPricePerMillionTokens: number | null;
   outputPricePerMillionTokens: number | null;
   cachedInputPricePerMillionTokens: number | null;
@@ -306,6 +310,16 @@ interface CompiledModel {
   plans: string[];
   capabilities: Capabilities;
 }
+
+// Datasheet model names are matched to exactModelName case-insensitively: the
+// datasheet keeps the Bifrost spelling (e.g. `GPT-5-Codex`), the pricing export
+// the LLM Hub one.
+const reasoningEffortByName = new Map<string, string[]>(
+  Object.entries(reasoningEffortData.models as Record<string, { values: string[] }>).map(([name, v]) => [
+    name.toLowerCase(),
+    v.values,
+  ]),
+);
 
 // exactModelName -> CompiledModel; plans accumulate across packages.
 const byName = new Map<string, CompiledModel>();
@@ -332,6 +346,7 @@ for (const pkg of pricingData as Array<{
       categories: deriveCategories(category, capabilities, EXTRA_CATEGORIES[exactModelName] ?? []),
       cloud: resolveCloud(deploymentRegion),
       contextWindow: (entry.contextWindow as string) ?? '—',
+      reasoningEffort: reasoningEffortByName.get(exactModelName.toLowerCase()) ?? [],
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
       cachedInputPricePerMillionTokens: cachedInputPrice(
@@ -389,6 +404,7 @@ const t = {
   colStreaming: isDE ? 'Streaming-Ausgabe' : 'Streaming output',
   colTools: isDE ? 'Tool Calling' : 'Tool calling',
   colContext: isDE ? 'Kontext' : 'Context',
+  colReasoningEffort: 'Reasoning Effort',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
   colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
   colCachedPrice: isDE ? 'Cached €/M' : 'Cached €/M',
@@ -409,6 +425,10 @@ const t = {
     ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle — für externe Anbieter wird die Cache-Preisgestaltung später ergänzt.`
     : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only — cached pricing for external providers will be added later.`,
   cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  tooltipReasoningEffort: isDE
+    ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
+    : 'Accepted values of the reasoning_effort parameter, from the platform model datasheet. "-": no values are published for this model. See the Reasoning Control guide.',
+  reasoningEffortNone: '-',
 };
 
 const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
@@ -547,6 +567,7 @@ const rowDataPayload = allModels.map((m) => ({
   toolCalling: m.capabilities.toolCalling,
   contextWindowRaw: m.contextWindow,
   contextWindowNum: parseContextWindow(m.contextWindow),
+  reasoningEffort: m.reasoningEffort,
   inputPrice: m.inputPricePerMillionTokens,
   outputPrice: m.outputPricePerMillionTokens,
   cachedInputPrice: m.cachedInputPricePerMillionTokens,
@@ -602,6 +623,7 @@ const rowDataPayload = allModels.map((m) => ({
             { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming },
             { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
             { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
+            { key: 'reasoningEffort', label: t.colReasoningEffort, cls: '', tooltip: t.tooltipReasoningEffort },
             { key: 'inputPrice', label: t.colInputPrice, cls: 'num', tooltip: undefined as string | undefined },
             { key: 'outputPrice', label: t.colOutputPrice, cls: 'num', tooltip: undefined as string | undefined },
             { key: 'cachedInputPrice', label: t.colCachedPrice, cls: 'num', tooltip: t.tooltipCachedPrice },
@@ -673,6 +695,11 @@ const rowDataPayload = allModels.map((m) => ({
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
               <td>{m.contextWindow}</td>
+              <td class="mc-reasoning-effort">
+                {m.reasoningEffort.length > 0
+                  ? m.reasoningEffort.map((v) => <code>{v}</code>)
+                  : <span aria-label="No reasoning_effort values published">{t.reasoningEffortNone}</span>}
+              </td>
               <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
               <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
               <td class="num">{formatCachedPrice(m)}</td>
@@ -687,7 +714,7 @@ const rowDataPayload = allModels.map((m) => ({
           );
         })}
         <tr class="mc-no-results" hidden>
-          <td colspan="13" class="mc-no-results__cell">{t.noResults}</td>
+          <td colspan="14" class="mc-no-results__cell">{t.noResults}</td>
         </tr>
       </tbody>
     </table>
@@ -708,6 +735,7 @@ const rowDataPayload = allModels.map((m) => ({
     toolCalling: boolean;
     contextWindowRaw: string;
     contextWindowNum: number;
+    reasoningEffort: string[];
     inputPrice: number | null;
     outputPrice: number | null;
     cachedInputPrice: number | null;
@@ -904,6 +932,11 @@ const rowDataPayload = allModels.map((m) => ({
         case 'cachedInputPrice':
           av = priceSortValue(a.cachedInputPrice);
           bv = priceSortValue(b.cachedInputPrice);
+          break;
+        case 'reasoningEffort':
+          // Models with published values first (more values first), "-" rows last.
+          av = a.reasoningEffort.length > 0 ? -a.reasoningEffort.length : Number.POSITIVE_INFINITY;
+          bv = b.reasoningEffort.length > 0 ? -b.reasoningEffort.length : Number.POSITIVE_INFINITY;
           break;
         case 'plans':
           av = a.plans.length;
@@ -1235,6 +1268,14 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1;
     display: inline-block;
   }
+  .models-comparison .mc-reasoning-effort {
+    white-space: nowrap;
+  }
+
+  .models-comparison .mc-reasoning-effort code + code {
+    margin-left: 0.3rem;
+  }
+
   .models-comparison .mc-cap--yes {
     color: #4ade80; /* green-400 */
   }

@@ -9,9 +9,15 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+  # Hourly: the models table shows each model's reasoning_effort values from the
+  # platform model datasheet, refreshed before every build (see scripts/fetch-model-parameters.mjs).
+  schedule:
+    - cron: "7 * * * *"
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and
+# to commit the refreshed datasheet snapshot back to the branch.
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -35,14 +41,44 @@ jobs:
         uses: oven-sh/setup-bun@v2
       - name: install dependencies
         run: bun install
+      # Refreshes src/data/reasoning-effort.json from the datasheet. On any
+      # failure it leaves the committed file untouched, so the site keeps the
+      # values of the last successful fetch.
+      - name: refresh model datasheet snapshot
+        id: snapshot
+        run: |
+          bun run datasheet
+          if git diff --quiet -- src/data/reasoning-effort.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      # A scheduled run only rebuilds when the snapshot changed; the deployed
+      # site already shows the current values otherwise. Pushes and manual runs
+      # always build.
       - name: build
+        if: github.event_name != 'schedule' || steps.snapshot.outputs.changed == 'true'
         run: bun run build
       - name: Setup Pages
+        if: github.event_name != 'schedule' || steps.snapshot.outputs.changed == 'true'
         uses: actions/configure-pages@v5
       - name: Upload artifact
+        if: github.event_name != 'schedule' || steps.snapshot.outputs.changed == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
       - name: Deploy to GitHub Pages
+        if: github.event_name != 'schedule' || steps.snapshot.outputs.changed == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
+      # Persist the refreshed snapshot as the new "last known good" once it is
+      # deployed. Only runs when the fetch changed it. Pushes made with the
+      # workflow token do not trigger this workflow again.
+      - name: commit refreshed datasheet snapshot
+        if: steps.snapshot.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/reasoning-effort.json
+          git commit -m "chore: refresh reasoning_effort values from model datasheet"
+          git push origin HEAD:${{ github.ref_name }}
