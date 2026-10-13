@@ -14,12 +14,9 @@ on:
   schedule:
     - cron: "7 * * * *"
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages and
-# to open a pull request with the refreshed datasheet snapshot (main is protected,
-# so the bot cannot push to it directly).
+# GITHUB_TOKEN permissions: Pages deployment, plus pushing the refreshed datasheet snapshot.
 permissions:
   contents: write
-  pull-requests: write
   pages: write
   id-token: write
 
@@ -73,23 +70,15 @@ jobs:
         if: github.event_name != 'schedule' || steps.snapshot.outputs.changed == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
-      # Persist the refreshed snapshot as the new "last known good" once it is
-      # deployed. main only accepts changes through pull requests, so the bot
-      # opens one (and updates the same PR on later runs) instead of pushing.
-      # Until it is merged, each scheduled run sees the same diff and redeploys
-      # the same values, which is harmless.
-      - name: open pull request with refreshed datasheet snapshot
+      # main is protected: push the refreshed snapshot to a branch; the pull request is opened by hand
+      # once and updated by every later push.
+      - name: push refreshed datasheet snapshot
         if: steps.snapshot.outputs.changed == 'true' && github.ref_name == 'main'
-        uses: peter-evans/create-pull-request@v7
-        with:
-          add-paths: src/data/reasoning-effort.json
-          commit-message: "chore: refresh reasoning_effort values from model datasheet"
-          branch: chore/datasheet-refresh
-          delete-branch: true
-          title: "chore: refresh reasoning_effort values from model datasheet"
-          body: |
-            Automated refresh of `src/data/reasoning-effort.json` from the platform model datasheet
-            (`/v1/datasheet/model-parameters`). The site was already deployed with these values by the
-            run that opened this pull request; merging keeps the repository in step with it.
-          author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
-          committer: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B chore/datasheet-refresh
+          git add src/data/reasoning-effort.json
+          git commit -m "chore: refresh reasoning_effort values from model datasheet"
+          git push --force origin chore/datasheet-refresh
+          echo "Pull request: ${{ github.server_url }}/${{ github.repository }}/compare/main...chore/datasheet-refresh"
