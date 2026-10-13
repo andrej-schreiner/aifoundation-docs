@@ -1,7 +1,7 @@
 // Display-only cloud labels, keyed by exactModelName.
 //
 // A model's cloud is normally derived from its single `deploymentRegion`, but
-// the Service Description (v1.24, § 2.3.2 and § 7.2) lists the Anthropic models
+// the Service Description (§ 2.3.2 and § 7.2) lists the Anthropic models
 // as running on "Google Cloud Platform & Microsoft Azure" — the request may be
 // served from either. The region field cannot express that, so these labels
 // override the rendered text only. Filtering, sorting and tag colours keep

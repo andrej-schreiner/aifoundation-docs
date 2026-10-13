@@ -7,7 +7,7 @@ description: "Wiederholte Prompt-Präfixe auf AI Foundation Services wiederverwe
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
 :::note[Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiviert]
-Gemäß [Leistungsbeschreibung](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (v1.24, § 2.3.1) ist die Cache-Funktion für die von der Telekom selbst betriebenen Modelle **standardmäßig eingeschaltet** und kann jederzeit ein- oder ausgeschaltet werden — pro Anfrage über `save_cache`, wie unten beschrieben.
+Gemäß [Leistungsbeschreibung](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (§ 2.3.1) ist die Cache-Funktion für die von der Telekom selbst betriebenen Modelle **standardmäßig eingeschaltet** und kann jederzeit ein- oder ausgeschaltet werden — pro Anfrage über `save_cache`, wie unten beschrieben.
 :::
 
 Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anfang eines Prompts wiederzuverwenden. Wenn zwei Anfragen mit denselben Tokens beginnen — einem langen System-Prompt, einem Dokument, einem Werkzeugkatalog — muss der gemeinsame Teil nicht erneut verarbeitet werden. Das senkt die Zeit bis zum ersten Token und, bei Modellen mit separater Abrechnung zwischengespeicherter Tokens, auch die Kosten der Anfrage.
