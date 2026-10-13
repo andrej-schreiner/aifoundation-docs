@@ -14,7 +14,7 @@ export default defineConfig({
 		'/Services and Pricing': '/plans',
 		'/guides/fine-tuning': '/plans/dedicated#optional-services',
 		'/de/guides/fine-tuning': '/de/plans/dedicated#optionale-leistungen',
-		// The Service Description (v1.24, § 2.2) sends customers to
+		// The Service Description (§ 2.2) sends customers to
 		// /category/model-serving for the API documentation. That path never
 		// existed on this site, so it is redirected to the guides index.
 		'/category/model-serving': '/guides',
@@ -47,14 +47,13 @@ export default defineConfig({
 					// external URLs. At runtime this script rewrites absolute Service
 					// Description links to a host-relative /files/… path, so they resolve
 					// against the current origin — working in local dev and on any
-					// deployed host. It keeps whichever file a page asked for, so the
-					// archived versions keep linking their own v1.20 snapshot instead of
-					// the current document. On German pages an `_EN` suffix is dropped so
-					// the archived snapshots serve their German edition; the current
-					// v1.24 exists in German only and has no suffix to strip. Runs on
-					// first load and on Starlight view-transition navigations.
+					// deployed host. Every Service Description link resolves to the one
+					// current document in the page's language: the German edition on
+					// German pages (including fallback pages under /de/), the English
+					// edition everywhere else. Runs on first load and on Starlight
+					// view-transition navigations.
 					tag: 'script',
-					content: `(function(){function fix(){var de=document.documentElement.lang==='de';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"]').forEach(function(a){var file=(a.getAttribute('href')||'').split('/').pop();if(!file)return;if(de)file=file.replace(/_EN\\.pdf$/,'.pdf');a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
+					content: `(function(){function fix(){var file=document.documentElement.lang==='de'?'Leistungsbeschreibung-LLM-Serving-Service.pdf':'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"],a[href*="Leistungsbeschreibung_LLM_Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 			],
 			components: {
@@ -188,7 +187,7 @@ export default defineConfig({
 						{ label: 'Try SmartChat ↗', translations: { de: 'SmartChat testen ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Try SmartChat (opens in new tab)' } },
 						{ label: 'LLM Playground ↗', translations: { de: 'LLM Playground ↗' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
 						{ label: 'Model Status ↗', translations: { de: 'Model Status ↗' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
-						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung-LLM-Serving-Service.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
+						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
 					],
 				},
 			],
