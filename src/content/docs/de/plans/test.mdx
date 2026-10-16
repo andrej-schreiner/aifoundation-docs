@@ -9,12 +9,12 @@ import PlansPage from '../../../../components/PlansPage.astro';
 <div style="max-width: 54rem;">
 
 :::tip[Neu in der Preview: d3]
-**d3** (`d3-preview`) ist ein Decision-Modell mit 27B Parametern aus der Open-Weight-Familie Decision 3.0 von vLLM Semantic Router. Es ist das empfohlene Modell für **Decisions (Jefan)**: `/decisions` liefert typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text – für schnelle Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks. Es nimmt Text- und Bildeingabe an. d3 bedient nur `/decisions` und generiert keinen Text. Siehe [Decisions](/de/guides/decisions).
+**d3** (`d3-preview`) ist ein Decision-Modell mit 27B Parametern aus der Open-Weight-Familie Decision 3.0 von vLLM Semantic Router. Es ist das empfohlene Modell für **Decisions**: `/decisions` liefert typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text – für schnelle Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks. Es nimmt Text- und Bildeingabe an. d3 bedient nur `/decisions` und generiert keinen Text. Siehe [Decisions](/de/guides/decisions).
 
 **DiffusionGemma 26B A4B** (`diffusiongemma-26B-A4B-it-Preview`), ein diffusionsbasiertes Gemma-Modell von Google mit einem Kontextfenster von 256K, bedient beide Endpunkte:
 
 - **Chat**: `/chat/completions` mit Text- und Bildeingabe, Streaming, Function Calling und optionalem Thinking-Modus. Siehe [Chat Completions](/de/guides/chat-completions).
-- **Decisions (Jefan)**: `/decisions` mit Text- und Bildeingabe. Siehe [Decisions](/de/guides/decisions).
+- **Decisions**: `/decisions` mit Text- und Bildeingabe. Siehe [Decisions](/de/guides/decisions).
 :::
 
 :::note
