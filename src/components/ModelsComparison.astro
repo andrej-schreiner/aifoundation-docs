@@ -206,9 +206,12 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // GLM-5.3-Flash is the first natively multimodal model in the
   // GLM-5 series — Text+Image in, Text out per the model card.
   'GLM-5.3-Flash': { inputModalities: ['Text', 'Image'] },
-  // DiffusionGemma 26B A4B (preview) takes Text+Image on chat completions.
-  // Its /decisions endpoint is text-only, which this table does not model.
+  // DiffusionGemma 26B A4B (preview) takes Text+Image on chat completions and
+  // on /decisions.
   'diffusiongemma-26B-A4B-it-Preview': { inputModalities: ['Text', 'Image'] },
+  // d3 (preview) is a decision model: /decisions only, Text+Image in. It
+  // generates no text, so no streaming and no tool calling.
+  'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },

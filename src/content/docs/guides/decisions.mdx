@@ -19,16 +19,22 @@ In an agent, use decisions for the small judgement steps (which tool to call, wh
 - The three question types and what they return
 - The two request formats: native Jefan and OpenAI-compatible
 - Agent use cases you can copy
+- How to ask questions about images
 - How to combine decisions and chat in one agent loop
 
 
-## Supported model
+## Supported models
 
 | Model | `/decisions` | `/chat/completions` |
 |---|---|---|
-| **DiffusionGemma 26B A4B** (`diffusiongemma-26B-A4B-it-Preview`) | Text input | Text and image input |
+| **d3** (`d3-preview`), recommended | Text and image input | Not supported |
+| **DiffusionGemma 26B A4B** (`diffusiongemma-26B-A4B-it-Preview`) | Text and image input | Text and image input |
 
-The model is in [Test / Preview](/plans/test): it is free on any active plan and has dynamic rate limits. The same model ID works on both endpoints, so one model can make the decisions and write the replies.
+**`d3-preview` is the recommended model for decisions**, and the examples on this page use it. d3 is a 27B decision model from the open-weight Decision 3.0 family of [vLLM Semantic Router](https://huggingface.co/vllm-sr/d3) (Apache 2.0). It only returns typed answers and never generates text, so `/chat/completions` rejects it with `400 Model has type 'DECISION' which only supports the /decisions endpoint.` For the text steps of an agent, pair it with any chat model (see [Combine decisions and chat](#combine-decisions-and-chat)).
+
+DiffusionGemma 26B A4B serves both endpoints with one model ID, so a single model can make the decisions and write the replies.
+
+Both models are in [Test / Preview](/plans/test): free on any active plan, with dynamic rate limits.
 
 
 ## Question types
@@ -53,6 +59,7 @@ The endpoint accepts two request shapes and detects which one you sent. Both ret
 | Questions | Object keyed by question name | List, each with a `name` |
 | `choice` options | `criteria`: `{"value": "description"}` | `choices`: `[{"value", "description"}]` |
 | `score` levels | `criteria`: list of level descriptions | `levels`: `[{"label", "description"}]` |
+| Images | `images`: list of base64 data URLs | `input_image` parts in a user message |
 | Answers | Object keyed by question name, the result in `value` | List in question order, the result in `probability`, `choice` or `score` |
 
 Use the native format if you want structured state without serialising it yourself. Use the OpenAI format if your code already uses the OpenAI SDK, or if you want to switch to the [OpenAI Decisions API](https://developers.openai.com/api/docs/guides/decisions) later without rewriting your requests.
@@ -72,7 +79,7 @@ Ask the model which tool an agent should call first.
         f"{os.environ['OPENAI_BASE_URL']}/decisions",
         headers={"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
         json={
-            "model": "diffusiongemma-26B-A4B-it-Preview",
+            "model": "d3-preview",
             "state": "User: Can you check how much we spent on AWS last month and email the summary to finance?",
             "questions": {
                 "next_tool": {
@@ -96,27 +103,27 @@ Ask the model which tool an agent should call first.
 
     **Output:**
     ```
-    billing_api 1.0
+    billing_api 0.98
     ```
 
     **Response body:**
     ```json
     {
-      "model": "diffusiongemma-26B-A4B-it",
+      "model": "d3",
       "answers": {
         "next_tool": {
           "kind": "choice",
           "value": "billing_api",
-          "confidence": 0.998,
+          "confidence": 0.983,
           "probabilities": {
-            "web_search": 0.0003,
-            "billing_api": 0.998,
-            "send_email": 0.0007,
-            "none": 0.0008
+            "web_search": 0.0001,
+            "billing_api": 0.997,
+            "send_email": 0.0033,
+            "none": 0.0001
           }
         }
       },
-      "usage": { "prompt_tokens": 153, "completion_tokens": 10, "total_tokens": 163 }
+      "usage": { "prompt_tokens": 146, "completion_tokens": 0, "total_tokens": 146 }
     }
     ```
   </TabItem>
@@ -127,7 +134,7 @@ Ask the model which tool an agent should call first.
     client = OpenAI()
 
     response = client.decisions.create(
-        model="diffusiongemma-26B-A4B-it-Preview",
+        model="d3-preview",
         input="User: Can you check how much we spent on AWS last month and email the summary to finance?",
         questions=[
             {
@@ -149,33 +156,33 @@ Ask the model which tool an agent should call first.
 
     **Output:**
     ```
-    billing_api 1.0
+    billing_api 0.98
     ```
 
     **Response body:**
     ```json
     {
-      "model": "diffusiongemma-26B-A4B-it",
+      "model": "d3",
       "answers": [
         {
           "type": "choice",
           "name": "next_tool",
           "choice": "billing_api",
           "probabilities": [
-            { "value": "web_search", "probability": 0.0003 },
-            { "value": "billing_api", "probability": 0.998 },
-            { "value": "send_email", "probability": 0.0007 },
-            { "value": "none", "probability": 0.0008 }
+            { "value": "web_search", "probability": 0.0001 },
+            { "value": "billing_api", "probability": 0.997 },
+            { "value": "send_email", "probability": 0.0033 },
+            { "value": "none", "probability": 0.0001 }
           ],
-          "confidence": 0.998
+          "confidence": 0.983
         }
       ],
       "usage": {
-        "input_tokens": 153,
+        "input_tokens": 146,
         "input_tokens_details": { "cached_tokens": 0, "cache_write_tokens": 0 },
-        "output_tokens": 10,
+        "output_tokens": 0,
         "output_tokens_details": { "reasoning_tokens": 0 },
-        "total_tokens": 163
+        "total_tokens": 146
       }
     }
     ```
@@ -186,7 +193,7 @@ Ask the model which tool an agent should call first.
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "diffusiongemma-26B-A4B-it-Preview",
+        "model": "d3-preview",
         "state": "User: Can you check how much we spent on AWS last month and email the summary to finance?",
         "questions": {
           "next_tool": {
@@ -218,7 +225,7 @@ The examples below reuse a small setup. Run it once, then pick the format you pr
     import os
     import httpx
 
-    MODEL = "diffusiongemma-26B-A4B-it-Preview"
+    MODEL = "d3-preview"
 
 
     def decide(state, questions):
@@ -238,7 +245,7 @@ The examples below reuse a small setup. Run it once, then pick the format you pr
     from openai import OpenAI
 
     client = OpenAI()
-    MODEL = "diffusiongemma-26B-A4B-it-Preview"
+    MODEL = "d3-preview"
     ```
   </TabItem>
 </Tabs>
@@ -320,10 +327,10 @@ Rate the risk of a planned action and decide whether a human must approve it bef
 
 **Example output:**
 ```
-Ask a human first. Risk score: 2.28
+Ask a human first. Risk score: 2.94
 ```
 
-A score of about 2.3 on the 0–3 scale sits between "high" and "critical". Use the score for a threshold, or read the per-level `probabilities` if you need the distribution.
+A score of about 2.9 on the 0–3 scale is close to the top level, "critical": the query deletes rows from a production database. Use the score for a threshold, or read the per-level `probabilities` if you need the distribution.
 
 ### Task completion and stop condition
 
@@ -383,7 +390,7 @@ Decide whether the agent loop is done or needs another step.
 
 **Example output:**
 ```
-0.002 search_more
+0.094 search_more
 ```
 
 The goal asks for three flights and only two were found, so the agent keeps searching.
@@ -447,7 +454,7 @@ Check whether the retrieved context answers the question, and whether the draft 
 
 **Example output:**
 ```
-1.99 0.0
+1.92 0.0
 ```
 
 The context is relevant (close to the top level, 2), but the draft answer contradicts it. Regenerate the answer instead of returning it.
@@ -511,9 +518,108 @@ Check content that a tool fetched (a web page, a document, an email) before it r
 
 **Example output:**
 ```
-prompt_injection 0.998
-contains_sensitive_data 0.999
+prompt_injection 1.0
+contains_sensitive_data 0.898
 ```
+
+### Image input
+
+Both models take images on `/decisions`, for example screenshots, photos or scanned documents. Send each image as a base64 data URL (PNG, JPEG or WebP). One request can carry several images. HTTP(S) image URLs are not accepted, so download the image first and encode it.
+
+This example checks the screenshot a browser agent took after it clicked **Pay now**, and picks the next step.
+
+<Tabs syncKey="decisions-format">
+  <TabItem value="native" label="Native (Jefan)" default>
+    In the native format, put the images in the top-level `images` list. `state` stays text or JSON.
+
+    ```python showLineNumbers
+    import base64
+    import os
+    import httpx
+
+    with open("checkout.png", "rb") as f:
+        screenshot = "data:image/png;base64," + base64.b64encode(f.read()).decode()
+
+    response = httpx.post(
+        f"{os.environ['OPENAI_BASE_URL']}/decisions",
+        headers={"Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"},
+        json={
+            "model": "d3-preview",
+            "state": "Screenshot taken by the browser agent after it clicked 'Pay now'.",
+            "images": [screenshot],
+            "questions": {
+                "payment_succeeded": {
+                    "kind": "noul",
+                    "instructions": "Does the screenshot show that the payment went through?",
+                },
+                "next_step": {
+                    "kind": "choice",
+                    "instructions": "What should the agent do next?",
+                    "criteria": {
+                        "confirm_order": "The order is complete, confirm it to the user",
+                        "retry_payment": "Click the button to try the same payment again",
+                        "ask_user": "Ask the user for another payment method",
+                    },
+                },
+            },
+        },
+        timeout=60,
+    )
+    response.raise_for_status()
+    answers = response.json()["answers"]
+    print(round(answers["payment_succeeded"]["value"], 3), answers["next_step"]["value"])
+    ```
+  </TabItem>
+  <TabItem value="openai" label="OpenAI SDK">
+    In the OpenAI format, send the image as an `input_image` part of a user message.
+
+    ```python showLineNumbers
+    import base64
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    with open("checkout.png", "rb") as f:
+        screenshot = "data:image/png;base64," + base64.b64encode(f.read()).decode()
+
+    response = client.decisions.create(
+        model="d3-preview",
+        input=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "input_image", "image_url": screenshot},
+                    {"type": "input_text", "text": "Screenshot taken by the browser agent after it clicked 'Pay now'."},
+                ],
+            }
+        ],
+        questions=[
+            {"type": "predicate", "name": "payment_succeeded",
+             "instructions": "Does the screenshot show that the payment went through?"},
+            {
+                "type": "choice",
+                "name": "next_step",
+                "instructions": "What should the agent do next?",
+                "choices": [
+                    {"value": "confirm_order", "description": "The order is complete, confirm it to the user"},
+                    {"value": "retry_payment", "description": "Click the button to try the same payment again"},
+                    {"value": "ask_user", "description": "Ask the user for another payment method"},
+                ],
+            },
+        ],
+    )
+    succeeded, next_step = response.answers
+    print(round(succeeded.probability, 3), next_step.choice)
+    ```
+  </TabItem>
+</Tabs>
+
+**Example output** for a screenshot that shows "Payment failed: your card was declined":
+```
+0.001 ask_user
+```
+
+The payment did not go through and retrying the same card will not help, so the agent asks the user for another payment method. With a screenshot that shows "Payment successful", the same request returns `1.0 confirm_order`.
 
 ### More ideas
 
@@ -525,23 +631,25 @@ The same pattern covers most decision points in an agent. Some questions that wo
 | Tool error recovery | `choice` | "How should the agent handle this error?" with `retry`, `fix_arguments`, `fallback_tool`, `escalate` |
 | Ticket triage | `choice` + `score` | "Which team should own this ticket?" and "How severe is the impact?" |
 | Model routing | `choice` | "Which model tier should handle this request?" with `small`, `large` |
+| Document check | `noul` + image | "Is the uploaded document a signed invoice?" |
 
 
 ## Combine decisions and chat
 
-The same model serves `/chat/completions`, so one agent can make its decisions and write its replies with one model ID. This example routes a support ticket with one decisions call, then writes the reply with chat completions.
+d3 makes the decisions; a chat model writes the text. This example routes a support ticket with one decisions call to `d3-preview`, then writes the reply with chat completions on `Qwen3.8-27B-FP8`. To use one model ID for both steps, set both to `diffusiongemma-26B-A4B-it-Preview`.
 
 ```python showLineNumbers
 from openai import OpenAI
 
 client = OpenAI()
-MODEL = "diffusiongemma-26B-A4B-it-Preview"
+DECISION_MODEL = "d3-preview"
+CHAT_MODEL = "Qwen3.8-27B-FP8"
 
 user_message = "Our checkout page is down for all EU customers. Please help, we have a demo at noon!"
 
 # 1. Decision step: route and prioritise the ticket.
 decision = client.decisions.create(
-    model=MODEL,
+    model=DECISION_MODEL,
     input=user_message,
     questions=[
         {
@@ -559,9 +667,9 @@ decision = client.decisions.create(
 )
 team, urgent = decision.answers
 
-# 2. Text step: write the reply with chat completions on the same model.
+# 2. Text step: write the reply with a chat model.
 reply = client.chat.completions.create(
-    model=MODEL,
+    model=CHAT_MODEL,
     messages=[
         {
             "role": "system",
@@ -573,18 +681,18 @@ reply = client.chat.completions.create(
     max_tokens=300,
 )
 print(team.choice, round(urgent.probability, 2))
-print(reply.choices[0].message.content)
+print(reply.choices[0].message.content.strip())
 ```
 
 **Example output:**
 ```
 platform 0.99
-We have received your urgent request and escalated this ticket to the platform team for immediate investigation. We are prioritizing the EU checkout outage to ensure everything is functional before your noon demo.
+I'm escalating this to our on-call infrastructure team immediately for EU region failover. In the meantime, please confirm your tenant ID and region so we can prioritize your account.
 ```
 
-### Thinking mode for chat
+### Thinking mode for chat (DiffusionGemma)
 
-On `/chat/completions`, thinking is off by default. Turn it on for multi-step calculations or reasoning:
+On `/chat/completions`, DiffusionGemma 26B A4B has thinking off by default. Turn it on for multi-step calculations or reasoning:
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -623,16 +731,18 @@ With thinking on, the model answers 1254.26 EUR, which is correct. With thinking
   print(round(response.answers[0].probability, 2))  # 1.0
   ```
 
-- **Text input only.** `/decisions` rejects images with `400 Image input is not supported by this model; send text only.` For image questions, use [chat completions with an image](/guides/multimodal).
+- **Images as base64 data URLs.** `/decisions` accepts PNG, JPEG and WebP images as data URLs, several per request. HTTP(S) image URLs are rejected with a `400` or `422` error.
+- **d3 is decisions only.** `d3-preview` does not generate text. Use a chat model, or DiffusionGemma 26B A4B, for `/chat/completions`.
 - **Questions are independent.** All questions in one request see the same state, not each other's answers. If a question depends on an earlier answer, send a second request.
 - **Write clear instructions and option descriptions.** The model picks between your descriptions, so make them specific and non-overlapping. For `score`, list the levels from lowest to highest.
 - **Use thresholds, not exact values.** Probabilities can differ slightly between identical requests. Compare them to a threshold (for example `> 0.5`) instead of an exact number.
 - **`samples` (optional).** Sets how many internal samples the model averages for each answer. The default suits most requests. To change it, set `samples` in the request body; the OpenAI SDK passes it via `extra_body={"samples": 1}`.
-- **Preview model.** DiffusionGemma 26B A4B runs under the [Test / Preview](/plans/test) terms: dynamic rate limits, no SLA, not for production workloads.
+- **Preview models.** d3 and DiffusionGemma 26B A4B run under the [Test / Preview](/plans/test) terms: dynamic rate limits, no SLA, not for production workloads.
 
 
 ## Next Steps
 
 - [Function Calling](/guides/function-calling) — Let the model call the tool your decision picked
 - [Chat Completions](/guides/chat-completions) — Generate the text steps of your agent
+- [Multimodal](/guides/multimodal) — Send images to chat models
 - [Test / Preview Models](/plans/test) — Limits and terms for preview models

@@ -1,7 +1,8 @@
 ---
-// Site-wide model announcement bar — currently DiffusionGemma 26B A4B joining
-// the Test / preview catalog, usable for chat and for decisions. It replaced
-// the GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
+// Site-wide model announcement bar — currently d3 joining the Test / preview
+// catalog as the recommended decision model, with image input on /decisions.
+// It replaced the DiffusionGemma 26B A4B preview bar, which replaced the
+// GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
 // Footer.astro so it appears on every page (there are no splash pages, so the
 // Footer override is truly global).
 //
@@ -27,13 +28,13 @@ const testHref = isDE ? '/de/plans/test' : '/plans/test';
 const t = isDE
   ? {
       badge: 'Neu',
-      msg: '<b>DiffusionGemma 26B A4B</b> ist jetzt als Preview verfügbar — für Chat und Decisions, kostenlos testbar.',
+      msg: '<b>d3</b> ist jetzt als Preview verfügbar — das empfohlene Modell für Decisions, jetzt auch mit Bildern. Kostenlos testbar.',
       cta: 'Preview testen',
       close: 'Ankündigung schließen',
     }
   : {
       badge: 'New',
-      msg: '<b>DiffusionGemma 26B A4B</b> is now in preview for chat and decisions — free to try.',
+      msg: '<b>d3</b> is now in preview — the recommended model for decisions, now with image input. Free to try.',
       cta: 'Try the preview',
       close: 'Dismiss announcement',
     };
@@ -187,7 +188,7 @@ const t = isDE
 
 <script>
   // Dismiss-semantics rationale: see the component frontmatter.
-  const QP_KEY = 'diffusionGemmaPreviewBannerDismissed';
+  const QP_KEY = 'd3PreviewBannerDismissed';
   let reloadHandled = false;
 
   function isDismissed() {
