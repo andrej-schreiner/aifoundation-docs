@@ -1,5 +1,5 @@
 ---
-title: "Decisions (Jefan)"
+title: "Decisions"
 description: "Typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text vom /decisions-Endpunkt erhalten – für schnelle Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks."
 ---
 
@@ -17,7 +17,7 @@ Nutzen Sie Decisions in einem Agenten für die kleinen Bewertungsschritte (welch
 
 **Was Sie lernen werden:**
 - Die drei Fragetypen und was sie zurückgeben
-- Die zwei Anfrageformate: natives Jefan und OpenAI-kompatibel
+- Die zwei Anfrageformate: nativ und OpenAI-kompatibel
 - Agenten-Anwendungsfälle zum Kopieren
 - Wie Sie Fragen zu Bildern stellen
 - Wie Sie Decisions und Chat in einer Agentenschleife kombinieren
@@ -41,7 +41,7 @@ Beide Modelle sind in [Test / Vorschau](/de/plans/test): kostenlos in jedem akti
 
 Jede Anfrage enthält einen Zustand und eine oder mehrere benannte Fragen. Jede Frage erhält eine Antwort.
 
-| Nativ (Jefan) | OpenAI-kompatibel | Sie übergeben | Sie erhalten |
+| Nativ | OpenAI-kompatibel | Sie übergeben | Sie erhalten |
 |---|---|---|---|
 | `noul` | `predicate` | `instructions` | Eine Wahrscheinlichkeit in [0, 1], dass die Aussage zutrifft |
 | `choice` | `choice` | `instructions` + die Optionen | Die gewählte Option, eine Wahrscheinlichkeit pro Option und `confidence` |
@@ -52,7 +52,7 @@ Jede Anfrage enthält einen Zustand und eine oder mehrere benannte Fragen. Jede 
 
 Der Endpunkt akzeptiert zwei Anfrageformen und erkennt, welche Sie gesendet haben. Beide liefern dieselben Antworten.
 
-| | Nativ (Jefan) | OpenAI-kompatibel |
+| | Nativ | OpenAI-kompatibel |
 |---|---|---|
 | Client | Beliebiger HTTP-Client | OpenAI SDK, `client.decisions.create` |
 | Was bewertet wird | `state`: Text oder ein JSON-Objekt | `input`: Text oder User-Nachrichten mit `input_text`-Teilen |
@@ -70,7 +70,7 @@ Nutzen Sie das native Format, wenn Sie strukturierten Zustand ohne eigene Serial
 Fragen Sie das Modell, welches Tool ein Agent zuerst aufrufen soll.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     ```python showLineNumbers
     import os
     import httpx
@@ -210,7 +210,7 @@ Fragen Sie das Modell, welches Tool ein Agent zuerst aufrufen soll.
       }'
     ```
 
-    Die Antwort hat dieselbe Form wie im Tab **Nativ (Jefan)**.
+    Die Antwort hat dieselbe Form wie im Tab **Nativ**.
   </TabItem>
 </Tabs>
 
@@ -220,7 +220,7 @@ Fragen Sie das Modell, welches Tool ein Agent zuerst aufrufen soll.
 Die folgenden Beispiele nutzen ein kleines gemeinsames Setup. Führen Sie es einmal aus und wählen Sie dann Ihr bevorzugtes Format: Die Tabs wechseln auf dieser Seite gemeinsam.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     ```python showLineNumbers
     import os
     import httpx
@@ -255,7 +255,7 @@ Die folgenden Beispiele nutzen ein kleines gemeinsames Setup. Führen Sie es ein
 Bewerten Sie das Risiko einer geplanten Aktion und entscheiden Sie, ob ein Mensch sie vor der Ausführung freigeben muss.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -337,7 +337,7 @@ Ein Score von etwa 2,9 auf der Skala 0–3 liegt nahe der höchsten Stufe „cri
 Entscheiden Sie, ob die Agentenschleife fertig ist oder einen weiteren Schritt braucht.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -400,7 +400,7 @@ Das Ziel verlangt drei Flüge, gefunden wurden nur zwei – also sucht der Agent
 Prüfen Sie, ob der abgerufene Kontext die Frage beantwortet und ob der Antwortentwurf davon gestützt wird, bevor Sie die Antwort anzeigen.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -464,7 +464,7 @@ Der Kontext ist relevant (nahe der höchsten Stufe 2), aber der Antwortentwurf w
 Prüfen Sie Inhalte, die ein Tool geladen hat (eine Webseite, ein Dokument, eine E-Mail), bevor sie den Agenten erreichen oder Ihr System verlassen. Eine Anfrage kann mehrere Fragen zum selben Inhalt stellen.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     ```python showLineNumbers
     answers = decide(
         {
@@ -529,7 +529,7 @@ Beide Modelle nehmen an `/decisions` Bilder an, zum Beispiel Screenshots, Fotos 
 Dieses Beispiel prüft den Screenshot, den ein Browser-Agent nach dem Klick auf **Pay now** aufgenommen hat, und wählt den nächsten Schritt.
 
 <Tabs syncKey="decisions-format">
-  <TabItem value="native" label="Nativ (Jefan)" default>
+  <TabItem value="native" label="Nativ" default>
     Im nativen Format legen Sie die Bilder in die Liste `images` auf oberster Ebene. `state` bleibt Text oder JSON.
 
     ```python showLineNumbers
