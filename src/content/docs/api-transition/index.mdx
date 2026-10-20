@@ -1,0 +1,200 @@
+---
+title: "API Transition"
+description: "The LLM Serving Service is moving to the New API: transition phases and endpoints, what you need to do, API keys, model identifiers and model discovery."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+We are upgrading the LLM Serving Service to provide **lower latency, higher throughput, and a more standardized API experience**.
+
+The New API introduces consistent response structures, structured error handling, and additional diagnostic information, making integrations easier to maintain and troubleshoot.
+
+To ensure a smooth transition, the Legacy API remains available during the migration period. This gives applications time to adapt while continuing to use the existing API behavior.
+
+This section explains the transition timeline, required changes, and compatibility considerations for applications moving from the Legacy API to the New API.
+
+
+## Transition Overview
+
+The transition takes place in three phases. Exact dates will be communicated separately.
+
+| Endpoint | Phase 1 (2 weeks) | Phase 2 (2 months) | Phase 3 (permanent) |
+|---|---|---|---|
+| **Existing** `llm-server.llmhub.t-systems.net` | Legacy API format | New API format | Discontinued |
+| **Legacy** `llm-server.legacy.ai.t-systems.net` | Legacy API format | Legacy API format | Discontinued |
+| **New** `llm-server.ai.t-systems.net` | Not available yet | New API format | New API format |
+
+
+### How the Transition Works
+
+**Phase 1 — Preparation.** The existing endpoint continues to use the Legacy API format. Applications that depend on the current response or error structure can switch to the dedicated Legacy endpoint, `https://llm-server.legacy.ai.t-systems.net/v2`. This endpoint is already available and preserves the existing API behavior until the end of Phase 2.
+
+**Phase 2 — Migration.** The existing endpoint switches to the New API format. The dedicated Legacy endpoint remains available for applications that still require the previous format. The new permanent endpoint becomes available: `https://llm-server.ai.t-systems.net/v1`.
+
+**Phase 3 — New API.** The existing and Legacy endpoints are discontinued. All applications should use the permanent New API endpoint, `https://llm-server.ai.t-systems.net/v1`.
+
+
+### What You Need to Do
+
+1. **In Phase 1, if needed:** Does your application depend on the current response or error format? Then switch your base URL to `https://llm-server.legacy.ai.t-systems.net/v2`. Your application keeps working as it does today until the end of Phase 2. The Legacy endpoint is already available, so you can make this switch before Phase 1 begins.
+2. **By the end of Phase 2, all customers:** Move to the New API endpoint `https://llm-server.ai.t-systems.net/v1` and the New API format.
+
+The New API uses `/v1` paths, for example `/v1/chat/completions` instead of `/v2/chat/completions`. When moving to the New API, change the base URL to `https://llm-server.ai.t-systems.net/v1` and review your model identifiers and response handling.
+
+
+## Getting Started
+
+Most applications can migrate by updating their endpoint while keeping their existing authentication mechanism and standard request structure.
+
+
+### Connection Settings
+
+| Setting | Legacy API | New API |
+|---|---|---|
+| Recommended base URL | `https://llm-server.legacy.ai.t-systems.net/v2` | `https://llm-server.ai.t-systems.net/v1` |
+| Authentication | API key | API key |
+| Supported keys | Existing and new API keys | Existing and new API keys |
+| Model identifiers | Existing model names | Existing names supported; provider prefixes recommended |
+| Standard API paths | `/v2/...` | `/v1/...` |
+
+
+### API Key Compatibility
+
+Existing API keys remain supported during the transition.
+
+| Endpoint | Existing API keys | New API keys |
+|---|---|---|
+| Existing endpoint | Supported | Not supported |
+| Legacy endpoint | Supported | Supported |
+| New endpoint | Supported | Supported |
+
+With the introduction of the new management UI, you will also be able to create and manage new API keys through a self-service interface.
+
+Existing API keys will be deprecated in favor of newly issued keys. **Deprecation does not immediately invalidate existing keys.** Any future retirement will be communicated separately.
+
+Applications using existing keys do not need to replace them solely to access the New API.
+
+
+### Model Identifiers
+
+The New API supports both unprefixed and provider-prefixed model identifiers. For example, the following model name can be used:
+
+```json
+{
+  "model": "gpt-6.1-sol"
+}
+```
+
+For explicit provider selection, use the `provider/model-name` format:
+
+```json
+{
+  "model": "azure/gpt-6.1-sol"
+}
+```
+
+The prefix for each model is listed in `/v1/models`.
+
+**Provider prefixes are recommended but not required.** Using the `provider/model-name` format makes routing more predictable by explicitly selecting the intended provider.
+
+:::caution
+When an unprefixed model name is used, the New API automatically resolves it to an available provider. The selected provider may differ from the one previously used by the Legacy API. Use provider-prefixed identifiers when your application requires consistent provider selection.
+:::
+
+
+### Model Discovery
+
+If your application retrieves model information dynamically, review the model-list response structure: the Legacy API serves it at `GET /v2/models`, the New API at `GET /v1/models`. The New API can expose additional model capabilities and pricing information, while some fields from the Legacy API are no longer available in the same format.
+
+| Aspect | Legacy API | New API |
+|---|---|---|
+| Model identifier | `gpt-6.1-sol` | `azure/gpt-6.1-sol` |
+| Model ownership | `owned_by`, e.g. `T-Systems International` | May be empty or absent |
+| Model type | `meta_data.model_type`, e.g. `LLM` | Not included |
+| Top-level `object` | `"list"` | May be empty or absent |
+| Model entry `object` | `"model"` | May be `"model"` or absent |
+| Context length | `meta_data.max_sequence_length` | `context_length` |
+| Output token limit | `meta_data.max_output_length` | `max_output_tokens` |
+| Additional information | Deployment and provider metadata | May include `alias`, `max_input_tokens`, and `pricing` |
+
+
+### What You Need to Check
+
+If your application retrieves models dynamically, check whether it depends on:
+
+- `meta_data.model_type` to distinguish LLM and embedding models.
+- `owned_by` or model-level `object` fields.
+- The top-level `object: "list"` value.
+- Unprefixed model identifiers in model-list results.
+
+Applications using strict response validation should account for these differences.
+
+For available models, supported capabilities, and configuration details, see [Models](/models) and the [Model Comparison](/models/comparison).
+
+
+### Model Datasheets
+
+New datasheet endpoints under `/v1/datasheet` will soon be available. They describe each model's capabilities and parameter specifications: which endpoints a model supports, which parameters it accepts, and their allowed values and defaults.
+
+The following example shows how a model is specified:
+
+```json
+{
+  "name": "example-model",
+  "max_input_tokens": 200000,
+  "max_output_tokens": 64000,
+  "supported_endpoints": ["/v1/chat/completions", "/v1/responses"],
+  "supports_reasoning": true,
+  "model_parameters": [
+    {
+      "id": "temperature",
+      "type": "number",
+      "default": 1,
+      "range": { "min": 0, "max": 2 }
+    },
+    {
+      "id": "reasoning_effort",
+      "type": "select",
+      "default": "medium",
+      "options": ["low", "medium", "high"]
+    }
+  ]
+}
+```
+
+:::note
+The example is illustrative and simplified. The parameters, ranges and defaults differ per model.
+:::
+
+
+## Summary
+
+The New API provides a more scalable and standardized foundation for LLM integrations while maintaining compatibility with commonly used chat completion features. Before migrating, review your model identifiers, request parameters, response parsing, token usage handling, streaming behavior, and error handling.
+
+**All applications should move to the permanent New API endpoint by the end of Phase 2.** For questions or migration support, contact [AI@t-systems.com](mailto:AI@t-systems.com).
+
+
+## Next Steps
+
+<div class="link-card-row">
+  <LinkCard
+    title="Requests"
+    href="/api-transition/requests/"
+    description="Request structure, model identifiers in requests and parameter handling on the New API."
+  />
+  <LinkCard
+    title="Responses"
+    href="/api-transition/responses/"
+    description="The standardized response format, model names in responses, token usage details and response metadata."
+  />
+  <LinkCard
+    title="Streaming"
+    href="/api-transition/streaming/"
+    description="Where token usage appears in the stream, the completion marker and errors during streaming."
+  />
+  <LinkCard
+    title="Error Handling"
+    href="/api-transition/errors/"
+    description="Structured errors, status codes, rate limits and retries, and what to include when reporting an issue."
+  />
+</div>

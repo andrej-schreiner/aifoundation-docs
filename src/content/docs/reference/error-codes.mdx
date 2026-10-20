@@ -11,8 +11,8 @@ When an API request fails, the response includes an HTTP status code and an erro
 | Code | Name | Description | Resolution |
 |---|---|---|---|
 | `400` | Bad Request | Invalid request format or parameters | Check your request body and parameters |
-| `401` | Unauthorized | Missing or invalid API key | Verify your `Authorization: Bearer` header |
-| `403` | Forbidden | API key lacks permission for this resource | Check your plan tier or contact support |
+| `401` | Unauthorized | Invalid API key | Verify the key in your `Authorization: Bearer` header |
+| `403` | Forbidden | Missing API key, or API key lacks permission for this resource | Send your key in the `Authorization: Bearer` header; if it is present, check your plan tier or contact support |
 | `404` | Not Found | Invalid endpoint or model not found | Verify the URL and model name |
 | `429` | Too Many Requests | Rate limit exceeded | Wait and retry with exponential backoff |
 | `500` | Internal Server Error | Server-side error | Retry after a brief delay |
@@ -28,7 +28,7 @@ When an API request fails, the response includes an HTTP status code and an erro
 ```
 
 :::note
-Some endpoints (e.g., Azure-proxied models like GPT-5) may return OpenAI-style error objects:
+Some endpoints (e.g., Azure-proxied models like GPT-6.1 Sol) may return OpenAI-style error objects:
 ```json
 {
   "error": {

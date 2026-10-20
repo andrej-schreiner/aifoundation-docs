@@ -1,0 +1,78 @@
+---
+title: "API Transition: Requests"
+description: "How chat completion requests work on the New API: request structure, model identifiers and parameter handling."
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+The New API (`https://llm-server.ai.t-systems.net/v1`) supports standard chat completion requests, including commonly used parameters such as `messages`, `temperature`, `top_p`, `tools`, and `response_format`, where supported by the selected model.
+
+Most applications can continue using their existing request structure with only minor adjustments.
+
+
+## Example: Chat Completion Request
+
+<Tabs>
+  <TabItem label="Legacy API">
+
+```bash
+curl -X POST "https://llm-server.legacy.ai.t-systems.net/v2/chat/completions" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-6.1-sol",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+  </TabItem>
+  <TabItem label="New API (recommended)">
+
+```bash
+curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "azure/gpt-6.1-sol",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+  </TabItem>
+</Tabs>
+
+The New API example uses an explicit provider prefix (`azure/`) for predictable routing; the prefix for each model is listed in `/v1/models`. An unprefixed model name such as `gpt-6.1-sol` can also be used when the model is available through automatic provider resolution.
+
+
+## What Changes?
+
+| Aspect | Legacy API | New API |
+|---|---|---|
+| Standard chat parameters | Supported | Supported, subject to model capabilities |
+| Model identifiers | Unprefixed model names | Unprefixed and provider-prefixed names |
+| Provider selection | Managed by the existing routing configuration | Explicit selection supported through provider prefixes |
+| Tool calling | Supported | Supported through standard `tools` and `tool_calls` |
+| Structured output | Supported when available for the model | Supported when available for the model |
+| Provider-specific parameters | Generally forwarded to the provider | May be filtered or ignored unless supported |
+| Request validation | Gateway and provider validation | Primarily provider-dependent; some parameters may be adjusted or ignored |
+
+
+## What You Need to Check
+
+**For standard integrations:** Update the endpoint. Existing request structures and unprefixed model names can continue to work, provided the model is available.
+
+**For predictable model routing:** Use provider-prefixed model identifiers.
+
+**For advanced integrations:** If your application uses provider-specific parameters, custom request fields, or model-specific features, verify that the selected model supports them through the New API.
+
+Request validation depends on the model provider and API parameter handling. Some unsupported or out-of-range parameters may be adjusted or silently ignored instead of being rejected.
+
+:::caution
+A successful HTTP response does not guarantee that every request parameter was applied as provided.
+:::
+
+For detailed model capabilities and supported parameters, see [Models](/models) and the [Model Comparison](/models/comparison).

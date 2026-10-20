@@ -11,8 +11,8 @@ Wenn eine API-Anfrage fehlschlägt, enthält die Antwort einen HTTP-Statuscode u
 | Code | Name | Beschreibung | Lösung |
 |---|---|---|---|
 | `400` | Bad Request | Ungültiges Anfrageformat oder Parameter | Überprüfen Sie Ihren Anfragekörper und die Parameter |
-| `401` | Unauthorized | Fehlender oder ungültiger API-Schlüssel | Überprüfen Sie Ihren `Authorization: Bearer`-Header |
-| `403` | Forbidden | API-Schlüssel hat keine Berechtigung für diese Ressource | Überprüfen Sie Ihre Tarifstufe oder kontaktieren Sie den Support |
+| `401` | Unauthorized | Ungültiger API-Schlüssel | Überprüfen Sie den Schlüssel in Ihrem `Authorization: Bearer`-Header |
+| `403` | Forbidden | Fehlender API-Schlüssel oder keine Berechtigung des API-Schlüssels für diese Ressource | Senden Sie Ihren Schlüssel im `Authorization: Bearer`-Header; ist er vorhanden, überprüfen Sie Ihre Tarifstufe oder kontaktieren Sie den Support |
 | `404` | Not Found | Ungültiger Endpunkt oder Modell nicht gefunden | Überprüfen Sie die URL und den Modellnamen |
 | `429` | Too Many Requests | Rate-Limit überschritten | Warten und mit exponentiellem Backoff erneut versuchen |
 | `500` | Internal Server Error | Serverseitiger Fehler | Nach kurzer Verzögerung erneut versuchen |
@@ -28,7 +28,7 @@ Wenn eine API-Anfrage fehlschlägt, enthält die Antwort einen HTTP-Statuscode u
 ```
 
 :::note
-Einige Endpunkte (z. B. über Azure bereitgestellte Modelle wie GPT-5) können OpenAI-formatierte Fehlerobjekte zurückgeben:
+Einige Endpunkte (z. B. über Azure bereitgestellte Modelle wie GPT-6.1 Sol) können OpenAI-formatierte Fehlerobjekte zurückgeben:
 ```json
 {
   "error": {

@@ -1,14 +1,15 @@
 ---
-// Site-wide model announcement bar — currently d3 joining the Test / preview
-// catalog as the recommended decision model, with image input on /decisions.
+// Site-wide announcement bars — currently the API transition notice (linking
+// to /api-transition) above d3 joining the Test / preview catalog as the
+// recommended decision model, with image input on /decisions.
 // It replaced the DiffusionGemma 26B A4B preview bar, which replaced the
 // GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
 // Footer.astro so it appears on every page (there are no splash pages, so the
 // Footer override is truly global).
 //
 // Named generically (it was QwenPreviewBanner) because the copy is swapped
-// whenever the preview catalog changes: one announcement at a time, never
-// stacked. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
+// whenever the preview catalog changes. Bars stack in the order of the
+// `bars` array below; each one is dismissed on its own. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
 // replaced GlmBanner.
 //
 // Kept deliberately compact: a slim single-line bar rendered in the content
@@ -19,35 +20,58 @@
 // the closed state lives in sessionStorage (survives navigation between docs
 // pages). A hard reload clears it (detected via PerformanceNavigationTiming
 // "reload"), and a new tab starts a fresh session — so the announcement
-// returns. The storage key changes with each announcement, so visitors who
-// dismissed the previous one still see this one.
+// returns. Each bar has its own storage key, and the key changes with each
+// announcement, so visitors who dismissed the previous one still see this one.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
-const testHref = isDE ? '/de/plans/test' : '/plans/test';
+const prefix = isDE ? '/de' : '';
+const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
 
-const t = isDE
-  ? {
-      badge: 'Neu',
-      msg: '<b>d3</b> ist jetzt als Preview verfügbar — das empfohlene Modell für Decisions, jetzt auch mit Bildern. Kostenlos testbar.',
-      cta: 'Preview testen',
-      close: 'Ankündigung schließen',
-    }
-  : {
-      badge: 'New',
-      msg: '<b>d3</b> is now in preview — the recommended model for decisions, now with image input. Free to try.',
-      cta: 'Try the preview',
-      close: 'Dismiss announcement',
-    };
+const bars = isDE
+  ? [
+      {
+        key: 'apiTransitionBannerDismissed',
+        badge: 'Hinweis',
+        msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
+        cta: 'Zur API-Umstellung',
+        href: `${prefix}/api-transition`,
+      },
+      {
+        key: 'd3PreviewBannerDismissed',
+        badge: 'Neu',
+        msg: '<b>d3</b> ist jetzt als Preview verfügbar — das empfohlene Modell für Decisions, jetzt auch mit Bildern. Kostenlos testbar.',
+        cta: 'Preview testen',
+        href: `${prefix}/plans/test`,
+      },
+    ]
+  : [
+      {
+        key: 'apiTransitionBannerDismissed',
+        badge: 'Notice',
+        msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
+        cta: 'View API changes',
+        href: `${prefix}/api-transition`,
+      },
+      {
+        key: 'd3PreviewBannerDismissed',
+        badge: 'New',
+        msg: '<b>d3</b> is now in preview — the recommended model for decisions, now with image input. Free to try.',
+        cta: 'Try the preview',
+        href: `${prefix}/plans/test`,
+      },
+    ];
 ---
 
-<div class="qp-bar" id="qp-bar" role="region" aria-label={t.close} hidden>
-  <span class="qp-badge">{t.badge}</span>
-  <p class="qp-msg" set:html={t.msg}></p>
-  <a class="qp-cta" href={testHref}>{t.cta}</a>
-  <button type="button" class="qp-close" id="qp-close" aria-label={t.close}>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-  </button>
-</div>
+{bars.map((b) => (
+  <div class="qp-bar" data-key={b.key} role="region" aria-label={close} hidden>
+    <span class="qp-badge">{b.badge}</span>
+    <p class="qp-msg" set:html={b.msg}></p>
+    <a class="qp-cta" href={b.href}>{b.cta}</a>
+    <button type="button" class="qp-close" aria-label={close}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+  </div>
+))}
 
 <style>
   .qp-bar {
@@ -188,19 +212,18 @@ const t = isDE
 
 <script>
   // Dismiss-semantics rationale: see the component frontmatter.
-  const QP_KEY = 'd3PreviewBannerDismissed';
   let reloadHandled = false;
 
-  function isDismissed() {
+  function isDismissed(key: string) {
     try {
-      return sessionStorage.getItem(QP_KEY) === '1';
+      return sessionStorage.getItem(key) === '1';
     } catch {
       return false;
     }
   }
 
-  // Clear the dismissal on a hard reload so the announcement returns on refresh.
-  function clearOnReload() {
+  // Clear the dismissals on a hard reload so the announcements return on refresh.
+  function clearOnReload(keys: string[]) {
     if (reloadHandled) return;
     reloadHandled = true;
     const nav = performance.getEntriesByType('navigation')[0] as
@@ -209,53 +232,59 @@ const t = isDE
     const isReload = nav ? nav.type === 'reload' : (performance as any).navigation?.type === 1;
     if (isReload) {
       try {
-        sessionStorage.removeItem(QP_KEY);
+        keys.forEach((key) => sessionStorage.removeItem(key));
       } catch {}
     }
   }
 
-  function dismiss() {
+  function dismiss(bar: HTMLElement) {
     try {
-      sessionStorage.setItem(QP_KEY, '1');
+      sessionStorage.setItem(bar.dataset.key!, '1');
     } catch {}
-    document.getElementById('qp-bar')?.remove();
+    bar.remove();
   }
 
   function initPreviewModelsBanner() {
-    clearOnReload();
-    const bar = document.getElementById('qp-bar');
-    if (!bar) return;
+    const all = Array.from(document.querySelectorAll<HTMLElement>('.qp-bar[data-key]'));
+    clearOnReload(all.map((bar) => bar.dataset.key!));
 
-    if (isDismissed()) {
-      bar.remove();
-      return;
-    }
+    const bars = all.filter((bar) => {
+      if (isDismissed(bar.dataset.key!)) {
+        bar.remove();
+        return false;
+      }
+      return true;
+    });
+    if (!bars.length) return;
 
-    // Portal into the title panel, above the <h1>, so the bar sits in the
-    // content flow — it occupies real space (nothing is ever covered) and
-    // scrolls away with the page. Inside the panel (rather than above it) the
-    // panel's own padding stays above the bar instead of stacking into the
+    // Portal into the title panel, above the <h1>, so the bars sit in the
+    // content flow — they occupy real space (nothing is ever covered) and
+    // scroll away with the page. Inside the panel (rather than above it) the
+    // panel's own padding stays above the bars instead of stacking into the
     // bar-to-title gap.
     // Target the .sl-container INSIDE the panel (not the panel itself): the
-    // container carries Starlight's max-width + centering, so the bar gets the
+    // container carries Starlight's max-width + centering, so the bars get the
     // exact same left edge as the <h1> at every viewport width.
     const host =
       document.querySelector('main .content-panel .sl-container') ||
       document.querySelector('main .content-panel') ||
       document.querySelector('main');
-    if (host && bar.parentElement !== host) {
-      host.prepend(bar);
+    if (host && bars[0].parentElement !== host) {
+      host.prepend(...bars);
     }
 
-    bar.hidden = false;
-    document.getElementById('qp-close')?.addEventListener('click', dismiss);
+    for (const bar of bars) {
+      bar.hidden = false;
+      bar.querySelector('.qp-close')?.addEventListener('click', () => dismiss(bar));
+    }
 
+    // Escape dismisses the topmost visible bar.
     if (!(window as any).__previewModelsBannerEscBound) {
       (window as any).__previewModelsBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape' || isDismissed()) return;
-        const el = document.getElementById('qp-bar');
-        if (el && !el.hidden) dismiss();
+        if (e.key !== 'Escape') return;
+        const el = document.querySelector<HTMLElement>('.qp-bar[data-key]:not([hidden])');
+        if (el) dismiss(el);
       });
     }
   }
@@ -267,4 +296,3 @@ const t = isDE
     initPreviewModelsBanner();
   }
 </script>
-

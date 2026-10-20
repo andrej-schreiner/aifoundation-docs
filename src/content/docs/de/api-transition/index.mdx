@@ -1,0 +1,200 @@
+---
+title: "API-Umstellung"
+description: "Der LLM Serving Service wechselt auf die neue API: Phasen und Endpunkte der Umstellung, was Sie tun müssen, API-Schlüssel, Modellbezeichner und Modellabfrage."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Wir modernisieren den LLM Serving Service und bieten **geringere Latenz, höheren Durchsatz und eine einheitlichere API**.
+
+Die neue API bringt konsistente Antwortstrukturen, eine strukturierte Fehlerbehandlung und zusätzliche Diagnoseinformationen. Das macht Integrationen leichter wartbar und Fehler leichter auffindbar.
+
+Für einen reibungslosen Übergang bleibt die Legacy-API während der Umstellung verfügbar. So haben Anwendungen Zeit für die Anpassung und können das bisherige API-Verhalten weiter nutzen.
+
+Dieser Abschnitt erklärt den Zeitplan der Umstellung, die nötigen Änderungen und die Kompatibilitätsaspekte für Anwendungen, die von der Legacy-API auf die neue API wechseln.
+
+
+## Überblick über die Umstellung
+
+Die Umstellung läuft in drei Phasen. Die genauen Termine teilen wir Ihnen separat mit.
+
+| Endpunkt | Phase 1 (2 Wochen) | Phase 2 (2 Monate) | Phase 3 (dauerhaft) |
+|---|---|---|---|
+| **Bestehend** `llm-server.llmhub.t-systems.net` | Bisheriges Format | Neues Format | Abgeschaltet |
+| **Legacy** `llm-server.legacy.ai.t-systems.net` | Bisheriges Format | Bisheriges Format | Abgeschaltet |
+| **Neu** `llm-server.ai.t-systems.net` | Noch nicht verfügbar | Neues Format | Neues Format |
+
+
+### So läuft die Umstellung ab
+
+**Phase 1 — Vorbereitung.** Der bestehende Endpunkt verwendet weiterhin das Format der Legacy-API. Anwendungen, die auf die bisherige Antwort- oder Fehlerstruktur angewiesen sind, können auf den eigenen Legacy-Endpunkt `https://llm-server.legacy.ai.t-systems.net/v2` wechseln. Dieser Endpunkt ist bereits verfügbar und behält das bisherige API-Verhalten bis Ende Phase 2 bei.
+
+**Phase 2 — Migration.** Der bestehende Endpunkt wechselt auf das Format der neuen API. Der eigene Legacy-Endpunkt bleibt für Anwendungen verfügbar, die das bisherige Format noch benötigen. Der neue, dauerhafte Endpunkt wird verfügbar: `https://llm-server.ai.t-systems.net/v1`.
+
+**Phase 3 — Neue API.** Der bestehende und der Legacy-Endpunkt werden abgeschaltet. Alle Anwendungen sollten den dauerhaften Endpunkt der neuen API verwenden: `https://llm-server.ai.t-systems.net/v1`.
+
+
+### Was Sie tun müssen
+
+1. **In Phase 1, falls nötig:** Ist Ihre Anwendung auf das bisherige Antwort- oder Fehlerformat angewiesen? Dann stellen Sie die Base URL auf `https://llm-server.legacy.ai.t-systems.net/v2` um. So läuft Ihre Anwendung bis Ende Phase 2 unverändert weiter. Der Legacy-Endpunkt ist bereits jetzt verfügbar. Sie können die Umstellung also schon vor Beginn von Phase 1 vornehmen.
+2. **Bis Ende Phase 2, alle Kunden:** Stellen Sie auf den Endpunkt der neuen API `https://llm-server.ai.t-systems.net/v1` und das neue Format um.
+
+Die neue API verwendet `/v1`-Pfade, zum Beispiel `/v1/chat/completions` statt `/v2/chat/completions`. Wenn Sie auf die neue API wechseln, ändern Sie die Base URL auf `https://llm-server.ai.t-systems.net/v1` und prüfen Sie Ihre Modellbezeichner und die Verarbeitung der Antworten.
+
+
+## Erste Schritte
+
+Die meisten Anwendungen können migrieren, indem sie den Endpunkt ändern und ihre bisherige Authentifizierung und die übliche Anfragestruktur beibehalten.
+
+
+### Verbindungseinstellungen
+
+| Einstellung | Legacy-API | Neue API |
+|---|---|---|
+| Empfohlene Base URL | `https://llm-server.legacy.ai.t-systems.net/v2` | `https://llm-server.ai.t-systems.net/v1` |
+| Authentifizierung | API-Schlüssel | API-Schlüssel |
+| Unterstützte Schlüssel | Bestehende und neue API-Schlüssel | Bestehende und neue API-Schlüssel |
+| Modellbezeichner | Bisherige Modellnamen | Bisherige Namen unterstützt; Provider-Präfixe empfohlen |
+| Standardpfade | `/v2/...` | `/v1/...` |
+
+
+### Kompatibilität der API-Schlüssel
+
+Bestehende API-Schlüssel werden während der Umstellung weiter unterstützt.
+
+| Endpunkt | Bestehende API-Schlüssel | Neue API-Schlüssel |
+|---|---|---|
+| Bestehender Endpunkt | Unterstützt | Nicht unterstützt |
+| Legacy-Endpunkt | Unterstützt | Unterstützt |
+| Neuer Endpunkt | Unterstützt | Unterstützt |
+
+Mit der Einführung der neuen Verwaltungsoberfläche können Sie neue API-Schlüssel außerdem selbst erstellen und verwalten.
+
+Bestehende API-Schlüssel werden zugunsten neu ausgestellter Schlüssel als veraltet eingestuft. **Das bedeutet nicht, dass bestehende Schlüssel sofort ungültig werden.** Eine spätere Stilllegung teilen wir Ihnen separat mit.
+
+Anwendungen mit bestehenden Schlüsseln müssen diese nicht allein für den Zugriff auf die neue API ersetzen.
+
+
+### Modellbezeichner
+
+Die neue API unterstützt Modellbezeichner mit und ohne Provider-Präfix. Sie können zum Beispiel diesen Modellnamen verwenden:
+
+```json
+{
+  "model": "gpt-6.1-sol"
+}
+```
+
+Für eine explizite Wahl des Providers verwenden Sie das Format `provider/model-name`:
+
+```json
+{
+  "model": "azure/gpt-6.1-sol"
+}
+```
+
+Das Präfix jedes Modells ist in `/v1/models` angegeben.
+
+**Provider-Präfixe sind empfohlen, aber nicht erforderlich.** Mit dem Format `provider/model-name` wird das Routing vorhersehbarer, weil Sie den gewünschten Provider ausdrücklich wählen.
+
+:::caution
+Bei einem Modellnamen ohne Präfix löst die neue API ihn automatisch zu einem verfügbaren Provider auf. Der gewählte Provider kann sich von dem unterscheiden, den die Legacy-API bisher verwendet hat. Verwenden Sie Bezeichner mit Provider-Präfix, wenn Ihre Anwendung eine gleichbleibende Wahl des Providers benötigt.
+:::
+
+
+### Modellabfrage
+
+Wenn Ihre Anwendung Modellinformationen dynamisch abruft, prüfen Sie die Struktur der Modellliste: Die Legacy-API liefert sie unter `GET /v2/models`, die neue API unter `GET /v1/models`. Die neue API kann zusätzliche Modellfähigkeiten und Preisinformationen liefern, während einige Felder der Legacy-API nicht mehr im selben Format verfügbar sind.
+
+| Aspekt | Legacy-API | Neue API |
+|---|---|---|
+| Modellbezeichner | `gpt-6.1-sol` | `azure/gpt-6.1-sol` |
+| Modellinhaber | `owned_by`, z. B. `T-Systems International` | Kann leer sein oder fehlen |
+| Modelltyp | `meta_data.model_type`, z. B. `LLM` | Nicht enthalten |
+| `object` auf oberster Ebene | `"list"` | Kann leer sein oder fehlen |
+| `object` des Modelleintrags | `"model"` | Kann `"model"` sein oder fehlen |
+| Kontextlänge | `meta_data.max_sequence_length` | `context_length` |
+| Limit für Ausgabe-Tokens | `meta_data.max_output_length` | `max_output_tokens` |
+| Zusätzliche Informationen | Metadaten zu Deployment und Provider | Kann `alias`, `max_input_tokens` und `pricing` enthalten |
+
+
+### Was Sie prüfen sollten
+
+Wenn Ihre Anwendung Modelle dynamisch abruft, prüfen Sie, ob sie von Folgendem abhängt:
+
+- `meta_data.model_type`, um LLM- und Embedding-Modelle zu unterscheiden.
+- `owned_by` oder den `object`-Feldern der Modelleinträge.
+- dem Wert `object: "list"` auf oberster Ebene.
+- Modellbezeichnern ohne Präfix in der Modellliste.
+
+Anwendungen mit strikter Antwortvalidierung sollten diese Unterschiede berücksichtigen.
+
+Verfügbare Modelle, unterstützte Fähigkeiten und Konfigurationsdetails finden Sie unter [Modelle](/de/models) und im [Modellvergleich](/de/models/comparison).
+
+
+### Modell-Datenblätter
+
+Neue Datenblatt-Endpunkte unter `/v1/datasheet` werden in Kürze verfügbar sein. Sie beschreiben die Fähigkeiten und Parameter jedes Modells: welche Endpunkte ein Modell unterstützt, welche Parameter es akzeptiert und welche Werte und Standardwerte dafür gelten.
+
+Das folgende Beispiel zeigt, wie ein Modell beschrieben wird:
+
+```json
+{
+  "name": "example-model",
+  "max_input_tokens": 200000,
+  "max_output_tokens": 64000,
+  "supported_endpoints": ["/v1/chat/completions", "/v1/responses"],
+  "supports_reasoning": true,
+  "model_parameters": [
+    {
+      "id": "temperature",
+      "type": "number",
+      "default": 1,
+      "range": { "min": 0, "max": 2 }
+    },
+    {
+      "id": "reasoning_effort",
+      "type": "select",
+      "default": "medium",
+      "options": ["low", "medium", "high"]
+    }
+  ]
+}
+```
+
+:::note
+Das Beispiel dient zur Veranschaulichung und ist vereinfacht. Parameter, Wertebereiche und Standardwerte unterscheiden sich je nach Modell.
+:::
+
+
+## Zusammenfassung
+
+Die neue API bietet eine besser skalierbare und einheitlichere Grundlage für LLM-Integrationen und bleibt mit den üblichen Funktionen von Chat Completions kompatibel. Prüfen Sie vor der Migration Ihre Modellbezeichner, Anfrageparameter, die Verarbeitung der Antworten, die Auswertung der Token-Nutzung, das Streaming-Verhalten und die Fehlerbehandlung.
+
+**Alle Anwendungen sollten bis Ende Phase 2 auf den dauerhaften Endpunkt der neuen API umgestellt sein.** Bei Fragen oder für Unterstützung bei der Migration erreichen Sie uns unter [AI@t-systems.com](mailto:AI@t-systems.com).
+
+
+## Nächste Schritte
+
+<div class="link-card-row">
+  <LinkCard
+    title="Anfragen"
+    href="/de/api-transition/requests/"
+    description="Anfragestruktur, Modellbezeichner in Anfragen und Verarbeitung von Parametern bei der neuen API."
+  />
+  <LinkCard
+    title="Antworten"
+    href="/de/api-transition/responses/"
+    description="Das einheitliche Antwortformat, Modellnamen in Antworten, Details zur Token-Nutzung und Metadaten der Antwort."
+  />
+  <LinkCard
+    title="Streaming"
+    href="/de/api-transition/streaming/"
+    description="Wo die Token-Nutzung im Stream steht, das Abschlusszeichen und Fehler während des Streamings."
+  />
+  <LinkCard
+    title="Fehlerbehandlung"
+    href="/de/api-transition/errors/"
+    description="Strukturierte Fehler, Statuscodes, Rate-Limits und Wiederholungen sowie Angaben für die Meldung eines Problems."
+  />
+</div>

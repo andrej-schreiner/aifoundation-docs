@@ -154,6 +154,17 @@ export default defineConfig({
 						{ label: 'Enterprise Trust', translations: { de: 'Enterprise Trust' }, slug: 'reference/enterprise-trust' },
 					],
 				},
+				{
+					label: 'API Transition',
+					translations: { de: 'API-Umstellung' },
+					items: [
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'api-transition' },
+						{ label: 'Requests', translations: { de: 'Anfragen' }, slug: 'api-transition/requests' },
+						{ label: 'Responses', translations: { de: 'Antworten' }, slug: 'api-transition/responses' },
+						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'api-transition/streaming' },
+						{ label: 'Error Handling', translations: { de: 'Fehlerbehandlung' }, slug: 'api-transition/errors' },
+					],
+				},
 				{ label: 'SmartChat', translations: { de: 'SmartChat' }, slug: 'smartchat/overview' },
 				{
 					label: 'Plans & Pricing',
