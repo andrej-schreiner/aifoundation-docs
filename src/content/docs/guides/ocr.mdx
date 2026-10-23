@@ -1,0 +1,342 @@
+---
+title: "OCR (Document Parsing)"
+description: "Turn scanned documents, PDFs and photos into Markdown, tables and structured text with the LightOnOCR-3-4B and PaddleOCR-VL-1.6 preview models."
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+Two OCR models read documents for you: scanned letters, invoices, forms, scientific papers and slides. They return the content as **Markdown, HTML tables and LaTeX**, ready for search, RAG pipelines or data extraction, instead of a flat block of text.
+
+Both are open-weight models hosted on T-Cloud Public in Germany, so your documents are processed in Germany.
+
+:::note[Prerequisites]
+- An API key ([get one here](https://apikey.llmhub.t-systems.net/))
+- `OPENAI_API_KEY` and `OPENAI_BASE_URL` set as in the [Quickstart](/getting-started/quickstart)
+- `pip install openai pypdfium2 pillow` for the Python examples (`pypdfium2` renders PDF pages to images)
+:::
+
+**What you'll learn:**
+- Which of the two models fits your documents
+- The two ways to call them: Chat Completions, or the vendors' own libraries
+- How to turn a page, or a whole PDF, into Markdown
+- How to get layout blocks with bounding boxes, tables and formulas
+
+
+## Supported models
+
+| | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
+|---|---|---|
+| Model ID | `LightOnOCR-3-4B-Preview` | `PaddleOCR-VL-1.6-Preview` |
+| Made by | [LightOn](https://www.lighton.ai), Paris, France | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
+| One request | **one page image** → the whole page as Markdown | **one page element** (text block, table, formula, chart) |
+| Output | Markdown; tables as HTML, math as LaTeX; optional layout blocks with boxes | text, tables, LaTeX formulas, chart data; as Markdown/JSON through the PaddleOCR pipeline |
+| Languages | multilingual. Tested by us on German and French | 109 languages. Tested by us on German and French |
+| Context window | 32K | 128K |
+| License | Apache 2.0 | Apache 2.0 |
+| Pick it when | you want page → Markdown in one call, with no extra software | you need high throughput, or element-level output (tables, formulas, charts) from a full layout pipeline |
+
+:::note[LightOnOCR-3]
+Made in Europe by LightOn, Paris. It reads printed text and handwriting, and keeps tables and multi-column layouts.
+:::
+
+Both models are in [Test / Preview](/plans/test): free on any active plan, with dynamic rate limits.
+
+
+## Two ways to call the models
+
+| | **Chat Completions** (OpenAI SDK, curl, any language) | **Vendor libraries** (`lightonocr`, `paddleocr`) |
+|---|---|---|
+| Setup | nothing beyond your HTTP client | a Python package (`paddleocr` also needs PaddlePaddle and downloads a ~120 MB layout model on first use) |
+| PDF handling | you render pages to images yourself | the library renders PDFs, sends pages in parallel and writes the results to files |
+| Layout and tables | LightOnOCR returns them in the Markdown; for PaddleOCR you crop the elements and convert tables yourself | **PaddleOCR:** layout detection, reading order, HTML tables, tables merged across pages. **LightOnOCR:** parsed blocks and a browser viewer |
+| Control | full: your own retries, batching, prompts and post-processing | the library's defaults; settings are passed as parameters |
+| Best for | services in any language, LightOnOCR in production code, single PaddleOCR elements | Python batch jobs; for PaddleOCR-VL **the recommended way** |
+
+
+## LightOnOCR-3-4B
+
+One request per page: send the page image with no text prompt, get the page back as Markdown. Use `temperature` 0.2 and `top_p` 0.9, the model card's settings, and render pages at 400 DPI with the longest edge at **2048 px**.
+
+### Quick start: one page to Markdown
+
+<Tabs syncKey="ocr-client">
+  <TabItem value="python" label="Python" default>
+    ```python showLineNumbers
+    import base64
+    import io
+
+    import pypdfium2 as pdfium
+    from openai import OpenAI
+
+    client = OpenAI()
+
+
+    def page_to_data_url(pdf_path, page=0, longest_edge=2048):
+        """Render one PDF page at 400 DPI, scale the longest edge to 2048 px, return a data URL."""
+        image = pdfium.PdfDocument(pdf_path)[page].render(scale=400 / 72).to_pil().convert("RGB")
+        image.thumbnail((longest_edge, longest_edge))
+        buffer = io.BytesIO()
+        image.save(buffer, format="PNG")
+        return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode()
+
+
+    response = client.chat.completions.create(
+        model="LightOnOCR-3-4B-Preview",
+        messages=[{
+            "role": "user",
+            "content": [{"type": "image_url", "image_url": {"url": page_to_data_url("document.pdf")}}],
+        }],
+        temperature=0.2,
+        top_p=0.9,
+        max_tokens=4096,
+    )
+    print(response.choices[0].message.content)
+    ```
+  </TabItem>
+  <TabItem value="curl" label="curl">
+    Save the page as `page.png` first (2048 px longest edge). The request body goes into a file because a base64 page is too long for the command line.
+
+    ```bash
+    printf '{"model": "LightOnOCR-3-4B-Preview", "temperature": 0.2, "top_p": 0.9, "max_tokens": 4096,
+      "messages": [{"role": "user", "content": [
+        {"type": "image_url", "image_url": {"url": "data:image/png;base64,%s"}}]}]}' \
+      "$(base64 < page.png | tr -d '\n')" > request.json
+
+    curl -s "$OPENAI_BASE_URL/chat/completions" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d @request.json | jq -r '.choices[0].message.content'
+    ```
+  </TabItem>
+</Tabs>
+
+**Output** (end of a page with a results table):
+```markdown
+Note: The table shows three separate analyses of predictors of performance on the causal chain and common cause trials: percentage informative interventions, efficiency, and intervention quality.
+
+* $p < .05$.
+** $p < .01$.
+*** $p < .001$.
+```
+
+Tables come back as HTML `<table>` inside the Markdown, and formulas as LaTeX. Figures are not transcribed: they appear as a placeholder, `![image](image_1.png)`.
+
+### Layout blocks with bounding boxes
+
+Send the text prompt `grounding` after the image. Every block of the page then starts with `![label](x1,y1,x2,y2)`: the block type and its box, in coordinates from 0 to 1000 relative to the page. Use it to crop figures, drop headers and footers, or show where a value was found. This reuses `client` and `page_to_data_url` from the quick start.
+
+```python showLineNumbers
+import re
+
+response = client.chat.completions.create(
+    model="LightOnOCR-3-4B-Preview",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "image_url", "image_url": {"url": page_to_data_url("document.pdf")}},
+            {"type": "text", "text": "grounding"},
+        ],
+    }],
+    temperature=0.2,
+    top_p=0.9,
+    max_tokens=4096,
+)
+text = response.choices[0].message.content
+
+# Every block starts with ![label](x1,y1,x2,y2); coordinates are 0-1000, relative to the page
+for label, x1, y1, x2, y2 in re.findall(r"!\[([a-z_]+\+?)\]\((\d+),(\d+),(\d+),(\d+)\)", text):
+    print(f"{label:12} ({x1}, {y1}) - ({x2}, {y2})")
+```
+
+**Output:**
+```
+header       (256, 63) - (753, 74)
+page_number  (901, 62) - (916, 75)
+chart        (247, 94) - (769, 307)
+caption      (96, 320) - (913, 344)
+table        (95, 433) - (913, 517)
+text         (95, 810) - (912, 835)
+footnote     (116, 835) - (169, 849)
+```
+
+Labels you will see include `title`, `text`, `list`, `table`, `chart`, `image`, `caption`, `footnote`, `header` and `page_number`.
+
+Grounding also reads figures: a `chart` block contains the chart's **data as an HTML table**, and an `image` block a **short description** of the picture (for example *"Architecture diagram for knowledge-based Q/A system with three modules …"*). In plain transcription both are only a placeholder. Use only the empty prompt or `grounding`: other prompts are outside what the model was trained on.
+
+### A whole PDF, pages in parallel
+
+Render all pages first, then send one request per page in parallel and join the results.
+
+```python showLineNumbers
+from concurrent.futures import ThreadPoolExecutor
+
+pdf_path = "report.pdf"
+pages = [page_to_data_url(pdf_path, page=i) for i in range(len(pdfium.PdfDocument(pdf_path)))]  # render first
+
+
+def ocr_page(data_url):
+    response = client.chat.completions.create(
+        model="LightOnOCR-3-4B-Preview",
+        messages=[{"role": "user", "content": [{"type": "image_url", "image_url": {"url": data_url}}]}],
+        temperature=0.2,
+        top_p=0.9,
+        max_tokens=4096,
+    )
+    return response.choices[0].message.content
+
+
+with ThreadPoolExecutor(max_workers=8) as pool:  # 8 pages in parallel at most
+    markdown = "\n\n".join(pool.map(ocr_page, pages))
+
+print(markdown[:500])
+```
+
+### With LightOn's client library
+
+LightOn's [`lightonocr`](https://github.com/lightonai/LightOnOCR) package renders PDFs, sends pages in parallel, parses grounding output and writes one Markdown file per page. It works with this service as it is. Install it from GitHub (it is not on PyPI): `pip install "git+https://github.com/lightonai/LightOnOCR.git"`.
+
+<Tabs syncKey="ocr-lib">
+  <TabItem value="python" label="Python" default>
+    ```python showLineNumbers
+    import os
+
+    from lightonocr import HEADER_FOOTER, LightOnOCR, load_pages, to_markdown
+
+    ocr = LightOnOCR(
+        base_url=os.environ["OPENAI_BASE_URL"],
+        api_key=os.environ["OPENAI_API_KEY"],
+        model="LightOnOCR-3-4B-Preview",  # always set the model
+        timeout=300,
+    )
+
+    pages = load_pages("document.pdf", ocr.profile.longest_edge)  # PDF or image -> page images
+    markdown = ocr.plain(pages[0], max_tokens=4096)              # one page -> Markdown
+    blocks = ocr.grounding(pages[0], max_tokens=4096)            # one page -> blocks with label and box
+
+    print(sorted({block.label for block in blocks}))
+    print(to_markdown(blocks, drop=HEADER_FOOTER)[:300])         # Markdown without headers, footers, page numbers
+    ```
+  </TabItem>
+  <TabItem value="cli" label="CLI">
+    ```bash
+    export LIGHTONOCR_API_KEY=$OPENAI_API_KEY
+    lightonocr report.pdf --base-url "$OPENAI_BASE_URL" --model LightOnOCR-3-4B-Preview \
+      --max-tokens 4096 --concurrency 8
+    ```
+
+    This writes `out/report/page-001.md` (plus the page image) for every page. Add `--mode grounding` for blocks and boxes (also written as `page-001.json`), and run `lightonocr viewer` to browse the results.
+  </TabItem>
+</Tabs>
+
+Always pass the model ID: without it the library uses the first model the service lists, which is not an OCR model. Keep `--concurrency` at 8–16: the library's default of 64 is meant for a private server.
+
+
+## PaddleOCR-VL-1.6
+
+PaddleOCR-VL is the recognition step of a **two-stage pipeline**:
+1. A small **layout model** runs on your side and finds the blocks of the page (text, titles, tables, formulas, charts, seals) and their reading order.
+2. Each block is cropped and sent to `PaddleOCR-VL-1.6-Preview` with the matching task prompt.
+3. The results are put back together as Markdown or JSON.
+
+The model is small and fast, so a page is many short requests in parallel. Do not send whole pages with `OCR:`: on tables, the model then reads the cells as a flat list of numbers. Use the pipeline, or crop the elements yourself.
+
+### Recommended: the PaddleOCR pipeline
+
+The `paddleocr` package runs the layout model locally (a CPU is enough) and sends the element crops to this service. Install it with `pip install "paddlepaddle==3.2.1" "paddleocr[doc-parser]>=3.6.0"`; for NVIDIA GPU builds see [paddlepaddle.org.cn](https://www.paddlepaddle.org.cn/en/install/quick).
+
+```python showLineNumbers
+import os
+
+from paddleocr import PaddleOCRVL
+
+pipeline = PaddleOCRVL(
+    pipeline_version="v1.6",
+    vl_rec_backend="vllm-server",
+    vl_rec_server_url=os.environ["OPENAI_BASE_URL"],
+    vl_rec_api_key=os.environ["OPENAI_API_KEY"],
+    vl_rec_api_model_name="PaddleOCR-VL-1.6-Preview",
+    vl_rec_max_concurrency=8,
+    device="cpu",  # the layout model runs locally; use "gpu:0" if you have a GPU
+)
+
+for page in pipeline.predict("document.pdf"):
+    for block in page.json["res"]["parsing_res_list"]:
+        print(f"{block['block_label']:16} {block['block_content'][:60]!r}")
+    page.save_to_markdown(save_path="output")  # also save_to_json, save_to_html, ...
+```
+
+**Output:**
+```
+header           'T. McCormack et al./Journal of Experimental Child Psychology'
+chart            ''
+figure_title     'Fig. 2. Percentage of response choices for each causal struc'
+table            '<table><tr><td rowspan="2"></td><td colspan="6">Informative<'
+table            '<table><tr><td>Dependent</td><td>Parameter</td><td>Estimate<'
+vision_footnote  'Note: The table shows three separate analyses of predictors '
+display_formula  ' $$ p<.01. $$ '
+```
+
+Tables come back as HTML and formulas as LaTeX. Charts are skipped by default (the `chart` block above is empty): pass `use_chart_recognition=True` to `predict()` to get their data as a table. For multi-page PDFs, pass all page results to `pipeline.restructure_pages(results, merge_tables=True, relevel_titles=True, concatenate_pages=True)` to merge tables that continue across pages. `vl_rec_api_model_name` is required: without it the pipeline asks for its own model name, which this service does not know. If `huggingface.co` is blocked on your network, set `PADDLE_PDX_MODEL_SOURCE=BOS` to download the layout model from a mirror.
+
+### Direct calls for single elements
+
+To read one element without the pipeline, send the image **first**, then the task prompt, with `temperature` 0.0:
+
+| Element | Prompt | Output |
+|---|---|---|
+| Text block | `OCR:` | plain text |
+| Table | `Table Recognition:` | OTSL tags (see below) |
+| Formula | `Formula Recognition:` | LaTeX |
+| Chart | `Chart Recognition:` | the chart's data as a table, columns separated by `\|` |
+| Seal or stamp | `Seal Recognition:` | text |
+| Text with positions | `Spotting:` | each line followed by 8 `<\|LOC_n\|>` tokens: its 4 corner points, 0–1000 |
+
+```python showLineNumbers
+import base64
+
+from openai import OpenAI
+
+client = OpenAI()
+
+with open("table.png", "rb") as f:
+    image_url = "data:image/png;base64," + base64.b64encode(f.read()).decode()
+
+response = client.chat.completions.create(
+    model="PaddleOCR-VL-1.6-Preview",
+    messages=[{
+        "role": "user",
+        "content": [
+            {"type": "image_url", "image_url": {"url": image_url}},  # the image first ...
+            {"type": "text", "text": "Table Recognition:"},          # ... then the task prompt
+        ],
+    }],
+    temperature=0.0,
+    max_tokens=4096,
+)
+print(response.choices[0].message.content)
+```
+
+**Output** (shortened):
+```
+<fcel>Dependent<fcel>Parameter<fcel>Estimate<fcel>SE<fcel>Odds ratio<fcel>z<fcel>p(>|z|)<nl><fcel>\(P_{correct}(chain)\)<fcel>Intercept<fcel>-4.77<fcel>1.80<ecel><fcel>-2.65<fcel>\(.008^{**}\)<nl>...
+```
+
+Tables come back as **OTSL**: `<nl>` ends a row, `<fcel>` starts a cell with text, `<ecel>` an empty cell, and `<lcel>`, `<ucel>`, `<xcel>` mark cells merged with the left, the upper, or both neighbours. The PaddleOCR pipeline converts this to HTML for you.
+
+
+## Tips and limits
+
+- **Always set `max_tokens`.** 4096 suits a normal page; use 8192 for table-heavy pages. If `finish_reason` is `"length"`, the output was cut.
+- **Image size.** LightOnOCR: 2048 px longest edge; larger scans are slower and no more accurate. PaddleOCR-VL scales every image down to about 1 megapixel itself.
+- **One page per request for LightOnOCR.** It accepts one image per request; a second image returns `400`.
+- **Send images as base64 data URLs.** `https://` image links are rejected with `422`: the models do not download images.
+- **Images count as input tokens.** About 3,000 per page for LightOnOCR at 2048 px, and up to about 1,260 per image for PaddleOCR-VL (fewer for small element crops). Check `usage.prompt_tokens`.
+- **Streaming works** for both models (`stream=True`) if you want to show text while a page is read.
+- **Preview models.** Both run under the [Test / Preview](/plans/test) terms: dynamic rate limits, no SLA, not for production workloads.
+
+
+## Next steps
+
+- [Multimodal (Vision)](/guides/multimodal) — Ask questions about images with vision chat models
+- [Visual RAG](/guides/visual-rag) — Search documents by their page images
+- [Test / Preview Models](/plans/test) — Limits and terms for preview models

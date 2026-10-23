@@ -103,6 +103,7 @@ export default defineConfig({
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },
 						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'guides/embeddings' },
 						{ label: 'Multimodal', translations: { de: 'Multimodal' }, slug: 'guides/multimodal' },
+						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr' },
 						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'guides/audio' },
 						{ label: 'Function Calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
 						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions' },

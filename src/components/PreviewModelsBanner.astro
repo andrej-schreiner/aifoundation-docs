@@ -1,8 +1,9 @@
 ---
 // Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above Qwen3 Embedding 8B joining the Essential,
-// Professional and Agentic plans (linking to /plans).
-// It replaced the d3 preview bar, which replaced the DiffusionGemma 26B A4B
+// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
+// PaddleOCR-VL-1.6 (linking to /guides/ocr).
+// It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
+// which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
 // GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
 // Footer.astro so it appears on every page (there are no splash pages, so the
@@ -38,11 +39,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'qwen3Embedding8bBannerDismissed',
+        key: 'ocrPreviewBannerDismissed',
         badge: 'Neu',
-        msg: '<b>Qwen3 Embedding 8B</b> ist jetzt in den Tarifen Essential, Professional und Agentic verfügbar — mehrsprachige Embeddings mit 32K Kontext.',
-        cta: 'Zu den Tarifen',
-        href: `${prefix}/plans`,
+        msg: 'Neu in der Preview: <b>LightOnOCR-3-4B</b> (Made in Europe) und <b>PaddleOCR-VL-1.6</b> — verwandeln Sie Dokumente, PDFs und Handschrift in bearbeitbares Markdown und Tabellen. Kostenlos testbar.',
+        cta: 'OCR ausprobieren',
+        href: `${prefix}/guides/ocr`,
       },
     ]
   : [
@@ -54,11 +55,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'qwen3Embedding8bBannerDismissed',
+        key: 'ocrPreviewBannerDismissed',
         badge: 'New',
-        msg: '<b>Qwen3 Embedding 8B</b> is now available on the Essential, Professional and Agentic plans — multilingual embeddings with a 32K context.',
-        cta: 'View plans',
-        href: `${prefix}/plans`,
+        msg: 'New in preview: <b>LightOnOCR-3-4B</b> (made in Europe) and <b>PaddleOCR-VL-1.6</b> — turn documents, PDFs and handwriting into editable Markdown and tables. Free to try.',
+        cta: 'Try OCR',
+        href: `${prefix}/guides/ocr`,
       },
     ];
 ---
