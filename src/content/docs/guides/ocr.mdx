@@ -159,7 +159,7 @@ text         (95, 810) - (912, 835)
 footnote     (116, 835) - (169, 849)
 ```
 
-Labels include `title`, `section`, `text`, `list`, `caption`, `footnote`, `aside_text`, `header`, `footer`, `page_number`, `table`, `chart`, `formula`, `code` and `image`. A trailing `+` marks a block that continues the previous one, for example across columns or pages.
+Labels you will see include `title`, `text`, `list`, `table`, `chart`, `image`, `caption`, `footnote`, `header` and `page_number`.
 
 Grounding also reads figures: a `chart` block contains the chart's **data as an HTML table**, and an `image` block a **short description** of the picture (for example *"Architecture diagram for knowledge-based Q/A system with three modules …"*). In plain transcription both are only a placeholder. Use only the empty prompt or `grounding`: other prompts are outside what the model was trained on.
 
