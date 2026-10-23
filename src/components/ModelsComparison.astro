@@ -69,6 +69,9 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
+  // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
+  'LightOnOCR-3-4B-Preview': 'vision',
+  'PaddleOCR-VL-1.6-Preview': 'vision',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
@@ -213,6 +216,10 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // d3 (preview) is a decision model: /decisions only, Text+Image in. It
   // generates no text, so no streaming and no tool calling.
   'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
+  // OCR models (preview): page or element image in, Markdown / text out. Streaming
+  // works; no tool calling.
+  'LightOnOCR-3-4B-Preview':  { inputModalities: ['Text', 'Image'], streaming: true, toolCalling: false },
+  'PaddleOCR-VL-1.6-Preview': { inputModalities: ['Text', 'Image'], streaming: true, toolCalling: false },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },

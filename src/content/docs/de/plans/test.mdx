@@ -8,6 +8,10 @@ import PlansPage from '../../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
+:::tip[Neu in der Preview: zwei OCR-Modelle]
+**LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) von LightOn aus Paris (Made in Europe) und **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) wandeln gescannte Dokumente, PDFs und Fotos in Markdown, HTML-Tabellen und LaTeX um. LightOnOCR liest pro Anfrage eine ganze Seite, auch Handschrift; PaddleOCR-VL liest Seitenelemente und funktioniert am besten mit der PaddleOCR-Pipeline. Beide nehmen Bilder über `/chat/completions` an. Siehe [OCR](/de/guides/ocr).
+:::
+
 :::tip[Neu in der Preview: d3]
 **d3** (`d3-preview`) ist ein Decision-Modell mit 27B Parametern aus der Open-Weight-Familie Decision 3.0 von vLLM Semantic Router. Es ist das empfohlene Modell für **Decisions**: `/decisions` liefert typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text – für schnelle Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks. Es nimmt Text- und Bildeingabe an. d3 bedient nur `/decisions` und generiert keinen Text. Siehe [Decisions](/de/guides/decisions).
 
