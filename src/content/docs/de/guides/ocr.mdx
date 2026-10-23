@@ -159,7 +159,9 @@ text         (95, 810) - (912, 835)
 footnote     (116, 835) - (169, 849)
 ```
 
-Zu den Labels gehören `text`, `title`, `list`, `header`, `footer`, `page_number`, `footnote`, `caption`, `formula`, `code`, `table`, `image` und `chart`. Ein angehängtes `+` markiert einen Block, der von der vorherigen Seite fortgesetzt wird. Nutzen Sie nur den leeren Prompt oder `grounding`: Andere Prompts liegen außerhalb dessen, worauf das Modell trainiert ist.
+Zu den Labels gehören `title`, `section`, `text`, `list`, `caption`, `footnote`, `aside_text`, `header`, `footer`, `page_number`, `table`, `chart`, `formula`, `code` und `image`. Ein angehängtes `+` markiert einen Block, der den vorherigen fortsetzt, zum Beispiel über Spalten oder Seiten hinweg.
+
+Grounding liest auch Abbildungen: Ein `chart`-Block enthält die **Daten des Diagramms als HTML-Tabelle**, ein `image`-Block eine **kurze Beschreibung** des Bildes (zum Beispiel *"Architecture diagram for knowledge-based Q/A system with three modules …"*). In der reinen Transkription sind beide nur ein Platzhalter. Nutzen Sie nur den leeren Prompt oder `grounding`: Andere Prompts liegen außerhalb dessen, worauf das Modell trainiert ist.
 
 ### Ein ganzes PDF, Seiten parallel
 
@@ -222,7 +224,7 @@ LightOns Paket [`lightonocr`](https://github.com/lightonai/LightOnOCR) wandelt P
       --max-tokens 4096 --concurrency 8
     ```
 
-    Das schreibt `out/report/page-001.md` (plus das Seitenbild) für jede Seite. Mit `--mode grounding` erhalten Sie Blöcke und Koordinaten, `lightonocr viewer` zeigt die Ergebnisse im Browser.
+    Das schreibt `out/report/page-001.md` (plus das Seitenbild) für jede Seite. Mit `--mode grounding` erhalten Sie Blöcke und Koordinaten (zusätzlich als `page-001.json`), `lightonocr viewer` zeigt die Ergebnisse im Browser.
   </TabItem>
 </Tabs>
 
@@ -274,7 +276,7 @@ vision_footnote  'Note: The table shows three separate analyses of predictors '
 display_formula  ' $$ p<.01. $$ '
 ```
 
-Tabellen kommen als HTML, Formeln als LaTeX. Bei mehrseitigen PDFs übergeben Sie alle Seitenergebnisse an `pipeline.restructure_pages(results, merge_tables=True, relevel_titles=True, concatenate_pages=True)`, um seitenübergreifende Tabellen zusammenzuführen. `vl_rec_api_model_name` ist Pflicht: Ohne den Parameter fragt die Pipeline nach ihrem eigenen Modellnamen, den dieser Dienst nicht kennt. Ist `huggingface.co` in Ihrem Netz gesperrt, setzen Sie `PADDLE_PDX_MODEL_SOURCE=BOS`, um das Layout-Modell von einem Mirror zu laden.
+Tabellen kommen als HTML, Formeln als LaTeX. Diagramme werden standardmäßig übersprungen (der `chart`-Block oben ist leer): Übergeben Sie `use_chart_recognition=True` an `predict()`, um ihre Daten als Tabelle zu erhalten. Bei mehrseitigen PDFs übergeben Sie alle Seitenergebnisse an `pipeline.restructure_pages(results, merge_tables=True, relevel_titles=True, concatenate_pages=True)`, um seitenübergreifende Tabellen zusammenzuführen. `vl_rec_api_model_name` ist Pflicht: Ohne den Parameter fragt die Pipeline nach ihrem eigenen Modellnamen, den dieser Dienst nicht kennt. Ist `huggingface.co` in Ihrem Netz gesperrt, setzen Sie `PADDLE_PDX_MODEL_SOURCE=BOS`, um das Layout-Modell von einem Mirror zu laden.
 
 ### Direkte Aufrufe für einzelne Elemente
 

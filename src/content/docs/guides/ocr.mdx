@@ -159,7 +159,9 @@ text         (95, 810) - (912, 835)
 footnote     (116, 835) - (169, 849)
 ```
 
-Labels include `text`, `title`, `list`, `header`, `footer`, `page_number`, `footnote`, `caption`, `formula`, `code`, `table`, `image` and `chart`. A trailing `+` marks a block that continues from the previous page. Use only the empty prompt or `grounding`: other prompts are outside what the model was trained on.
+Labels include `title`, `section`, `text`, `list`, `caption`, `footnote`, `aside_text`, `header`, `footer`, `page_number`, `table`, `chart`, `formula`, `code` and `image`. A trailing `+` marks a block that continues the previous one, for example across columns or pages.
+
+Grounding also reads figures: a `chart` block contains the chart's **data as an HTML table**, and an `image` block a **short description** of the picture (for example *"Architecture diagram for knowledge-based Q/A system with three modules …"*). In plain transcription both are only a placeholder. Use only the empty prompt or `grounding`: other prompts are outside what the model was trained on.
 
 ### A whole PDF, pages in parallel
 
@@ -222,7 +224,7 @@ LightOn's [`lightonocr`](https://github.com/lightonai/LightOnOCR) package render
       --max-tokens 4096 --concurrency 8
     ```
 
-    This writes `out/report/page-001.md` (plus the page image) for every page. Add `--mode grounding` for blocks and boxes, and run `lightonocr viewer` to browse the results.
+    This writes `out/report/page-001.md` (plus the page image) for every page. Add `--mode grounding` for blocks and boxes (also written as `page-001.json`), and run `lightonocr viewer` to browse the results.
   </TabItem>
 </Tabs>
 
@@ -274,7 +276,7 @@ vision_footnote  'Note: The table shows three separate analyses of predictors '
 display_formula  ' $$ p<.01. $$ '
 ```
 
-Tables come back as HTML and formulas as LaTeX. For multi-page PDFs, pass all page results to `pipeline.restructure_pages(results, merge_tables=True, relevel_titles=True, concatenate_pages=True)` to merge tables that continue across pages. `vl_rec_api_model_name` is required: without it the pipeline asks for its own model name, which this service does not know. If `huggingface.co` is blocked on your network, set `PADDLE_PDX_MODEL_SOURCE=BOS` to download the layout model from a mirror.
+Tables come back as HTML and formulas as LaTeX. Charts are skipped by default (the `chart` block above is empty): pass `use_chart_recognition=True` to `predict()` to get their data as a table. For multi-page PDFs, pass all page results to `pipeline.restructure_pages(results, merge_tables=True, relevel_titles=True, concatenate_pages=True)` to merge tables that continue across pages. `vl_rec_api_model_name` is required: without it the pipeline asks for its own model name, which this service does not know. If `huggingface.co` is blocked on your network, set `PADDLE_PDX_MODEL_SOURCE=BOS` to download the layout model from a mirror.
 
 ### Direct calls for single elements
 
