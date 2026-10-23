@@ -216,10 +216,13 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // d3 (preview) is a decision model: /decisions only, Text+Image in. It
   // generates no text, so no streaming and no tool calling.
   'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
-  // OCR models (preview): page or element image in, Markdown / text out. Streaming
-  // works; no tool calling.
-  'LightOnOCR-3-4B-Preview':  { inputModalities: ['Text', 'Image'], streaming: true, toolCalling: false },
-  'PaddleOCR-VL-1.6-Preview': { inputModalities: ['Text', 'Image'], streaming: true, toolCalling: false },
+  // OCR models (preview): page or element image in, Markdown / text out. Image
+  // only: the text part of a request is a fixed mode keyword (LightOnOCR:
+  // none or "grounding"; PaddleOCR-VL: a task prompt such as "OCR:"), not
+  // free text, so you cannot send text or ask questions about the image.
+  // Streaming works; no tool calling.
+  'LightOnOCR-3-4B-Preview':  { inputModalities: ['Image'], streaming: true, toolCalling: false },
+  'PaddleOCR-VL-1.6-Preview': { inputModalities: ['Image'], streaming: true, toolCalling: false },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
