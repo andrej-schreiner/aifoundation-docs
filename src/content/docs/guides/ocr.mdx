@@ -30,13 +30,13 @@ Both are open-weight models hosted on T-Cloud Public in Germany, so your documen
 | Made by | [LightOn](https://www.lighton.ai), Paris, France | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
 | One request | **one page image** → the whole page as Markdown | **one page element** (text block, table, formula, chart) |
 | Output | Markdown; tables as HTML, math as LaTeX; optional layout blocks with boxes | text, tables, LaTeX formulas, chart data; as Markdown/JSON through the PaddleOCR pipeline |
-| Languages | multilingual; LightOn reports its best results on French documents and handwriting. Tested by us on German and French | 109 languages. Tested by us on German and French |
+| Languages | multilingual. Tested by us on German and French | 109 languages. Tested by us on German and French |
 | Context window | 32K | 128K |
 | License | Apache 2.0 | Apache 2.0 |
 | Pick it when | you want page → Markdown in one call, with no extra software | you need high throughput, or element-level output (tables, formulas, charts) from a full layout pipeline |
 
-:::tip[Made in Europe: LightOnOCR-3]
-LightOnOCR-3 comes from **LightOn**, a Paris-based company and the first European AI company listed on Euronext Growth. Released in October 2026, it reads printed text **and handwriting**, keeps tables and multi-column layouts in one pass, describes images and turns charts into data tables. LightOn reports **first place on FRBench** (French documents, with the largest gains on handwriting) and the best open-weight result on ParseBench.
+:::note[LightOnOCR-3]
+Made in Europe by LightOn, Paris. It reads printed text and handwriting, and keeps tables and multi-column layouts.
 :::
 
 Both models are in [Test / Preview](/plans/test): free on any active plan, with dynamic rate limits.
