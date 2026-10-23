@@ -328,8 +328,6 @@ Tabellen kommen als **OTSL**: `<nl>` beendet eine Zeile, `<fcel>` beginnt eine Z
 - **Bildgröße.** LightOnOCR: längste Kante 2048 px; größere Scans sind langsamer, aber nicht genauer. PaddleOCR-VL verkleinert jedes Bild selbst auf etwa 1 Megapixel.
 - **Eine Seite pro Anfrage bei LightOnOCR.** Es akzeptiert ein Bild pro Anfrage; ein zweites Bild liefert `400`.
 - **Senden Sie Bilder als Base64-Data-URLs.** `https://`-Bildlinks werden mit `422` abgelehnt: Die Modelle laden keine Bilder herunter.
-- **Anfragegröße und -dauer.** Eine Anfrage darf höchstens 50 MiB groß sein, und der Dienst beendet jede Anfrage nach etwa 300 Sekunden. Beschränken Sie jede Anfrage auf eine Seite oder ein Element.
-- **Parallele Anfragen.** Jedes Modell läuft auf geteilten GPUs. Bis zu 8–16 parallele Anfragen pro Client reichen; mehr erzeugt nur Warteschlangen.
 - **Bilder zählen als Input-Tokens.** Etwa 3.000 pro Seite bei LightOnOCR mit 2048 px und bis zu etwa 1.260 pro Bild bei PaddleOCR-VL (weniger bei kleinen Ausschnitten). Prüfen Sie `usage.prompt_tokens`.
 - **Streaming funktioniert** bei beiden Modellen (`stream=True`), wenn Sie Text schon während des Lesens anzeigen möchten.
 - **Preview-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
