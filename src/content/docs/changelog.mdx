@@ -11,6 +11,7 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 
 ### Added
 
+- New preview model in the Test catalog: **GLM 5.3** (`GLM-5.3-Preview`) from Z.ai, for coding and agentic tasks, with a 500K context window. Free on any active plan. See [Test / Preview Models](/plans/test).
 - Responses that contain model output (chat and text completions, the Responses API, images, audio and decisions) now carry the HTTP response header `X-AI-Generated-Content: true`, which marks the content as AI generated in line with the EU AI Act. The response body is unchanged. See [API Endpoints](/reference/api-endpoints#response-format).
 - Two new preview models in the Test catalog for **OCR**: **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris, and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`). Free on any active plan. New guide: [OCR (Document Parsing)](/guides/ocr), with Chat Completions and library examples.
 - New embedding model on the Essential, Professional and Agentic plans: **Qwen3 Embedding 8B** (`qwen3-embedding-8b`), multilingual, with a 32K context window. Same input-token and request limits as Jina Embeddings v2 Base DE; output tokens are not limited, since an embedding returns vectors. See [Plans & Pricing](/plans).

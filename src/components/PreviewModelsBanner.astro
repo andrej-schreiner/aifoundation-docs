@@ -1,8 +1,8 @@
 ---
 // Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
-// PaddleOCR-VL-1.6 (linking to /guides/ocr).
-// It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
+// to /api-transition) above the GLM 5.3 preview model (linking to /plans/test).
+// It replaced the OCR preview bar (LightOnOCR-3-4B / PaddleOCR-VL-1.6), which
+// replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
 // GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
@@ -39,11 +39,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'ocrPreviewBannerDismissed',
+        key: 'glm53PreviewBannerDismissed',
         badge: 'Neu',
-        msg: 'Neu in der Preview: <b>LightOnOCR-3-4B</b> (Made in Europe) und <b>PaddleOCR-VL-1.6</b> — verwandeln Sie Dokumente, PDFs und Handschrift in bearbeitbares Markdown und Tabellen. Kostenlos testbar.',
-        cta: 'OCR ausprobieren',
-        href: `${prefix}/guides/ocr`,
+        msg: 'Neu in der Preview: <b>GLM 5.3</b> von Z.ai — für Coding und agentische Aufgaben, mit 500K Kontextfenster, gehostet in Deutschland. Kostenlos testbar.',
+        cta: 'GLM 5.3 testen',
+        href: `${prefix}/plans/test`,
       },
     ]
   : [
@@ -55,11 +55,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'ocrPreviewBannerDismissed',
+        key: 'glm53PreviewBannerDismissed',
         badge: 'New',
-        msg: 'New in preview: <b>LightOnOCR-3-4B</b> (made in Europe) and <b>PaddleOCR-VL-1.6</b> — turn documents, PDFs and handwriting into editable Markdown and tables. Free to try.',
-        cta: 'Try OCR',
-        href: `${prefix}/guides/ocr`,
+        msg: 'New in preview: <b>GLM 5.3</b> from Z.ai — built for coding and agentic tasks, with a 500K context window, hosted in Germany. Free to try.',
+        cta: 'Try GLM 5.3',
+        href: `${prefix}/plans/test`,
       },
     ];
 ---
