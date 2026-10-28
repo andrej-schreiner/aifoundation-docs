@@ -11,6 +11,7 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/
 
 ### Hinzugefügt
 
+- Antworten mit Modellausgaben (Chat und Text Completions, Responses API, Bilder, Audio und Decisions) enthalten nun den HTTP-Antwort-Header `X-AI-Generated-Content: true`, der den Inhalt gemäß EU AI Act als KI-generiert kennzeichnet. Der Antwort-Body bleibt unverändert. Siehe [API-Endpunkte](/de/reference/api-endpoints#antwortformat).
 - Zwei neue Preview-Modelle im Test-Katalog für **OCR**: **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) von LightOn aus Paris und **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`). Kostenlos in jedem aktiven Tarif. Neue Anleitung: [OCR (Dokumentenerkennung)](/de/guides/ocr), mit Beispielen für Chat Completions und Bibliotheken.
 - Neues Embedding-Modell in den Tarifen Essential, Professional und Agentic: **Qwen3 Embedding 8B** (`qwen3-embedding-8b`), mehrsprachig, mit einem Kontextfenster von 32K. Dieselben Limits für Input-Tokens und Anfragen wie Jina Embeddings v2 Base DE; Output-Tokens werden nicht begrenzt, da ein Embedding Vektoren zurückgibt. Siehe [Tarife & Preise](/de/plans).
 - Neue Anleitung **[API-Umstellung](/de/api-transition)**. Der LLM Serving Service wechselt in drei Phasen auf die neue API, mit einem Legacy-Endpunkt für Anwendungen, die das bisherige Format benötigen; die Anleitung beschreibt die Endpunkte und was Sie tun müssen, API-Schlüssel und Modellbezeichner sowie die Änderungen bei Anfragen, Antworten, Streaming und Fehlerbehandlung.
