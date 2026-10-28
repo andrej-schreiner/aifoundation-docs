@@ -8,6 +8,10 @@ import PlansPage from '../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
+:::tip[New in preview: GLM 5.3]
+**GLM 5.3** (`GLM-5.3-Preview`) from Z.ai is built for coding and long-running agentic tasks. It has a 500K context window and takes text input. Through `/chat/completions` it supports streaming, function calling and reasoning, and `reasoning_effort` sets how much it thinks. See [Chat Completions](/guides/chat-completions), [Function Calling](/guides/function-calling) and [Reasoning](/guides/reasoning).
+:::
+
 :::tip[New in preview: two OCR models]
 **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris (made in Europe), and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) turn scanned documents, PDFs and photos into Markdown, HTML tables and LaTeX. LightOnOCR reads a whole page per request, including handwriting; PaddleOCR-VL reads page elements and works best with the PaddleOCR pipeline. Both take image input through `/chat/completions`. See [OCR](/guides/ocr).
 :::
