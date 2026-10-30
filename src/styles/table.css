@@ -51,6 +51,22 @@
 	overflow: visible;
 }
 
+/* Retirement dates stay on one line. Fixed columns let the other cells wrap
+   so the table fills the content column instead of opening a scroller. */
+.sl-markdown-content .aifs-table-scroll:has(.md-date) {
+	scrollbar-gutter: auto;
+}
+
+.sl-markdown-content .aifs-table-scroll:has(.md-date) > table {
+	table-layout: fixed;
+	width: 100%;
+}
+
+.sl-markdown-content .md-date {
+	white-space: nowrap;
+	width: 7.25rem;
+}
+
 /* Header */
 :is(.sl-markdown-content table, .plans-table, .models-comparison-table) th {
 	padding: var(--aifs-table-head-padding-y) var(--aifs-table-cell-padding-x);

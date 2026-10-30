@@ -756,7 +756,7 @@ const priceBuckets = [
 
     function limitsHtml(model: any) {
       if (isDynamicQuota(model)) {
-        return `<div class="mt-limits__dynamic">${escapeHtml('Dynamic Shared Quota')}</div>`;
+        return `<div class="mt-limits__dynamic">${escapeHtml(translations.dynamicQuota || 'Dynamic Shared Quota')}</div>`;
       }
       return `<div>${limitText(model.rpm)} RPM ${star}</div><div class="mt-muted">${limitText(model.tpm)} TPM ${star}</div>`;
     }
@@ -1228,11 +1228,11 @@ const priceBuckets = [
     border: 0;
   }
 
-  .mt-col-model { width: 22%; }
-  .mt-col-hosting { width: 17%; }
-  .mt-col-price { width: 12%; }
-  .mt-col-limits { width: 14%; }
-  .mt-col-context { width: 10%; }
+  .mt-col-model { width: 28%; }
+  .mt-col-hosting { width: 15%; }
+  .mt-col-price { width: 10%; }
+  .mt-col-limits { width: 16%; }
+  .mt-col-context { width: 8%; }
   .mt-col-details { width: 13%; }
 
   .models-table-section .plans-table th,
@@ -1822,9 +1822,23 @@ const priceBuckets = [
     font-size: 0.8125rem;
   }
 
-  .mt-compact .loc-wrapper {
-    white-space: normal;
-    flex-wrap: wrap;
+  /* Host, location and each limit stay on their own line. A third wrap is what
+     stretched the plans table around 1024px. Overflow clips with an ellipsis
+     instead of growing the row. */
+  .mt-compact .mt-hosting__main,
+  .mt-compact .loc-wrapper,
+  .mt-compact .mt-limits > div,
+  .mt-compact .mt-input .mt-muted {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .mt-compact td.mt-hosting,
+  .mt-compact td.mt-limits {
+    overflow: hidden;
   }
 
   .mt-compact .mt-num strong {
@@ -1979,11 +1993,20 @@ const priceBuckets = [
     }
 
     .models-table-section .mt-compact .mt-model {
-      flex: 1 1 auto;
+      flex: 1 1 0;
+      min-width: 0;
+      order: 0;
+    }
+
+    .models-table-section .mt-compact .mt-model__main > strong {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .models-table-section .mt-compact .mt-details-cell {
       flex: 0 0 auto;
+      order: 0;
       margin-left: auto;
     }
 
@@ -2000,11 +2023,20 @@ const priceBuckets = [
       font-weight: 700;
       line-height: 1.2;
       color: var(--aifs-color-text-muted);
+      grid-column: 1;
+      flex: none;
     }
 
     .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) {
-      flex-direction: column;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: 4.75rem minmax(0, 1fr);
+      column-gap: 8px;
+      align-items: baseline;
+      flex: 1 1 100%;
+    }
+
+    .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) > :not(.mt-card-label) {
+      grid-column: 2;
     }
 
     .models-table-section .mt-compact tr.mt-row::after {

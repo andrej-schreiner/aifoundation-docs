@@ -142,7 +142,7 @@ import Icon from './Icon.astro';
 
   .qp-cta {
     flex-shrink: 0;
-    color: var(--aifs-color-brand-text);
+    color: var(--aifs-color-link-standard);
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -164,25 +164,21 @@ import Icon from './Icon.astro';
     border-radius: 6px;
   }
 
-  /* On narrow viewports drop the badge and let the message + CTA wrap. */
-  @media (max-width: 30rem) {
+  /* Phones: one line per bar. The message ellipsizes; the link and dismiss stay. */
+  @media (max-width: 50rem) {
     .qp-bar {
-      flex-wrap: wrap;
-      gap: 0.35rem;
-      padding: 8px 10px;
+      flex-wrap: nowrap;
+      gap: 8px;
+      padding: 6px 8px;
     }
     .qp-bar :global(.qp-badge) {
       display: none;
     }
     .qp-msg {
-      order: 1;
-    }
-    .qp-cta {
-      order: 2;
-    }
-    .qp-close {
-      order: 3;
-      margin-left: auto;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 
@@ -254,18 +250,16 @@ import Icon from './Icon.astro';
     });
     if (!bars.length) return;
 
-    // Portal into a row of their own, above the row that holds the table of
-    // contents and the content sheet (Starlight's TwoColumnContent), so they
-    // span both and sit in the flow: they take real space, nothing is ever
-    // covered, and they scroll away with the page. Outside <main>, so search
-    // doesn't index them. Layout and spacing: .qp-stack in layout.css.
+    // Portal to the top of the content sheet so the bars share its width and
+    // edges. They stay in flow, take real space, and scroll away with the page.
     let host = document.querySelector<HTMLElement>('.qp-stack');
+    const sheet = document.querySelector('main');
     if (!host) {
       host = document.createElement('div');
       host.className = 'qp-stack';
-      const row = document.querySelector('.main-frame > .lg\\:sl-flex');
-      if (row) row.before(host);
-      else document.querySelector('main')?.prepend(host);
+      sheet?.prepend(host);
+    } else if (sheet && host.parentElement !== sheet) {
+      sheet.prepend(host);
     }
     if (bars[0].parentElement !== host) {
       host.append(...bars);

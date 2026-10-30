@@ -15,6 +15,11 @@ import TelekomLogo from '../../assets/logos/telekom.png?url';
 import NvidiaLogo from '../../assets/logos/nvidia.png?url';
 // Zhipu AI publishes its models as Z.ai.
 import ZaiLogo from '../../assets/logos/zai.png?url';
+// Square marks published by the labs: LightOn's GitHub org avatar, PaddlePaddle's
+// GitHub org avatar, and the compact mark from vllm-project/media-kit.
+import LightOnLogo from '../../assets/logos/lighton.png?url';
+import PaddleLogo from '../../assets/logos/paddle.png?url';
+import VllmLogo from '../../assets/logos/vllm.svg?url';
 import OtherLogo from '../../assets/logos/other.svg?url';
 
 export const logos: Record<string, string> = {
@@ -32,6 +37,9 @@ export const logos: Record<string, string> = {
   'T-Systems': TelekomLogo,
   NVIDIA: NvidiaLogo,
   'Zhipu AI': ZaiLogo,
+  LightOn: LightOnLogo,
+  PaddlePaddle: PaddleLogo,
+  vLLM: VllmLogo,
   Other: OtherLogo,
 };
 
@@ -64,6 +72,9 @@ export function creatorNameFor(exactModelName: string | undefined, displayModelN
   if (source.includes('jina')) return 'Jina AI';
   if (source.includes('bge')) return 'BAAI';
   if (source.includes('teuken') || source.includes('tsi') || source.includes('col qwen')) return 'T-Systems';
+  if (source.includes('lighton')) return 'LightOn';
+  if (source.includes('paddle')) return 'PaddlePaddle';
+  if (/\bd3\b/.test(source)) return 'vLLM';
 
   return 'Other';
 }

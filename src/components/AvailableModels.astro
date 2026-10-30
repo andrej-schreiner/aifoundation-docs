@@ -20,6 +20,7 @@ const t = {
   showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show More ({count} more)',
   showLess: isDE ? 'Weniger anzeigen' : 'Show Less',
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
+  preview: isDE ? 'Vorschau' : 'Preview',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
@@ -195,7 +196,7 @@ const INITIAL_COUNT = 6;
             </span>
             <span class="model-card__title">
               {model.name}
-              {model.preview && <span class="status-badge status-badge--preview">Preview</span>}
+              {model.preview && <span class="status-badge status-badge--preview">{t.preview}</span>}
             </span>
           </h3>
           <p class="model-card__where">
@@ -239,7 +240,8 @@ const INITIAL_COUNT = 6;
 
 <style>
   .available-models {
-    margin-block: 8px;
+    margin-top: var(--aifs-rhythm-heading-2);
+    margin-bottom: 8px;
   }
 
   .models-heading {

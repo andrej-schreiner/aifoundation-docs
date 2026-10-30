@@ -193,6 +193,7 @@ export default defineConfig({
 			components: {
 				Footer: './src/components/Footer.astro',
 				Header: './src/components/SiteHeader.astro',
+				MobileMenuFooter: './src/components/MobileMenuFooter.astro',
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',

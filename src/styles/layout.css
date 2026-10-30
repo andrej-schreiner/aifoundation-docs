@@ -14,6 +14,7 @@
 /* One colour for every line in the frame: under the header, right of the
    site navigation, under the mobile table of contents. It matches the lines between navigation rows. */
 .header {
+	background-color: var(--aifs-color-surface-page);
 	border-bottom-color: var(--aifs-layout-divider);
 }
 
@@ -91,8 +92,11 @@ mobile-starlight-toc nav {
 	/* The same padding above the first panel and below the last, so the
 	   sheet's padding is equal on all four sides. *-of-type: a <script>
 	   comes first in <main>. */
-	[data-has-sidebar] .main-pane .content-panel:first-of-type {
-		padding-top: var(--aifs-layout-sheet-padding);
+	/* :first-of-type does not match once the banner row (also a div) sits
+	   above the title. nth-child(1 of .content-panel) is the title panel. */
+	[data-has-sidebar] .main-pane > main > .content-panel:nth-child(1 of .content-panel) {
+		padding-top: 16px;
+		padding-bottom: 0;
 	}
 
 	[data-has-sidebar] .main-pane .content-panel:last-of-type {
@@ -105,8 +109,9 @@ mobile-starlight-toc nav {
 		padding-bottom: 0;
 	}
 
-	[data-has-sidebar] .main-pane .content-panel:first-of-type .sl-container > h1:first-child {
+	[data-has-sidebar] .main-pane > main > .content-panel:nth-child(1 of .content-panel) .sl-container > h1:first-child {
 		margin-top: 0;
+		margin-bottom: 0;
 	}
 
 	[data-has-sidebar] .main-pane > main {
@@ -128,40 +133,66 @@ mobile-starlight-toc nav {
 	}
 }
 
-/* Notice banners (PreviewModelsBanner) in a row of their own above the
-   table of contents and the content, spanning both. Created by the banner
-   script, so it is styled here, not in the component. */
+/* Notice banners live inside the content sheet (PreviewModelsBanner portals
+   them to the top of <main>), so they share the sheet's left and right edges. */
 .qp-stack {
 	display: flex;
 	flex-direction: column;
-	gap: var(--aifs-rhythm-after-heading);
-	padding: var(--aifs-rhythm-stack) var(--sl-content-pad-x) 0;
+	gap: 8px;
+	width: 100%;
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0 0 8px;
 }
 
-@media (min-width: 72rem) {
-	[data-has-sidebar] .main-frame > .qp-stack {
-		padding: var(--aifs-layout-frame-padding) var(--aifs-layout-frame-padding) 0;
+/* Below the desktop sheet, the content column was flush with the window.
+   The same inset the sheet uses above 72rem, on the right and between the
+   sidebar and the card. */
+@media (min-width: 50rem) and (max-width: 71.99rem) {
+	[data-has-sidebar] .main-pane > main {
+		box-sizing: border-box;
+		margin: 16px 16px 0;
+		border: var(--aifs-border-width-standard) solid var(--aifs-layout-sheet-border);
+		border-bottom: 0;
+		border-radius: var(--aifs-layout-sheet-radius) var(--aifs-layout-sheet-radius) 0 0;
+		background-color: var(--aifs-layout-sheet);
 	}
 }
 
 /* From 1440px there is room for more air left and right of the row. The
    breakpoint is a raw value: media queries can't read custom properties. */
 @media (min-width: 90rem) {
-	[data-has-sidebar] .main-frame > :is(.lg\:sl-flex, .qp-stack) {
+	[data-has-sidebar] .main-frame > .lg\:sl-flex {
 		padding-inline: var(--aifs-layout-frame-padding-x-wide);
 	}
 }
 
-/* Line length: running text stops at the measure; code blocks, tables, tabs
-   and cards use the full content width. :where() keeps this easy to
-   override. The wide plans pages keep their own layout. */
+/* The chat launcher sits fixed in the bottom-right and covers the last lines
+   and the mobile menu footer. Clearance is padding, because the launcher is
+   injected from chat.ai.t-systems.net and is not in the page flow. */
+.main-pane > main {
+	padding-bottom: 4.5rem;
+}
+
+@media (min-width: 72rem) {
+	[data-has-sidebar] .main-pane > main {
+		padding-bottom: 0;
+	}
+
+	[data-has-sidebar] .main-pane .content-panel:last-of-type {
+		padding-bottom: calc(var(--aifs-layout-sheet-padding) + 4.5rem);
+	}
+}
+
+/* Running text, code and tables share the content column. A shorter measure
+   left prose inset from the code and table edges. */
 .sl-markdown-content
 	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *)) {
-	max-width: var(--aifs-layout-measure);
+	max-width: 100%;
 }
 
 .content-panel :where(h1, h1 + p) {
-	max-width: min(100%, var(--aifs-layout-measure));
+	max-width: 100%;
 	min-width: 0;
 	box-sizing: border-box;
 }
@@ -185,6 +216,38 @@ mobile-starlight-toc nav {
    block rule below the heading rules. */
 .content-panel {
 	padding-block: var(--aifs-rhythm-panel-padding-y);
+}
+
+/* The title panel was the sheet inset plus another 32px under a 40px heading.
+   Keep a short inset above the title and none below it. The next panel starts
+   close under the heading. */
+main > .content-panel:nth-child(1 of .content-panel) {
+	padding-top: 16px;
+	padding-bottom: 0;
+}
+
+main > .content-panel:nth-child(1 of .content-panel) :where(h1) {
+	margin-bottom: 0;
+}
+
+main > .content-panel:nth-child(2 of .content-panel) {
+	padding-top: 12px;
+}
+
+.content-panel .sl-container > footer.sl-flex {
+	margin-top: 16px;
+}
+
+footer.sl-flex {
+	gap: 12px;
+}
+
+footer.sl-flex .meta {
+	margin-top: 0;
+}
+
+footer.sl-flex .meta:not(:has(*)) {
+	display: none;
 }
 
 .content-panel .sl-container > * + * {

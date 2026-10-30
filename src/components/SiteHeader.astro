@@ -140,3 +140,15 @@ const showSearch =
 		}
 	}
 </style>
+
+<script>
+	// starlight-versions labels the current docs "Latest" in every locale.
+	function localizeVersionLabel() {
+		if (!document.documentElement.lang.startsWith('de')) return;
+		document.querySelectorAll('starlight-version-select option').forEach((option) => {
+			if (option.textContent?.trim() === 'Latest') option.textContent = 'Aktuell';
+		});
+	}
+	localizeVersionLabel();
+	document.addEventListener('astro:page-load', localizeVersionLabel);
+</script>

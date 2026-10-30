@@ -77,6 +77,15 @@ html:root[data-theme] .expressive-code {
 	border: 0;
 }
 
+/* One frame around the block. Expressive Code's own border was dropped, and
+   untitled blocks grew an empty band under 50rem so the copy button cleared
+   the first line. The band is the header colour, with a line under it. */
+.expressive-code .frame {
+	box-shadow: inset 0 0 0 var(--aifs-code-block-border-width) var(--aifs-code-block-border);
+	border-radius: var(--aifs-code-block-radius);
+	overflow: hidden;
+}
+
 /* The header as one flat bar, as in Geist. Expressive Code draws the file
    name as a tab with its own background; that background covered the
    frame's rounded top-left corner and the line below it. Here the whole
@@ -102,5 +111,12 @@ html:root[data-theme] .expressive-code {
 @media (max-width: 50rem) {
 	.expressive-code .frame:not(.has-title) {
 		padding-top: 2.25rem;
+		background:
+			linear-gradient(var(--aifs-code-block-header-background), var(--aifs-code-block-header-background)) top / 100% 2.25rem no-repeat,
+			var(--aifs-code-block-background);
+		box-shadow:
+			inset 0 -0px 0 0 transparent,
+			inset 0 2.25rem 0 -1px var(--aifs-code-block-border),
+			inset 0 0 0 var(--aifs-code-block-border-width) var(--aifs-code-block-border);
 	}
 }

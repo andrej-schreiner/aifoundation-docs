@@ -171,13 +171,15 @@
 	color: var(--aifs-select-icon);
 }
 
-.ts-header select {
+.ts-header select,
+.ts-header starlight-version-select label select {
 	box-sizing: border-box;
 	height: var(--aifs-select-height);
-	/* Starlight gives each select a fixed width, so the space before the caret
-	   varied; sized to its longest option, every select has the same padding.
-	   The version select (starlight-versions plugin) gets the same padding. */
-	width: auto;
+	/* Starlight and the version plugin give each select a fixed width, so the
+	   label was clipped (and "Latest" did not fit the German header). Size to
+	   the label; the same padding sits in front of every caret. */
+	width: max-content;
+	max-width: 11rem;
 	padding-inline: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap) / 2);
 	/* Starlight pulls each select outwards by its padding, so neighbours touch;
 	   the header's gap spaces them instead. */
