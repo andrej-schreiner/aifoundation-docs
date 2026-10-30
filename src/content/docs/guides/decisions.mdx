@@ -34,7 +34,7 @@ In an agent, use decisions for the small judgement steps (which tool to call, wh
 
 DiffusionGemma 26B A4B serves both endpoints with one model ID, so a single model can make the decisions and write the replies.
 
-Both models are in [Test / Preview](/plans/test): free on any active plan, with dynamic rate limits.
+Both models are in [Test / Preview](/models/preview): free on any active plan, with dynamic rate limits.
 
 
 ## Question types
@@ -737,7 +737,7 @@ With thinking on, the model answers 1254.26 EUR, which is correct. With thinking
 - **Write clear instructions and option descriptions.** The model picks between your descriptions, so make them specific and non-overlapping. For `score`, list the levels from lowest to highest.
 - **Use thresholds, not exact values.** Probabilities can differ slightly between identical requests. Compare them to a threshold (for example `> 0.5`) instead of an exact number.
 - **`samples` (optional).** Sets how many internal samples the model averages for each answer. The default suits most requests. To change it, set `samples` in the request body; the OpenAI SDK passes it via `extra_body={"samples": 1}`.
-- **Preview models.** d3 and DiffusionGemma 26B A4B run under the [Test / Preview](/plans/test) terms: dynamic rate limits, no SLA, not for production workloads.
+- **Preview models.** d3 and DiffusionGemma 26B A4B run under the [Test / Preview](/models/preview) terms: dynamic rate limits, no SLA, not for production workloads.
 
 
 ## Next Steps
@@ -745,4 +745,4 @@ With thinking on, the model answers 1254.26 EUR, which is correct. With thinking
 - [Function Calling](/guides/function-calling) — Let the model call the tool your decision picked
 - [Chat Completions](/guides/chat-completions) — Generate the text steps of your agent
 - [Multimodal](/guides/multimodal) — Send images to chat models
-- [Test / Preview Models](/plans/test) — Limits and terms for preview models
+- [Test / Preview Models](/models/preview) — Limits and terms for preview models

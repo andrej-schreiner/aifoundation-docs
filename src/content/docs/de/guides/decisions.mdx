@@ -34,7 +34,7 @@ Nutzen Sie Decisions in einem Agenten für die kleinen Bewertungsschritte (welch
 
 DiffusionGemma 26B A4B bedient beide Endpunkte mit einer Modell-ID, sodass ein einziges Modell die Entscheidungen treffen und die Antworten schreiben kann.
 
-Beide Modelle sind in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
+Beide Modelle sind in [Test / Vorschau](/de/models/preview): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
 
 
 ## Fragetypen
@@ -737,7 +737,7 @@ Mit Thinking antwortet das Modell korrekt mit 1254,26 EUR. Ohne Thinking kann es
 - **Klare Anweisungen und Optionsbeschreibungen schreiben.** Das Modell wählt zwischen Ihren Beschreibungen, formulieren Sie sie daher konkret und ohne Überschneidungen. Bei `score` listen Sie die Stufen von niedrig nach hoch.
 - **Schwellenwerte statt exakter Werte.** Wahrscheinlichkeiten können zwischen identischen Anfragen leicht abweichen. Vergleichen Sie mit einem Schwellenwert (zum Beispiel `> 0.5`) statt mit einer exakten Zahl.
 - **`samples` (optional).** Legt fest, wie viele interne Samples das Modell pro Antwort mittelt. Der Standardwert passt für die meisten Anfragen. Zum Ändern setzen Sie `samples` im Request-Body; im OpenAI SDK über `extra_body={"samples": 1}`.
-- **Preview-Modelle.** d3 und DiffusionGemma 26B A4B unterliegen den Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
+- **Preview-Modelle.** d3 und DiffusionGemma 26B A4B unterliegen den Bedingungen für [Test / Vorschau](/de/models/preview): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
 
 
 ## Nächste Schritte
@@ -745,4 +745,4 @@ Mit Thinking antwortet das Modell korrekt mit 1254,26 EUR. Ohne Thinking kann es
 - [Function Calling](/de/guides/function-calling) — Das Modell das gewählte Tool aufrufen lassen
 - [Chat Completions](/de/guides/chat-completions) — Die Textschritte Ihres Agenten generieren
 - [Multimodal](/de/guides/multimodal) — Bilder an Chat-Modelle senden
-- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle
+- [Test / Vorschau Modelle](/de/models/preview) — Limits und Bedingungen für Preview-Modelle

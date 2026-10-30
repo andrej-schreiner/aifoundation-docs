@@ -39,7 +39,7 @@ Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre
 Made in Europe von LightOn aus Paris. Es liest gedruckten Text und Handschrift und erhält Tabellen und mehrspaltige Layouts.
 :::
 
-Beide Modelle sind in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
+Beide Modelle sind in [Test / Vorschau](/de/models/preview): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
 
 
 ## Zwei Wege, die Modelle aufzurufen
@@ -332,11 +332,11 @@ Tabellen kommen als **OTSL**: `<nl>` beendet eine Zeile, `<fcel>` beginnt eine Z
 - **Senden Sie Bilder als Base64-Data-URLs.** `https://`-Bildlinks werden mit `422` abgelehnt: Die Modelle laden keine Bilder herunter.
 - **Bilder zählen als Input-Tokens.** Etwa 3.000 pro Seite bei LightOnOCR mit 2048 px und bis zu etwa 1.260 pro Bild bei PaddleOCR-VL (weniger bei kleinen Ausschnitten). Prüfen Sie `usage.prompt_tokens`.
 - **Streaming funktioniert** bei beiden Modellen (`stream=True`), wenn Sie Text schon während des Lesens anzeigen möchten.
-- **Preview-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
+- **Preview-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/models/preview): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
 
 
 ## Nächste Schritte
 
 - [Multimodal (Vision)](/de/guides/multimodal) — Fragen zu Bildern mit Vision-Chat-Modellen stellen
 - [Visual RAG](/de/guides/visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
-- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle
+- [Test / Vorschau Modelle](/de/models/preview) — Limits und Bedingungen für Preview-Modelle
