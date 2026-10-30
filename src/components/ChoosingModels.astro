@@ -1,0 +1,145 @@
+---
+import InlineNotification from './InlineNotification.astro';
+import { CHOICE_ROWS, LAST_REVIEWED, MIGRATION_ROWS, modelFact } from '../shared/lib/choosingModels';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const prefix = isDE ? '/de' : '';
+
+const t = isDE
+  ? {
+      caution: 'Entwurf',
+      cautionBody: 'Die Empfehlungen sind ein Entwurf und warten auf die Prüfung durch das AIFS-Team.',
+      reviewed: `Zuletzt geprüft: ${LAST_REVIEWED}.`,
+      useCase: 'Anwendungsfall',
+      recommended: 'Empfohlen',
+      alternative: 'Alternative',
+      where: 'Wo es läuft',
+      context: 'Kontext',
+      notes: 'Hinweise',
+      unpublished: 'Nicht veröffentlicht',
+      preview: 'Vorschau',
+      migrate: 'Umstieg von GPT, Claude oder Gemini?',
+      from: 'Bisher',
+      replacement: 'Ersatz im Katalog',
+      deprecations: 'Abkündigungen',
+    }
+  : {
+      caution: 'Draft',
+      cautionBody: 'Recommendations are a draft pending AIFS team review.',
+      reviewed: `Last reviewed: ${LAST_REVIEWED}.`,
+      useCase: 'Use case',
+      recommended: 'Recommended',
+      alternative: 'Alternative',
+      where: 'Where it runs',
+      context: 'Context',
+      notes: 'Notes',
+      unpublished: 'Not published',
+      preview: 'Preview',
+      migrate: 'Migrating from GPT, Claude, or Gemini?',
+      from: 'Coming from',
+      replacement: 'Catalog replacement',
+      deprecations: 'Deprecations',
+    };
+
+function place(hosting: string): string {
+  if (!isDE) return hosting;
+  return hosting.replace('T-Cloud Germany', 'T-Cloud Deutschland');
+}
+
+function contextLabel(value: string): string {
+  return value || t.unpublished;
+}
+
+function where(recommended: string, alternative: string): string {
+  const a = place(modelFact(recommended).hosting);
+  const b = place(modelFact(alternative).hosting);
+  return a === b ? a : `${a} · ${b}`;
+}
+
+function contextCell(recommended: string, alternative: string): string {
+  const a = contextLabel(modelFact(recommended).context);
+  const b = contextLabel(modelFact(alternative).context);
+  return a === b ? a : `${a} · ${b}`;
+}
+---
+
+<InlineNotification variant="warning" heading={t.caution}>
+  {t.cautionBody} {t.reviewed}
+</InlineNotification>
+
+<div class="aifs-table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>{t.useCase}</th>
+        <th>{t.recommended}</th>
+        <th>{t.alternative}</th>
+        <th>{t.where}</th>
+        <th>{t.context}</th>
+        <th>{t.notes}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {CHOICE_ROWS.map((row) => {
+        const recommended = modelFact(row.recommended);
+        const alternative = modelFact(row.alternative);
+        return (
+          <tr>
+            <td>{isDE ? row.useCase.de : row.useCase.en}</td>
+            <td>
+              {recommended.name}
+              {recommended.preview ? ` (${t.preview})` : ''}
+            </td>
+            <td>
+              {alternative.name}
+              {alternative.preview ? ` (${t.preview})` : ''}
+            </td>
+            <td>{where(row.recommended, row.alternative)}</td>
+            <td>{contextCell(row.recommended, row.alternative)}</td>
+            <td>{isDE ? row.notes.de : row.notes.en}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
+<h2>{t.migrate}</h2>
+
+<!-- TODO(andrej): confirm the OpenAI, Anthropic, and Google names in this migration section before it leaves draft. -->
+
+<p>
+  {isDE
+    ? 'Die Namen und Ersatzmodelle stammen von der Abkündigungsseite. Das ist keine Aussage darüber, ob eine Anfrage unverändert funktioniert.'
+    : 'The names and replacements come from the deprecations page. This is not a claim that a request works unchanged.'}
+  {' '}
+  <a href={`${prefix}/models/deprecations`}>{t.deprecations}</a>.
+</p>
+
+<div class="aifs-table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>{t.from}</th>
+        <th>{t.replacement}</th>
+        <th>{t.where}</th>
+        <th>{t.context}</th>
+        <th>{t.notes}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {MIGRATION_ROWS.map((row) => {
+        const replacement = modelFact(row.replacement);
+        return (
+          <tr>
+            <td>{isDE ? row.from.de : row.from.en}</td>
+            <td>{replacement.name}</td>
+            <td>{place(replacement.hosting)}</td>
+            <td>{contextLabel(replacement.context)}</td>
+            <td>{isDE ? row.note.de : row.note.en}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>

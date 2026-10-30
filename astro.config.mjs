@@ -266,6 +266,7 @@ export default defineConfig({
 					translations: { de: 'Erste Schritte' },
 					items: [
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
+						{ label: 'Choosing a model', translations: { de: 'Modell wählen' }, slug: 'getting-started/choosing-a-model' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 						{
 							label: 'Migrate to New API',

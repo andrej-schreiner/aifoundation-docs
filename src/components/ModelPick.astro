@@ -1,0 +1,58 @@
+---
+import { choiceById, modelFact, picksFor } from '../shared/lib/choosingModels';
+
+interface Props {
+  useCase: string;
+}
+
+const { useCase } = Astro.props;
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const prefix = isDE ? '/de' : '';
+const row = choiceById(useCase);
+const picks = picksFor(useCase);
+const snippet = row.snippetModel ?? row.recommended;
+
+const t = isDE
+  ? {
+      heading: 'Empfohlen',
+      trust: 'Enterprise Trust',
+      guide: 'Zur Anleitung',
+      preview: 'Vorschau',
+      unpublished: 'Kontext nicht veröffentlicht',
+      where: 'Betrieb',
+    }
+  : {
+      heading: 'Recommended',
+      trust: 'Enterprise Trust',
+      guide: 'Matching guide',
+      preview: 'Preview',
+      unpublished: 'Context not published',
+      where: 'Runs on',
+    };
+
+function place(hosting: string): string {
+  if (!isDE) return hosting;
+  return hosting.replace('T-Cloud Germany', 'T-Cloud Deutschland');
+}
+---
+
+<section class="not-content">
+  <h2>{t.heading}</h2>
+  <ul>
+    {picks.map((model) => (
+      <li>
+        <strong>{model.name}</strong>
+        {model.preview ? ` (${t.preview})` : ''}
+        {' — '}
+        <code>{model.id}</code>
+        {'. '}
+        {t.where}: <a href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
+        {'. '}
+        {model.context || t.unpublished}.
+      </li>
+    ))}
+  </ul>
+  <p>{isDE ? row.notes.de : row.notes.en}</p>
+  <pre><code>{`model: ${snippet}`}</code></pre>
+  <p><a href={`${prefix}${row.guide}`}>{t.guide}</a></p>
+</section>

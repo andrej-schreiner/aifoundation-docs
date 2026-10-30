@@ -1,0 +1,17 @@
+---
+title: "Modell wählen"
+description: "Entwurf für Empfehlungen zu Chat, Reasoning, Coding, Vision, OCR, Embeddings, Audio, Decisions und Bildgenerierung auf AI Foundation Services."
+---
+
+import ChoosingModels from '../../../../components/ChoosingModels.astro';
+import { LinkCard } from '@astrojs/starlight/components';
+
+Wählen Sie ein Modell aus dem Katalog nach dem, was Sie bauen. Jede Zeile beginnt mit einem T-Cloud-Modell, wenn der Katalog eines hat. Kontextfenster und Betrieb stammen aus dem Preiskatalog. Modelle mit Stilllegung am 31.10.2026 oder 30.11.2026 fehlen.
+
+<ChoosingModels />
+
+<div class="link-card-row">
+  <LinkCard title="Katalog" href="/de/models" description="Alle gehosteten Modelle, mit Filtern." />
+  <LinkCard title="Abkündigungen" href="/de/models/deprecations" description="Stilllegungstermine und die genannten Ersatzmodelle." />
+  <LinkCard title="Enterprise Trust" href="/de/reference/enterprise-trust" description="Was T-Cloud-Hosting für Ihre Daten bedeutet." />
+</div>
