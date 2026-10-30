@@ -124,6 +124,12 @@ mobile-starlight-toc nav {
 		background-color: var(--aifs-layout-sheet);
 	}
 
+	/* The 50rem cap is the column beside "On this page". With no table of
+	   contents the sheet fills the row, which is what the home page needs. */
+	[data-has-sidebar]:not([data-has-toc]) .main-pane > main {
+		max-width: none;
+	}
+
 	/* The row Starlight wraps around the table of contents and the content
 	   (TwoColumnContent.astro) gets the frame's padding and gap. No padding
 	   below: the sheet runs off the bottom of the page. */

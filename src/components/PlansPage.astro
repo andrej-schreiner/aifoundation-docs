@@ -502,6 +502,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   <p class="plan-tile__name">{plan.label}</p>
                   <p class="plan-tile__price">{price}</p>
                   {plan.basePrice !== 'Custom' && <p class="plan-tile__unit">{t.perMonth}</p>}
+                  <p class="plan-tile__for">{blurb}</p>
                   <a class="plan-meter" href={t.rateLimitsHref}>
                     <span class="plan-meter__label">{t.throughputLabel}</span>
                     <span class="plan-meter__track">
@@ -528,7 +529,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                       </li>
                     ))}
                   </ul>
-                  <p class="plan-tile__for">{blurb}</p>
                   {plan.basePrice === 'Custom' && (
                     <a class="plan-tile__cta" href={t.contactHref}>{t.contactCta}</a>
                   )}
@@ -718,13 +718,17 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .plan-tile__for {
-    margin: auto 0 0;
+    margin: 0;
     color: var(--aifs-color-text-body);
     font-size: 0.8125rem;
     line-height: 1.35;
   }
 
-  .plan-tile__cta {
+  .plan-tile a.plan-tile__cta,
+  .plan-tile a.plan-tile__cta:hover,
+  .plan-tile a.plan-tile__cta:focus-visible,
+  .plan-tile a.plan-tile__cta:active,
+  .plan-tile a.plan-tile__cta:visited {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -732,7 +736,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     padding: 6px 12px;
     border-radius: var(--aifs-radius-control);
     background: var(--aifs-color-action-background);
-    color: var(--aifs-color-action-text);
+    color: #ffffff;
     font-size: 0.875rem;
     font-weight: 700;
     line-height: 1.2;
@@ -740,10 +744,10 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     text-decoration: none;
   }
 
-  .plan-tile__cta:hover,
-  .plan-tile__cta:focus-visible {
+  .plan-tile a.plan-tile__cta:hover,
+  .plan-tile a.plan-tile__cta:focus-visible {
     background: var(--aifs-color-action-background-hovered);
-    color: var(--aifs-color-action-text);
+    color: #ffffff;
   }
 
   .plan-spend {
