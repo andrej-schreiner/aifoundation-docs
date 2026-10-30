@@ -1181,6 +1181,11 @@ const priceBuckets = [
 </script>
 
 <style is:global>
+  .models-table-section:not(.models-table-section--legacy) {
+    container-type: inline-size;
+    container-name: models;
+  }
+
   .models-table-section {
     margin-bottom: 2rem;
     --model-link-color: var(--aifs-color-link-standard);
@@ -1796,12 +1801,25 @@ const priceBuckets = [
     margin: 0;
   }
 
-  .mt-details-row td {
-    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  /* hidden=until-found uses content-visibility, which Chrome ignores on
+     display:table-row, so every details row stayed painted. A block box lets
+     that hiding apply. Do not use display:none: find-in-page must still see
+     the text and fire beforematch. Open rows are not matched here. */
+  .models-table-section .mt-compact tr.mt-details-row[hidden] {
+    display: block;
+    content-visibility: hidden;
+    padding: 0;
+    margin: 0;
+    border: 0;
   }
 
-  :root[data-theme='dark'] .mt-details-row td {
-    background: var(--aifs-d-bg, #17181c);
+  .models-table-section .mt-compact tr.mt-details-row[hidden] > td {
+    padding: 0;
+    border: 0;
+  }
+
+  .mt-details-row td {
+    background: var(--aifs-color-surface-subtle);
   }
 
   .mt-details .model-links {
@@ -1861,8 +1879,8 @@ const priceBuckets = [
         'output limits'
         'context context';
       gap: 0.45rem 0.75rem;
-      border: 1px solid var(--sl-color-gray-5);
-      border-radius: 8px;
+      border: 1px solid var(--aifs-color-border-subtle);
+      border-radius: var(--aifs-table-radius);
       margin: 0 0 0.75rem;
       padding: 0.85rem;
     }
@@ -1898,16 +1916,24 @@ const priceBuckets = [
       clip: auto;
       display: block;
       font-size: 0.75rem;
-      color: var(--sl-color-gray-3);
+      color: var(--aifs-color-text-muted);
     }
 
-    .models-table-section .mt-compact tr.mt-details-row {
+    .models-table-section .mt-compact-wrap {
+      border: 0;
+      padding: 0;
+      box-shadow: none;
+      background: transparent;
+      border-radius: 0;
+    }
+
+    .models-table-section .mt-compact tr.mt-details-row:not([hidden]) {
       display: block;
       width: 100%;
       box-sizing: border-box;
-      border: 1px solid var(--sl-color-gray-5);
+      border: 1px solid var(--aifs-color-border-subtle);
       border-top: 0;
-      border-radius: 0 0 8px 8px;
+      border-radius: 0 0 var(--aifs-table-radius) var(--aifs-table-radius);
       margin: 0 0 0.75rem;
       padding: 0 0.85rem 0.85rem;
     }
