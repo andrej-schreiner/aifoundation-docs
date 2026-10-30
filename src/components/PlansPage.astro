@@ -617,6 +617,22 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     border: 0;
   }
 
+  /* Five short columns. Fixed layout lets Host and Tier chips wrap inside
+     the cell, so the table stays a table down to 36rem of content. That is
+     the column under a 900px viewport with the sidebar open (~37rem). */
+  .rate-plans-section .plans-table {
+    table-layout: fixed;
+  }
+
+  .rate-plans-section .plans-table :is(th, td) {
+    white-space: normal;
+    overflow-wrap: break-word;
+  }
+
+  .rate-plans-section .plans-table :is(.ui-tooltip, .plans-tag) {
+    margin-inline-end: 4px;
+  }
+
   /* Head, cells, rows and hover: src/styles/table.css. */
 
   .plans-table__small-text {
@@ -648,7 +664,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     opacity: 1;
   }
 
-  @container rateplans (max-width: 50rem) {
+  @container rateplans (max-width: 36rem) {
     .rate-plans-section .table-wrapper {
       overflow: visible;
       padding-top: 0;
@@ -668,9 +684,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
       display: none;
     }
 
+    /* Plan chip and commitment fill the first line. Limits, host and tier
+       chips share the next line. */
     .rate-plans-section .plans-table tr {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       gap: 4px 8px;
       width: 100%;
       box-sizing: border-box;
@@ -681,25 +700,47 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     }
 
     .rate-plans-section .plans-table td {
-      display: block;
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
       min-width: 0;
       width: auto;
       padding: 0;
       border: 0;
     }
 
-    .rate-plans-section .plans-table td:nth-child(1),
-    .rate-plans-section .plans-table td:nth-child(n + 4) {
-      grid-column: 1 / -1;
+    .rate-plans-section .plans-table td:nth-child(-n + 2) {
+      order: 0;
+    }
+
+    .rate-plans-section .plans-table td:nth-child(2) {
+      flex: 1 1 auto;
+    }
+
+    .rate-plans-section .plans-table tr::after {
+      content: '';
+      order: 1;
+      flex-basis: 100%;
+      width: 0;
+      height: 0;
+    }
+
+    .rate-plans-section .plans-table td:nth-child(n + 3) {
+      order: 2;
     }
 
     .rate-plans-section .plans-table td::before {
       content: attr(data-label);
-      display: block;
-      margin-bottom: 0.15rem;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--aifs-color-text-muted);
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
   }
 

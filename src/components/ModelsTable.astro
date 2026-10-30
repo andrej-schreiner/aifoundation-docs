@@ -1772,6 +1772,11 @@ const priceBuckets = [
     overflow-wrap: anywhere;
   }
 
+  .mt-compact th {
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
   .mt-model__main,
   .mt-hosting__main,
   .mt-model__meta {
@@ -1943,7 +1948,9 @@ const priceBuckets = [
     padding-left: 0.75rem;
   }
 
-  @container models (max-width: 50rem) {
+  /* Same cut as the rate plans: a 900px viewport with the sidebar still
+     open has about 37rem of content, and the compact table fits there. */
+  @container models (max-width: 36rem) {
     .models-table-section .mt-compact,
     .models-table-section .mt-compact tbody {
       display: block;
@@ -1956,15 +1963,11 @@ const priceBuckets = [
     }
 
     .models-table-section .mt-compact tr.mt-row {
-      display: grid;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       width: 100%;
       box-sizing: border-box;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-areas:
-        'model details'
-        'hosting input'
-        'output limits'
-        'context context';
       gap: 4px 8px;
       border: 1px solid var(--aifs-color-border-subtle);
       border-radius: var(--aifs-table-radius);
@@ -1979,31 +1982,35 @@ const priceBuckets = [
     }
 
     .models-table-section .mt-compact tr.mt-row > td {
-      display: block;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
       width: auto;
       border: 0;
       padding: 0;
       min-width: 0;
     }
 
-    .models-table-section .mt-compact .mt-model { grid-area: model; }
-    .models-table-section .mt-compact .mt-details-cell { grid-area: details; justify-self: end; align-self: start; }
-    .models-table-section .mt-compact .mt-hosting { grid-area: hosting; }
-    .models-table-section .mt-compact .mt-input { grid-area: input; }
-    .models-table-section .mt-compact tr.mt-row > td:nth-child(4) { grid-area: output; }
-    .models-table-section .mt-compact .mt-limits { grid-area: limits; }
-    .models-table-section .mt-compact .mt-context { grid-area: context; }
+    .models-table-section .mt-compact .mt-model {
+      flex: 1 1 auto;
+    }
 
-    .mt-card-label {
-      position: static;
-      width: auto;
-      height: auto;
-      margin: 0 0 0.1rem;
-      overflow: visible;
-      clip: auto;
-      display: block;
-      font-size: 0.75rem;
-      color: var(--aifs-color-text-muted);
+    .models-table-section .mt-compact .mt-details-cell {
+      flex: 0 0 auto;
+      margin-left: auto;
+    }
+
+    .models-table-section .mt-compact tr.mt-row::after {
+      content: '';
+      order: 1;
+      flex-basis: 100%;
+      width: 0;
+      height: 0;
+    }
+
+    .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) {
+      order: 2;
     }
 
     .models-table-section .mt-compact-wrap {
