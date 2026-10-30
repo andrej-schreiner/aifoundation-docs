@@ -31,9 +31,10 @@ const ariaLabel = isDE
     align-items: center;
     gap: 0.35rem;
     padding: 0.4rem 0.85rem;
-    border-radius: 9999px;
-    background: var(--sl-color-accent);
-    /* Starlight's --sl-color-white is dark text in light mode (3.78:1 on #e20074). */
+    border-radius: var(--aifs-radius-button, 24px);
+    border: 1px solid #e20074;
+    background: #e20074;
+    /* White on #e20074 is 4.68:1. Starlight's --sl-color-white is dark in light mode. */
     color: #ffffff;
     font-size: var(--sl-text-sm);
     font-weight: 600;
@@ -44,13 +45,13 @@ const ariaLabel = isDE
   }
 
   .header-cta:hover {
-    /* #ff4da6 (dark accent-high) with white text is 3.06:1. Keep a darker fill. */
-    background: #9e0050;
-    color: #ffffff;
+    /* t-systems.com inverts: white fill, magenta text. #e20074 on white is 4.68:1. */
+    background: #ffffff;
+    color: #e20074;
   }
 
   .header-cta:focus-visible {
-    outline: 2px solid var(--sl-color-accent-high);
+    outline: 2px solid #ffffff;
     outline-offset: 2px;
   }
 

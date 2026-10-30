@@ -80,9 +80,12 @@ export default defineConfig({
 				alt: 'AI Foundation Services LLM serving',
 			},
 			favicon: '/img/favicon_180x180.png',
-			customCss: ['./src/styles/custom.css'],
+			customCss: ['./src/styles/tokens.css', './src/styles/custom.css'],
 			expressiveCode: {
-				themes: ['dracula'],
+				// github-light / github-dark follow the page theme so the code
+				// surface can be #f5f5f5 in light and #2e2e2e in dark.
+				// Syntax colours stay Expressive Code's themes (design-system open question).
+				themes: ['github-light', 'github-dark'],
 			},
 			plugins: [
 				starlightVersions({

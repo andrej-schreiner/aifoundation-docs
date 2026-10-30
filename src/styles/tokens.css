@@ -1,0 +1,369 @@
+/* =====================================================================
+   AIFS design tokens, v2. Baseline: CURRENT t-systems.com
+   Captured 2026-10-29/30 (Europe/Berlin). Full provenance: tokens.json, design-system.md
+   Source tags used in comments:
+     [M]  measured on live t-systems.com (raw/ts-remeasure.json, raw/ts-text-on-bg.json, raw/css/ts-t5.css)
+     [B]  borrowed from telekom.com to fill a gap t-systems.com leaves open
+     [P]  AIFS proposal (no live source; the reason is given next to it)
+   Breakpoints [M]: mobile <=767, tablet 768-1279, desktop >=1280.
+   t-systems.com type only changes at 1280; 390 and 768 render identical type.
+   Fonts: TeleNeo is licensed. This file only references the family names t-systems.com
+   uses and ships no @font-face. Each family is one weight, declared font-weight 400 [M].
+   ===================================================================== */
+
+:root {
+  /* ---------- Colour primitives [M] ---------- */
+  --aifs-magenta: #e20074;            /* [M] buttons, links, table head, brand block */
+  --aifs-ink: #262626;                /* [M] all text, footer bg, accordion dividers */
+  --aifs-white: #ffffff;              /* [M] */
+  --aifs-grey-237: #ededed;           /* [M] grey sections, label chip */
+  --aifs-grey-245: #f5f5f5;           /* [M] present in ts CSS */
+  --aifs-grey-216: #d8d8d8;           /* [M] decorative only (1.43:1) */
+  --aifs-grey-164: #a4a4a4;           /* [M] input border, eyebrow, disabled. FAILS as text and as a field boundary */
+  --aifs-grey-124: #7c7c7c;           /* [M] present in ts CSS */
+  --aifs-pastel-blue: #93cdee;        /* [M] IAIC + contact cards */
+  --aifs-pastel-cyan: #8dd9e5;        /* [M] */
+  --aifs-pastel-mint: #8ddfd8;        /* [M] */
+  --aifs-error: #e60000;              /* [M] error message text */
+  --aifs-error-border: #e81919;       /* [M] invalid input border */
+  --aifs-error-bg: #ffe4e4;           /* [M] invalid input fill */
+  /* gap fillers */
+  --aifs-magenta-dark: #b5005d;       /* [B] telekom.com magenta hover. Used for links on grey (5.74:1) */
+  --aifs-grey-97: #616161;            /* [B] telekom.com neutral. Muted text (6.19 on white, 5.29 on #ededed) */
+  --aifs-success: #00774b;            /* [B] telekom.com functional green (5.61 on white) */
+  --aifs-warning: #efdc34;            /* [B] telekom.com yellow. Fill only, with ink text (10.78) */
+  --aifs-destructive: #c30a03;        /* [B] telekom.com destructive. Text on #ffe4e4 (5.19) */
+  --aifs-dark-0: #202020;             /* [B] telekom.com dark theme */
+  --aifs-dark-1: #2e2e2e;             /* [B] */
+  --aifs-dark-2: #414141;             /* [B] */
+  --aifs-dark-muted: #b6b6b6;         /* [B] */
+  --aifs-dark-border: #828282;        /* [B] */
+  --aifs-magenta-light: #ff70b8;      /* [P] dark-mode link: #e20074 on #202020 = 3.48 fails, #ff70b8 = 6.41 */
+  --aifs-error-light: #ff8a8a;        /* [P] dark-mode error text, 7.18 on #202020 */
+
+  /* ---------- Semantic colour: light (default) ---------- */
+  --aifs-color-bg: var(--aifs-white);
+  --aifs-color-surface: var(--aifs-grey-237);        /* [M] grey sections */
+  --aifs-color-surface-subtle: var(--aifs-grey-245);
+  --aifs-color-text: var(--aifs-ink);
+  --aifs-color-text-muted: var(--aifs-grey-97);      /* [B] replaces measured eyebrow #a4a4a4 (2.13:1 FAIL) */
+  --aifs-color-heading: var(--aifs-ink);
+  --aifs-color-link: var(--aifs-magenta);            /* [M] 4.68 on white only */
+  --aifs-color-link-on-grey: var(--aifs-magenta-dark);/* [B] fix: magenta on #ededed = 4.00 FAIL */
+  --aifs-color-link-on-pastel: var(--aifs-ink);      /* [P] fix: magenta on #93cdee = 2.72 FAIL. Always underline */
+  --aifs-color-accent: var(--aifs-magenta);
+  --aifs-color-on-accent: var(--aifs-white);         /* [M] 4.68. NEVER dark text on magenta (3.23) */
+  --aifs-color-border-input: var(--aifs-grey-124);   /* [P] fix: measured #a4a4a4 = 2.49 < 3:1 (WCAG 1.4.11) */
+  --aifs-color-border-divider: var(--aifs-ink);      /* [M] accordion 1px #262626 */
+  --aifs-color-border-subtle: var(--aifs-grey-216);  /* decorative only */
+  --aifs-color-disabled: var(--aifs-grey-164);       /* [M] exempt as inactive UI */
+  --aifs-color-footer-bg: var(--aifs-ink);           /* [M] */
+  --aifs-color-footer-text: var(--aifs-white);       /* [M] */
+  --aifs-color-table-head-bg: var(--aifs-magenta);   /* [M] */
+  --aifs-color-table-head-text: var(--aifs-white);   /* [M] */
+  --aifs-color-table-zebra: rgba(237, 237, 237, .6); /* [M] = #f4f4f4 on white */
+  --aifs-color-error: var(--aifs-error);
+  --aifs-color-error-border: var(--aifs-error-border);
+  --aifs-color-error-bg: var(--aifs-error-bg);
+  --aifs-color-success: var(--aifs-success);
+  --aifs-color-focus: var(--aifs-ink);               /* [P] colour; geometry [B] */
+  --aifs-color-focus-on-accent: var(--aifs-white);   /* [P] inside magenta / dark blocks */
+  --aifs-color-code-bg: var(--aifs-grey-245);        /* [P] ts has no code surfaces */
+  --aifs-color-code-text: var(--aifs-ink);
+  --aifs-color-code-border: var(--aifs-grey-216);
+  /* callouts [P] built from measured pastels where possible */
+  --aifs-callout-note-bg: var(--aifs-pastel-blue);    --aifs-callout-note-border: var(--aifs-ink);       --aifs-callout-note-title: var(--aifs-ink);
+  --aifs-callout-tip-bg: var(--aifs-pastel-mint);     --aifs-callout-tip-border: var(--aifs-success);    --aifs-callout-tip-title: var(--aifs-ink);
+  --aifs-callout-caution-bg: var(--aifs-warning);     --aifs-callout-caution-border: var(--aifs-ink);    --aifs-callout-caution-title: var(--aifs-ink);
+  --aifs-callout-danger-bg: var(--aifs-error-bg);     --aifs-callout-danger-border: var(--aifs-error-border); --aifs-callout-danger-title: var(--aifs-destructive);
+  --aifs-callout-text: var(--aifs-ink);
+
+  /* ---------- Typography [M] ---------- */
+  --aifs-font-regular: 'TeleNeoWeb-Regular', Arial, Helvetica, sans-serif;
+  --aifs-font-medium: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+  --aifs-font-bold: 'TeleNeoWeb-Bold', Arial, Helvetica, sans-serif;
+  --aifs-font-extrabold: 'TeleNeoWeb-ExtraBold', Arial, Helvetica, sans-serif;
+  --aifs-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; /* [P] */
+  /* ts computes weight 400 everywhere because the weight is in the family name.
+     [P] We pair each family with its semantic weight and set font-synthesis:none, so the
+     TeleNeo face renders correctly and the Arial fallback still shows hierarchy. */
+  --aifs-weight-regular: 400; --aifs-weight-medium: 500; --aifs-weight-bold: 700; --aifs-weight-extrabold: 800;
+  /* icon fonts [M] (licensed, no @font-face here) */
+  --aifs-icon-outline: 'TeleIcon-Outline';
+  --aifs-icon-solid: 'TeleIcon-Solid';
+  --aifs-icon-context: 'Context-Icons';
+  --aifs-icon-multicolor: 'Multicolor-Icons';
+
+  /* type scale: mobile/tablet (<=1279) [M] */
+  --aifs-h1-size: 36px;  --aifs-h1-line: 39.6px; --aifs-h1-mb: 24.12px;
+  --aifs-h2-size: 26px;  --aifs-h2-line: 28.6px; --aifs-h2-my: 21.58px;
+  --aifs-h3-size: 22px;  --aifs-h3-line: 26.4px; --aifs-h3-mt: 30px; --aifs-h3-mb: 22px;
+  --aifs-h4-size: 22px;  --aifs-h4-line: 26.4px; --aifs-h4-mt: 30px;
+  --aifs-h5-size: 22px;  --aifs-h5-line: 26.4px; --aifs-h5-mt: 30px;
+  --aifs-h6-size: 22px;  --aifs-h6-line: 26.4px; --aifs-h6-mt: 51.26px;
+  --aifs-body-size: 18px; --aifs-body-line: 21.6px; --aifs-p-mt: 18px;
+  --aifs-lead-size: 22px; --aifs-lead-line: 26.4px;
+  --aifs-small-size: 14.4px; --aifs-small-line: 17.28px;
+  --aifs-breadcrumb-size: 14px;
+  --aifs-nav-size: 16px;
+  --aifs-eyebrow-size: 16px;
+  --aifs-chip-size: 16px;
+  --aifs-error-size: 14px;
+  --aifs-code-size: 15px;   /* [P] */
+  --aifs-docs-body-size: 18px; /* [P] docs prose at ALL widths = ts mobile body (measured 18px).
+                                  ts desktop body is 22px; too large next to a sidebar + 15px code. Open question. */
+
+  /* ---------- Layout & spacing [M] ---------- */
+  --aifs-bp-tablet: 768px; --aifs-bp-desktop: 1280px;   /* reference only; CSS vars cannot drive @media */
+  --aifs-page-pad: 20px;
+  --aifs-text-column: 1080px;   /* [M] centred: x=100 @1280, x=180 @1440 */
+  --aifs-hero-width: 1260px;
+  --aifs-module-gap: 60px;
+  --aifs-header-h: 53px; --aifs-brand-w: 176px; --aifs-brand-h: 52px; --aifs-logo-w: 146px; --aifs-logo-h: 30px;
+  --aifs-footer-pad: 31px 0 30px;
+  /* [P] named scale. Every step is a measured ts value */
+  --aifs-space-2xs: 4px; --aifs-space-xs: 8px; --aifs-space-sm: 16px; --aifs-space-md: 20px;
+  --aifs-space-lg: 24px; --aifs-space-xl: 32px; --aifs-space-2xl: 40px; --aifs-space-3xl: 60px;
+  --aifs-space-4xl: 80px; --aifs-space-5xl: 105px;
+
+  /* ---------- Shape [M] ---------- */
+  --aifs-radius-button: 22px;  --aifs-button-h: 46px; --aifs-button-pad: 11px 21px; --aifs-button-size: 18px;
+  --aifs-radius-card: 16px;    --aifs-card-pad: 30px 20px;
+  --aifs-radius-image: 12px;
+  --aifs-radius-input: 4px;    --aifs-input-h: 40px; --aifs-input-size: 18px; --aifs-input-pad: 8px 16px;
+  --aifs-radius-chip: 4px;
+  --aifs-radius-code: 16px;    /* [P] = mobile card radius */
+  --aifs-radius-inline-code: 4px; /* [P] = input radius */
+  --aifs-border-width: 1px;
+
+  /* ---------- Elevation / motion / focus ---------- */
+  --aifs-shadow: none;                                   /* [M] cards, buttons, inputs: none */
+  --aifs-shadow-floating: 0 4px 4px 0 rgba(0, 0, 0, .1); /* [M] carousel arrow only */
+  --aifs-transition: all .3s ease-in-out;                /* [M] */
+  --aifs-ease-slide: cubic-bezier(.075, .82, .165, 1);   /* [M] */
+  --aifs-focus-width: 2px;                               /* [B] telekom.com */
+  --aifs-focus-offset: 2px;                              /* [B] telekom.com (2-3px) */
+  --aifs-focus-ring: var(--aifs-focus-width) solid var(--aifs-color-focus);
+
+  color-scheme: light;
+}
+
+/* ---------- Desktop >=1280 [M] (768-1279 keeps the mobile type) ---------- */
+@media (min-width: 1280px) {
+  :root {
+    --aifs-h1-size: 48px; --aifs-h1-line: 52.8px; --aifs-h1-mb: 32.16px;
+    --aifs-h2-size: 32px; --aifs-h2-line: 35.2px; --aifs-h2-my: 26.56px;
+    --aifs-h3-size: 28px; --aifs-h3-line: 30.8px; --aifs-h3-mb: 28px;
+    --aifs-h4-size: 28px; --aifs-h4-line: 30.8px;
+    --aifs-h5-size: 28px; --aifs-h5-line: 30.8px;
+    --aifs-h6-size: 28px; --aifs-h6-line: 30.8px; --aifs-h6-mt: 65.24px;
+    --aifs-body-size: 22px; --aifs-body-line: 30.8px; --aifs-p-mt: 22px;
+    --aifs-lead-size: 28px; --aifs-lead-line: 39.2px;
+    --aifs-small-size: 17.6px; --aifs-small-line: 24.64px;
+    --aifs-breadcrumb-size: 16px; --aifs-chip-size: 18px; --aifs-error-size: 16px;
+    --aifs-module-gap: 105px;
+    --aifs-header-h: 91px; --aifs-brand-w: 254px; --aifs-brand-h: 90px; --aifs-logo-w: 190px; --aifs-logo-h: 39px;
+    --aifs-footer-pad: 34px 0 32px;
+    --aifs-radius-button: 24px; --aifs-button-h: 47px; --aifs-button-pad: 7px 21px; --aifs-button-size: 22px;
+    --aifs-radius-card: 32px; --aifs-card-pad: 40px;
+    --aifs-radius-image: 32px;
+    --aifs-input-h: 49px; --aifs-input-size: 22px;
+  }
+}
+
+/* ---------- Dark theme: [B] telekom.com surfaces + [P] accessible accents ----------
+   t-systems.com has no dark mode. Activate with data-theme="dark" (Starlight), .aifs-dark,
+   or automatically via prefers-color-scheme when no data-theme is set. */
+:root[data-theme='dark'], .aifs-dark {
+  --aifs-color-bg: var(--aifs-dark-0);
+  --aifs-color-surface: var(--aifs-dark-1);
+  --aifs-color-surface-subtle: var(--aifs-dark-1);
+  --aifs-color-text: var(--aifs-white);
+  --aifs-color-heading: var(--aifs-white);
+  --aifs-color-text-muted: var(--aifs-dark-muted);
+  --aifs-color-link: var(--aifs-magenta-light);
+  --aifs-color-link-on-grey: var(--aifs-magenta-light);   /* 5.34 on #2e2e2e */
+  --aifs-color-link-on-pastel: var(--aifs-white);
+  --aifs-color-accent: var(--aifs-magenta);               /* button fill unchanged, white label 4.68 */
+  --aifs-color-on-accent: var(--aifs-white);
+  --aifs-color-border-input: var(--aifs-dark-border);
+  --aifs-color-border-divider: var(--aifs-dark-muted);
+  --aifs-color-border-subtle: var(--aifs-dark-2);
+  --aifs-color-disabled: #7c7c7c;
+  --aifs-color-footer-bg: #000000;                        /* [B] telekom.com dark uses black */
+  --aifs-color-table-zebra: rgba(255, 255, 255, .06);     /* [P] = #2d2d2d */
+  --aifs-color-error: var(--aifs-error-light);
+  --aifs-color-error-bg: #481f1f;                         /* [P] */
+  --aifs-color-success: #5fd3a0;                          /* [P] see design-system.md §contrast */
+  --aifs-color-focus: var(--aifs-white);
+  --aifs-color-code-bg: var(--aifs-dark-1);
+  --aifs-color-code-text: var(--aifs-white);
+  --aifs-color-code-border: var(--aifs-dark-2);
+  --aifs-callout-note-bg: #323c41;    --aifs-callout-note-border: var(--aifs-pastel-blue);   --aifs-callout-note-title: var(--aifs-pastel-blue);
+  --aifs-callout-tip-bg: #313f3d;     --aifs-callout-tip-border: var(--aifs-pastel-mint);    --aifs-callout-tip-title: var(--aifs-pastel-mint);
+  --aifs-callout-caution-bg: #413e23; --aifs-callout-caution-border: var(--aifs-warning);    --aifs-callout-caution-title: var(--aifs-warning);
+  --aifs-callout-danger-bg: #481f1f;  --aifs-callout-danger-border: var(--aifs-error-light); --aifs-callout-danger-title: var(--aifs-error-light);
+  --aifs-callout-text: var(--aifs-white);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --aifs-color-bg: var(--aifs-dark-0); --aifs-color-surface: var(--aifs-dark-1); --aifs-color-surface-subtle: var(--aifs-dark-1);
+    --aifs-color-text: var(--aifs-white); --aifs-color-heading: var(--aifs-white); --aifs-color-text-muted: var(--aifs-dark-muted);
+    --aifs-color-link: var(--aifs-magenta-light); --aifs-color-link-on-grey: var(--aifs-magenta-light); --aifs-color-link-on-pastel: var(--aifs-white);
+    --aifs-color-border-input: var(--aifs-dark-border); --aifs-color-border-divider: var(--aifs-dark-muted); --aifs-color-border-subtle: var(--aifs-dark-2);
+    --aifs-color-footer-bg: #000000; --aifs-color-table-zebra: rgba(255, 255, 255, .06);
+    --aifs-color-error: var(--aifs-error-light); --aifs-color-error-bg: #481f1f; --aifs-color-success: #5fd3a0; --aifs-color-focus: var(--aifs-white);
+    --aifs-color-code-bg: var(--aifs-dark-1); --aifs-color-code-text: var(--aifs-white); --aifs-color-code-border: var(--aifs-dark-2);
+    --aifs-callout-note-bg: #323c41; --aifs-callout-note-border: var(--aifs-pastel-blue); --aifs-callout-note-title: var(--aifs-pastel-blue);
+    --aifs-callout-tip-bg: #313f3d; --aifs-callout-tip-border: var(--aifs-pastel-mint); --aifs-callout-tip-title: var(--aifs-pastel-mint);
+    --aifs-callout-caution-bg: #413e23; --aifs-callout-caution-border: var(--aifs-warning); --aifs-callout-caution-title: var(--aifs-warning);
+    --aifs-callout-danger-bg: #481f1f; --aifs-callout-danger-border: var(--aifs-error-light); --aifs-callout-danger-title: var(--aifs-error-light);
+    --aifs-callout-text: var(--aifs-white);
+    color-scheme: dark;
+  }
+}
+
+/* =====================================================================
+   Astro Starlight 0.38 mapping (docs.llmhub.t-systems.net)
+   Load via astro.config: starlight({ customCss: ['./src/styles/tokens.css'] }).
+   Starlight's own props live in @layer starlight.base, so these unlayered rules win.
+   Starlight convention: :root = dark, [data-theme='light'] = light. Its "white" is the
+   highest-contrast text colour and "black" is the page background.
+   Pairs Starlight actually renders (all checked in design-system.md §Contrast):
+     links = text-accent on bg; sidebar current page = text-invert on text-accent;
+     banner = text-invert on bg-accent; aside title = <hue>-high on <hue>-low.
+   ===================================================================== */
+:root {
+  --sl-font: var(--aifs-font-regular);
+  --sl-font-mono: var(--aifs-font-mono);
+
+  /* dark (Starlight default) */
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #f5f5f5;
+  --sl-color-gray-2: #d8d8d8;   /* body text, 11.43:1 on #202020 */
+  --sl-color-gray-3: #b6b6b6;   /* secondary text, 8.03:1 */
+  --sl-color-gray-4: #828282;
+  --sl-color-gray-5: #414141;
+  --sl-color-gray-6: #2e2e2e;
+  --sl-color-black: #202020;
+  --sl-color-accent-low: #202020;      /* used as text-invert on accent-high */
+  --sl-color-accent: #e20074;          /* borders, outlines, accent-color */
+  --sl-color-accent-high: #ff70b8;     /* links + sidebar current bg: 6.41 on #202020 */
+  --sl-color-text-accent: #ff70b8;
+  --sl-color-text-invert: #202020;     /* 6.41 on #ff70b8. Fixes the 3.78:1 dark-on-magenta failure */
+  --sl-color-bg-accent: #e20074;
+  --sl-color-banner-text: #ffffff;     /* 4.68 on #e20074 */
+  --sl-color-bg-nav: #202020;
+  --sl-color-bg-sidebar: #202020;
+  --sl-color-bg-inline-code: #2e2e2e;
+  --sl-color-hairline-light: #414141;
+  --sl-color-hairline: #2e2e2e;
+  --sl-color-hairline-shade: #000000;
+  /* asides: note=blue, tip=purple, caution=orange, danger=red; badges also use green */
+  --sl-color-blue-low: #323c41;   --sl-color-blue: #93cdee;   --sl-color-blue-high: #93cdee;
+  --sl-color-purple-low: #313f3d; --sl-color-purple: #8ddfd8; --sl-color-purple-high: #8ddfd8;
+  --sl-color-green-low: #313f3d;  --sl-color-green: #8ddfd8;  --sl-color-green-high: #8ddfd8;
+  --sl-color-orange-low: #413e23; --sl-color-orange: #efdc34; --sl-color-orange-high: #efdc34;
+  --sl-color-red-low: #481f1f;    --sl-color-red: #ff8a8a;    --sl-color-red-high: #ff8a8a;
+  --sl-shadow-sm: none; --sl-shadow-md: none;   /* [M] ts uses no shadows */
+
+  /* type: ts scale, mobile <=1279 */
+  --sl-text-h1: var(--aifs-h1-size);
+  --sl-text-h2: var(--aifs-h2-size);
+  --sl-text-h3: var(--aifs-h3-size);
+  /* --sl-text-h4/h5 left at Starlight defaults: Starlight reuses them for UI ("On this page").
+     Markdown h4-h6 get the ts sizes through the element rule below. */
+  --sl-text-body: var(--aifs-body-size);
+  --sl-line-height-headings: 1.1;      /* [M] 39.6/36, 52.8/48 */
+  --sl-line-height: 1.4;               /* [M] 30.8/22 desktop. Mobile ts is 1.2 (21.6/18); [P] 1.4 for docs reading */
+  --sl-text-code: var(--aifs-code-size);
+  --sl-content-width: 67.5rem;         /* [M] 1080px text column */
+}
+:root[data-theme='light'] {
+  --sl-color-white: #262626;    /* headings/strong */
+  --sl-color-gray-1: #262626;
+  --sl-color-gray-2: #262626;   /* body text [M] 15.13 */
+  --sl-color-gray-3: #616161;   /* secondary text [B] 6.19 */
+  --sl-color-gray-4: #7c7c7c;   /* borders [M] 4.17 */
+  --sl-color-gray-5: #d8d8d8;
+  --sl-color-gray-6: #ededed;
+  --sl-color-gray-7: #f5f5f5;
+  --sl-color-black: #ffffff;
+  --sl-color-accent-low: #ededed;
+  --sl-color-accent: #e20074;
+  --sl-color-accent-high: #b5005d;
+  --sl-color-text-accent: #e20074;     /* links 4.68 on white */
+  --sl-color-text-invert: #ffffff;     /* sidebar current page: white on magenta 4.68 */
+  --sl-color-bg-accent: #e20074;
+  --sl-color-banner-text: #ffffff;
+  --sl-color-bg-nav: #ffffff;          /* [M] ts header is white */
+  --sl-color-bg-sidebar: #ffffff;
+  --sl-color-bg-inline-code: #ededed;
+  --sl-color-hairline-light: #ededed;
+  --sl-color-hairline: #d8d8d8;
+  --sl-color-hairline-shade: #d8d8d8;
+  --sl-color-blue-low: #93cdee;   --sl-color-blue: #262626;   --sl-color-blue-high: #262626;
+  --sl-color-purple-low: #8ddfd8; --sl-color-purple: #00774b; --sl-color-purple-high: #262626;
+  --sl-color-green-low: #8ddfd8;  --sl-color-green: #00774b;  --sl-color-green-high: #262626;
+  --sl-color-orange-low: #efdc34; --sl-color-orange: #262626; --sl-color-orange-high: #262626;
+  --sl-color-red-low: #ffe4e4;    --sl-color-red: #e81919;    --sl-color-red-high: #c30a03;
+  --sl-shadow-sm: none; --sl-shadow-md: none;
+}
+@media (min-width: 1280px) {
+  :root {
+    --sl-text-h1: var(--aifs-h1-size); --sl-text-h2: var(--aifs-h2-size); --sl-text-h3: var(--aifs-h3-size);
+    --sl-text-body: var(--aifs-body-size);
+  }
+}
+
+/* Element rules Starlight needs so the per-weight families render (scoped, low specificity) */
+:root { font-synthesis: none; }
+/* Starlight 0.38 never reads --sl-text-body for prose, so set the docs size directly */
+.sl-markdown-content { font-size: var(--aifs-docs-body-size); }
+.sl-markdown-content :is(h1, h2, h3, h4, h5, h6), h1#_top, .site-title {
+  font-family: var(--aifs-font-medium); font-weight: var(--aifs-weight-medium);
+}
+.sl-markdown-content h4 { font-size: var(--aifs-h4-size); line-height: var(--aifs-h4-line); }
+.sl-markdown-content h5 { font-size: var(--aifs-h5-size); line-height: var(--aifs-h5-line); }
+.sl-markdown-content h6 { font-size: var(--aifs-h6-size); line-height: var(--aifs-h6-line); }
+.sl-markdown-content :is(strong, b, th), [aria-current='page'] {
+  font-family: var(--aifs-font-bold); font-weight: var(--aifs-weight-bold);
+}
+.sl-markdown-content a:not(:where(.not-content *)) {
+  font-family: var(--aifs-font-medium); font-weight: var(--aifs-weight-medium);
+  text-decoration: none;
+}
+.sl-markdown-content a:not(:where(.not-content *)):hover { text-decoration: underline; }
+/* Magenta on a pastel callout is 2.72:1. Ink (light) / white (dark), always underlined. */
+.starlight-aside a {
+  color: var(--aifs-color-link-on-pastel);
+  text-decoration: underline;
+}
+/* [P] tables follow ts cm-richtext tables */
+.sl-markdown-content table { border-collapse: separate; border-spacing: 2px; }
+.sl-markdown-content th { background: var(--aifs-color-table-head-bg); color: var(--aifs-color-table-head-text); border: 0; padding: 15px; }
+.sl-markdown-content td { border: 0; padding: 15px; vertical-align: middle; }
+.sl-markdown-content tbody tr:nth-child(odd) { background: var(--aifs-color-table-zebra); }
+.sl-markdown-content tbody tr:nth-child(odd) a { color: var(--aifs-color-link-on-grey); }
+/* [B] focus geometry, [P] colour */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--aifs-focus-width) solid var(--aifs-color-focus);
+  outline-offset: var(--aifs-focus-offset);
+}
+
+/* Code block surface [P]. Syntax colours stay Expressive Code's github-light /
+   github-dark themes (design-system open question). Unlayered rules win over
+   the @layer starlight.components variables. */
+.expressive-code {
+  --ec-brdRad: var(--aifs-radius-code);
+  --ec-brdWd: 1px;
+  --ec-brdCol: var(--aifs-color-code-border);
+  --ec-codeFontSize: var(--aifs-code-size);
+  --ec-focusBrd: var(--aifs-color-focus);
+  /* Background stays the Expressive Code theme surface. Forcing #f5f5f5 under
+     github-light drops #22863a to 4.24:1 and #e36209 to 3.20:1. */
+}
+.expressive-code pre {
+  border-radius: var(--aifs-radius-code);
+}

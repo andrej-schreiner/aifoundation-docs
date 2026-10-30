@@ -32,8 +32,9 @@ const ariaLabel = isDE
     gap: 0.25rem;
     margin-inline-start: 0.5rem;
     padding: 0.3rem 0.65rem;
-    border-radius: 9999px;
-    background: var(--sl-color-accent);
+    border-radius: var(--aifs-radius-button, 22px);
+    border: 1px solid #e20074;
+    background: #e20074;
     color: #ffffff;
     font-size: var(--sl-text-xs);
     font-weight: 600;
@@ -44,12 +45,12 @@ const ariaLabel = isDE
   }
 
   .mobile-cta:hover {
-    background: #9e0050;
-    color: #ffffff;
+    background: #ffffff;
+    color: #e20074;
   }
 
   .mobile-cta:focus-visible {
-    outline: 2px solid var(--sl-color-accent-high);
+    outline: 2px solid #ffffff;
     outline-offset: 2px;
   }
 

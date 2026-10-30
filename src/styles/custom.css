@@ -1,34 +1,27 @@
-/* Deutsche Telekom Branding — Starlight CSS Variables */
-:root {
-	--sl-color-accent-low: #3d0019;
-	--sl-color-accent: #e20074;
-	--sl-color-accent-high: #ff4da6;
-	/* Widen main content area to reduce right-sidebar whitespace */
-	--sl-content-width: 55rem;
-
-	--sl-border-xs: 4px;
-	--sl-border-sm: 6px;
-	--sl-border-md: 8px;
-	--sl-border-lg: 12px;
-}
-
-:root[data-theme='light'] {
-	--sl-color-accent-low: #fce4ef;
-	--sl-color-accent: #e20074;
-	--sl-color-accent-high: #9e0050;
-}
+/* Site layout on top of src/styles/tokens.css (t-systems.com / AIFS theme).
+   Colour, type, radii, callouts, and the Starlight variable map live in tokens.css.
+   Do not re-set --sl-color-accent* here; that overrides the approved mapping. */
 
 /* Plans pages use a wider content column for their tables. Starlight derives
-   content centering AND header search alignment from --sl-content-width, so
-   overriding the variable is all that's needed (no JS, no margin math). */
+   content centering AND header search alignment from --sl-content-width. */
 :root:has(.plans-page) {
 	--sl-content-width: 85rem;
 }
 
-/* Keep LinkCards and pagination at normal content width on wide plans page */
+/* Keep LinkCards and pagination at the docs text column on the wide plans page */
 .sl-markdown-content:has(.plans-page) .sl-link-card,
 .sl-container:has(.plans-page) .pagination-links {
-	max-width: 55rem;
+	max-width: 67.5rem;
+}
+
+/* Callouts: 4px edge and 16px outer corners (design-system §7.6). Colours come from tokens.css. */
+.starlight-aside {
+	border-radius: 0 16px 16px 0;
+}
+
+.sl-link-card {
+	border-radius: var(--aifs-radius-card, 16px);
+	box-shadow: none;
 }
 
 /* Hero Badges */
@@ -43,7 +36,7 @@
 .hero-badge {
 	display: inline-block;
 	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
+	border-radius: var(--aifs-radius-chip, 4px);
 	font-size: 0.85rem;
 	font-weight: 600;
 	background: var(--sl-color-accent-low);
@@ -73,19 +66,17 @@
 .hover-card {
 	flex: 1 1 30%;
 	min-height: 130px;
-	border-radius: 12px;
+	border-radius: var(--aifs-radius-card, 16px);
 	padding: 20px;
 	text-align: center;
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-	transition: transform 0.2s ease, box-shadow 0.2s ease;
+	box-shadow: none;
 	cursor: pointer;
 	text-decoration: none;
 	color: inherit;
 }
 
 .hover-card:hover {
-	transform: scale(1.03);
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+	box-shadow: none;
 }
 
 .hover-card-1,
@@ -210,7 +201,7 @@
 
 .sort-icon.active {
 	opacity: 1;
-	color: #e20074;
+	color: #ffffff;
 }
 
 /* Pricing Tooltip */

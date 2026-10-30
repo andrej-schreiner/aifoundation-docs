@@ -95,7 +95,7 @@ const bars = isDE
     background: var(--sl-color-accent-low);
     color: var(--sl-color-white);
     border: 1px solid var(--sl-color-accent);
-    border-radius: 10px;
+    border-radius: var(--aifs-radius-card, 16px);
     box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
     font-size: var(--sl-text-xs);
     line-height: 1.35;
@@ -109,7 +109,7 @@ const bars = isDE
   .qp-badge {
     flex-shrink: 0;
     padding: 0.125rem 0.5rem;
-    border-radius: 999px;
+    border-radius: var(--aifs-radius-chip, 4px);
     background: var(--sl-color-accent);
     color: #ffffff;
     font-size: 0.6875rem;
@@ -133,8 +133,9 @@ const bars = isDE
   .qp-cta {
     flex-shrink: 0;
     padding: 0.3125rem 0.75rem;
-    border-radius: 7px;
-    background: var(--sl-color-accent);
+    border-radius: var(--aifs-radius-button, 22px);
+    border: 1px solid #e20074;
+    background: #e20074;
     color: #ffffff;
     font-weight: 600;
     text-decoration: none;
@@ -143,8 +144,8 @@ const bars = isDE
   }
   .qp-cta:hover,
   .qp-cta:focus-visible {
-    background: #9e0050;
-    color: #ffffff;
+    background: #ffffff;
+    color: #e20074;
   }
 
   .qp-close {
