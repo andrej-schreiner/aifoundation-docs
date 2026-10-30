@@ -14,9 +14,10 @@
 // `bars` array below; each one is dismissed on its own. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
 // replaced GlmBanner.
 //
-// Kept deliberately compact: a slim single-line bar rendered in the content
-// flow above the page title (portaled into <main> by the script below), so it
-// never covers content and scrolls away with the page.
+// Kept deliberately compact: a slim single-line bar in its own row above the
+// table of contents and the content (portaled into .qp-stack by the script
+// below; styled in layout.css), so it never covers content and scrolls away
+// with the page.
 //
 // Dismiss semantics are unchanged: this site navigates via full page loads, so
 // the closed state lives in sessionStorage (survives navigation between docs
@@ -62,16 +63,19 @@ const bars = isDE
         href: `${prefix}/guides/ocr`,
       },
     ];
+import Button from './Button.astro';
+import Tag from './Tag.astro';
+import Icon from './Icon.astro';
 ---
 
 {bars.map((b) => (
   <div class="qp-bar" data-key={b.key} role="region" aria-label={close} hidden>
-    <span class="qp-badge">{b.badge}</span>
+    <Tag color="magenta" size="small" class="qp-badge">{b.badge}</Tag>
     <p class="qp-msg" set:html={b.msg}></p>
     <a class="qp-cta" href={b.href}>{b.cta}</a>
-    <button type="button" class="qp-close" aria-label={close}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </button>
+    <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={close}>
+      <Icon name="action-close" size={16} />
+    </Button>
   </div>
 ))}
 
@@ -86,16 +90,15 @@ const bars = isDE
     display: flex;
     align-items: center;
     gap: 0.625rem;
-    /* Left-aligned like the rest of the content column (margin:auto centering
-       was a relic of the old fixed centered pill). */
-    width: min(46rem, 100%);
-    margin: 0 0 0.75rem;
+    /* Spans its row (.qp-stack in layout.css), which sets the gaps. */
+    width: 100%;
+    margin: 0;
     padding: 0.45rem 0.75rem;
 
-    background: #ffffff;
-    color: #262626;
-    border: 1px solid #d8d8d8;
-    border-inline-start: 3px solid #e20074;
+    background: var(--aifs-color-surface-chrome);
+    color: var(--aifs-color-text-body);
+    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
     border-radius: 8px;
     box-shadow: none;
     font-size: 0.875rem;
@@ -104,38 +107,27 @@ const bars = isDE
     animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
   }
   :global(:root[data-theme='dark']) .qp-bar {
-    background: var(--aifs-d-surface);
-    color: var(--aifs-d-text-body);
-    border-color: var(--aifs-d-border);
-    border-inline-start-color: var(--aifs-d-magenta);
+    background: var(--aifs-color-surface-chrome);
+    color: var(--aifs-color-text-body);
+    border-color: var(--aifs-color-border-subtle);
+    border-inline-start-color: var(--aifs-color-action-background);
   }
 
   :global(:root[data-theme='dark']) .qp-msg :global(b) {
-    color: var(--aifs-d-text);
+    color: var(--aifs-color-text-body);
   }
 
   :global(:root[data-theme='dark']) .qp-cta {
-    color: var(--aifs-d-link);
+    color: var(--aifs-color-link-standard);
   }
 
-  :global(:root[data-theme='dark']) .qp-cta:hover,
-  :global(:root[data-theme='dark']) .qp-cta:focus-visible {
-    color: #ffffff;
-  }
   .qp-bar[hidden] {
     display: none;
   }
 
-  .qp-badge {
+  /* Drawn by the Tag component (magenta, small). */
+  .qp-bar :global(.qp-badge) {
     flex-shrink: 0;
-    padding: 0.125rem 0.5rem;
-    border-radius: 999px;
-    background: var(--sl-color-accent);
-    color: #ffffff;
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
   }
 
   .qp-msg {
@@ -150,7 +142,7 @@ const bars = isDE
 
   .qp-cta {
     flex-shrink: 0;
-    color: #b5005d;
+    color: var(--aifs-color-brand-text);
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: 2px;
@@ -158,33 +150,16 @@ const bars = isDE
   }
   .qp-cta:hover,
   .qp-cta:focus-visible {
-    color: #e20074;
+    color: var(--aifs-color-text-body);
   }
 
-  .qp-close {
+  /* Drawn by the Button component (ghost, small, icon only). */
+  .qp-bar :global(.qp-close) {
     flex-shrink: 0;
-    display: grid;
-    place-items: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    border-radius: 50%;
-    border: 0;
-    background: transparent;
-    color: var(--sl-color-text);
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .qp-close:hover,
-  .qp-close:focus-visible {
-    background: var(--sl-color-gray-5);
-  }
-  .qp-close svg {
-    width: 0.875rem;
-    height: 0.875rem;
   }
 
   .qp-bar :focus-visible {
-    outline: 2px solid var(--sl-color-accent);
+    outline: 2px solid var(--aifs-color-focus);
     outline-offset: 2px;
     border-radius: 6px;
   }
@@ -195,7 +170,7 @@ const bars = isDE
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-    .qp-badge {
+    .qp-bar :global(.qp-badge) {
       display: none;
     }
     .qp-msg {
@@ -260,7 +235,10 @@ const bars = isDE
     try {
       sessionStorage.setItem(bar.dataset.key!, '1');
     } catch {}
+    const stack = bar.parentElement;
     bar.remove();
+    // The last bar gone: drop the row, so its spacing goes too.
+    if (stack?.classList.contains('qp-stack') && !stack.querySelector('.qp-bar')) stack.remove();
   }
 
   function initPreviewModelsBanner() {
@@ -276,20 +254,21 @@ const bars = isDE
     });
     if (!bars.length) return;
 
-    // Portal into the title panel, above the <h1>, so the bars sit in the
-    // content flow — they occupy real space (nothing is ever covered) and
-    // scroll away with the page. Inside the panel (rather than above it) the
-    // panel's own padding stays above the bars instead of stacking into the
-    // bar-to-title gap.
-    // Target the .sl-container INSIDE the panel (not the panel itself): the
-    // container carries Starlight's max-width + centering, so the bars get the
-    // exact same left edge as the <h1> at every viewport width.
-    const host =
-      document.querySelector('main .content-panel .sl-container') ||
-      document.querySelector('main .content-panel') ||
-      document.querySelector('main');
-    if (host && bars[0].parentElement !== host) {
-      host.prepend(...bars);
+    // Portal into a row of their own, above the row that holds the table of
+    // contents and the content sheet (Starlight's TwoColumnContent), so they
+    // span both and sit in the flow: they take real space, nothing is ever
+    // covered, and they scroll away with the page. Outside <main>, so search
+    // doesn't index them. Layout and spacing: .qp-stack in layout.css.
+    let host = document.querySelector<HTMLElement>('.qp-stack');
+    if (!host) {
+      host = document.createElement('div');
+      host.className = 'qp-stack';
+      const row = document.querySelector('.main-frame > .lg\\:sl-flex');
+      if (row) row.before(host);
+      else document.querySelector('main')?.prepend(host);
+    }
+    if (bars[0].parentElement !== host) {
+      host.append(...bars);
     }
 
     for (const bar of bars) {

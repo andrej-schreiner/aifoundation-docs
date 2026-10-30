@@ -3,7 +3,8 @@ import currentPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2
 import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-01-19.json';
 import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
-import { modelBrandIcons } from '../shared/lib/modelBrandIcons';
+import { logos } from '../shared/lib/logos';
+import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
@@ -169,7 +170,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Essential',
     label: 'Essential',
-    color: '#4de0af',
     basePrice: '1,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Niedriger' : 'Lower',
@@ -180,7 +180,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Professional',
     label: 'Professional',
-    color: '#4ad9cd',
     basePrice: '3,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Mittel' : 'Medium',
@@ -191,7 +190,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Agentic',
     label: 'Agentic',
-    color: '#4dd1e0',
     basePrice: '5,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Höchster' : 'Highest',
@@ -202,7 +200,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Tarif Standard3000 Template',
     label: 'Enterprise',
-    color: '#5ec2ed',
     basePrice: 'Custom',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Individuell' : 'Custom',
@@ -217,7 +214,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Basic Template',
     label: 'Basic',
-    color: '#4de0af',
     basePrice: '–',
     tokenPrice: '3.53',
     rpm: '20',
@@ -228,7 +224,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard1000 Template',
     label: 'Standard 1000',
-    color: '#4ad9cd',
     basePrice: '1,000 €',
     tokenPrice: '3.53',
     rpm: '150',
@@ -239,7 +234,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard2000 Template',
     label: 'Standard 2000',
-    color: '#4dd1e0',
     basePrice: '2,000 €',
     tokenPrice: '2.89',
     rpm: '300',
@@ -250,7 +244,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard3000 Template',
     label: 'Standard 3000',
-    color: '#5ec2ed',
     basePrice: '3,000 €',
     tokenPrice: '2.23',
     rpm: '450',
@@ -261,7 +254,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard4000 Template',
     label: 'Standard 4000',
-    color: '#84b0f5',
     basePrice: '4,000 €',
     tokenPrice: '1.75',
     rpm: '600',
@@ -464,7 +456,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               {planConfigs.map((plan) => (
                 <tr>
                   <td>
-                    <span class="plans-tag" style={`background:${plan.color};color:#000`}>
+                    <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>
                       {plan.label}
                     </span>
                   </td>
@@ -525,7 +517,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     effectiveIndex={initialPlanIndex}
     locked={Boolean(selectedPlanId)}
     translations={t}
-    modelBrandIcons={modelBrandIcons}
+    logos={logos}
     hostTooltips={hostTooltips}
     tierTooltips={tierTooltips}
     creatorTooltips={creatorTooltips}
@@ -537,19 +529,13 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 <style is:global>
   .plans-page {
     width: 100%;
-    --model-link-color: var(--sl-color-text-accent);
-    --model-link-icon-color: var(--sl-color-text-accent);
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-text-body);
   }
 
   :root[data-theme='dark'] .plans-page {
-    --model-link-color: var(--aifs-d-link);
-    --model-link-icon-color: var(--aifs-d-link);
-  }
-
-  :root[data-theme='dark'] .plans-table th {
-    background: var(--aifs-d-surface);
-    color: var(--aifs-d-text);
-    border-bottom: 1px solid var(--aifs-d-border);
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-link-standard);
   }
 
   :root[data-theme='dark'] .plans-table th a {
@@ -557,13 +543,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   :root[data-theme='dark'] .sort-icon.active {
-    color: var(--aifs-d-link);
-  }
-
-  :root[data-theme='dark'] .tag-premium {
-    background: var(--aifs-d-surface);
-    color: #7fd4ea;
-    box-shadow: inset 0 0 0 1px var(--aifs-d-border);
+    color: var(--aifs-color-link-standard);
   }
 
   .rate-plans-section {
@@ -573,10 +553,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
      on the same page (vertical scroller with sticky headers) that must not
      inherit the padding/margin trick below. */
-  .rate-plans-section .plans-table {
-    border: 1px solid var(--sl-color-gray-5);
-  }
-
   .rate-plans-section .table-wrapper {
     max-width: 100%;
     overflow-x: auto;
@@ -635,21 +611,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     border: 0;
   }
 
-  .plans-table th,
-  .plans-table td {
-    border: 0;
-    padding: 0.85rem 0.85rem;
-    text-align: left;
-  }
-
-  .plans-table th {
-    background: #f2f2f2;
-    color: #262626;
-    font-weight: 700;
-    cursor: pointer;
-    user-select: none;
-    vertical-align: middle;
-  }
+  /* Head, cells, rows and hover: src/styles/table.css. */
 
   .plans-table__small-text {
     font-weight: normal;
@@ -660,62 +622,9 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     font-weight: 650;
   }
 
-  .plans-table tbody tr:hover {
-    background: var(--sl-color-gray-6);
-  }
-
-  .plans-table thead tr {
-    border-bottom: 1px solid var(--sl-color-gray-5);
-  }
-
-  .plans-table tbody tr {
-    border-bottom: 1px solid var(--sl-color-gray-5);
-  }
-
-  .plans-table tbody tr:last-child {
-    border-bottom: 0;
-  }
-
   .plans-table tbody tr.sub-row {
     opacity: 0.85;
     font-size: 0.85rem;
-  }
-
-  .plans-tag {
-    display: inline-block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .plans-tag:hover {
-    cursor: pointer;
-  }
-
-  .tag-tcloud,
-  .tag-cloud,
-  .tag-external-cloud {
-    background: transparent !important;
-    color: var(--sl-color-text) !important;
-    box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
-  }
-
-  .tag-cloud {
-    background: var(--sl-color-gray-5);
-    color: var(--sl-color-white);
-  }
-
-  .tag-tier {
-    background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
-    color: var(--sl-color-text);
-  }
-
-  .tag-premium {
-    background: rgba(78, 201, 223, 0.28);
-    color: #0c5c70;
-    box-shadow: inset 0 0 0 1px rgba(78, 201, 223, 0.22);
   }
 
   .sort-icon {
@@ -725,7 +634,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .sort-icon.active {
-    color: #e20074;
+    color: var(--aifs-color-brand-text);
     opacity: 1;
   }
 

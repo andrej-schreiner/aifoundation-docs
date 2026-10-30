@@ -1,7 +1,22 @@
 // @ts-check
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightVersions from 'starlight-versions';
+
+// The design-system page is a draft unless AIFS_PREVIEW_DESIGN_SYSTEM=1.
+// The content store caches that draft flag, so drop the store when the flag changes.
+const designSystemFlag = process.env.AIFS_PREVIEW_DESIGN_SYSTEM === '1' ? '1' : '0';
+mkdirSync('.astro', { recursive: true });
+const designSystemStamp = '.astro/aifs-design-system-flag';
+const previousDesignSystemFlag = existsSync(designSystemStamp) ? readFileSync(designSystemStamp, 'utf8').trim() : '';
+if (previousDesignSystemFlag !== designSystemFlag) {
+	rmSync('node_modules/.astro/data-store.json', { force: true });
+	rmSync('.astro/data-store.json', { force: true });
+	rmSync('.astro/collections', { recursive: true, force: true });
+	writeFileSync(designSystemStamp, designSystemFlag);
+}
 
 /** Wrap markdown tables so the border tracks the column and wide tables scroll. */
 function rehypeMarkdownTables() {
@@ -66,7 +81,7 @@ function rehypeMarkdownTables() {
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
-		rehypePlugins: [rehypeMarkdownTables],
+		rehypePlugins: [rehypeTableScroll],
 	},
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
@@ -94,6 +109,52 @@ export default defineConfig({
 			title: 'AI Foundation Services',
 			head: [
 				{
+					// Puts "On this page" on the same baseline as the page title.
+					// The title's height above the fold varies (notice banners, which
+					// can be closed; a title over two lines), so CSS can't know the
+					// offset. Measures both baselines and sets --aifs-toc-offset on the
+					// root; layout.css applies it as a margin on the sticky column.
+					tag: 'script',
+					content: `(() => {
+	const wide = matchMedia('(min-width: 72rem)');
+	const baseline = (el) => {
+		const probe = document.createElement('span');
+		probe.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline';
+		el.prepend(probe);
+		const y = probe.getBoundingClientRect().bottom;
+		probe.remove();
+		return y;
+	};
+	const align = () => {
+		const root = document.documentElement;
+		const title = document.querySelector('.main-pane .content-panel h1');
+		const label = document.querySelector('.right-sidebar-panel starlight-toc h2');
+		const sheet = document.querySelector('.main-pane > main');
+		const column = document.querySelector('.right-sidebar');
+		if (!wide.matches || !title || !label || !sheet || !column) {
+			root.style.removeProperty('--aifs-toc-offset');
+			return;
+		}
+		// Each baseline from the top of its own column, so scrolling (which
+		// moves the sticky column) doesn't change the result.
+		const offset = Math.round(
+			baseline(title) - sheet.getBoundingClientRect().top -
+				(baseline(label) - column.getBoundingClientRect().top),
+		);
+		root.style.setProperty('--aifs-toc-offset', Math.max(0, offset) + 'px');
+	};
+	const start = () => {
+		align();
+		const panel = document.querySelector('.main-pane .content-panel');
+		if (panel) new ResizeObserver(align).observe(panel);
+		wide.addEventListener('change', align);
+		document.fonts?.ready.then(align);
+	};
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+	else start();
+})();`,
+				},
+				{
 					// Embedded T-Systems chat widget, loaded site-wide. The deferred
 					// IIFE injects the async widget.js from chat.ai.t-systems.net; the
 					// widget renders its own launcher in the bottom-right corner. The
@@ -118,6 +179,16 @@ export default defineConfig({
 					tag: 'script',
 					content: `(function(){function fix(){var file=document.documentElement.lang==='de'?'Leistungsbeschreibung-LLM-Serving-Service.pdf':'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"],a[href*="Leistungsbeschreibung_LLM_Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
+				{
+					// Theme switches happen at once. Without this, every element with a colour
+					// transition (buttons, links in components) fades over 200ms while the page
+					// background flips, so labels briefly vanish, e.g. black text on the new
+					// black page. The observer runs before the next frame is drawn: it marks
+					// <html> with data-theme-switching, which redesign.css uses to switch
+					// transitions off, and clears the mark once the new colours are painted.
+					tag: 'script',
+					content: `(function(){var r=document.documentElement;new MutationObserver(function(){r.setAttribute('data-theme-switching','');requestAnimationFrame(function(){requestAnimationFrame(function(){r.removeAttribute('data-theme-switching');});});}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();`,
+				},
 			],
 			components: {
 				Footer: './src/components/Footer.astro',
@@ -128,7 +199,10 @@ export default defineConfig({
 				alt: 'AI Foundation Services LLM serving',
 			},
 			favicon: '/img/favicon_180x180.png',
-			customCss: ['./src/styles/custom.css', './src/styles/redesign.css'],
+			// tokens.css is generated from tokens/ (bun run tokens) and loaded last, so the
+			// Starlight variables it sets win over the hand-set ones in the other two.
+			routeMiddleware: './src/starlightRouteData.ts',
+			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tokens.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
 			},
@@ -266,15 +340,14 @@ export default defineConfig({
 					label: 'Links',
 					translations: { de: 'Links' },
 					items: [
-						// The visible "↗" glyph signals an external link sighted users, but is
-						// not announced meaningfully by screen readers (and would read as "north-east arrow").
-						// `aria-label` overrides the visible text for AT, so it must include the link's
-						// name AND the "(opens in new tab)" hint. `rel="noopener noreferrer"` is
-						// the security-required pairing for `target="_blank"`.
-						{ label: 'Try SmartChat ↗', translations: { de: 'SmartChat testen ↗' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Try SmartChat (opens in new tab)' } },
-						{ label: 'LLM Playground ↗', translations: { de: 'LLM Playground ↗' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
-						{ label: 'Model Status ↗', translations: { de: 'Model Status ↗' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
-						{ label: 'Service Description (PDF) ↗', translations: { de: 'Leistungsbeschreibung (PDF) ↗' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
+						// These open another site. src/styles/icons.css adds Telekom's external-link
+						// icon after the label; it is decoration, so `aria-label` carries the name
+						// AND the "(opens in new tab)" hint. `rel="noopener noreferrer"` is the
+						// security-required pairing for `target="_blank"`.
+						{ label: 'Try SmartChat', translations: { de: 'SmartChat testen' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Try SmartChat (opens in new tab)' } },
+						{ label: 'LLM Playground', translations: { de: 'LLM Playground' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
+						{ label: 'Model Status', translations: { de: 'Model Status' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
+						{ label: 'Service Description (PDF)', translations: { de: 'Leistungsbeschreibung (PDF)' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
 					],
 				},
 			],

@@ -1,5 +1,7 @@
 ---
 import 'flag-icons/css/flag-icons.min.css';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 
 // Locale detection (mirrors PlansPage.astro pattern)
@@ -230,47 +232,18 @@ const INITIAL_COUNT = 6;
     {
       sortedModels.map((model, index) => (
         <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
-          <button
+          <Button
+            variant="ghost"
+            size="small"
+            iconOnly
             class="model-card__copy"
-            type="button"
             data-model-id={model.modelId}
             data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
             title={t.copyTitleTemplate.replace('{id}', model.modelId)}
-            aria-label={t.copyAriaTemplate.replace('{id}', model.modelId)}>
-            <>
-              <svg
-                class="icon-copy"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true">
-                <>
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </>
-              </svg>
-              <svg
-                class="icon-check"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </>
-          </button>
+            ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}>
+            <Icon name="action-copy-paste" size={16} class="icon-copy" />
+            <Icon name="action-checkmark" size={16} class="icon-check" />
+          </Button>
           <h3 class="model-card__name">
             {model.name}
             {model.preview && <span class="status-badge status-badge--preview">Preview</span>}
@@ -305,10 +278,10 @@ const INITIAL_COUNT = 6;
   </div>
   {
     sortedModels.length > INITIAL_COUNT && (
-      <button
+      <Button
+        variant="secondary"
         class="models-toggle"
         id="models-toggle"
-        type="button"
         aria-controls="models-grid"
         aria-expanded="false"
         data-total={sortedModels.length}
@@ -316,7 +289,7 @@ const INITIAL_COUNT = 6;
         data-show-more-template={t.showMoreTemplate}
         data-show-less={t.showLess}>
         {t.showMoreTemplate.replace('{count}', String(sortedModels.length - INITIAL_COUNT))}
-      </button>
+      </Button>
     )
   }
 </div>
@@ -374,17 +347,17 @@ const INITIAL_COUNT = 6;
   }
 
   :global(:root[data-theme='dark']) .model-card {
-    background: var(--aifs-d-surface);
-    border-color: var(--aifs-d-border);
+    background: var(--aifs-color-surface-chrome);
+    border-color: var(--aifs-color-border-subtle);
   }
 
   .model-card:hover {
-    border-color: #e20074;
+    border-color: var(--aifs-color-action-background);
   }
 
   :global(:root[data-theme='dark']) .model-card:hover {
-    background: var(--aifs-d-raised);
-    border-color: var(--aifs-d-border-strong);
+    background: var(--aifs-color-surface-subtle);
+    border-color: var(--aifs-color-border-subtle);
   }
 
   .model-card--hidden {
@@ -436,47 +409,30 @@ const INITIAL_COUNT = 6;
     color: var(--sl-color-text-accent);
   }
 
-  .model-card__copy {
+  /* The Button component draws this one (ghost, small, icon only); here it is
+     only placed in the card's corner. :global because the button element
+     belongs to Button.astro, not to this component's scope. */
+  .model-card :global(.model-card__copy) {
     position: absolute;
     top: 0.5rem;
     right: 0.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    color: var(--sl-color-gray-3);
-    opacity: 0.6;
-    transition: opacity 0.15s;
   }
 
-  .model-card__copy:hover,
-  .model-card__copy:focus-visible {
-    opacity: 1;
-    color: var(--sl-color-white);
-  }
-
-  .model-card__copy:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  .model-card__copy .icon-check {
+  .model-card :global(.model-card__copy .icon-check) {
     display: none;
-    color: #4ade80;
+    color: var(--aifs-color-success);
   }
 
-  .model-card__copy[data-copied] .icon-copy {
+  .model-card :global(.model-card__copy[data-copied] .icon-copy) {
     display: none;
   }
 
-  .model-card__copy[data-copied] .icon-check {
+  .model-card :global(.model-card__copy[data-copied] .icon-check) {
     display: inline;
   }
 
-  .model-card__copy[data-copied] {
-    opacity: 1;
-    color: #4ade80;
+  .model-card :global(.model-card__copy[data-copied]) {
+    color: var(--aifs-color-success);
   }
 
   .copy-status {
@@ -500,40 +456,10 @@ const INITIAL_COUNT = 6;
     font-weight: 500;
   }
 
-  .models-toggle {
-    display: block;
+  /* Drawn by the Button component (secondary); centred under the grid here. */
+  :global(.models-toggle) {
+    display: flex;
     margin: 1.25rem auto 0;
-    padding: 0.5rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--sl-color-white);
-    background: var(--sl-color-black);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
-  :global(:root[data-theme='dark']) .models-toggle {
-    background: var(--aifs-d-surface);
-    border-color: var(--aifs-d-border);
-    color: var(--aifs-d-text);
-  }
-
-  .models-toggle:hover {
-    background: var(--sl-color-black);
-    border-color: #e20074;
-    color: #e20074;
-  }
-
-  :global(:root[data-theme='dark']) .models-toggle:hover {
-    background: var(--aifs-d-raised);
-    border-color: var(--aifs-d-border);
-    color: var(--aifs-d-text);
-  }
-
-  .models-toggle:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
   }
 </style>
 

@@ -1,6 +1,8 @@
 ---
 import Selector from './Selector.astro';
 import TextField from './TextField.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
 
 import 'flag-icons/css/flag-icons.min.css';
 
@@ -9,7 +11,7 @@ interface Props {
   effectiveIndex: number;
   locked: boolean;
   translations: Record<string, string> & { modelsSubtitleList?: string[] };
-  modelBrandIcons: Record<string, string>;
+  logos: Record<string, string>;
   hostTooltips: Record<string, string>;
   tierTooltips: Record<string, string>;
   creatorTooltips: Record<string, string>;
@@ -22,7 +24,7 @@ const {
   effectiveIndex,
   locked,
   translations,
-  modelBrandIcons,
+  logos,
   hostTooltips,
   tierTooltips,
   creatorTooltips,
@@ -69,7 +71,7 @@ const priceBuckets = [
 <section
   class:list={['models-section', 'models-table-section', { 'models-table-section--legacy': legacy }]}
   data-plans={JSON.stringify(plansData)}
-  data-brand-icons={JSON.stringify(modelBrandIcons)}
+  data-logos={JSON.stringify(logos)}
   data-host-tooltips={JSON.stringify(hostTooltips)}
   data-tier-tooltips={JSON.stringify(tierTooltips)}
   data-creator-tooltips={JSON.stringify(creatorTooltips)}
@@ -194,9 +196,9 @@ const priceBuckets = [
           </div>
         </details>
 
-        <button type="button" class="plans-filter-reset" data-reset aria-label="Reset all filters">
+        <Button variant="secondary" size="small" class="plans-filter-reset" data-reset>
           {translations.labelResetFilters || 'Reset filters'}
-        </button>
+        </Button>
       </div>
     )
   }
@@ -296,7 +298,7 @@ const priceBuckets = [
 
   function initModelsTable(section: HTMLElement) {
     const plansData = JSON.parse(section.dataset.plans || '[]');
-    const brandIcons = JSON.parse(section.dataset.brandIcons || '{}');
+    const logos = JSON.parse(section.dataset.logos || '{}');
     const hostTooltips = JSON.parse(section.dataset.hostTooltips || '{}');
     const tierTooltips = JSON.parse(section.dataset.tierTooltips || '{}');
     const creatorTooltips = JSON.parse(section.dataset.creatorTooltips || '{}');
@@ -794,7 +796,7 @@ const priceBuckets = [
       const cloudProviderFullName = model.cloudProviderFullName || getCloudProviderFullName(model.cloudProvider);
       const hostTooltip = hostTooltips[model.modelHost] || '';
       const tierTooltip = tierTooltips[modelTier] || '';
-      const creatorIcon = brandIcons[model.creator] || '';
+      const creatorIcon = logos[model.creator] || '';
       const loc = `${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation || '')}`;
       const contextText = model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark();
       const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of Use');
@@ -889,7 +891,7 @@ const priceBuckets = [
         const cloudProviderClass = getCloudProviderTagClass(model.cloudProvider);
         const hostTooltip = hostTooltips[model.modelHost] || '';
         const tierTooltip = tierTooltips[modelTier] || '';
-        const creatorIcon = brandIcons[model.creator] || '';
+        const creatorLogo = logos[model.creator] || '';
         const creatorTooltip = creatorTooltips[model.creator] || creatorTooltips['Other'] || model.creator;
         row.innerHTML = `
           <td>${hostTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 26rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(hostTooltip)}</span></span>` : `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>`}</td>
@@ -898,8 +900,8 @@ const priceBuckets = [
           <td class="mt-creator-cell">
             <span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;">
               <span class="ui-tooltip__trigger" tabindex="0">
-                <span class="creator-brand ${creatorIcon ? 'creator-brand--icon' : 'creator-brand--text'}" aria-label="${escapeHtml(model.creator)}">
-                  ${creatorIcon ? `<img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(model.creator)}" />` : `<span class="creator-brand__label">${escapeHtml(model.creator)}</span>`}
+                <span class="creator-brand ${creatorLogo ? 'creator-brand--icon' : 'creator-brand--text'}" aria-label="${escapeHtml(model.creator)}">
+                  ${creatorLogo ? `<img class="creator-brand__icon" src="${escapeHtml(creatorLogo)}" alt="${escapeHtml(model.creator)}" />` : `<span class="creator-brand__label">${escapeHtml(model.creator)}</span>`}
                 </span>
               </span>
               <span class="ui-tooltip__content" role="tooltip">${escapeHtml(creatorTooltip)}</span>
@@ -919,8 +921,8 @@ const priceBuckets = [
           ${legacy ? '' : `<td class="mt-num">${model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark()}</td>`}
           ${legacy ? '' : `<td>
             <span class="model-links">
-              ${model.termsOfUseUrl ? `<a href="${escapeHtml(model.termsOfUseUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkTermsOfUse || 'Terms of Use'}<svg class="model-links__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H21V10"/><path d="M21 3L10 14"/><path d="M11 5H6C4.89543 5 4 5.89543 4 7V18C4 19.1046 4.89543 20 6 20H17C18.1046 20 19 19.1046 19 18V13"/></svg></a>` : ''}
-              ${model.dataProtectionUrl ? `<a href="${escapeHtml(model.dataProtectionUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkDataProtection || 'Data Protection'}<svg class="model-links__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H21V10"/><path d="M21 3L10 14"/><path d="M11 5H6C4.89543 5 4 5.89543 4 7V18C4 19.1046 4.89543 20 6 20H17C18.1046 20 19 19.1046 19 18V13"/></svg></a>` : ''}
+              ${model.termsOfUseUrl ? `<a href="${escapeHtml(model.termsOfUseUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkTermsOfUse || 'Terms of Use'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}
+              ${model.dataProtectionUrl ? `<a href="${escapeHtml(model.dataProtectionUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkDataProtection || 'Data Protection'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}
               ${!model.termsOfUseUrl && !model.dataProtectionUrl ? '<span class="model-links__empty">—</span>' : ''}
             </span>
           </td>`}
@@ -1181,8 +1183,8 @@ const priceBuckets = [
 <style is:global>
   .models-table-section {
     margin-bottom: 2rem;
-    --model-link-color: var(--sl-color-text-accent);
-    --model-link-icon-color: var(--sl-color-text-accent);
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-text-body);
     --models-sort-active-color: var(--sl-color-accent);
   }
 
@@ -1265,13 +1267,7 @@ const priceBuckets = [
     position: sticky;
     top: 0;
     z-index: 5;
-    background: #f2f2f2;
-    color: #262626;
-    font-weight: 700;
-    padding-top: 0.65rem;
-    padding-bottom: 0.65rem;
-    vertical-align: bottom;
-    text-align: start;
+    line-height: var(--aifs-table-head-line-height);
     white-space: normal;
     overflow-wrap: normal;
     word-break: normal;
@@ -1285,12 +1281,6 @@ const priceBuckets = [
      tighten it, and give Model Name a min-width so it wraps across a few lines
      instead of one short word per line. Pair with word-break:normal below so
      names only ever break at spaces, never mid-word. */
-  .models-table-section .plans-table th[data-sort='creator'],
-  .models-table-section .plans-table td.mt-creator-cell {
-    padding-left: 0.4rem;
-    padding-right: 0.4rem;
-  }
-
   .models-table-section .plans-table th[data-sort='displayName'],
   .models-table-section .plans-table td.mt-model-name-cell {
     min-width: 10rem;
@@ -1306,24 +1296,10 @@ const priceBuckets = [
     line-height: 1.1;
   }
 
-  .models-table-section .plans-tag {
-    padding: 0.14rem 0.5rem;
-    font-size: 0.78rem;
-    font-weight: 600;
-    line-height: 1.2;
-    border-radius: 4px;
-  }
-
   :root[data-theme='dark'] .models-table-section {
-    --model-link-color: var(--aifs-d-link);
-    --model-link-icon-color: var(--aifs-d-link);
-    --models-sort-active-color: var(--aifs-d-link);
-  }
-
-  :root[data-theme='dark'] .models-table-section .plans-table th {
-    background: var(--aifs-d-surface);
-    color: var(--aifs-d-text);
-    border-bottom: 1px solid var(--aifs-d-border);
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-link-standard);
+    --models-sort-active-color: var(--aifs-color-link-standard);
   }
 
   .models-controls {
@@ -1380,13 +1356,13 @@ const priceBuckets = [
     display: none;
   }
 
+  /* Telekom's collapse-down icon, turned up while the filter is open. */
   .plans-filter > summary::after {
     content: '';
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 4px solid currentColor;
+    width: 1rem;
+    height: 1rem;
+    background: currentColor;
+    mask: url('../assets/icons/scale/navigation/collapse-down/default.svg') center / contain no-repeat;
     opacity: 0.65;
     transition: transform 120ms ease;
   }
@@ -1425,6 +1401,7 @@ const priceBuckets = [
     background: var(--sl-color-bg, var(--sl-color-gray-6));
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 6px;
+    /* TODO(token-gap): Telekom shadow tokens are not converted yet. */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     display: flex;
     flex-direction: column;
@@ -1446,23 +1423,7 @@ const priceBuckets = [
   }
 
   .plans-filter__option input[type='checkbox'] {
-    accent-color: #e20074;
-  }
-
-  .plans-filter-reset {
-    padding: 0.3rem 0.7rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--sl-color-text);
-    background: transparent;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 999px;
-    cursor: pointer;
-    margin-left: 0;
-  }
-
-  .plans-filter-reset:hover {
-    background: var(--sl-color-gray-6);
+    accent-color: var(--aifs-color-action-background);
   }
 
   .plans-filter-status {
@@ -1481,12 +1442,12 @@ const priceBuckets = [
   }
 
   th.sort-active .sort-header {
-    color: inherit;
+    color: var(--aifs-color-table-head-text);
   }
 
-  .sort-icon {
-    width: 0.4rem;
-    height: 0.3rem;
+  .models-table-section :global(.sort-icon) {
+    width: 1rem;
+    height: 1rem;
     flex: 0 0 auto;
     display: inline-block;
     opacity: 0.85;
@@ -1498,49 +1459,24 @@ const priceBuckets = [
       opacity 160ms ease;
   }
 
-  .sort-icon path {
-    fill: currentColor;
-  }
-
-  .sort-icon--active {
+  /* The arrow marks the sorted column; as a graphic it needs 3:1, which magenta
+     has on the grey head in both modes (4.1:1 light, 4.0:1 dark). */
+  .models-table-section :global(.sort-icon--active) {
     opacity: 1;
+    color: var(--aifs-color-brand-text);
   }
 
-  .sort-icon--asc {
+  .models-table-section :global(.sort-icon--asc) {
     transform: rotate(180deg);
   }
 
-  .sort-icon--desc {
+  .models-table-section :global(.sort-icon--desc) {
     transform: rotate(0deg);
   }
 
   .tag-external-cloud {
-    background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
+    background: var(--aifs-color-surface-subtle);
     color: var(--sl-color-text);
-  }
-
-  .models-table-section button.plans-tag.mt-cloud-tag-btn,
-  .models-table-section button.plans-tag.mt-tier-tag-btn {
-    border: 0;
-    margin: 0;
-    padding: 0.14rem 0.5rem;
-    font: inherit;
-    font-size: 0.78rem;
-    font-weight: 600;
-    line-height: 1.2;
-    cursor: pointer;
-    appearance: none;
-  }
-
-  .models-table-section button.plans-tag.mt-cloud-tag-btn:hover,
-  .models-table-section button.plans-tag.mt-tier-tag-btn:hover {
-    filter: brightness(1.08);
-  }
-
-  .models-table-section button.plans-tag.mt-cloud-tag-btn:focus-visible,
-  .models-table-section button.plans-tag.mt-tier-tag-btn:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
   }
 
   .ui-tooltip {
@@ -1564,13 +1500,14 @@ const priceBuckets = [
     max-width: min(var(--ui-tooltip-max-width, 24rem), calc(100vw - 2rem));
     padding: 0.65rem 0.85rem;
     border-radius: 0.75rem;
-    background: #232326;
-    color: white;
+    background: var(--aifs-color-tooltip-background);
+    color: var(--aifs-color-tooltip-text);
     font-size: 0.88rem;
     font-weight: 400;
     line-height: 1.35;
     white-space: normal;
     text-align: left;
+    /* TODO(token-gap): Telekom shadow tokens are not converted yet. */
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
     /* Hidden via display:none (not visibility) so the max-content box doesn't
        contribute invisible horizontal overflow to the page. allow-discrete +
@@ -1592,7 +1529,7 @@ const priceBuckets = [
     bottom: -0.45rem;
     width: 0.9rem;
     height: 0.9rem;
-    background: #232326;
+    background: var(--aifs-color-tooltip-background);
     transform: translateX(-50%) rotate(45deg);
     border-radius: 0.1rem;
   }
@@ -1658,29 +1595,10 @@ const priceBuckets = [
     justify-content: center;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 4px;
-    padding: 1px;
-    background: transparent;
-  }
-
-  :root[data-theme='dark'] .creator-brand--icon {
-    background: #f4f5f7;
     padding: 2px;
-    border-radius: 4px;
-    border-color: transparent;
+    background-color: var(--aifs-color-logo-background);
     box-sizing: content-box;
-    width: 20px;
-    height: 20px;
     line-height: 0;
-  }
-
-  :root[data-theme='dark'] .creator-brand__icon {
-    background: transparent;
-    padding: 0;
-    border-radius: 2px;
-    width: 20px;
-    height: 20px;
-    max-width: 20px;
-    max-height: 20px;
   }
 
   .creator-brand--text {
@@ -1740,19 +1658,8 @@ const priceBuckets = [
     color: var(--model-link-color);
   }
 
-  .model-links__icon {
-    width: 0.82rem;
-    height: 0.82rem;
-    display: inline-block;
-    flex: 0 0 auto;
-  }
-
-  .model-links__icon path {
-    stroke: var(--model-link-icon-color);
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+  /* .model-links__icon: drawn in icons.css (rows are built as HTML strings, so
+     scoped styles would not reach them). */
 
   .model-links__empty {
     color: var(--sl-color-text-accent);
