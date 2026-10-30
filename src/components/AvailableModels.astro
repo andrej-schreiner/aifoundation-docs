@@ -1,5 +1,5 @@
 ---
-import 'flag-icons/css/flag-icons.min.css';
+import Flag from './Flag.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
@@ -202,17 +202,13 @@ const INITIAL_COUNT = 6;
           <p class="model-card__where">
             <span>{model.provider}</span>
             <span aria-hidden="true">·</span>
-            {model.countryCode && (
-              <span class={`fi fi-${model.countryCode}`} role="presentation" aria-hidden="true" />
-            )}
+            {model.countryCode && <Flag code={model.countryCode} size={16} decorative />}
             <span>{model.hosted}</span>
           </p>
           {model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
             <p class="model-card__where model-card__where--extra">
               <span class="model-card__k">{t.dataProcessing}</span>
-              {model.dataProcessingCode && (
-                <span class={`fi fi-${model.dataProcessingCode}`} role="presentation" aria-hidden="true" />
-              )}
+              {model.dataProcessingCode && <Flag code={model.dataProcessingCode} size={16} decorative />}
               <span>{model.dataProcessing}</span>
             </p>
           )}
@@ -285,7 +281,7 @@ const INITIAL_COUNT = 6;
     color: var(--sl-color-white);
     border: 1px solid var(--sl-color-gray-5);
     border-radius: var(--aifs-table-radius, 8px);
-    padding: 12px 14px;
+    padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -302,11 +298,6 @@ const INITIAL_COUNT = 6;
     border-color: var(--aifs-color-action-background);
   }
 
-  :global(:root[data-theme='dark']) .model-card:hover {
-    background: var(--aifs-color-surface-subtle);
-    border-color: var(--aifs-color-border-subtle);
-  }
-
   .model-card--hidden {
     display: none;
   }
@@ -314,7 +305,7 @@ const INITIAL_COUNT = 6;
   .model-card__name {
     margin: 0;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
     line-height: 1.2;
     color: var(--sl-color-white);
     padding-right: 1.75rem;

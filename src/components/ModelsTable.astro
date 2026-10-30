@@ -4,7 +4,6 @@ import TextField from './TextField.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 
-import 'flag-icons/css/flag-icons.min.css';
 
 interface Props {
   plansData: any[];
@@ -209,18 +208,15 @@ const priceBuckets = [
   {
     !legacy && (
       <div class="mt-toolbar">
-        <label class="mt-sort">
-          <span>{translations.labelSortBy || 'Sort by'}</span>
-          <select data-sort-by>
-            <option value="catalog">{translations.labelSortCatalog || 'Recommended'}</option>
-            {sortOptions.map((header) => (
-              <option value={header.key}>{header.label}</option>
-            ))}
-          </select>
-        </label>
-        <button type="button" class="mt-expand-all" data-expand-all>
+        <Selector id="models-sort" label={translations.labelSortBy || 'Sort by'}>
+          <option value="catalog">{translations.labelSortCatalog || 'Recommended'}</option>
+          {sortOptions.map((header) => (
+            <option value={header.key}>{header.label}</option>
+          ))}
+        </Selector>
+        <Button variant="secondary" size="small" class="mt-expand-all" data-expand-all>
           {translations.labelExpandAll || 'Expand all details'}
-        </button>
+        </Button>
       </div>
     )
   }
@@ -291,6 +287,14 @@ const priceBuckets = [
   import { isPriceInRange } from '../shared/lib/priceRangeHelper';
   import { emptyMark, formatEuro } from '../shared/lib/displayFormat';
   import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
+  import { getFlag } from '../shared/lib/flags';
+
+  function flagHtml(code: string | undefined) {
+    if (!code) return '';
+    const src = getFlag(code);
+    if (!src) return '';
+    return `<img class="aifs-flag" src="${src}" width="16" height="16" alt="" /> `;
+  }
 
   type FilterState = Map<string, Set<string>>;
 
@@ -802,7 +806,7 @@ const priceBuckets = [
       const tierTooltip = tierTooltips[modelTier] || '';
       const creatorName = model.creator || '';
       const creatorIcon = logos[creatorName] || logos.Other || '';
-      const loc = `${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation || '')}`;
+      const loc = `${flagHtml(model.locationCode)}${escapeHtml(model.serverLocation || '')}`;
       const contextText = model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark();
       const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of Use');
       const privacy = linkItem(model.dataProtectionUrl, translations.linkDataProtection || 'Data Protection');
@@ -817,14 +821,14 @@ const priceBuckets = [
             <div class="mt-model__main">
               <span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" /></span>
               <strong>${escapeHtml(model.displayName)}</strong>
-              ${modelTier.toLowerCase() === 'premium' ? `<span class="plans-tag tag-premium">${escapeHtml(modelTier)}</span>` : ''}
+              ${modelTier.toLowerCase() === 'premium' ? `<span class="aifs-tag aifs-tag--small aifs-tag--yellow">${escapeHtml(modelTier)}</span>` : ''}
             </div>
           </td>
           <td class="mt-hosting">
             <span class="mt-card-label">${escapeHtml(translations.thHosting || 'Hosting')}</span>
-            <div class="mt-hosting__main">
+              <div class="mt-hosting__main">
               <span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>
-              <span>${escapeHtml(cloudProvider)}</span>
+              <span class="mt-cloud">${escapeHtml(cloudProvider)}</span>
             </div>
             <div class="mt-muted loc-wrapper">${loc}</div>
           </td>
@@ -846,7 +850,7 @@ const priceBuckets = [
             ${contextText}
           </td>
           <td class="mt-details-cell">
-            <button type="button" class="mt-details-btn" data-key="${escapeHtml(key)}" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${id}">
+            <button type="button" class="aifs-button aifs-button--ghost aifs-button--small mt-details-btn" data-key="${escapeHtml(key)}" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${id}">
               ${escapeHtml(translations.thDetails || 'Details')}${chevron}
             </button>
           </td>
@@ -854,7 +858,7 @@ const priceBuckets = [
         <tr class="mt-details-row" id="${id}" data-key="${escapeHtml(key)}" ${open ? '' : 'hidden="until-found"'}>
           <td colspan="7">
             <dl class="mt-details">
-              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="plans-tag tag-premium">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
+              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="aifs-tag aifs-tag--small aifs-tag--yellow">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
               <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
               <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
@@ -918,7 +922,7 @@ const priceBuckets = [
           <td class="mt-num"><strong>${formatPrice(model.inputPrice)}</strong></td>
           <td class="mt-num"><strong>${formatPrice(model.outputPrice)}</strong></td>
           ${legacy ? '' : `<td class="mt-num"><strong>${formatCachedPrice(model)}</strong></td>`}
-          <td class="mt-num"><div class="loc-wrapper">${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation)}</div></td>
+          <td class="mt-num"><div class="loc-wrapper">${flagHtml(model.locationCode)}${escapeHtml(model.serverLocation)}</div></td>
           <td class="mt-num">${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
           <td class="mt-num">${formatNumber(model.tpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
           ${legacy ? '' : `<td class="mt-num">${model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark()}</td>`}
@@ -960,7 +964,7 @@ const priceBuckets = [
         if (visibleCountEl) visibleCountEl.textContent = String(models.length);
         if (totalCountEl) totalCountEl.textContent = String(totalRows);
         updateChipCounts();
-        const sortSelect = section.querySelector<HTMLSelectElement>('[data-sort-by]');
+        const sortSelect = section.querySelector<HTMLSelectElement>('#models-sort');
         if (sortSelect) sortSelect.value = sortKey;
         syncExpandButton();
       }
@@ -1075,7 +1079,7 @@ const priceBuckets = [
       });
     }
 
-    const sortSelect = section.querySelector<HTMLSelectElement>('[data-sort-by]');
+    const sortSelect = section.querySelector<HTMLSelectElement>('#models-sort');
     if (sortSelect) {
       sortSelect.value = sortKey;
       sortSelect.addEventListener('change', () => {
@@ -1400,7 +1404,7 @@ const priceBuckets = [
   }
 
   .plans-filter__label {
-    font-weight: 600;
+    font-weight: 700;
   }
 
   .plans-filter__count {
@@ -1654,7 +1658,7 @@ const priceBuckets = [
   }
 
   .creator-brand__label {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 0.875rem;
     white-space: nowrap;
     font-style: normal;
@@ -1725,28 +1729,8 @@ const priceBuckets = [
     flex-wrap: wrap;
   }
 
-  .mt-sort {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.875rem;
-  }
-
-  .mt-sort select,
-  .mt-expand-all,
-  .mt-details-btn {
-    font: inherit;
-    font-size: 0.875rem;
-    border: 1px solid var(--sl-color-gray-4);
-    border-radius: 6px;
-    background: transparent;
-    color: inherit;
-    padding: 0.35rem 0.65rem;
-  }
-
-  .mt-expand-all,
-  .mt-details-btn {
-    cursor: pointer;
+  .mt-toolbar .aifs-select {
+    min-width: 12rem;
   }
 
   .mt-compact th[data-sort] {
@@ -1790,15 +1774,9 @@ const priceBuckets = [
     box-sizing: border-box;
   }
 
-  .mt-compact .plans-tag {
-    height: 16px;
-    padding-inline: 4px;
-    font-size: 11px;
-  }
-
   .mt-compact .mt-muted {
-    font-size: 12px;
-    line-height: 16px;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 1.15;
   }
 
   .mt-compact .mt-model__main,
@@ -1819,13 +1797,22 @@ const priceBuckets = [
   .mt-muted,
   .mt-explain {
     color: var(--sl-color-gray-3);
-    font-size: 0.8125rem;
+    font-size: var(--aifs-text-small-font-size);
   }
 
   /* Host, location and each limit stay on their own line. A third wrap is what
      stretched the plans table around 1024px. Overflow clips with an ellipsis
      instead of growing the row. */
-  .mt-compact .mt-hosting__main,
+  .mt-compact .mt-cloud {
+    min-width: 0;
+    white-space: normal;
+  }
+
+  .mt-compact .mt-hosting__main {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
   .mt-compact .loc-wrapper,
   .mt-compact .mt-limits > div,
   .mt-compact .mt-input .mt-muted {
@@ -1849,37 +1836,13 @@ const priceBuckets = [
     min-width: 0;
   }
 
-  .mt-details-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.25rem;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 2px 8px;
-    font-size: 12px;
-    line-height: 16px;
-    white-space: nowrap;
-  }
-
   .mt-details-btn[aria-expanded='true'] {
-    background: #e20074;
-    border-color: #e20074;
-    color: #fff;
+    background: var(--aifs-button-ghost-background-pressed);
+    color: var(--aifs-button-ghost-text-pressed);
   }
 
   .mt-details-btn[aria-expanded='true'] .mt-chevron {
     transform: rotate(180deg);
-  }
-
-  .mt-compact .tag-premium {
-    background: transparent !important;
-    color: var(--sl-color-text) !important;
-    box-shadow: inset 0 0 0 1px #e20074 !important;
-  }
-
-  :root[data-theme='dark'] .mt-compact .tag-premium {
-    box-shadow: inset 0 0 0 1px #ff52a3 !important;
   }
 
   .mt-details {

@@ -88,6 +88,17 @@ starlight-menu-button svg.close-menu {
 	--aifs-icon: url('../assets/icons/scale/action/arrow-right/default.svg');
 }
 
+/* Round flags in rows built as HTML (the Flag component styles its own). */
+img.aifs-flag {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	border-radius: 50%;
+	outline: 1px solid var(--aifs-color-media-outline);
+	outline-offset: -1px;
+	vertical-align: -0.15em;
+}
+
 /* Links in the sidebar that open another site get Telekom's external-link
    icon. Their aria-label already says "(opens in new tab)", so the icon is
    decoration. */
