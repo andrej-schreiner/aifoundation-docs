@@ -51,24 +51,10 @@
 	border: 1px solid var(--sl-color-accent);
 }
 
-/* Link Card Row — side by side */
-.link-card-row {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-	gap: 1rem;
-}
-
-.link-card-row > .sl-link-card {
-	margin: 0;
-}
+/* Link-card rows and Starlight CardGrid live in redesign.css.
+   A flex + space-around rule here used to shrink each card to its text. */
 
 /* Overview Page — Hover Cards */
-.card-grid {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-around;
-	gap: 16px;
-}
 
 .hover-card {
 	flex: 1 1 30%;

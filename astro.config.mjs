@@ -58,17 +58,16 @@ export default defineConfig({
 			],
 			components: {
 				Footer: './src/components/Footer.astro',
-				SocialIcons: './src/components/HeaderApiKeyLink.astro',
-				SiteTitle: './src/components/MobileApiKeyLink.astro',
+				Header: './src/components/SiteHeader.astro',
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',
 				alt: 'AI Foundation Services LLM serving',
 			},
 			favicon: '/img/favicon_180x180.png',
-			customCss: ['./src/styles/custom.css'],
+			customCss: ['./src/styles/custom.css', './src/styles/redesign.css'],
 			expressiveCode: {
-				themes: ['dracula'],
+				themes: ['github-light', 'github-dark'],
 			},
 			plugins: [
 				starlightVersions({
