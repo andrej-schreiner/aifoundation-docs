@@ -567,3 +567,29 @@ html:not([data-has-sidebar]) .meta {
 	color: var(--aifs-d-text);
 	border-color: var(--aifs-d-border);
 }
+
+/* Header version, theme, and language selects stay transparent, matching light mode. */
+:root[data-theme='dark'] .ts-header select {
+	background-color: transparent;
+	color: var(--aifs-d-text-body);
+	border-color: transparent;
+}
+
+:root[data-theme='dark'] .ts-header label {
+	color: var(--aifs-d-text-body);
+}
+
+:root[data-theme='dark'] .ts-header label :is(.caret, .caret-icon) {
+	color: var(--aifs-d-text-muted);
+}
+
+:root[data-theme='dark'] .ts-header label:hover select,
+:root[data-theme='dark'] .ts-header label:focus-within select {
+	background-color: var(--aifs-d-surface);
+	color: var(--aifs-d-text-body);
+}
+
+:root[data-theme='dark'] .ts-header select:focus-visible {
+	outline: 2px solid var(--aifs-d-text);
+	outline-offset: 2px;
+}
