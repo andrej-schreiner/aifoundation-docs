@@ -480,7 +480,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   vision: 'Vision',
   embeddings: 'Embedding',
   audio: 'Audio',
-  'image-generation': isDE ? 'Bildgenerierung' : 'Image Generation',
+  'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image Generation',
 };
 
 const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
@@ -526,7 +526,7 @@ function formatContextLabel(raw: string | null | undefined): string {
   if (blankContext(raw)) return '—';
   const text = (raw ?? '').trim();
   const compact = text.replace(/,/g, '');
-  if (compact === '102400') return '102K';
+  if (compact === '102400') return '102.4K';
   if (/^1050k$/i.test(compact)) return '1.05M';
   return text;
 }
@@ -760,8 +760,8 @@ const rowDataPayload = allModels.map((m) => ({
               )}
               <td data-label={t.colProvider}>
                 <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
-                  <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]}>
-                    <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
+                  <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
+                    {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
                   </span>
                 </Tooltip>
               </td>
@@ -781,7 +781,10 @@ const rowDataPayload = allModels.map((m) => ({
               </td>
               <td data-label={t.colInput}>
                 {m.capabilities.inputModalities.map((mod, index) => (
-                  <span class="mc-mod">{MODALITY_LABELS[mod]}{index < m.capabilities.inputModalities.length - 1 ? ',' : ''}</span>
+                  <>
+                    {index > 0 ? ' ' : ''}
+                    <span class="mc-mod">{MODALITY_LABELS[mod]}{index < m.capabilities.inputModalities.length - 1 ? ',' : ''}</span>
+                  </>
                 ))}
               </td>
               <td class="center" data-label={t.colStreaming}>
@@ -831,8 +834,8 @@ const rowDataPayload = allModels.map((m) => ({
               <td class="mc-mobile-cell">
                 <div class="mc-m">
                   <div class="mc-m__top">
-                    <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]}>
-                      <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
+                    <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
+                      {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
                     </span>
                     <strong class="mc-m__name">{m.displayModelName}</strong>
                     <Button
@@ -1545,7 +1548,7 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table {
     display: table;
     width: 100%;
-    min-width: 56rem;
+    min-width: 64rem;
     table-layout: fixed;
     border-collapse: collapse;
     font-size: 0.8125rem;
@@ -1556,12 +1559,10 @@ const rowDataPayload = allModels.map((m) => ({
     min-width: 80rem;
   }
 
-  /* Category pages fit the sheet at viewport 1280. The catalog table keeps
-     its min-width and scrolls. */
-  @container comparison (min-width: 52rem) {
-    .models-comparison-table:not(:has(th[data-sort='category'])) {
-      min-width: 0;
-    }
+  .models-comparison-table .mc-sort-icon {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
   }
 
   .models-comparison-table th,
@@ -1597,7 +1598,8 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1.15;
     font-size: 11px;
     vertical-align: bottom;
-    hyphens: manual;
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
 
   /* 13 columns in the sheet beside the sidebar (~850px at 1280).
@@ -1607,15 +1609,15 @@ const rowDataPayload = allModels.map((m) => ({
     width: 14%;
     min-width: 0;
   }
-  .models-comparison-table th[data-sort='provider'] { width: 5.5%; }
-  .models-comparison-table th[data-sort='cloud'] { width: 9.5%; }
+  .models-comparison-table th[data-sort='provider'] { width: 7%; }
+  .models-comparison-table th[data-sort='cloud'] { width: 8.5%; }
   .models-comparison-table th[data-sort='input'] { width: 8%; }
   .models-comparison-table th[data-sort='streaming'] { width: 7.5%; }
   .models-comparison-table th[data-sort='tools'] { width: 5%; }
   .models-comparison-table th[data-sort='context'] { width: 6.5%; }
-  .models-comparison-table th[data-sort='reasoningEffort'] { width: 9%; }
-  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 7.5%; }
-  .models-comparison-table th[data-sort='inputPrice'],
+  .models-comparison-table th[data-sort='reasoningEffort'] { width: 8.5%; }
+  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
+  .models-comparison-table th[data-sort='inputPrice'] { width: 5.5%; }
   .models-comparison-table th[data-sort='outputPrice'] { width: 6%; }
   .models-comparison-table th[data-sort='cachedInputPrice'] { width: 5.5%; }
   .models-comparison-table th[data-sort='plans'] { width: 10%; }
@@ -1632,24 +1634,21 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table .mc-sort-header {
-    display: block;
-    position: relative;
+    display: flex;
     width: 100%;
     max-width: 100%;
     min-width: 0;
     white-space: normal;
-    text-align: start;
-  }
-
-  .models-comparison-table .mc-sort-icon {
-    position: absolute;
-    inset-inline-end: 0;
-    top: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px;
   }
 
   .models-comparison-table .mc-sort-header > span {
-    display: inline;
-    padding-inline-end: 14px;
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
     white-space: normal;
   }
 
@@ -1671,7 +1670,13 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table tbody td {
     vertical-align: top;
     min-width: 0;
-    overflow-wrap: break-word;
+    overflow-wrap: normal;
+  }
+
+  .models-comparison-table td[data-label='Category'],
+  .models-comparison-table td[data-label='Kategorie'] {
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
 
   .models-comparison-table td[data-label='Model'] strong,
@@ -1690,14 +1695,12 @@ const rowDataPayload = allModels.map((m) => ({
     font-size: 12px;
   }
 
-  /* Comma stays with the word. A wrap starts the next modality, not ", Audio". */
+  /* Each modality is one unbreakable item. The comma stays on that item, so the
+     next line starts at the next word. */
   .models-comparison-table .mc-mod {
     display: inline-block;
     white-space: nowrap;
     max-width: 100%;
-  }
-  .models-comparison-table .mc-mod + .mc-mod {
-    margin-inline-start: 0.25rem;
   }
 
   .models-comparison-table td[data-label='Model'] strong,
@@ -1744,9 +1747,7 @@ const rowDataPayload = allModels.map((m) => ({
     white-space: nowrap;
     overflow: visible;
     max-width: 100%;
-    font-size: 10px;
-    padding: 0 2px;
-    border: 0;
+    font-size: 12px;
   }
 
   /* Field paths may break after the dot (<wbr>) instead of widening the row. */
@@ -1802,7 +1803,7 @@ const rowDataPayload = allModels.map((m) => ({
     justify-content: center;
     overflow: hidden;
     box-sizing: border-box;
-    padding: 2px;
+    padding: 0;
     border: 1px solid var(--aifs-color-border-subtle);
     border-radius: 4px;
     background: var(--aifs-color-logo-background);
@@ -1812,14 +1813,18 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison .creator-brand--zoom {
     padding: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 175%;
   }
 
   .models-comparison .creator-brand--tile .creator-brand__icon {
     display: block;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 0 !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
     padding: 0;
     border: 0;
     border-radius: 0;
@@ -1827,16 +1832,6 @@ const rowDataPayload = allModels.map((m) => ({
     object-fit: contain;
   }
 
-  .models-comparison .creator-brand--tile.creator-brand--zoom .creator-brand__icon {
-    width: 175%;
-    height: 175%;
-    min-width: 175%;
-    min-height: 175%;
-    max-width: none;
-    max-height: none;
-    flex: 0 0 auto;
-    object-fit: contain;
-  }
 
   .models-comparison .creator-brand:not(:has(img)),
   .models-comparison .creator-brand__fallback {
@@ -1920,6 +1915,12 @@ const rowDataPayload = allModels.map((m) => ({
 
   /* Compact list under ~40rem. The wide table stays above that and scrolls. */
   @container comparison (max-width: 40rem) {
+    .models-comparison,
+    .models-comparison__scroll {
+      padding-inline: 0;
+      margin-inline: 0;
+    }
+
     .models-comparison__filterbar {
       flex-wrap: nowrap;
       align-items: center;
@@ -2002,11 +2003,11 @@ const rowDataPayload = allModels.map((m) => ({
       display: none;
     }
 
-    .models-comparison-table td.mc-mobile-cell {
+    .models-comparison .models-comparison-table td.mc-mobile-cell {
       display: block;
       min-width: 0 !important;
-      width: auto;
-      padding: 0;
+      width: 100%;
+      padding: 0 !important;
       border: 0;
       position: static;
       white-space: normal;

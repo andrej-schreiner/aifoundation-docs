@@ -193,8 +193,8 @@ mobile-starlight-toc nav {
 		padding-bottom: 5rem;
 	}
 
-	/* Right-edge controls (Details, copy) stay clear of the launcher. */
-	.models-comparison,
+	/* Catalog copy buttons stay clear of the launcher. The model list uses
+	   the same inset on both sides, the page padding only. */
 	.available-models {
 		padding-inline-end: 3.25rem;
 	}
@@ -230,6 +230,10 @@ mobile-starlight-toc nav {
 .sl-markdown-content
 	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *)) {
 	max-width: var(--aifs-layout-measure);
+}
+
+.nowrap {
+	white-space: nowrap;
 }
 
 .sl-markdown-content > .choose-desktop {
