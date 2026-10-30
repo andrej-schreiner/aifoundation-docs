@@ -1,6 +1,6 @@
 ---
 title: "AI Foundation Services"
-description: "KI in Europa betreiben mit voller Datensouveränität. 30+ LLMs über eine einzige OpenAI-kompatible API — DSGVO-konform, betrieben auf der T-Cloud in Deutschland."
+description: "KI in Europa betreiben mit voller Datensouveränität. Open-Source- und proprietäre LLMs über eine einzige OpenAI-kompatible API — DSGVO-konform, betrieben auf der T-Cloud in Deutschland."
 head:
   - tag: title
     content: "AI Foundation Services"
@@ -8,8 +8,9 @@ head:
 
 import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../../components/AvailableModels.astro';
+import { availableModelCount } from '../../../data/catalog.mjs';
 
-Die souveräne europäische KI-Plattform von T-Systems. Nutzen Sie über 30 Open-Source- und proprietäre LLMs über eine OpenAI-kompatible API, mit souveränem EU-Hosting für Open-Source-Modelle. Wechseln Sie von OpenAI mit nur einer Zeile Code. Details zum Datenverarbeitungs-Modell finden Sie unter [Enterprise Trust](/de/reference/enterprise-trust).
+Die souveräne europäische KI-Plattform von T-Systems. Nutzen Sie {availableModelCount} Open-Source- und proprietäre LLMs über eine OpenAI-kompatible API, mit souveränem EU-Hosting für Open-Source-Modelle. Wechseln Sie von OpenAI mit nur einer Zeile Code. Details zum Datenverarbeitungs-Modell finden Sie unter [Enterprise Trust](/de/reference/enterprise-trust).
 
 <div class="hero-badges">
   <span class="hero-badge">EU-Datensouveränität</span>

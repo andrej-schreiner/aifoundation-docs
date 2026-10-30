@@ -9,6 +9,7 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import Tooltip from './Tooltip.astro';
+import { formatLifecycle, lifecycleFor } from '../data/catalog.mjs';
 // Per-model reasoning_effort values from the platform datasheet; refreshed by
 // scripts/fetch-model-parameters.mjs before each build, kept as last known good.
 import reasoningEffortData from '../data/reasoning-effort.json';
@@ -326,6 +327,8 @@ interface CompiledModel {
   cachedPricingPublished: boolean;
   plans: string[];
   capabilities: Capabilities;
+  lifecycleLabel: string;
+  lifecycleStatus: string;
 }
 
 // Datasheet model names are matched to exactModelName case-insensitively: the
@@ -385,6 +388,8 @@ for (const pkg of pricingData as Array<{
       cachedPricingPublished: hasCachedTokenPricing(deploymentRegion),
       plans: [pkg.packageName],
       capabilities,
+      lifecycleLabel: formatLifecycle(entry.displayModelName as string, isDE),
+      lifecycleStatus: lifecycleFor(entry.displayModelName as string)?.status ?? '',
     });
   }
 }
@@ -666,7 +671,7 @@ const rowDataPayload = allModels.map((m) => ({
             { key: 'cachedInputPrice', label: t.colCachedPrice, cls: 'num', tooltip: t.tooltipCachedPrice },
             { key: 'plans', label: t.colPlans, cls: '', tooltip: undefined as string | undefined },
           ].map((h) => (
-            <th data-sort={h.key} class={h.cls}>
+            <th data-sort={h.key} class={h.cls} aria-sort={h.key === 'cloud' ? 'ascending' : 'none'}>
               {h.tooltip ? (
                 <Tooltip text={h.tooltip} maxWidth="22rem">
                   <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
@@ -694,7 +699,14 @@ const rowDataPayload = allModels.map((m) => ({
           const fullCloud = cloudFullName(m.cloud);
           return (
             <tr data-key={m.exactModelName}>
-              <td><strong>{m.displayModelName}</strong></td>
+              <td>
+                <strong>{m.displayModelName}</strong>
+                {m.lifecycleLabel && (
+                  <a class={`mc-lifecycle mc-lifecycle--${m.lifecycleStatus}`} href={`${localePrefix}/models/scheduled-for-retirement`}>
+                    {m.lifecycleLabel}
+                  </a>
+                )}
+              </td>
               {!categoryFilter && (
                 <td>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
               )}
@@ -1018,6 +1030,7 @@ const rowDataPayload = allModels.map((m) => ({
         const icon = th.querySelector<SVGElement>('.mc-sort-icon');
         const isActive = th.dataset.sort === sortKey;
         th.classList.toggle('mc-sort-active', isActive);
+        th.setAttribute('aria-sort', isActive ? (sortAsc ? 'ascending' : 'descending') : 'none');
         if (icon) {
           icon.classList.toggle('mc-sort-icon--active', isActive);
           icon.classList.toggle('mc-sort-icon--asc', isActive && sortAsc);
@@ -1444,6 +1457,32 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison .tag-cloud {
     background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
     color: var(--sl-color-text);
+  }
+
+  /* Dark mix of gray-5 and white with --sl-color-text is about 2.8:1. */
+  :root[data-theme='dark'] .models-comparison .tag-cloud {
+    background: #2a3142;
+    color: #f2f3f5;
+  }
+
+  .mc-lifecycle {
+    display: block;
+    margin-top: 0.2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .mc-lifecycle--deprecated,
+  .mc-lifecycle--retiring {
+    color: #9e0050;
+  }
+
+  :root[data-theme='dark'] .mc-lifecycle--deprecated,
+  :root[data-theme='dark'] .mc-lifecycle--retiring {
+    color: #ff70b8;
   }
 
   .models-comparison .mc-plans {

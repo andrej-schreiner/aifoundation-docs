@@ -1,7 +1,10 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import starlightVersions from 'starlight-versions';
+
+const ARCHIVE_PATH = /\/(?:v1|v1-1-0|v1-2-0)(?:\/|$)/;
 
 // https://astro.build/config
 export default defineConfig({
@@ -27,8 +30,18 @@ export default defineConfig({
 		'/de/guides/asynchronous-requests': '/de/guides/queued-requests',
 	},
 	integrations: [
+		// Own sitemap so archived snapshots can be filtered out. Starlight skips
+		// its built-in sitemap when @astrojs/sitemap is already registered.
+		sitemap({
+			filter: (page) => !ARCHIVE_PATH.test(new URL(page).pathname),
+			i18n: {
+				defaultLocale: 'root',
+				locales: { root: 'en', de: 'de' },
+			},
+		}),
 		starlight({
 			title: 'AI Foundation Services',
+			lastUpdated: true,
 			head: [
 				{
 					// Embedded T-Systems chat widget, loaded site-wide. The deferred
@@ -58,6 +71,7 @@ export default defineConfig({
 			],
 			components: {
 				Footer: './src/components/Footer.astro',
+				Head: './src/components/Head.astro',
 				SocialIcons: './src/components/HeaderApiKeyLink.astro',
 				SiteTitle: './src/components/MobileApiKeyLink.astro',
 			},

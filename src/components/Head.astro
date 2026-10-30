@@ -1,0 +1,16 @@
+---
+import Default from '@astrojs/starlight/components/Head.astro';
+
+// Archived doc snapshots (starlight-versions) must not be indexed.
+// Current pages stay indexable. Finding 12.
+const archived = /\/(?:v1|v1-1-0|v1-2-0)(?:\/|$)/.test(Astro.url.pathname);
+if (archived) {
+  Astro.locals.starlightRoute.head.push({
+    tag: 'meta',
+    attrs: { name: 'robots', content: 'noindex, follow' },
+    content: '',
+  });
+}
+---
+
+<Default {...Astro.props}><slot /></Default>

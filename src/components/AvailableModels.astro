@@ -1,6 +1,7 @@
 ---
 import 'flag-icons/css/flag-icons.min.css';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { formatLifecycle, lifecycleFor } from '../data/catalog.mjs';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
@@ -12,6 +13,11 @@ const t = {
   showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show More ({count} more)',
   showLess: isDE ? 'Weniger anzeigen' : 'Show Less',
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
+  deprecatedHeading: isDE ? 'Veraltet' : 'Deprecated',
+  deprecatedIntro: isDE
+    ? 'Diese Modelle sind veraltet und werden am 31.10.2026 stillgelegt. Migrieren Sie vor diesem Datum.'
+    : 'These models are deprecated and retire on 2026-10-31. Migrate before that date.',
+  retirementLink: isDE ? 'Zur Stilllegung vorgesehen' : 'Scheduled for Retirement',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
@@ -168,6 +174,8 @@ interface ModelCard {
   dataProcessing: string;
   dataProcessingCode: string;
   preview?: boolean;
+  lifecycle: { status: string; date: string; replacement: string } | null;
+  lifecycleLabel: string;
 }
 
 // Build model cards from pricing data (filtering out offline models)
@@ -186,6 +194,8 @@ const pricingModels: ModelCard[] = configs
       dataProcessing,
       dataProcessingCode,
       preview: c.isPreview,
+      lifecycle: lifecycleFor(c.displayModelName),
+      lifecycleLabel: formatLifecycle(c.displayModelName, isDE),
     };
   });
 
@@ -199,7 +209,11 @@ for (const m of allModels) {
 }
 
 // Sort: preview (newest) first, then by priority list, then alphabetical for unlisted
-const sortedModels = [...modelMap.values()].sort((a, b) => {
+const sortedModels = [...modelMap.values()].map((model) => ({
+  ...model,
+  lifecycle: model.lifecycle ?? lifecycleFor(model.name),
+  lifecycleLabel: model.lifecycleLabel || formatLifecycle(model.name, isDE),
+})).sort((a, b) => {
   if (a.preview !== b.preview) return a.preview ? -1 : 1;
   const ai = SORT_ORDER.indexOf(a.name);
   const bi = SORT_ORDER.indexOf(b.name);
@@ -209,20 +223,24 @@ const sortedModels = [...modelMap.values()].sort((a, b) => {
   return a.name.localeCompare(b.name);
 });
 
+const availableModels = sortedModels.filter((model) => model.lifecycle?.status !== 'deprecated');
+const deprecatedModels = sortedModels.filter((model) => model.lifecycle?.status === 'deprecated');
+const retirementHref = `${isDE ? '/de' : ''}/models/scheduled-for-retirement`;
+
 const INITIAL_COUNT = 6;
 ---
 
 <div class="available-models">
   <h2 class="models-heading">
     {t.sectionHeading}{' '}
-    <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(sortedModels.length))}>
-      ({sortedModels.length})
+    <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(availableModels.length))}>
+      ({availableModels.length})
     </span>
   </h2>
   <span id="copy-status" class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="models-grid" id="models-grid">
     {
-      sortedModels.map((model, index) => (
+      availableModels.map((model, index) => (
         <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
           <button
             class="model-card__copy"
@@ -269,6 +287,11 @@ const INITIAL_COUNT = 6;
             {model.name}
             {model.preview && <span class="model-card__preview-tag"> – Preview</span>}
           </h3>
+          {model.lifecycleLabel && (
+            <a class={`model-card__lifecycle model-card__lifecycle--${model.lifecycle?.status ?? 'retiring'}`} href={retirementHref}>
+              {model.lifecycleLabel}
+            </a>
+          )}
           <div class="model-card__details">
             <span>
               {t.cloud}: <strong>{model.provider}</strong>
@@ -301,21 +324,56 @@ const INITIAL_COUNT = 6;
     }
   </div>
   {
-    sortedModels.length > INITIAL_COUNT && (
+    availableModels.length > INITIAL_COUNT && (
       <button
         class="models-toggle"
         id="models-toggle"
         type="button"
         aria-controls="models-grid"
         aria-expanded="false"
-        data-total={sortedModels.length}
+        data-total={availableModels.length}
         data-initial={INITIAL_COUNT}
         data-show-more-template={t.showMoreTemplate}
         data-show-less={t.showLess}>
-        {t.showMoreTemplate.replace('{count}', String(sortedModels.length - INITIAL_COUNT))}
+        {t.showMoreTemplate.replace('{count}', String(availableModels.length - INITIAL_COUNT))}
       </button>
     )
   }
+  {deprecatedModels.length > 0 && (
+    <div class="deprecated-models">
+      <h2 class="models-heading">
+        {t.deprecatedHeading}{' '}
+        <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(deprecatedModels.length))}>
+          ({deprecatedModels.length})
+        </span>
+      </h2>
+      <p>
+        {t.deprecatedIntro}{' '}
+        <a href={retirementHref}>{t.retirementLink}</a>.
+      </p>
+      <div class="models-grid">
+        {deprecatedModels.map((model) => (
+          <div class="model-card model-card--deprecated">
+            <h3 class="model-card__name">{model.name}</h3>
+            <a class="model-card__lifecycle model-card__lifecycle--deprecated" href={retirementHref}>
+              {model.lifecycleLabel}
+            </a>
+            <div class="model-card__details">
+              <span>
+                {t.cloud}: <strong>{model.provider}</strong>
+              </span>
+              <span>
+                {t.serverLocation}: <strong>{model.hosted}</strong>
+              </span>
+              <span>
+                {t.dataProcessing}: <strong>{model.dataProcessing}</strong>
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
 </div>
 
 <style>
@@ -384,6 +442,30 @@ const INITIAL_COUNT = 6;
   .model-card__preview-tag {
     font-weight: 500;
     color: var(--sl-color-text-accent);
+  }
+
+  .model-card__lifecycle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* #e20074 on the gray card fails AA. #9e0050 on the light card is 7.06:1;
+     #ff70b8 on the dark card is 5.81:1. */
+  .model-card__lifecycle--deprecated,
+  .model-card__lifecycle--retiring {
+    color: #9e0050;
+  }
+
+  :global(:root[data-theme='dark']) .model-card__lifecycle--deprecated,
+  :global(:root[data-theme='dark']) .model-card__lifecycle--retiring {
+    color: #ff70b8;
+  }
+
+  .deprecated-models {
+    margin-top: 2rem;
   }
 
   .model-card__copy {

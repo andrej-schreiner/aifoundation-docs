@@ -6,12 +6,14 @@
   "scripts": {
     "dev": "bunx --bun astro dev",
     "start": "bunx --bun astro dev",
-    "build": "bunx --bun astro build",
+    "build": "bun run scripts/sync-model-retirement.mjs && bun run scripts/generate-llms-txt.mjs && bunx --bun astro build",
+    "llms": "bun run scripts/sync-model-retirement.mjs && bun run scripts/generate-llms-txt.mjs",
     "datasheet": "bun run scripts/fetch-model-parameters.mjs",
     "preview": "bunx --bun astro preview",
     "astro": "bunx --bun astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
     "@astrojs/starlight": "^0.38.2",
     "astro": "^6.0.1",
     "flag-icons": "^7.5.0",

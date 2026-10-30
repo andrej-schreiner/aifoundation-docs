@@ -111,7 +111,7 @@ const bars = isDE
     padding: 0.125rem 0.5rem;
     border-radius: 999px;
     background: var(--sl-color-accent);
-    color: var(--sl-color-white);
+    color: #ffffff;
     font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -124,7 +124,9 @@ const bars = isDE
     color: var(--sl-color-text);
   }
   .qp-msg :global(b) {
-    color: var(--sl-color-text-accent);
+    /* #e20074 on the light banner (#fce4ef) is 3.89:1. accent-high is #9e0050
+       in light (6.8:1) and #ff4da6 in dark (5.66:1 on #3d0019). */
+    color: var(--sl-color-accent-high);
     font-weight: 600;
   }
 
@@ -133,7 +135,7 @@ const bars = isDE
     padding: 0.3125rem 0.75rem;
     border-radius: 7px;
     background: var(--sl-color-accent);
-    color: var(--sl-color-white);
+    color: #ffffff;
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
@@ -141,7 +143,8 @@ const bars = isDE
   }
   .qp-cta:hover,
   .qp-cta:focus-visible {
-    background: var(--sl-color-accent-high);
+    background: #9e0050;
+    color: #ffffff;
   }
 
   .qp-close {

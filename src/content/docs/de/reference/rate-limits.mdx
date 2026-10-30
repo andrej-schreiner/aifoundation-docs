@@ -5,6 +5,7 @@ description: "Token- und Anfrage-Rate-Limits je Tarifstufe im LLM Hub, mit Hinwe
 
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { planModelCounts } from '../../../../data/catalog.mjs';
 
 Rate-Limits schützen den Dienst und gewährleisten eine faire Nutzung. Limits werden pro Tarif definiert und variieren je nach Modell. Jeder RPM- und TPM-Wert unten ist mit einem Sternchen <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> markiert — klicken Sie darauf für die vollständigen Bedingungen, unter denen diese Werte angegeben sind.
 
@@ -15,7 +16,7 @@ Limits variieren sowohl nach Tarif als auch nach Modell. Die folgende Tabelle ze
 
 | Metrik | Essential | Professional | Agentic |
 |---|---|---|---|
-| **Verfügbare Modelle** | 42 | 44 | 44 |
+| **Verfügbare Modelle** | {planModelCounts.Essential} | {planModelCounts.Professional} | {planModelCounts.Agentic} |
 | **Beispiel-RPM** <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 ### Beispiel: Limits pro Modell je Tarif
@@ -71,10 +72,10 @@ Manche `429`-Antworten haben diese Ursache: Anfragen, die ein clientseitiger Tim
 
 ## Rate-Limit-Antwort-Header
 
-Antworten von Azure-gehosteten Modellen (GPT, o-Serie) enthalten Header, die Ihnen helfen, die Nutzung im Verhältnis zu den Limits zu verfolgen:
+Antworten von Azure-gehosteten Modellen (GPT) enthalten Header, die Ihnen helfen, die Nutzung im Verhältnis zu den Limits zu verfolgen:
 
 :::note
-Rate-Limit-Header werden derzeit von Azure-gehosteten Modellen zurückgegeben (z. B. `gpt-5`, `gpt-5-mini`). Open-Source-Modelle, die auf T-Cloud gehostet werden (z. B. `gpt-oss-120b`), geben diese Header nicht zurück.
+Rate-Limit-Header werden derzeit von Azure-gehosteten Modellen zurückgegeben (z. B. `gpt-6.1-sol`, `gpt-6-luna`). Open-Source-Modelle, die auf T-Cloud gehostet werden (z. B. `gpt-oss-120b`), geben diese Header nicht zurück.
 :::
 
 | Header | Beschreibung |

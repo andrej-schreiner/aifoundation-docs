@@ -4,16 +4,17 @@ import PreviewModelsBanner from './PreviewModelsBanner.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
+// Youth protection / Jugendschutz pointed at Telekom URLs that 404, and
+// t-systems.com has no equivalent page (its own footer is Imprint + privacy
+// only; /youth-protection and /jugendschutz redirect to the homepage).
 const links = isDE
   ? [
       { label: 'Impressum', href: 'https://www.t-systems.com/de/de/impressum' },
       { label: 'Datenschutz', href: 'https://www.t-systems.com/de/de/datenschutz' },
-      { label: 'Jugendschutz', href: 'https://www.telekom.com/de/konzern/compliance/details/jugendschutz-702466' },
     ]
   : [
       { label: 'Imprint', href: 'https://www.t-systems.com/de/en/imprint' },
       { label: 'Data privacy', href: 'https://www.t-systems.com/de/en/data-privacy' },
-      { label: 'Youth protection', href: 'https://www.telekom.com/en/corporate-responsibility/governance/protection-of-minors' },
     ];
 ---
 

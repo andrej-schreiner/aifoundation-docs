@@ -1,6 +1,6 @@
 ---
 title: "AI Foundation Services"
-description: "Run AI in Europe with full data sovereignty. 30+ LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany."
+description: "Run AI in Europe with full data sovereignty. Open-source and proprietary LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany."
 head:
   - tag: title
     content: "AI Foundation Services"
@@ -8,8 +8,9 @@ head:
 
 import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../components/AvailableModels.astro';
+import { availableModelCount } from '../../data/catalog.mjs';
 
-The sovereign European AI platform by T-Systems. Run 30+ open-source and proprietary LLMs through an OpenAI-compatible API, with sovereign EU hosting for open-source models. Switch from OpenAI with one line of code. See [Enterprise Trust](/reference/enterprise-trust) for the full data-handling model.
+The sovereign European AI platform by T-Systems. Run {availableModelCount} open-source and proprietary LLMs through an OpenAI-compatible API, with sovereign EU hosting for open-source models. Switch from OpenAI with one line of code. See [Enterprise Trust](/reference/enterprise-trust) for the full data-handling model.
 
 <div class="hero-badges">
   <span class="hero-badge">EU Data Sovereignty</span>

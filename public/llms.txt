@@ -1,34 +1,59 @@
-# LLM Hub (T-Systems AI Foundation Services)
+# AI Foundation Services
 
-> Sovereign, GDPR-compliant LLM inference API. OpenAI-compatible. Hosted in Germany and the EU. 30+ open-source and proprietary models on a single endpoint.
+> Sovereign, GDPR-compliant LLM inference API by T-Systems. OpenAI-compatible. 38 models on a single endpoint (count excludes models deprecated for retirement on 2026-10-31).
 
 ## Docs
 
-- [Overview](https://docs.llmhub.t-systems.net/): Product overview, available models, compliance posture.
-- [Quickstart](https://docs.llmhub.t-systems.net/getting-started/quickstart): Install the OpenAI SDK and send your first request in under 5 minutes.
-- [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): API key acquisition and bearer-token request flow.
-- [Models](https://docs.llmhub.t-systems.net/getting-started/models): Catalog of available LLMs, embedding, vision, and audio models.
-- [Chat Completions](https://docs.llmhub.t-systems.net/guides/chat-completions): OpenAI-compatible chat API — system/user messages, response structure.
-- [Streaming](https://docs.llmhub.t-systems.net/guides/streaming): Token-by-token responses via Server-Sent Events.
-- [Embeddings](https://docs.llmhub.t-systems.net/guides/embeddings): Text embeddings for semantic search and RAG.
-- [Function Calling](https://docs.llmhub.t-systems.net/guides/function-calling): Tool definitions and structured JSON outputs.
-- [Fine-Tuning](https://docs.llmhub.t-systems.net/guides/fine-tuning): Fine-tune Mistral and Llama via LoRA or DPO.
-- [API Endpoints](https://docs.llmhub.t-systems.net/reference/api-endpoints): Complete REST API reference.
-- [Error Codes](https://docs.llmhub.t-systems.net/reference/error-codes): HTTP error codes with causes and resolutions.
-- [Rate Limits](https://docs.llmhub.t-systems.net/reference/rate-limits): Per-plan token and request rate limits.
-- [Plans & Pricing](https://docs.llmhub.t-systems.net/plans): Subscription tiers, model availability, pricing.
-
-## Integrations
-
-- [LangChain](https://docs.llmhub.t-systems.net/integrations/langchain): Use langchain-openai against AI Foundation Services.
-- [LlamaIndex](https://docs.llmhub.t-systems.net/integrations/llama-index): Point the OpenAI-compatible client at the LLM Hub endpoint.
-
-## SmartChat (RAG product)
-
-- [SmartChat Overview](https://docs.llmhub.t-systems.net/smartchat/overview): Hosted RAG over your documents — browser UI and API.
-- [RAG API Reference](https://docs.llmhub.t-systems.net/smartchat/api-reference): HTTP gateway, authentication, service routing.
+- [Overview](https://docs.llmhub.t-systems.net/): Run AI in Europe with full data sovereignty. Open-source and proprietary LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany.
+- [Quickstart](https://docs.llmhub.t-systems.net/getting-started/quickstart): Install the OpenAI SDK, configure your API key, and send your first request to AI Foundation Services in under five minutes.
+- [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): Learn how to obtain a trial or production API key and authenticate every request to the LLM Hub API using bearer token headers.
+- [Chat Completions](https://docs.llmhub.t-systems.net/guides/chat-completions): Send chat completion requests with system and user messages using the OpenAI-compatible Chat API on AI Foundation Services.
+- [Prefix Caching](https://docs.llmhub.t-systems.net/guides/prefix-caching): Reuse repeated prompt prefixes on AI Foundation Services to cut time-to-first-token — with save_cache and cache_salt for open-source models and cache_control breakpoints for Claude.
+- [Streaming](https://docs.llmhub.t-systems.net/guides/streaming): Stream LLM responses token-by-token via Server-Sent Events on AI Foundation Services for lower latency and better user experience.
+- [Embeddings](https://docs.llmhub.t-systems.net/guides/embeddings): Generate text embeddings for semantic search, clustering, and RAG applications using the AI Foundation Services Embedding API.
+- [Multimodal](https://docs.llmhub.t-systems.net/guides/multimodal): Analyze images alongside text using vision-capable models on AI Foundation Services with the standard Chat Completions API.
+- [OCR](https://docs.llmhub.t-systems.net/guides/ocr): Turn scanned documents, PDFs and photos into Markdown, tables and structured text with the LightOnOCR-3-4B and PaddleOCR-VL-1.6 preview models.
+- [Audio](https://docs.llmhub.t-systems.net/guides/audio): Transcribe and translate audio files using Whisper-based models on AI Foundation Services, compatible with the OpenAI Audio API.
+- [Function Calling](https://docs.llmhub.t-systems.net/guides/function-calling): Define tools and let LLM Hub models return structured JSON arguments to integrate with external APIs and data sources.
+- [Decisions](https://docs.llmhub.t-systems.net/guides/decisions): Get typed answers (a probability, a choice or a score) instead of text from the /decisions endpoint, for fast agent steps such as tool routing, approval gates and grounding checks.
+- [Image Generation](https://docs.llmhub.t-systems.net/guides/image-generation): Generate images from text prompts using the OpenAI-compatible Images API on AI Foundation Services with available image models.
+- [Reasoning](https://docs.llmhub.t-systems.net/guides/reasoning): Control chain-of-thought depth with the `reasoning_effort` parameter on reasoning-capable models such as GPT-5, Gemini 3, and Claude 4.6.
+- [Visual RAG](https://docs.llmhub.t-systems.net/guides/visual-rag): Index documents with combined text and image retrieval on AI Foundation Services to extract data from charts, tables, and graphs.
+- [Queued Requests](https://docs.llmhub.t-systems.net/guides/queued-requests): Use the /queue endpoints on AI Foundation Services to wait up to two minutes for rate-limit budget instead of getting an immediate 429.
+- [LangChain](https://docs.llmhub.t-systems.net/integrations/langchain): Connect AI Foundation Services to LangChain for RAG pipelines, chains, and agents using the `langchain-openai` package.
+- [Llama Index](https://docs.llmhub.t-systems.net/integrations/llama-index): Build RAG applications and chat engines with LlamaIndex by pointing the OpenAI-compatible client at AI Foundation Services.
+- [AI Engineer](https://docs.llmhub.t-systems.net/aie/overview): AI Engineer is a collection of AI-powered tools designed to help software developers in their daily work by streamlining and automating common development tasks, enabling them to work more efficiently and focus on solving complex problems.
+- [Overview](https://docs.llmhub.t-systems.net/models): Browse available LLMs, vision, embedding, and audio models on AI Foundation Services and retrieve the live model list via API.
+- [Comparison](https://docs.llmhub.t-systems.net/models/comparison): Side-by-side comparison of every model hosted on AI Foundation Services — sovereignty rating, hosting, context window, pricing, and plan availability.
+- [Chat & Reasoning (LLMs)](https://docs.llmhub.t-systems.net/models/llms): Large language models hosted on AI Foundation Services for general-purpose chat, reasoning, and text generation. Filter by cloud, provider, plan, and features.
+- [Coding](https://docs.llmhub.t-systems.net/models/coding): Code-tuned language models on AI Foundation Services. Filter by cloud, provider, plan, and features.
+- [Vision](https://docs.llmhub.t-systems.net/models/vision): Multimodal models on AI Foundation Services that accept image input alongside text. Filter by cloud, provider, plan, and features.
+- [Embeddings](https://docs.llmhub.t-systems.net/models/embeddings): Embedding models on AI Foundation Services for semantic search, clustering, and RAG. Filter by cloud, provider, and plan.
+- [Audio (Speech-to-Text)](https://docs.llmhub.t-systems.net/models/audio): Whisper-family speech-to-text models on AI Foundation Services for transcription and translation. Filter by cloud, plan, and features.
+- [Image Generation](https://docs.llmhub.t-systems.net/models/image-generation): Image generation models on AI Foundation Services that turn text prompts (and optionally images) into images.
+- [Scheduled for Retirement](https://docs.llmhub.t-systems.net/models/scheduled-for-retirement): Models scheduled to be retired from AI Foundation Services, with retirement dates and suggested replacements.
+- [Retired Models](https://docs.llmhub.t-systems.net/models/retired): Historical list of models retired from AI Foundation Services, with retirement dates and replacement recommendations.
+- [API Endpoints](https://docs.llmhub.t-systems.net/reference/api-endpoints): Complete reference for all REST endpoints in the LLM Hub API — chat completions, embeddings, audio, images, and more.
+- [Error Codes](https://docs.llmhub.t-systems.net/reference/error-codes): Reference for HTTP error codes returned by the AI Foundation Services API, with causes and recommended resolution steps.
+- [Rate Limits](https://docs.llmhub.t-systems.net/reference/rate-limits): Per-plan token and request rate limits for LLM Hub, with guidance on handling 429 responses and retry strategies.
+- [Service Levels](https://docs.llmhub.t-systems.net/reference/service-levels): Availability target, service credits, support hours, and maintenance policy for AI Foundation Services as defined in the Service Description.
+- [Enterprise Trust](https://docs.llmhub.t-systems.net/reference/enterprise-trust): Security, compliance, data sovereignty, and AI Act alignment for AI Foundation Services as defined in the Service Description.
+- [Overview](https://docs.llmhub.t-systems.net/api-transition): The LLM Serving Service is moving to the New API: transition phases and endpoints, what you need to do, API keys, model identifiers and model discovery.
+- [Requests](https://docs.llmhub.t-systems.net/api-transition/requests): How chat completion requests work on the New API: request structure, model identifiers and parameter handling.
+- [Responses](https://docs.llmhub.t-systems.net/api-transition/responses): The New API's standardized chat completion response: what changes, model names in responses, token usage details and additional response metadata.
+- [Streaming](https://docs.llmhub.t-systems.net/api-transition/streaming): Streaming on the New API: Server-Sent Events as before, token usage in the completion's final chunk, the completion marker and errors during streaming.
+- [Error Handling](https://docs.llmhub.t-systems.net/api-transition/errors): Structured error responses on the New API: status code changes, the error format, rate limits and retries, response validation and troubleshooting.
+- [SmartChat](https://docs.llmhub.t-systems.net/smartchat/overview): T-Systems SmartChat — a managed, sovereign solution for AI-assisted knowledge work with built-in RAG, enterprise compliance, and predictable pricing.
+- [Plans Overview](https://docs.llmhub.t-systems.net/plans): Compare all LLM Hub subscription plans — model availability, token limits, and pricing — and download the official service description.
+- [Shared vs Dedicated LLM Serving](https://docs.llmhub.t-systems.net/plans/service-models): Compare the two LLM Serving service models — Shared LLM Serving Service (pay-as-you-go on a multi-tenant platform) vs Dedicated LLM Serving (full GPU hardware reserved for you) — and pick the right one for your workload.
+- [Dedicated LLM Serving](https://docs.llmhub.t-systems.net/plans/dedicated): Reserve GPU hardware exclusively for your contract — no RPM or TPM limits, predictable latency, and the ability to host any compatible model, including private fine-tuned variants.
+- [Essential](https://docs.llmhub.t-systems.net/plans/essential): Detailed model availability, token limits, and pricing for the LLM Hub Essential rate plan.
+- [Professional](https://docs.llmhub.t-systems.net/plans/professional): Detailed model availability, token limits, and pricing for the LLM Hub Professional rate plan.
+- [Agentic](https://docs.llmhub.t-systems.net/plans/agentic): Detailed model availability, token limits, and pricing for the LLM Hub Agentic rate plan.
+- [Test / Preview](https://docs.llmhub.t-systems.net/plans/test): Temporary test page in the plans section.
+- [Changelog](https://docs.llmhub.t-systems.net/changelog): Major model releases, feature updates, and deprecations for AI Foundation Services.
+- [FAQ](https://docs.llmhub.t-systems.net/faq): Answers to common questions about AI Foundation Services: available models, GDPR compliance, pricing, rate limits, and ordering.
 
 ## Optional
 
-- [FAQ](https://docs.llmhub.t-systems.net/faq): Compliance, pricing, rate limits, ordering.
 - [German docs](https://docs.llmhub.t-systems.net/de/): Full documentation in German.
