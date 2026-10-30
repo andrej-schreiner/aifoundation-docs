@@ -1,11 +1,63 @@
 ---
-title: "AI Foundation Services"
+title: Introduction
 description: "Run AI in Europe with full data sovereignty. Open-source and proprietary LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany."
-template: splash
-hero:
-  title: "AI Foundation Services"
-  tagline: "The sovereign European AI platform by T-Systems."
-head:
-  - tag: title
-    content: "AI Foundation Services"
 ---
+
+import { Aside, CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+
+AI Foundation Services is the sovereign European AI platform by T-Systems. Open-source and proprietary models run through one OpenAI-compatible API, hosted on T-Cloud in Germany.
+
+## Start here
+
+<CardGrid>
+	<LinkCard
+		title="Quickstart"
+		href="/getting-started/quickstart"
+		description="Install the SDK, set your API key, and send the first request."
+	/>
+	<LinkCard
+		title="Models"
+		href="/models"
+		description="See which models are available and how they compare."
+	/>
+	<LinkCard
+		title="API reference"
+		href="/reference/api-endpoints"
+		description="Endpoints, error codes, and rate limits."
+	/>
+	<LinkCard
+		title="Plans"
+		href="/plans"
+		description="Shared and dedicated serving, and what each plan includes."
+	/>
+</CardGrid>
+
+<Aside type="note" title="API key">
+	A trial key from the [API Key Portal](https://apikey.llmhub.t-systems.net/) is enough for the first request. Production keys are purchased on the [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/).
+</Aside>
+
+## First request
+
+<Steps>
+
+1. Install the OpenAI package.
+
+   ```bash
+   pip install openai
+   ```
+
+2. Send a chat completion to the AI Foundation base URL.
+
+   ```bash
+   curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \
+     -H "Authorization: Bearer $OPENAI_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "model": "gpt-oss-120b",
+       "messages": [{"role": "user", "content": "Hello"}]
+     }'
+   ```
+
+3. API keys, environment variables, and Node.js are in the [Quickstart](/getting-started/quickstart).
+
+</Steps>

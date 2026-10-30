@@ -4,7 +4,7 @@
 
 ## Docs
 
-- [Overview](https://docs.llmhub.t-systems.net/): Run AI in Europe with full data sovereignty. Open-source and proprietary LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany.
+- [Introduction](https://docs.llmhub.t-systems.net/): Run AI in Europe with full data sovereignty. Open-source and proprietary LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany.
 - [Quickstart](https://docs.llmhub.t-systems.net/getting-started/quickstart): Install the OpenAI SDK, configure your API key, and send your first request to AI Foundation Services in under five minutes.
 - [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): Learn how to obtain a trial or production API key and authenticate every request to the LLM Hub API using bearer token headers.
 - [Chat Completions](https://docs.llmhub.t-systems.net/guides/chat-completions): Send chat completion requests with system and user messages using the OpenAI-compatible Chat API on AI Foundation Services.

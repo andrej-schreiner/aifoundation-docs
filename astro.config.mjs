@@ -73,7 +73,6 @@ export default defineConfig({
 				Footer: './src/components/Footer.astro',
 				Head: './src/components/Head.astro',
 				Header: './src/components/SiteHeader.astro',
-				Hero: './src/components/Hero.astro',
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',
@@ -99,11 +98,11 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
-				{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 				{
 					label: 'Getting Started',
 					translations: { de: 'Erste Schritte' },
 					items: [
+						{ label: 'Introduction', translations: { de: 'Einführung' }, slug: 'index' },
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 					],

@@ -68,17 +68,28 @@ const bars = [
     margin: 0 0 0.75rem;
     padding: 0.45rem 0.75rem;
 
-    background: #ededed;
+    background: #ffffff;
     color: #262626;
-    border: 0;
+    border: 1px solid #d8d8d8;
     border-inline-start: 3px solid #e20074;
-    border-radius: 4px;
+    border-radius: 8px;
     box-shadow: none;
     font-size: var(--sl-text-xs);
     line-height: 1.35;
 
     animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
   }
+  :global(:root[data-theme='dark']) .qp-bar {
+    background: #262626;
+    color: #f5f5f5;
+    border-color: #414141;
+    border-inline-start-color: #e20074;
+  }
+
+  :global(:root[data-theme='dark']) .qp-cta {
+    color: #ff70b8;
+  }
+
   .qp-bar[hidden] {
     display: none;
   }
