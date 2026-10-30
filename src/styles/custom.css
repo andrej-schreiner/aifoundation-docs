@@ -36,7 +36,7 @@
 	display: flex;
 	gap: 0.5rem;
 	flex-wrap: wrap;
-	justify-content: center;
+	justify-content: flex-start;
 	margin-bottom: 1rem;
 }
 
@@ -44,11 +44,11 @@
 	display: inline-block;
 	padding: 0.25rem 0.75rem;
 	border-radius: 9999px;
-	font-size: 0.85rem;
+	font-size: 0.75rem;
 	font-weight: 600;
-	background: var(--sl-color-accent-low);
-	color: var(--sl-color-accent-high);
-	border: 1px solid var(--sl-color-accent);
+	background: transparent;
+	color: var(--sl-color-text);
+	border: 1px solid var(--sl-color-gray-4);
 }
 
 /* Link-card rows and Starlight CardGrid live in redesign.css.
@@ -297,14 +297,17 @@
 /* Minimum Monthly Commitment explanatory note (Plans page) */
 .commitment-note {
 	display: block;
-	max-width: min(100%, 54rem);
+	width: 100%;
+	max-width: none;
 	margin-top: 1rem;
-	padding: 0.5rem 0.875rem;
+	padding: 1rem;
+	border: 1px solid var(--sl-color-gray-5);
 	border-inline-start: 3px solid var(--sl-color-accent);
-	background: var(--sl-color-accent-low);
-	border-radius: 0 6px 6px 0;
-	font-size: 0.9rem;
-	line-height: 1.4;
+	background: var(--sl-color-black);
+	border-radius: 8px;
+	font-size: 1rem;
+	line-height: 1.5;
+	color: var(--sl-color-white);
 }
 
 .commitment-note__lead {

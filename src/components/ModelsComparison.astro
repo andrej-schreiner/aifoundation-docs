@@ -8,6 +8,7 @@ import {
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
+import { formatEuro } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
 // Per-model reasoning_effort values from the platform datasheet; refreshed by
 // scripts/fetch-model-parameters.mjs before each build, kept as last known good.
@@ -457,13 +458,13 @@ const t = {
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
     : 'Accepted values of the reasoning_effort parameter, from the platform model datasheet. "-": no values are published for this model. See the Reasoning Control guide.',
-  reasoningEffortNone: '-',
+  reasoningEffortNone: '—',
   colReasoningTokensUsage: isDE ? 'Reasoning-Tokens in usage' : 'Reasoning tokens in usage',
   tooltipReasoningTokensUsage: isDE
     ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder not reported (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
     : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
   reasoningTokensNotReported: 'not reported',
-  reasoningTokensUnknown: '-',
+  reasoningTokensUnknown: '—',
 };
 
 const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
@@ -501,20 +502,17 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 // `null` means the price has not been published yet (placeholder rows for
 // newly announced models); `0` means the model is genuinely free of charge.
 function formatPrice(n: number | null | undefined): string {
-  if (n == null) return 'xx';
-  if (n <= 0) return '—';
-  return `€${n.toFixed(2)}`;
+  return formatEuro(n, 2);
 }
 
 function formatCachedPrice(m: CompiledModel): string {
   if (!m.cachedPricingPublished) return t.cachedPriceUnavailable;
   const value = m.cachedInputPricePerMillionTokens;
   if (value == null) return 'xx';
-  if (value <= 0) return '—';
   // A cached price is 15% of the input price, so two decimals would round most
   // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
   // four decimals and drop trailing zeros.
-  return `€${value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`;
+  return formatEuro(value, 4);
 }
 
 function planHref(plan: string): string {
@@ -1328,14 +1326,35 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison__scroll {
     overflow-x: auto;
     margin-bottom: 1.5rem;
+    box-shadow: inset -16px 0 12px -14px rgba(0, 0, 0, 0.35);
   }
 
   .models-comparison-table {
     display: table;
-    width: 100%;
+    width: max-content;
+    min-width: 100%;
+    max-width: none;
     border-collapse: collapse;
     font-size: 0.875rem;
     border: 0;
+  }
+
+  .models-comparison-table th:first-child,
+  .models-comparison-table td:first-child {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    min-width: 11rem;
+    background: #ffffff;
+  }
+
+  :root[data-theme='dark'] .models-comparison-table td:first-child {
+    background: var(--aifs-d-bg);
+  }
+
+  :root[data-theme='dark'] .models-comparison-table th:first-child {
+    background: var(--aifs-d-surface);
+    z-index: 3;
   }
 
   .models-comparison-table thead th {
@@ -1397,10 +1416,13 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison .mc-cap--yes {
-    color: #4ade80; /* green-400 */
+    color: #1a7f37;
+  }
+  :root[data-theme='dark'] .models-comparison .mc-cap--yes {
+    color: #8fd19a;
   }
   .models-comparison .mc-cap--no {
-    color: #94a3b8; /* slate-400 — muted, not alarming */
+    color: var(--sl-color-gray-3);
   }
 
   .models-comparison-table th.center,
@@ -1431,15 +1453,26 @@ const rowDataPayload = allModels.map((m) => ({
     vertical-align: middle;
   }
 
+  .models-comparison .creator-brand,
+  .models-comparison .creator-brand__icon,
+  .models-comparison .creator-brand__fallback {
+    width: 20px;
+    height: 20px;
+  }
+
   .models-comparison .creator-brand__icon {
-    width: 18px;
-    height: 18px;
     display: block;
+    width: 20px;
+    height: 20px;
     object-fit: contain;
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 4px;
     padding: 1px;
-    background: white;
+    background: transparent;
+  }
+
+  :root[data-theme='dark'] .models-comparison .creator-brand__icon {
+    background: var(--sl-color-gray-6);
   }
 
   .models-comparison .creator-brand__fallback {
@@ -1496,8 +1529,10 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison .mc-plans {
     display: inline-flex;
+    flex-direction: row;
     flex-wrap: wrap;
     gap: 0.25rem;
+    align-items: center;
   }
 
   /* Per-plan colors */

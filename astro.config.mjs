@@ -3,8 +3,71 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightVersions from 'starlight-versions';
 
+/** Wrap markdown tables so the border tracks the column and wide tables scroll. */
+function rehypeMarkdownTables() {
+	return (tree) => {
+		visitNode(tree, null, null);
+	};
+
+	function textOf(node) {
+		if (!node) return '';
+		if (node.type === 'text') return node.value || '';
+		return (node.children || []).map(textOf).join('');
+	}
+
+	function countCols(table) {
+		const sections = (table.children || []).filter((child) => child.tagName === 'thead' || child.tagName === 'tbody');
+		const row = sections.flatMap((section) => section.children || []).find((child) => child.tagName === 'tr');
+		if (!row) return 0;
+		return (row.children || []).filter((cell) => cell.tagName === 'th' || cell.tagName === 'td').length;
+	}
+
+	function markDates(node) {
+		if (!node || node.type !== 'element') return;
+		if (node.tagName === 'td' || node.tagName === 'th') {
+			const text = textOf(node).trim();
+			if (/^\d{4}-\d{2}-\d{2}$/.test(text)) {
+				const current = node.properties?.className;
+				const list = Array.isArray(current) ? current : current ? [current] : [];
+				node.properties = node.properties || {};
+				node.properties.className = [...list, 'md-date'];
+			}
+		}
+		(node.children || []).forEach(markDates);
+	}
+
+	function visitNode(node, parent, index) {
+		if (!node) return;
+		if (node.type === 'element' && node.tagName === 'table' && parent && typeof index === 'number') {
+			const parentClass = parent.properties?.className;
+			const parentClasses = Array.isArray(parentClass) ? parentClass : parentClass ? [parentClass] : [];
+			if (!parentClasses.includes('md-table-wrap')) {
+				markDates(node);
+				node.properties = node.properties || {};
+				const current = node.properties.className;
+				const list = Array.isArray(current) ? [...current] : current ? [current] : [];
+				if (countCols(node) >= 3) list.push('md-table-scroll');
+				node.properties.className = list;
+				parent.children[index] = {
+					type: 'element',
+					tagName: 'div',
+					properties: { className: ['md-table-wrap'] },
+					children: [node],
+				};
+				return;
+			}
+		}
+		if (node.children) {
+			for (let i = 0; i < node.children.length; i++) visitNode(node.children[i], node, i);
+		}
+	}
+}
+
 // https://astro.build/config
 export default defineConfig({
+	markdown: {
+		rehypePlugins: [rehypeMarkdownTables],
+	},
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
 	redirects: {
@@ -97,6 +160,7 @@ export default defineConfig({
 					label: 'Guides',
 					translations: { de: 'Anleitungen' },
 					items: [
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'guides' },
 						{ label: 'Chat Completions', translations: { de: 'Chat Completions' }, slug: 'guides/chat-completions' },
 						{ label: 'Prefix Caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },
@@ -116,11 +180,23 @@ export default defineConfig({
 					label: 'Integrations',
 					translations: { de: 'Integrationen' },
 					items: [
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'integrations' },
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'Llama Index', translations: { de: 'Llama Index' }, slug: 'integrations/llama-index' },
 					],
 				},
 				{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
+				{
+					label: 'Plugins',
+					translations: { de: 'Plugins' },
+					items: [
+						{ label: 'Cline', slug: 'plugins/cline' },
+						{ label: 'Continue for JetBrains', slug: 'plugins/continue-jetbrains' },
+						{ label: 'Continue for VS Code', slug: 'plugins/continue-vscode' },
+						{ label: 'OpenCode', slug: 'plugins/opencode' },
+						{ label: 'Roo Code', slug: 'plugins/roo-code' },
+					],
+				},
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },

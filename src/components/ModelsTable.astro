@@ -210,9 +210,6 @@ const priceBuckets = [
             sortableHeaders.map((header) => (
               <th data-sort={header.key}>
                 <span class="sort-header">
-                  <svg class="sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
-                    <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
-                  </svg>
                   <span>
                     {header.label}
                     {!legacy && (header.key === 'rpm' || header.key === 'tpm') && (
@@ -223,6 +220,9 @@ const priceBuckets = [
                     )}
                     {header.unit && <div class="plans-table__small-text">{header.unit}</div>}
                   </span>
+                  <svg class="sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
+                    <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
+                  </svg>
                 </span>
               </th>
             ))
@@ -253,6 +253,7 @@ const priceBuckets = [
 
 <script>
   import { isPriceInRange } from '../shared/lib/priceRangeHelper';
+  import { emptyMark, formatEuro } from '../shared/lib/displayFormat';
 
   type FilterState = Map<string, Set<string>>;
 
@@ -631,13 +632,13 @@ const priceBuckets = [
     }
 
     function formatNumber(value: number | null | undefined) {
-      return value != null ? value.toLocaleString('en-US') : '-';
+      return value != null ? value.toLocaleString('en-US') : emptyMark();
     }
 
     function formatPrice(value: number | null | undefined) {
       // `null` = price not published yet (placeholder rows for newly
       // announced models), rendered as "xx" rather than a dash.
-      return value != null ? value.toFixed(2) : 'xx';
+      return formatEuro(value, 2);
     }
 
     // Cached input tokens are only priced for T-Cloud-hosted models; external
@@ -645,12 +646,11 @@ const priceBuckets = [
     function formatCachedPrice(model: any) {
       if (!model.cachedPricingPublished) return translations.cachedPriceUnavailable || 'n/a';
       const value = model.cachedInputPrice;
-      if (value == null) return `&euro; xx`;
+      if (value == null) return '€xx';
       // A cached price is 15% of the input price, so two decimals would round
       // most of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01).
       // Keep up to four decimals and drop trailing zeros.
-      const text = value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '');
-      return `&euro; ${text}`;
+      return formatEuro(value, 4);
     }
 
     function capitalize(value: string = '') {
@@ -724,18 +724,18 @@ const priceBuckets = [
             <strong>${escapeHtml(model.displayName)}</strong>
             </div>
           </td>
-          <td><strong>&euro; ${formatPrice(model.inputPrice)}</strong></td>
-          <td><strong>&euro; ${formatPrice(model.outputPrice)}</strong></td>
-          ${legacy ? '' : `<td><strong>${formatCachedPrice(model)}</strong></td>`}
-          <td><div class="loc-wrapper">${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation)}</div></td>
-          <td>${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
-          <td>${formatNumber(model.tpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
-          ${legacy ? '' : `<td>${model.contextWindow != null ? formatNumber(model.contextWindow) : '-'}</td>`}
+          <td class="mt-num"><strong>${formatPrice(model.inputPrice)}</strong></td>
+          <td class="mt-num"><strong>${formatPrice(model.outputPrice)}</strong></td>
+          ${legacy ? '' : `<td class="mt-num"><strong>${formatCachedPrice(model)}</strong></td>`}
+          <td class="mt-num"><div class="loc-wrapper">${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation)}</div></td>
+          <td class="mt-num">${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
+          <td class="mt-num">${formatNumber(model.tpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
+          ${legacy ? '' : `<td class="mt-num">${model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark()}</td>`}
           ${legacy ? '' : `<td>
             <span class="model-links">
               ${model.termsOfUseUrl ? `<a href="${escapeHtml(model.termsOfUseUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkTermsOfUse || 'Terms of Use'}<svg class="model-links__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H21V10"/><path d="M21 3L10 14"/><path d="M11 5H6C4.89543 5 4 5.89543 4 7V18C4 19.1046 4.89543 20 6 20H17C18.1046 20 19 19.1046 19 18V13"/></svg></a>` : ''}
               ${model.dataProtectionUrl ? `<a href="${escapeHtml(model.dataProtectionUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkDataProtection || 'Data Protection'}<svg class="model-links__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H21V10"/><path d="M21 3L10 14"/><path d="M11 5H6C4.89543 5 4 5.89543 4 7V18C4 19.1046 4.89543 20 6 20H17C18.1046 20 19 19.1046 19 18V13"/></svg></a>` : ''}
-              ${!model.termsOfUseUrl && !model.dataProtectionUrl ? '<span class="model-links__empty">-</span>' : ''}
+              ${!model.termsOfUseUrl && !model.dataProtectionUrl ? '<span class="model-links__empty">—</span>' : ''}
             </span>
           </td>`}
         `;
@@ -939,8 +939,8 @@ const priceBuckets = [
 <style is:global>
   .models-table-section {
     margin-bottom: 2rem;
-    --model-link-color: #4f5cff;
-    --model-link-icon-color: #000000;
+    --model-link-color: var(--sl-color-text-accent);
+    --model-link-icon-color: var(--sl-color-text-accent);
     --models-sort-active-color: var(--sl-color-accent);
   }
 
@@ -958,21 +958,33 @@ const priceBuckets = [
 
   .models-table-section .plans-table {
     display: table;
-    width: 100%;
-    max-width: 100%;
-    table-layout: fixed;
+    width: max-content;
+    min-width: 72rem;
+    max-width: none;
+    table-layout: auto;
     font-size: 0.875rem;
     border: 0;
   }
 
   .models-table-section .plans-table th,
   .models-table-section .plans-table td {
-    padding: 0.55rem 0.4rem;
-    line-height: 1.25;
+    padding: 0.55rem 0.65rem;
+    line-height: 1.35;
+    vertical-align: bottom;
+    text-align: start;
     white-space: normal;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-    min-width: 0;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+  .models-table-section .plans-table td.mt-num,
+  .models-table-section .plans-table th[data-sort='inputPrice'],
+  .models-table-section .plans-table th[data-sort='outputPrice'],
+  .models-table-section .plans-table th[data-sort='cachedInputPrice'],
+  .models-table-section .plans-table th[data-sort='rpm'],
+  .models-table-section .plans-table th[data-sort='tpm'],
+  .models-table-section .plans-table th[data-sort='contextWindow'] {
+    white-space: nowrap;
   }
 
   .models-table-section .plans-table th a {
@@ -988,7 +1000,9 @@ const priceBuckets = [
     font-weight: 700;
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
-    white-space: wrap;
+    vertical-align: bottom;
+    text-align: start;
+    white-space: normal;
     overflow-wrap: normal;
     word-break: normal;
   }
@@ -1009,7 +1023,7 @@ const priceBuckets = [
 
   .models-table-section .plans-table th[data-sort='displayName'],
   .models-table-section .plans-table td.mt-model-name-cell {
-    min-width: 7rem;
+    min-width: 10rem;
   }
 
   .models-table-section .plans-table td.mt-model-name-cell {
@@ -1188,9 +1202,11 @@ const priceBuckets = [
   }
 
   .sort-header {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.15rem;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+    gap: 0.35rem;
+    width: 100%;
     color: inherit;
   }
 
@@ -1356,15 +1372,30 @@ const priceBuckets = [
   }
 
   .creator-brand--icon {
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+  }
+
+  .creator-brand__label {
+    font-size: 0.875rem;
+    line-height: 20px;
+  }
+
+  .creator-brand--icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 1.7rem;
-    height: 1.7rem;
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: var(--sl-border-sm);
-    padding: 3px;
-    background-color: white;
+    border-radius: 4px;
+    padding: 1px;
+    background: transparent;
+  }
+
+  :root[data-theme='dark'] .creator-brand--icon,
+  :root[data-theme='dark'] .creator-brand__icon {
+    background: var(--sl-color-gray-6);
+    border-color: var(--aifs-d-border);
   }
 
   .creator-brand--text {
@@ -1403,12 +1434,9 @@ const priceBuckets = [
 
   .model-links {
     display: inline-flex;
-    /* Wrapping keeps the column at the width of the widest single link
-       instead of both links side by side — the two links stack on narrower
-       tables. Each link stays on one line via the item's nowrap below. */
-    flex-wrap: wrap;
-    gap: 0.15rem 0.65rem;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
   }
 
   .model-links__item {

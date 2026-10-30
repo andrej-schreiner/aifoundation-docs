@@ -179,14 +179,30 @@ body {
 /* Starlight sets display:block on tables, so a border on the table box is
    wider than the columns. Shrink the box to the columns and scroll inside it. */
 .sl-markdown-content table:not(.plans-table):not(.models-comparison-table) {
-	display: block;
-	width: max-content;
-	max-width: 100%;
-	overflow-x: auto;
+	display: table;
+	width: 100%;
+	min-width: 100%;
 	border-collapse: separate;
 	border-spacing: 0;
+	border: 0;
+	margin: 0;
+}
+
+.md-table-wrap {
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
 	border: 1px solid var(--sl-color-gray-5);
 	border-radius: 8px;
+}
+
+.md-table-wrap > table.md-table-scroll {
+	min-width: 36rem;
+}
+
+.md-date {
+	white-space: nowrap;
+	hyphens: manual;
 }
 
 .sl-markdown-content th {
@@ -253,22 +269,22 @@ body {
 }
 :root[data-theme='light'] .starlight-aside--tip {
 	--sl-color-asides-text-accent: #0b6b42;
-	background: #e8f6ee;
-	border-color: #b7e0cc;
+	background: #ffffff;
+	border-color: #d8d8d8;
 	border-inline-start-color: #0b7a4b;
 	color: #1a1a1a;
 }
 :root[data-theme='light'] .starlight-aside--caution {
 	--sl-color-asides-text-accent: #9a3412;
-	background: #fff4e0;
-	border-color: #f0c36a;
+	background: #ffffff;
+	border-color: #d8d8d8;
 	border-inline-start-color: #c2410c;
 	color: #1a1a1a;
 }
 :root[data-theme='light'] .starlight-aside--danger {
 	--sl-color-asides-text-accent: #b42318;
-	background: #fff0f0;
-	border-color: #f5b4b0;
+	background: #ffffff;
+	border-color: #d8d8d8;
 	border-inline-start-color: #c30a03;
 	color: #1a1a1a;
 }
@@ -287,24 +303,24 @@ body {
 }
 :root[data-theme='dark'] .starlight-aside--tip {
 	--sl-color-asides-text-accent: #9be7c4;
-	background: #143028;
-	border-color: #1f6b52;
+	background: var(--aifs-d-surface);
+	border-color: var(--aifs-d-border);
 	border-inline-start-color: #3dbe8c;
-	color: #e7fff4;
+	color: var(--aifs-d-text-body);
 }
 :root[data-theme='dark'] .starlight-aside--caution {
 	--sl-color-asides-text-accent: #ffd27a;
-	background: #3a2a14;
-	border-color: #8a5a1a;
+	background: var(--aifs-d-surface);
+	border-color: var(--aifs-d-border);
 	border-inline-start-color: #f5b942;
-	color: #fff6e4;
+	color: var(--aifs-d-text-body);
 }
 :root[data-theme='dark'] .starlight-aside--danger {
 	--sl-color-asides-text-accent: #ffb3c0;
-	background: #3a1a22;
-	border-color: #8a3040;
+	background: var(--aifs-d-surface);
+	border-color: var(--aifs-d-border);
 	border-inline-start-color: #ff6b81;
-	color: #ffe8ec;
+	color: var(--aifs-d-text-body);
 }
 
 .expressive-code {
@@ -687,4 +703,188 @@ html:not([data-has-sidebar]) .meta {
 .models-comparison__scroll {
 	border: 1px solid var(--sl-color-gray-5);
 	border-radius: 8px;
+	box-shadow: inset -16px 0 12px -14px rgba(0, 0, 0, 0.35);
+}
+
+/* Model catalog pages use the wide plans column and drop the TOC. */
+:root:has(.models-table-section),
+:root:has(.models-comparison) {
+	--sl-content-width: 85rem;
+}
+
+:root:has(.models-table-section) .right-sidebar-container,
+:root:has(.models-comparison) .right-sidebar-container {
+	display: none;
+}
+
+/* Shared neutral chips. Magenta stays on the header plate and primary buttons. */
+.plans-tag,
+.tag-plan-essential,
+.tag-plan-professional,
+.tag-plan-agentic,
+.tag-plan-test,
+.tag-premium,
+.tag-tier,
+.tag-tcloud,
+.tag-cloud,
+.tag-external-cloud {
+	background: transparent !important;
+	color: var(--sl-color-text) !important;
+	box-shadow: inset 0 0 0 1px var(--sl-color-gray-4) !important;
+}
+
+.sl-markdown-content sup a,
+.plans-table sup a,
+.models-comparison-table sup a {
+	text-decoration: none;
+	line-height: 0;
+	vertical-align: super;
+}
+
+.sl-markdown-content sup a:hover,
+.sl-markdown-content sup a:focus-visible,
+.plans-table sup a:hover,
+.plans-table sup a:focus-visible {
+	text-decoration: underline;
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}
+
+.sl-markdown-content :not(pre) > code {
+	box-decoration-break: clone;
+	-webkit-box-decoration-break: clone;
+}
+
+.sl-markdown-content :is(td, .starlight-aside) :not(pre) > code {
+	white-space: nowrap;
+}
+
+.sl-markdown-content .starlight-aside :not(pre) > code {
+	background-color: var(--sl-color-bg-inline-code);
+	border: 1px solid var(--sl-color-gray-5);
+	color: inherit;
+}
+
+.sl-markdown-content :is(h1, h2, h3, h4) :not(pre) > code {
+	font-size: 0.72em;
+	padding: 0;
+	border: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.expressive-code,
+.expressive-code .frame {
+	box-shadow: none !important;
+}
+
+.expressive-code pre {
+	border: 0;
+	padding-inline-end: 3rem;
+}
+
+.expressive-code .copy {
+	inset-block-start: 0.3rem;
+}
+
+.expressive-code .copy button {
+	width: 2rem;
+	height: 2rem;
+}
+
+.expressive-code figure.is-terminal > figcaption.header:has(.title:empty) {
+	display: none;
+}
+
+.sl-markdown-content:has(.plans-page) :is(p, ul, ol, h2, h3, .starlight-aside):not(.plans-page *) {
+	max-width: 46rem;
+}
+
+main:has(.plans-page) .qp-bar {
+	width: 100%;
+	max-width: none;
+}
+
+.pagination-links {
+	margin-top: 3rem;
+}
+
+.sl-markdown-content .starlight-aside + :is(h2, h3) {
+	margin-top: 3rem;
+}
+
+:root[data-theme='dark'] starlight-menu-button button {
+	background-color: transparent;
+	color: #ffffff;
+	box-shadow: none;
+}
+
+starlight-tabs [role='tablist'] {
+	flex-wrap: nowrap;
+	overflow-x: auto;
+}
+
+starlight-tabs [role='tab'] {
+	white-space: nowrap;
+}
+
+@media (max-width: 50rem) {
+	.qp-bar {
+		flex-wrap: nowrap;
+	}
+
+	.qp-msg {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	main {
+		padding-bottom: 5rem;
+	}
+}
+
+:root[data-theme='dark'] .sl-link-card .description {
+	color: var(--sl-color-gray-2);
+}
+
+.sl-link-card .stack {
+	display: contents;
+}
+
+.sl-link-card {
+	display: grid;
+	grid-template-columns: 1fr auto;
+	grid-template-areas: 'title icon' 'desc desc';
+	align-items: center;
+}
+
+.sl-link-card .title {
+	grid-area: title;
+	margin-top: 0;
+}
+
+.sl-link-card > .icon {
+	grid-area: icon;
+	order: 0;
+	margin: 0;
+	align-self: center;
+}
+
+.sl-link-card .description {
+	grid-area: desc;
+}
+
+.main-frame {
+	min-height: calc(100dvh - var(--sl-nav-height));
+}
+
+img[src*='vision-rag-workflow.svg'] {
+	display: block;
+	width: 100%;
+	height: auto;
+	padding: 0.75rem;
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 8px;
+	background: transparent;
 }

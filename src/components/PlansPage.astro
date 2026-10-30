@@ -523,8 +523,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 <style is:global>
   .plans-page {
     width: 100%;
-    --model-link-color: #4f5cff;
-    --model-link-icon-color: #000000;
+    --model-link-color: var(--sl-color-text-accent);
+    --model-link-icon-color: var(--sl-color-text-accent);
   }
 
   :root[data-theme='dark'] .plans-page {
@@ -680,9 +680,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     cursor: pointer;
   }
 
-  .tag-tcloud {
-    background: #e20074 !important;
-    color: white !important;
+  .tag-tcloud,
+  .tag-cloud,
+  .tag-external-cloud {
+    background: transparent !important;
+    color: var(--sl-color-text) !important;
+    box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
   }
 
   .tag-cloud {
