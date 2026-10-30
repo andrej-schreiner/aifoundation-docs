@@ -109,7 +109,7 @@ print(models.data[0].meta_data)
 
 | Category | Examples | Use Case |
 |---|---|---|
-| **LLM** | GPT-OSS 120B, GPT-5, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning |
+| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning |
 | **Embedding** | jina-embeddings-v2-base-de, text-embedding-bge-m3 | Semantic search, RAG |
 | **Vision** | Qwen 3.6 35B, Gemma 4 | Image analysis, multimodal chat |
 | **Audio/STT** | whisper-large-v3, whisper-large-v3-turbo | Speech-to-text, translation |
@@ -119,7 +119,7 @@ print(models.data[0].meta_data)
 ## Hosting & Compliance
 
 - **Open-source models** are operated by T-Systems on the **T-Cloud** in Germany. Data is processed inside the EU/EEA, is not stored, and is not viewable by Telekom or third parties.
-- **Proprietary models** (GPT, Claude, Gemini, Mistral Medium) are forwarded to the upstream provider (Microsoft Azure or Google Cloud), who may use sub-processors worldwide. Selecting one of these models accepts the third-party provider's terms.
+- **Proprietary models** (GPT, Claude, Gemini) are forwarded to the upstream provider (Microsoft Azure or Google Cloud). The region depends on the model. Selecting one of these models accepts the third-party provider's terms.
 
 **Customer data is not used for model training, regardless of which model you select.**
 

@@ -156,7 +156,7 @@ The models below are examples used in this guide. Other models on the platform a
 Scanned pages and handwriting belong on [OCR](/guides/ocr), which uses the preview models. This page is the chat image call.
 
 :::caution[Per-request image limits differ by model]
-T-Cloud-hosted models cap how many images one request may contain, and **the cap is not the same for every model** — check it for the model you use rather than assuming a common value. Measured examples: `gemma-4-31B-it-FP8` and `Qwen3-VL-30B-A3B-Instruct-FP8` accept 10, while `Qwen-3.6-35B-FP8` accepts only 8.
+T-Cloud-hosted models cap how many images one request may contain, and **the cap is not the same for every model**. `gemma-4-31B-it-FP8` accepts 10.
 
 Exceeding the cap returns HTTP 400, either `At most 10 image(s) may be provided in one prompt.` or `Image count 9 exceeds limit 8 per request.` Split large batches into multiple requests.
 :::

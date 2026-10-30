@@ -15,7 +15,9 @@
         "high",
         "max"
       ],
-      "default": "max"
+      "default": "max",
+      "inheritedFrom": "GLM-5.2",
+      "liveVerified": false
     },
     "GLM-5.2-B200-Lab": {
       "values": [

@@ -20,7 +20,7 @@ Limits vary by both plan and model. The table below shows representative figures
 
 ### Example: Per-model limits across plans
 
-To illustrate how limits scale, here are the limits for two representative models:
+To illustrate how limits scale, here are the limits for a representative model:
 
 **GPT-OSS 120B** (T-Cloud, Germany):
 
@@ -29,14 +29,6 @@ To illustrate how limits scale, here are the limits for two representative model
 | Essential | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 150,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 | Professional | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 | Agentic | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 2,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-
-**GPT-5.4** (Azure, EU):
-
-| Plan | RPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Input TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Output TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-|---|---|---|---|
-| Essential | 30,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 3,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,500,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-| Professional | 60,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 6,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 3,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-| Agentic | 100,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 10,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 5,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
 :::note
 **Preview models** (the Test catalog) use *dynamic* rate limits rather than fixed RPM/TPM. Telekom may adjust or restrict preview-model usage at any time without prior notice.
@@ -71,7 +63,7 @@ Some `429` responses are caused by this: requests spaced 60 seconds apart by a c
 
 ## Rate Limit Response Headers
 
-Responses from Azure-hosted models (GPT, o-series) include headers that help you track usage against limits:
+Responses from Azure-hosted GPT models include headers that help you track usage against limits:
 
 :::note
 Rate limit headers are currently returned by Azure-hosted models. Open-source models hosted on T-Cloud (for example `gpt-oss-120b`) do not return these headers.
