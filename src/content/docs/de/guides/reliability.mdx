@@ -14,7 +14,7 @@ Wiederholen Sie einen fehlgeschlagenen Aufruf, wenn der Status vorübergehend is
 
 ## Minimales Beispiel
 
-Bei HTTP 429 `2 ** attempt` Sekunden warten und erneut versuchen. Nach 3 Versuchen abbrechen. Die Modell-ID ist `gpt-oss-120b`.
+Bei HTTP 429 warten Sie `2 ** attempt` Sekunden und versuchen es erneut. Nach 3 Versuchen bricht die Schleife ab. Die Modell-ID ist `gpt-oss-120b`.
 
 ```python
 import time

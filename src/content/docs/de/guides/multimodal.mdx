@@ -156,7 +156,7 @@ Die folgenden Modelle sind Beispiele aus diesem Guide. Auch andere Modelle auf d
 Gescannte Seiten und Handschrift gehören zu [OCR](/de/guides/ocr), den Vorschau-Modellen. Diese Seite ist der Chat-Aufruf mit Bild.
 
 :::caution[Bildlimits pro Anfrage unterscheiden sich je Modell]
-T-Cloud-gehostete Modelle begrenzen, wie viele Bilder eine Anfrage enthalten darf. **Das Limit ist nicht bei allen Modellen gleich.** `gemma-4-31B-it-FP8` akzeptiert 10.
+T-Cloud-gehostete Modelle begrenzen, wie viele Bilder eine Anfrage enthalten darf. **Das Limit ist nicht bei allen Modellen gleich.** `gemma-4-31B-it-FP8` akzeptiert 10. `Qwen-3.6-35B-FP8` akzeptiert 8.
 
 Wird das Limit überschritten, folgt HTTP 400 — entweder `At most 10 image(s) may be provided in one prompt.` oder `Image count 9 exceeds limit 8 per request.` Teilen Sie große Batches auf mehrere Anfragen auf.
 :::

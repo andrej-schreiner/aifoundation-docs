@@ -1,19 +1,22 @@
 ---
 title: "Strukturierte Ausgaben"
-description: "JSON anfordern, das einem Schema entspricht, über die Responses API."
+description: "JSON zurückgeben, das einem Schema entspricht, über die Responses API."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-Fordern Sie JSON an, das einem Schema folgt. Die Responses API ist für `gpt-oss-120b` bestätigt.
+Strukturierte Ausgaben fordern JSON an, das einem Schema folgt. Nutzen Sie sie, wenn der nächste Schritt Felder braucht und keinen Absatz: einen Produktdatensatz, ein Label oder einen Score.
+
+Der Aufruf nutzt die Responses API. Diese API ist für `gpt-oss-120b` bestätigt.
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installiert ([Quickstart](/de/))
-- Die Responses API, wie unter [Chat Completions](/de/guides/chat-completions) beschrieben
 :::
 
 ## Minimales Beispiel
+
+Diese Anfrage extrahiert einen Produktdatensatz. Das Schema verlangt einen Namen, eine Liste von Merkmalen, eine Liste von Farben und ein Preisobjekt.
 
 ```python
 import json
@@ -63,28 +66,43 @@ response = client.responses.create(
 print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
-<div set:html="<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text in den Dokumenten. Kein Beispiel-JSON veröffentlichen, bevor eines erfasst ist. -->"></div>
+<div set:html="<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text vor. Das JSON unten ist die Form, die Schema und Prompt nahelegen. -->"></div>
 
-Der Aufruf liefert `response.output_text`.
+`response.output_text` ist ein JSON-String. Für den Prompt oben hat ein passendes Objekt diese Form:
+
+```json
+{
+  "product_name": "Premium Laptop Backpack",
+  "features": ["Padded compartments that fit laptops up to 15.6 inches"],
+  "colors": ["navy blue", "black", "gray"],
+  "pricing": {
+    "regular_price": 79.99,
+    "sale_price": 64.99,
+    "currency": "USD"
+  }
+}
+```
 
 ## Parameter
 
-Das Beispiel setzt `model`, `input`, `max_output_tokens` und `text.format` mit `type`, `name`, `schema` und `strict`.
+Setzen Sie `model`, `input`, `max_output_tokens` und `text.format`. In `text.format` setzen Sie `type` auf `json_schema` sowie `name`, `schema` und `strict`.
 
 <div set:html="<!-- TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. -->"></div>
 
-## Grenzen und Fehlersuche
+## Unterstützte Modelle
 
-Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten mit HTTP 400. Nutzen Sie Chat Completions, wenn ein Modell die Responses API ablehnt.
+Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten auf `client.responses.create` mit HTTP 400. Für diese Modelle [Chat Completions](/de/guides/chat-completions) verwenden.
 
 <div set:html="<!-- TODO(andrej): bestätigen, dass gpt-oss-120b diese text.format-Nutzlast mit json_schema akzeptiert. -->"></div>
 
-[Function Calling](/de/guides/function-calling) liefert JSON-Argumente für ein Tool, das Sie definiert haben.
+## Grenzen
 
-## Nächste Schritte
+`strict: True` lehnt zusätzliche Eigenschaften ab. Kann das Modell ein Pflichtfeld nicht aus der Eingabe füllen, kann der Aufruf fehlschlagen, statt zu raten. Für JSON-Argumente eines Tools, das Sie definiert haben, [Function Calling](/de/guides/function-calling) verwenden.
+
+## Siehe auch
 
 <div class="link-card-row">
   <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools und JSON-Argumente." />
-  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Responses API und Chat-Parameter." />
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Die Chat-API und ihre Parameter." />
   <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="T-Cloud-Modelle nach Anwendungsfall." />
 </div>

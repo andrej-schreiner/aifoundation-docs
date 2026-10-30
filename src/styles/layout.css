@@ -232,6 +232,11 @@ mobile-starlight-toc nav {
 	max-width: var(--aifs-layout-measure);
 }
 
+.sl-markdown-content > .choose-desktop {
+	max-width: none;
+	width: 100%;
+}
+
 .content-panel :where(h1, h1 + p) {
 	max-width: min(100%, var(--aifs-layout-measure));
 	min-width: 0;

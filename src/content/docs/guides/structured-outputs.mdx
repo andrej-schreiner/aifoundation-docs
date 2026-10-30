@@ -1,19 +1,22 @@
 ---
 title: "Structured outputs"
-description: "Ask a model for JSON that matches a schema, on the Responses API."
+description: "Return JSON that matches a schema, using the Responses API."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-Ask for JSON that follows a schema. The Responses API is confirmed on `gpt-oss-120b`.
+Structured outputs ask a model to return JSON that follows a schema you define. Use them when the next step in your application needs fields, not a paragraph: a product record, a label, or a score.
+
+The call uses the Responses API. That API is confirmed on `gpt-oss-120b`.
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installed ([Quickstart](/))
-- The Responses API, as described on [Chat completions](/guides/chat-completions)
 :::
 
 ## Minimal example
+
+This request extracts a product record. The schema requires a name, a list of features, a list of colors, and a price object.
 
 ```python
 import json
@@ -63,28 +66,43 @@ response = client.responses.create(
 print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
-<div set:html="<!-- TODO(andrej): no recorded output_text for this call is in the docs. Do not publish a sample JSON until one is captured. -->"></div>
+<div set:html="<!-- TODO(andrej): no recorded output_text for this call is in the docs. The JSON below is the shape the schema and the prompt imply. -->"></div>
 
-The call returns `response.output_text`.
+`response.output_text` is a JSON string. For the prompt above, a matching object has this shape:
+
+```json
+{
+  "product_name": "Premium Laptop Backpack",
+  "features": ["Padded compartments that fit laptops up to 15.6 inches"],
+  "colors": ["navy blue", "black", "gray"],
+  "pricing": {
+    "regular_price": 79.99,
+    "sale_price": 64.99,
+    "currency": "USD"
+  }
+}
+```
 
 ## Parameters
 
-The example sets `model`, `input`, `max_output_tokens`, and `text.format` with `type`, `name`, `schema`, and `strict`.
+Set `model`, `input`, `max_output_tokens`, and `text.format`. Inside `text.format`, set `type` to `json_schema`, plus `name`, `schema`, and `strict`.
 
 <div set:html="<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->"></div>
 
-## Limitations and troubleshooting
+## Supported models
 
-The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400. Use Chat Completions when a model rejects the Responses API.
+The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
 
 <div set:html="<!-- TODO(andrej): confirm that gpt-oss-120b accepts this text.format json_schema payload. -->"></div>
 
-[Function calling](/guides/function-calling) returns JSON arguments for a tool you defined.
+## Limitations
 
-## Next steps
+`strict: True` rejects extra properties. If the model cannot fill a required field from the input, the call can fail instead of guessing. For JSON arguments of a tool you defined, use [Function calling](/guides/function-calling).
+
+## See also
 
 <div class="link-card-row">
   <LinkCard title="Function calling" href="/guides/function-calling" description="Tools and JSON arguments." />
-  <LinkCard title="Chat completions" href="/guides/chat-completions" description="Responses API and chat parameters." />
+  <LinkCard title="Chat completions" href="/guides/chat-completions" description="The chat API and its parameters." />
   <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="T-Cloud models by use case." />
 </div>

@@ -5,36 +5,36 @@ description: "Tokens, TPM, RPM, context window, T-Cloud, partner models, the Ope
 
 ## Tokens
 
-A token is the unit the API counts. Chat requests set `max_tokens` for how many tokens to generate. Rate limits count tokens per minute.
+A token is the unit the API counts. A chat request can set `max_tokens` to cap how many tokens the model generates. Rate limits also count tokens per minute.
 
 ## TPM
 
-Tokens per minute. A shared plan publishes an input TPM and an output TPM per model. The figures are on [Rate limits](/reference/rate-limits).
+TPM means tokens per minute. Each shared plan publishes an input TPM and an output TPM for every model. Those figures, and the conditions on them, are on [Rate limits](/reference/rate-limits).
 
 ## RPM
 
-Requests per minute. A shared plan publishes how many requests you can send per model. Same page as TPM: [Rate limits](/reference/rate-limits).
+RPM means requests per minute. Each shared plan publishes how many requests you can send to a model. RPM is published on the same [Rate limits](/reference/rate-limits) page as TPM.
 
 ## Context window
 
-How much text a model accepts in one request, as listed in the catalog (`8K`, `128K`, `1M`). See [Choosing a model](/getting-started/choosing-a-model).
+The context window is how much text a model accepts in one request. The catalog lists it for each model, for example `8K`, `128K`, or `1M`. [Choosing a model](/getting-started/choosing-a-model) shows the value next to each recommendation.
 
 ## T-Cloud
 
-Telekom-hosted models. In the catalog their region is Germany. [Enterprise Trust](/reference/enterprise-trust) describes how prompts for these models are processed. The product label is T-Cloud.
+T-Cloud is the label for models Telekom hosts. The catalog lists their region as Germany. [Enterprise Trust](/reference/enterprise-trust) describes how prompts for these models are processed.
 
 ## Partner models
 
-Models the API forwards to another provider. The catalog regions are Microsoft Azure or Google Cloud: a named region such as Sweden, France, or `europe-west1`, or worldwide. Data handling for that path is on [Enterprise Trust](/reference/enterprise-trust).
+Partner models are the models the API forwards to another provider. The catalog lists them on Microsoft Azure or Google Cloud, in a named region such as Sweden, France, or `europe-west1`, or worldwide. [Enterprise Trust](/reference/enterprise-trust) describes data handling for that path.
 
 ## OpenAI-compatible
 
-The HTTP API accepts the OpenAI SDK. The [quickstart](/) sets `OPENAI_BASE_URL` and sends `chat/completions`. Check the guide for the call you are making. Not every OpenAI parameter exists on every model.
+The API works with the OpenAI SDK. The [quickstart](/) sets `OPENAI_BASE_URL` and sends a request to `chat/completions`. Not every OpenAI parameter exists on every model, so use the guide for the call you are making.
 
 ## Reasoning effort
 
-`reasoning_effort` on models whose datasheet lists accepted values. The list is per model. See [Reasoning](/guides/reasoning).
+`reasoning_effort` sets how much reasoning a model does before it answers. The datasheet lists the accepted values, and the list is different for each model. See [Reasoning](/guides/reasoning).
 
 ## Embeddings
 
-A vector for a piece of text, from `POST /embeddings`. Used for semantic search and retrieval. See [Embeddings](/guides/embeddings).
+An embedding is a vector for a piece of text, returned by `POST /embeddings`. Use embeddings for semantic search and retrieval. See [Embeddings](/guides/embeddings).

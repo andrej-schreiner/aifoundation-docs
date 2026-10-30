@@ -12,23 +12,39 @@ const prefix = isDE ? '/de' : '';
 const row = choiceById(useCase);
 const picks = picksFor(useCase);
 
+const GUIDE_TITLES: Record<string, { en: string; de: string }> = {
+  '/guides/chat-completions': { en: 'Chat completions', de: 'Chat Completions' },
+  '/guides/reasoning': { en: 'Reasoning', de: 'Reasoning' },
+  '/guides/function-calling': { en: 'Function calling', de: 'Function Calling' },
+  '/guides/multimodal': { en: 'Vision', de: 'Vision' },
+  '/guides/ocr': { en: 'OCR', de: 'OCR' },
+  '/guides/embeddings': { en: 'Embeddings', de: 'Embeddings' },
+  '/guides/audio': { en: 'Audio', de: 'Audio' },
+  '/guides/decisions': { en: 'Decisions', de: 'Decisions' },
+  '/guides/image-generation': { en: 'Image generation', de: 'Bildgenerierung' },
+};
+const guideTitle = (isDE ? GUIDE_TITLES[row.guide]?.de : GUIDE_TITLES[row.guide]?.en) ?? (isDE ? 'Zur Anleitung' : 'Guide');
+
 const t = isDE
   ? {
       heading: 'Empfohlen',
-      guide: 'Zur Anleitung',
       preview: 'Vorschau',
       unpublished: 'Kontext nicht angegeben',
     }
   : {
       heading: 'Recommended',
-      guide: 'Matching guide',
       preview: 'Preview',
       unpublished: 'Context not published',
     };
 
 function place(hosting: string): string {
   if (!isDE) return hosting;
-  return hosting.replace('T-Cloud Germany', 'T-Cloud Deutschland');
+  return hosting
+    .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
+    .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
+    .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
+    .replaceAll('Azure (worldwide)', 'Azure (weltweit)')
+    .replaceAll('GCP (worldwide)', 'GCP (weltweit)');
 }
 ---
 
@@ -58,7 +74,7 @@ function place(hosting: string): string {
     })}
   </ul>
   <p class="model-pick__notes">{isDE ? row.notes.de : row.notes.en}</p>
-  <p class="model-pick__guide"><a href={`${prefix}${row.guide}`}>{t.guide}</a></p>
+  <p class="model-pick__guide"><a href={`${prefix}${row.guide}`}>{guideTitle}</a></p>
 </section>
 
 <style>

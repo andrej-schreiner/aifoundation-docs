@@ -84,6 +84,9 @@ for (const pkg of pricingData as Package[]) {
 function publishedContext(value: string | null | undefined): string {
   const text = (value ?? '').trim();
   if (!text || text === 'None' || text === 'null') return '';
+  const compact = text.replace(/,/g, '');
+  if (compact === '102400') return '102K';
+  if (/^1050k$/i.test(compact)) return '1.05M';
   return text;
 }
 
@@ -143,8 +146,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     recommended: 'GLM-5.3',
     alternative: 'GLM-5.2',
     notes: {
-      en: 'GLM 5.3 and GLM 5.2 run on T-Cloud with a 1M context window. reasoning_effort accepts none, high, and max.',
-      de: 'GLM 5.3 und GLM 5.2 laufen auf T-Cloud mit einem Kontextfenster von 1M. reasoning_effort akzeptiert none, high und max.',
+      en: 'GLM 5.3 and GLM 5.2 run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max.',
+      de: 'GLM 5.3 und GLM 5.2 laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max.',
     },
     guide: '/guides/reasoning',
   },
@@ -155,8 +158,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     alternative: 'GLM-5.3-Flash',
     also: 'Qwen3.8-27B-FP8',
     notes: {
-      en: 'Z.ai positions GLM 5.3 for coding agents and long-horizon tasks. GLM 5.3 Flash and Qwen 3.8 27B also run on T-Cloud. Tool calls use the chat API.',
-      de: 'Z.ai positioniert GLM 5.3 für Coding-Agents und lange Agentenaufgaben. GLM 5.3 Flash und Qwen 3.8 27B laufen ebenfalls auf T-Cloud. Tool Calls nutzen die Chat-API.',
+      en: 'GLM 5.3 has the catalog\'s coding tag and a 1M context window.',
+      de: 'GLM 5.3 hat das Coding-Tag im Katalog und ein Kontextfenster von 1M.',
     },
     guide: '/guides/function-calling',
   },
@@ -167,8 +170,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     alternative: 'gemma-4-31B-it-FP8',
     also: 'Mistral-Small-4-119B-2603',
     notes: {
-      en: 'All three accept text and image on T-Cloud. For scanned pages and handwriting, use the OCR models.',
-      de: 'Alle drei akzeptieren Text und Bild auf T-Cloud. Für Scans und Handschrift die OCR-Modelle verwenden.',
+      en: 'Both accept text and image on T-Cloud. Mistral Small 4 does too.',
+      de: 'Beide akzeptieren Text und Bild auf T-Cloud. Mistral Small 4 ebenfalls.',
     },
     guide: '/guides/multimodal',
   },
@@ -201,8 +204,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     recommended: 'whisper-large-v3',
     alternative: 'whisper-large-v3-turbo',
     notes: {
-      en: 'Speech to text on T-Cloud. Each model has a context window of 448.',
-      de: 'Sprache zu Text auf T-Cloud. Das Kontextfenster ist jeweils 448.',
+      en: 'Speech to text on T-Cloud. Each model has a context window of 448 tokens.',
+      de: 'Sprache zu Text auf T-Cloud. Das Kontextfenster ist jeweils 448 Tokens.',
     },
     guide: '/guides/audio',
   },

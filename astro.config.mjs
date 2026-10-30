@@ -294,8 +294,8 @@ export default defineConfig({
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
 						{ label: 'Choosing a model', translations: { de: 'Modell wählen' }, slug: 'getting-started/choosing-a-model' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
-						{ label: 'Shared vs dedicated', translations: { de: 'Shared und dedicated' }, slug: 'getting-started/shared-vs-dedicated' },
-						{ label: 'Concepts and glossary', translations: { de: 'Begriffe' }, slug: 'getting-started/concepts' },
+						{ label: 'Shared vs dedicated', translations: { de: 'Shared und Dedicated' }, slug: 'getting-started/shared-vs-dedicated' },
+						{ label: 'Concepts and glossary', translations: { de: 'Konzepte und Glossar' }, slug: 'getting-started/concepts' },
 						{
 							label: 'Migrate to New API',
 							translations: { de: 'Umstieg auf neue API' },

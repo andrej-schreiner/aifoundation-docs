@@ -33,11 +33,24 @@ const t = isDE
 
 function place(hosting: string): string {
   if (!isDE) return hosting;
-  return hosting.replace('T-Cloud Germany', 'T-Cloud Deutschland');
+  return hosting
+    .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
+    .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
+    .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
+    .replaceAll('Azure (worldwide)', 'Azure (weltweit)')
+    .replaceAll('GCP (worldwide)', 'GCP (weltweit)');
 }
 
 function contextLabel(value: string): string {
-  return value || t.unpublished;
+  return value || '—';
+}
+
+function richHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
 function where(recommended: string, alternative: string): string {
@@ -94,7 +107,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
               </td>
               <td>{where(row.recommended, row.alternative)}</td>
               <td>{contextCell(row.recommended, row.alternative)}</td>
-              <td>{isDE ? row.notes.de : row.notes.en}</td>
+              <td><span set:html={richHtml(isDE ? row.notes.de : row.notes.en)} /></td>
             </tr>
           );
         })}
@@ -130,6 +143,14 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
           <span class="choose-k">{t.where}</span>
           {where(row.recommended, row.alternative)}
         </p>
+        <p>
+          <span class="choose-k">{t.context}</span>
+          {contextCell(row.recommended, row.alternative)}
+        </p>
+        <p>
+          <span class="choose-k">{t.notes}</span>
+          <span set:html={richHtml(isDE ? row.notes.de : row.notes.en)} />
+        </p>
       </li>
     );
   })}
@@ -139,17 +160,32 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
 
 <p>
   {isDE
-    ? 'Ein Modell, das den Katalog verlässt, steht mit Datum und Ersatz unter Abkündigungen.'
-    : 'A model that is leaving the catalog is listed with its date and replacement on Deprecations.'}
-  {' '}
+    ? 'Ein Modell, das den Katalog verlässt, steht mit Datum und Ersatz unter '
+    : 'A model that is leaving the catalog is listed with its date and replacement on '}
   <a href={`${prefix}/models/deprecations`}>{t.deprecations}</a>.
 </p>
 
 <style>
+  .choose-desktop,
+  .choose-cards {
+    margin-top: 1rem;
+  }
+
+  .choose-desktop {
+    width: 100%;
+    max-width: none;
+  }
+
+  .choose-desktop :global(.aifs-table-scroll),
+  .choose-desktop table {
+    width: 100%;
+    max-width: none;
+  }
+
   .choose-cards {
     display: none;
     list-style: none;
-    margin: 0;
+    margin-top: 1rem;
     padding: 0;
     gap: 8px;
   }
