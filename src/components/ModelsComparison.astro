@@ -264,12 +264,12 @@ function resolveCapabilities(exactModelName: string, category: Category): Capabi
 
 // ---------------- Cloud (replaces Sovereignty) ----------------
 
-type CloudKey = 'Telekom' | 'Azure' | 'GCP' | 'Other';
+type CloudKey = 'T-Cloud' | 'Azure' | 'GCP' | 'Other';
 
 function resolveCloud(deploymentRegion: string): CloudKey {
   const region = (deploymentRegion ?? '').toLowerCase();
-  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → Telekom
-  if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'Telekom';
+  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → T-Cloud
+  if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'T-Cloud';
   if (region.startsWith('azure')) return 'Azure';
   if (region.startsWith('gcp') || region.startsWith('google')) return 'GCP';
   return 'Other';
@@ -277,7 +277,7 @@ function resolveCloud(deploymentRegion: string): CloudKey {
 
 function cloudFullName(cloud: CloudKey): string {
   switch (cloud) {
-    case 'Telekom':
+    case 'T-Cloud':
       return 'T-Cloud Public';
     case 'Azure':
       return 'Microsoft Azure';
@@ -289,7 +289,7 @@ function cloudFullName(cloud: CloudKey): string {
 }
 
 function cloudTagClass(cloud: CloudKey): string {
-  return cloud === 'Telekom' ? 'tag-tcloud' : 'tag-cloud';
+  return cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud';
 }
 
 // ---------------- Compile model list ----------------
@@ -380,7 +380,7 @@ for (const m of byName.values()) {
 
 // Default order: Telekom-first by cloud priority, then alphabetical by
 // display name. Client-side sort (column-header clicks) can override.
-const CLOUD_RANK: Record<CloudKey, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+const CLOUD_RANK: Record<CloudKey, number> = { 'T-Cloud': 0, Azure: 1, GCP: 2, Other: 3 };
 
 function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined): boolean {
   if (!cap) return true;
@@ -451,13 +451,13 @@ const t = {
 
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
-      Telekom: 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
+      'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
       Azure:   'Gehostet auf Microsoft Azure (EU-Regionen).',
       GCP:     'Gehostet auf Google Cloud Platform (EU-Regionen).',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
-      Telekom: "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
+      'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
       Azure:   'Hosted on Microsoft Azure (EU regions).',
       GCP:     'Hosted on Google Cloud Platform (EU regions).',
       Other:   'Hosted by a third-party provider.',
@@ -510,7 +510,7 @@ function planTagClass(plan: string): string {
 // category any visible row belongs to, not just primary categories.
 const uniqueCategories = [...new Set(allModels.flatMap((m) => m.categories))];
 const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
-const uniqueClouds = (['Telekom', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
+const uniqueClouds = (['T-Cloud', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
   allModels.some((m) => m.cloud === c),
 );
 const uniqueInputs = (['Text', 'Image', 'Audio'] as InputModality[]).filter((mod) =>
@@ -792,7 +792,7 @@ const rowDataPayload = allModels.map((m) => ({
     // reorder the rows in-place.
     let sortKey = 'cloud';
     let sortAsc = true;
-    const CLOUD_RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+    const CLOUD_RANK: Record<string, number> = { 'T-Cloud': 0, Azure: 1, GCP: 2, Other: 3 };
 
     const filterDefs: Array<{ id: string; type: 'single' | 'multi' | 'bool'; field: keyof RowData }> = [
       { id: 'category', type: 'multi', field: 'categories' },

@@ -403,8 +403,8 @@ const priceBuckets = [
       }
       return {
         location: [...locations].sort(),
-        cloud: ['Telekom', 'Azure', 'GCP', 'Other'].filter((c) => clouds.has(c)).concat(
-          [...clouds].filter((c) => !['Telekom', 'Azure', 'GCP', 'Other'].includes(c)).sort(),
+        cloud: ['T-Cloud', 'Azure', 'GCP', 'Other'].filter((c) => clouds.has(c)).concat(
+          [...clouds].filter((c) => !['T-Cloud', 'Azure', 'GCP', 'Other'].includes(c)).sort(),
         ),
       };
     }
@@ -644,7 +644,7 @@ const priceBuckets = [
           // product's flagship ordering rather than A → Z. Secondary sort by
           // displayName keeps ties stable and readable.
           if (sortKey === 'cloudProvider') {
-            const RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2 };
+            const RANK: Record<string, number> = { 'T-Cloud': 0, Azure: 1, GCP: 2 };
             const lr = RANK[normalizeCloudProvider(left.cloudProvider)] ?? 99;
             const rr = RANK[normalizeCloudProvider(right.cloudProvider)] ?? 99;
             if (lr !== rr) return sortAsc ? lr - rr : rr - lr;
@@ -715,16 +715,16 @@ const priceBuckets = [
     }
 
     function getCloudProviderTagClass(value: string) {
-      return normalizeCloudProvider(value) === 'Telekom' ? 'tag-tcloud' : 'tag-external-cloud';
+      return normalizeCloudProvider(value) === 'T-Cloud' ? 'tag-tcloud' : 'tag-external-cloud';
     }
 
     function normalizeCloudProvider(value: string) {
-      return value === 'Open Telekom Cloud' || value === 'OTC' ? 'Telekom' : value;
+      return value === 'Open Telekom Cloud' || value === 'OTC' || value === 'Telekom' ? 'T-Cloud' : value;
     }
 
     function getCloudProviderFullName(value: string) {
       const normalized = normalizeCloudProvider(value);
-      if (normalized === 'Telekom') return 'T-Cloud Public';
+      if (normalized === 'T-Cloud') return 'T-Cloud Public';
       if (normalized === 'Azure') return 'Microsoft Azure';
       if (normalized === 'GCP') return 'Google Cloud Platform';
       return normalized;
