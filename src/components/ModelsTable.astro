@@ -126,7 +126,7 @@ const priceBuckets = [
         </Selector>
       </div>
     ) : (
-      <div class="plans-filterbar" role="group" aria-label={translations.modelsTitle}>
+      <div class="plans-filterbar not-content" role="group" aria-label={translations.modelsTitle}>
         <details class="plans-filter" data-filter="location">
           <summary aria-label={translations.labelServerLocation}>
             <span class="plans-filter__label">{translations.labelServerLocation}</span>
@@ -818,6 +818,34 @@ const priceBuckets = [
       });
 
       // Reset button removes ALL filters (every checkbox checked).
+      if (!section.hasAttribute('data-popover-bound')) {
+        section.setAttribute('data-popover-bound', '');
+        const closeFilters = (except: HTMLDetailsElement | null) => {
+          section.querySelectorAll<HTMLDetailsElement>('details.plans-filter[open]').forEach((details) => {
+            if (details !== except) details.open = false;
+          });
+        };
+        section.addEventListener('toggle', (evt) => {
+          const details = evt.target;
+          if (details instanceof HTMLDetailsElement && details.classList.contains('plans-filter') && details.open) {
+            closeFilters(details);
+          }
+        }, true);
+        document.addEventListener('keydown', (evt) => {
+          if (evt.key !== 'Escape') return;
+          const open = section.querySelector<HTMLDetailsElement>('details.plans-filter[open]');
+          if (!open) return;
+          open.open = false;
+          open.querySelector<HTMLElement>('summary')?.focus();
+        });
+        document.addEventListener('click', (evt) => {
+          const target = evt.target;
+          if (!(target instanceof Node)) return;
+          if (target instanceof Element && target.closest('.plans-filter')) return;
+          closeFilters(null);
+        });
+      }
+
       const resetBtn = section.querySelector<HTMLButtonElement>('[data-reset]');
       if (resetBtn) {
         resetBtn.addEventListener('click', () => resetAllFilters());
@@ -929,10 +957,12 @@ const priceBuckets = [
   }
 
   .models-table-section .plans-table {
+    display: table;
     width: 100%;
     max-width: 100%;
     table-layout: fixed;
-    font-size: 0.76rem;
+    font-size: 0.875rem;
+    border: 0;
   }
 
   .models-table-section .plans-table th,
@@ -945,11 +975,17 @@ const priceBuckets = [
     min-width: 0;
   }
 
+  .models-table-section .plans-table th a {
+    color: inherit;
+  }
+
   .models-table-section .plans-table th {
     position: sticky;
     top: 0;
     z-index: 5;
-    background: var(--sl-color-gray-6);
+    background: #f2f2f2;
+    color: #262626;
+    font-weight: 700;
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
     white-space: wrap;
@@ -995,9 +1031,15 @@ const priceBuckets = [
   }
 
   :root[data-theme='dark'] .models-table-section {
-    --model-link-color: #7d87ff;
-    --model-link-icon-color: #7d87ff;
-    --models-sort-active-color: var(--sl-color-accent-high);
+    --model-link-color: var(--aifs-d-link);
+    --model-link-icon-color: var(--aifs-d-link);
+    --models-sort-active-color: var(--aifs-d-link);
+  }
+
+  :root[data-theme='dark'] .models-table-section .plans-table th {
+    background: var(--aifs-d-surface);
+    color: var(--aifs-d-text);
+    border-bottom: 1px solid var(--aifs-d-border);
   }
 
   .models-controls {
@@ -1022,20 +1064,32 @@ const priceBuckets = [
   .plans-filter {
     position: relative;
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 6px;
-    background: var(--sl-color-gray-6);
-    font-size: 0.82rem;
+    border-inline-start-width: 1px;
+    border-radius: 999px;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    font-size: 0.875rem;
   }
 
   .plans-filter > summary {
     cursor: pointer;
     list-style: none;
-    padding: 0.3rem 0.65rem;
+    padding: 0.4rem 0.8rem;
+    margin: 0;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     line-height: 1.2;
     user-select: none;
+    border-radius: 999px;
+  }
+
+  .plans-filter > summary::before,
+  .plans-filter > summary::marker,
+  .plans-filter > summary::-webkit-details-marker {
+    content: none;
+    display: none;
   }
 
   .plans-filter > summary::-webkit-details-marker {
@@ -1071,11 +1125,15 @@ const priceBuckets = [
     border-radius: 5px;
   }
 
+  .plans-filter[open] {
+    z-index: 40;
+  }
+
   .plans-filter__menu {
     position: absolute;
-    top: calc(100% + 4px);
+    top: calc(100% + 6px);
     left: 0;
-    z-index: 20;
+    z-index: 40;
     min-width: 11rem;
     max-height: 22rem;
     overflow-y: auto;
@@ -1109,14 +1167,14 @@ const priceBuckets = [
 
   .plans-filter-reset {
     padding: 0.3rem 0.7rem;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--sl-color-text);
     background: transparent;
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 6px;
+    border-radius: 999px;
     cursor: pointer;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .plans-filter-reset:hover {
@@ -1125,7 +1183,7 @@ const priceBuckets = [
 
   .plans-filter-status {
     margin-bottom: 0.5rem;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     color: var(--sl-color-gray-3);
   }
 
@@ -1137,7 +1195,7 @@ const priceBuckets = [
   }
 
   th.sort-active .sort-header {
-    color: var(--models-sort-active-color);
+    color: #ffffff;
   }
 
   .sort-icon {
@@ -1326,7 +1384,7 @@ const priceBuckets = [
 
   .creator-brand__label {
     font-weight: 600;
-    font-size: 0.76rem;
+    font-size: 0.875rem;
     white-space: nowrap;
     font-style: normal;
   }
@@ -1359,7 +1417,7 @@ const priceBuckets = [
     gap: 0.25rem;
     color: var(--model-link-color);
     text-decoration-color: currentColor;
-    font-size: 0.74rem;
+    font-size: 0.875rem;
     white-space: nowrap;
   }
 

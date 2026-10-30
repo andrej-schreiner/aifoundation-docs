@@ -116,7 +116,8 @@ const hasLabel = Boolean(label?.trim());
 
   :global(:root[data-theme='dark']) .selector__control option,
   :global(:root[data-theme='dark']) .selector__control optgroup {
-    background-color: rgb(28, 28, 31) !important;
+    background-color: var(--aifs-d-surface) !important;
+    color: var(--aifs-d-text);
     color: var(--sl-color-white) !important;
   }
 
@@ -130,10 +131,10 @@ const hasLabel = Boolean(label?.trim());
     }
 
     :global(:root:not([data-theme='light'])) .selector__control {
-      background-color: rgb(28, 28, 31) !important;
-      background-image: linear-gradient(180deg, rgba(38, 38, 41, 0.9), rgba(28, 28, 31, 0.94));
-      border-color: color-mix(in srgb, var(--sl-color-gray-4) 82%, white 18%);
-      color: var(--sl-color-white) !important;
+      background-color: var(--aifs-d-surface) !important;
+      background-image: none;
+      border-color: var(--aifs-d-border);
+      color: var(--aifs-d-text) !important;
       color-scheme: dark;
     }
 
@@ -143,8 +144,8 @@ const hasLabel = Boolean(label?.trim());
 
     :global(:root:not([data-theme='light'])) .selector__control option,
     :global(:root:not([data-theme='light'])) .selector__control optgroup {
-      background-color: rgb(28, 28, 31) !important;
-      color: var(--sl-color-white) !important;
+      background-color: var(--aifs-d-surface) !important;
+      color: var(--aifs-d-text) !important;
     }
 
     :global(:root:not([data-theme='light'])) .selector__chevron {

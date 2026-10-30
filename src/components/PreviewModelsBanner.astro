@@ -89,18 +89,38 @@ const bars = isDE
     /* Left-aligned like the rest of the content column (margin:auto centering
        was a relic of the old fixed centered pill). */
     width: min(46rem, 100%);
-    margin: 0 0 0.25rem;
-    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0.45rem 0.75rem;
 
-    background: var(--sl-color-accent-low);
-    color: var(--sl-color-white);
-    border: 1px solid var(--sl-color-accent);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    background: #ffffff;
+    color: #262626;
+    border: 1px solid #d8d8d8;
+    border-inline-start: 3px solid #e20074;
+    border-radius: 8px;
+    box-shadow: none;
     font-size: var(--sl-text-xs);
     line-height: 1.35;
 
     animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
+  }
+  :global(:root[data-theme='dark']) .qp-bar {
+    background: var(--aifs-d-surface);
+    color: var(--aifs-d-text-body);
+    border-color: var(--aifs-d-border);
+    border-inline-start-color: var(--aifs-d-magenta);
+  }
+
+  :global(:root[data-theme='dark']) .qp-msg :global(b) {
+    color: var(--aifs-d-text);
+  }
+
+  :global(:root[data-theme='dark']) .qp-cta {
+    color: var(--aifs-d-link);
+  }
+
+  :global(:root[data-theme='dark']) .qp-cta:hover,
+  :global(:root[data-theme='dark']) .qp-cta:focus-visible {
+    color: #ffffff;
   }
   .qp-bar[hidden] {
     display: none;
@@ -111,7 +131,7 @@ const bars = isDE
     padding: 0.125rem 0.5rem;
     border-radius: 999px;
     background: var(--sl-color-accent);
-    color: var(--sl-color-white);
+    color: #ffffff;
     font-size: 0.6875rem;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -124,24 +144,21 @@ const bars = isDE
     color: var(--sl-color-text);
   }
   .qp-msg :global(b) {
-    color: var(--sl-color-text-accent);
+    color: var(--sl-color-accent-high);
     font-weight: 600;
   }
 
   .qp-cta {
     flex-shrink: 0;
-    padding: 0.3125rem 0.75rem;
-    border-radius: 7px;
-    background: var(--sl-color-accent);
-    color: var(--sl-color-white);
+    color: #b5005d;
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
     white-space: nowrap;
-    transition: background 0.15s;
   }
   .qp-cta:hover,
   .qp-cta:focus-visible {
-    background: var(--sl-color-accent-high);
+    color: #e20074;
   }
 
   .qp-close {

@@ -1,6 +1,6 @@
 /* Deutsche Telekom Branding — Starlight CSS Variables */
 :root {
-	--sl-color-accent-low: #3d0019;
+	--sl-color-accent-low: hsl(224, 14%, 16%);
 	--sl-color-accent: #e20074;
 	--sl-color-accent-high: #ff4da6;
 	/* Widen main content area to reduce right-sidebar whitespace */
@@ -51,24 +51,10 @@
 	border: 1px solid var(--sl-color-accent);
 }
 
-/* Link Card Row — side by side */
-.link-card-row {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
-	gap: 1rem;
-}
-
-.link-card-row > .sl-link-card {
-	margin: 0;
-}
+/* Link-card rows and Starlight CardGrid live in redesign.css.
+   A flex + space-around rule here used to shrink each card to its text. */
 
 /* Overview Page — Hover Cards */
-.card-grid {
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-around;
-	gap: 16px;
-}
 
 .hover-card {
 	flex: 1 1 30%;
@@ -301,7 +287,7 @@
 }
 
 .sidebar-content details details details > summary .large {
-	font-size: var(--sl-text-xs);
+	font-size: 0.875rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -342,7 +328,7 @@
 
 @media (max-width: 30rem) {
 	.site-title {
-		font-size: 0.8125rem; /* 13px */
+		font-size: 0.875rem; /* 14px */
 		gap: 0.25rem;
 	}
 	.site-title img {
@@ -353,7 +339,7 @@
 
 @media (max-width: 22.5rem) {
 	.site-title {
-		font-size: 0.75rem; /* 12px */
+		font-size: 0.875rem; /* 14px */
 		gap: 0.25rem;
 	}
 	.site-title img {

@@ -1,0 +1,150 @@
+---
+import config from 'virtual:starlight/user-config';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const home = isDE ? '/de/' : '/';
+const cta = isDE ? 'API-Key' : 'Get API key';
+const ctaAria = isDE
+	? 'API-Key generieren (öffnet in neuem Tab)'
+	: 'Get API key (opens in a new tab)';
+const showSearch =
+	config.pagefind || config.components?.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="ts-header">
+	<a class="ts-brand" href={home} aria-label="AI Foundation Services">
+		<span class="ts-mark">
+			<img src="/img/favicon_180x180.png" width="28" height="28" alt="" />
+		</span>
+		<span class="ts-word">
+			<span class="ts-word-full">AI Foundation Services</span>
+			<span class="ts-word-short">AIFS</span>
+		</span>
+	</a>
+	<div class="ts-search">{showSearch && <Search />}</div>
+	<div class="ts-tools">
+		<ThemeSelect />
+		<LanguageSelect />
+		<a class="ts-cta" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer" aria-label={ctaAria}>
+			{cta}
+		</a>
+	</div>
+</div>
+
+<style>
+	.ts-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		height: 100%;
+		min-width: 0;
+	}
+
+	/* Measured on https://www.t-systems.com/de/en (same lockup on the AI page):
+	   one magenta plate, square corners, white T and white wordmark in the same
+	   fill. No divider and no second colour. Desktop plate 254×90, padding 32px,
+	   logo 190×39. The drawn gap between the T and “Systems” is about 14px. */
+	.ts-brand {
+		display: flex;
+		align-items: center;
+		gap: 0.85rem;
+		align-self: stretch;
+		flex: 0 1 auto;
+		min-width: 0;
+		margin-block: calc(var(--sl-nav-pad-y) * -1);
+		margin-inline-start: calc(var(--sl-nav-pad-x) * -1);
+		padding-inline: 1.25rem 1.5rem;
+		background: #e20074;
+		color: #ffffff;
+		text-decoration: none;
+		border-radius: 0;
+		font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		font-weight: 400;
+	}
+
+	.ts-mark {
+		display: grid;
+		place-items: center;
+		flex: 0 0 auto;
+		background: transparent;
+	}
+
+	/* The file is a magenta T on transparency. On the magenta plate it vanishes.
+	   Paint that same shape white so the mark reads in light and dark. */
+	.ts-mark img {
+		width: 1.7rem;
+		height: 1.7rem;
+		object-fit: contain;
+		filter: brightness(0) invert(1);
+	}
+
+	.ts-word {
+		font-size: 1.125rem;
+		font-weight: 700;
+		line-height: 1.1;
+		white-space: nowrap;
+		color: #ffffff;
+	}
+
+	.ts-word-short {
+		display: none;
+	}
+
+	.ts-search {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.ts-tools {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		flex: 0 0 auto;
+	}
+
+	@media (max-width: 49.99rem) {
+		.ts-tools > :global(*:not(.ts-cta)) {
+			display: none !important;
+		}
+	}
+
+	.ts-cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 2.5rem;
+		padding: 0 1.1rem;
+		border-radius: 999px;
+		border: 1px solid #e20074;
+		background: #e20074;
+		color: #ffffff;
+		font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+		font-size: 0.95rem;
+		text-decoration: none;
+		white-space: nowrap;
+		transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+	}
+
+	.ts-cta:hover {
+		background: #ffffff;
+		color: #e20074;
+	}
+
+	@media (max-width: 40rem) {
+		.ts-brand {
+			gap: 0.55rem;
+			padding-inline: 0.85rem 1rem;
+		}
+
+		.ts-word-full {
+			display: none;
+		}
+
+		.ts-word-short {
+			display: inline;
+		}
+	}
+</style>

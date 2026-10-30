@@ -4,12 +4,11 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "bunx --bun astro dev",
-    "start": "bunx --bun astro dev",
-    "build": "bunx --bun astro build",
+    "dev": "bun --bun ./node_modules/.bin/astro dev",
+    "start": "bun --bun ./node_modules/.bin/astro dev",
+    "build": "bun --bun ./node_modules/.bin/astro build",
     "datasheet": "bun run scripts/fetch-model-parameters.mjs",
-    "preview": "bunx --bun astro preview",
-    "astro": "bunx --bun astro"
+    "preview": "bun --bun ./node_modules/.bin/astro preview"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.2",
