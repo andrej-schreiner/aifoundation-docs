@@ -11,6 +11,7 @@ import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import { hostingUnconfirmed } from '../shared/lib/launchModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
+import { catalogRank } from '../shared/lib/modelCatalogOrder';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
@@ -366,6 +367,7 @@ function mapModelRow(
     )),
     cloudProviderFullName: cloudFullNameFor(exactModelName, ''),
     displayName,
+    catalogRank: catalogRank(displayName),
     subName: model.modelLabel || '',
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,

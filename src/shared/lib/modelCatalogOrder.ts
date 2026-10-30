@@ -68,6 +68,11 @@ export const MODEL_CATALOG_ORDER = [
 
 const catalogIndex = new Map<string, number>(MODEL_CATALOG_ORDER.map((name, index) => [name, index]));
 
+/** Lower comes first. Names missing from the list sort after it. */
+export function catalogRank(name: string): number {
+  return catalogIndex.get(name) ?? 10_000;
+}
+
 /** Lower comes first. Unknown names sort after the list, then A to Z. */
 export function compareCatalogName(a: string, b: string): number {
   const ai = catalogIndex.get(a);

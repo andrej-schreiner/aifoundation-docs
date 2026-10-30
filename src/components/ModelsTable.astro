@@ -286,7 +286,7 @@ const priceBuckets = [
 <script>
   import { isPriceInRange } from '../shared/lib/priceRangeHelper';
   import { emptyMark, formatEuro } from '../shared/lib/displayFormat';
-  import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
+  import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
   import { getFlag } from '../shared/lib/flags';
 
   function flagHtml(code: string | undefined) {
@@ -564,6 +564,9 @@ const priceBuckets = [
       // Defensive: empty checked set means "no constraint". Auto-revert
       // normally prevents this state, but treat as pass-all just in case.
       if (checked.size === 0) return true;
+      // A blank location or cloud is not one of the checkboxes. Those rows
+      // stay visible, including after Reset.
+      if (!value) return true;
       return checked.has(value);
     }
 
@@ -578,20 +581,20 @@ const priceBuckets = [
           (model) =>
             model.displayName.toLowerCase().includes(term) ||
             model.subName.toLowerCase().includes(term) ||
-            model.modelHost.toLowerCase().includes(term) ||
-            model.cloudProvider.toLowerCase().includes(term) ||
-            model.modelTier.toLowerCase().includes(term) ||
-            model.creator.toLowerCase().includes(term) ||
-            model.serverLocation.toLowerCase().includes(term),
+            (model.modelHost || '').toLowerCase().includes(term) ||
+            (model.cloudProvider || '').toLowerCase().includes(term) ||
+            (model.modelTier || '').toLowerCase().includes(term) ||
+            (model.creator || '').toLowerCase().includes(term) ||
+            (model.serverLocation || '').toLowerCase().includes(term),
         );
       }
 
       if (legacy) {
         if (locationFilter && locationFilter.value) {
-          models = models.filter((model) => model.serverLocation === locationFilter.value);
+          models = models.filter((model) => !model.serverLocation || model.serverLocation === locationFilter.value);
         }
         if (cloudFilter && cloudFilter.value) {
-          models = models.filter((model) => model.cloudProvider === cloudFilter.value);
+          models = models.filter((model) => !model.cloudProvider || model.cloudProvider === cloudFilter.value);
         }
         if (inputPriceFilter) {
           models = applyPriceFilter(models, inputPriceFilter.value, (model) => model.inputPrice);
@@ -648,6 +651,8 @@ const priceBuckets = [
             const lr = RANK[normalizeCloudProvider(left.cloudProvider)] ?? 99;
             const rr = RANK[normalizeCloudProvider(right.cloudProvider)] ?? 99;
             if (lr !== rr) return sortAsc ? lr - rr : rr - lr;
+            const rankDiff = (left.catalogRank ?? catalogRank(left.displayName || '')) - (right.catalogRank ?? catalogRank(right.displayName || ''));
+            if (rankDiff !== 0) return rankDiff;
             const lname = (left.displayName || '').toLowerCase();
             const rname = (right.displayName || '').toLowerCase();
             if (lname < rname) return -1;

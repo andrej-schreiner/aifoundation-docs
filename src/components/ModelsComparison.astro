@@ -4,7 +4,7 @@ import { creatorNameFor, getLogo } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
 import { hostingUnconfirmed } from '../shared/lib/launchModels';
-import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
+import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
@@ -121,8 +121,9 @@ interface Capabilities {
   creator: string;
   inputModalities: InputModality[];
   outputModalities: OutputModality[];
-  streaming: boolean;
-  toolCalling: boolean;
+  /** null: not in the repo data. The table shows an em dash and the mobile row hides it. */
+  streaming: boolean | null;
+  toolCalling: boolean | null;
 }
 
 function inferCreator(exactModelName: string): string {
@@ -174,8 +175,8 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3.8-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemma-4-31B-it-FP8':            { inputModalities: ['Text', 'Image'] },
   // TODO(andrej): confirm id DeepSeek-V4.1-Flash. Text and image in, text out.
-  // Tool calling and streaming are vendor-supported. Hosting is not confirmed.
-  'DeepSeek-V4.1-Flash':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: true, toolCalling: true },
+  // Tool calling and streaming are not in the repo data, so both stay unset.
+  'DeepSeek-V4.1-Flash':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: null },
   // Mistral Small 4 is multimodal (Text+Image in). Keys match the GA ids in the
   // pricing catalog (the earlier `-Preview`/`-preview` suffixes are retired).
   'Mistral-Small-4-119B-2603':     { inputModalities: ['Text', 'Image'] },
@@ -647,6 +648,7 @@ const rowDataPayload = allModels.map((m) => ({
   outputPrice: m.outputPricePerMillionTokens,
   cachedInputPrice: m.cachedInputPricePerMillionTokens,
   plans: m.plans,
+  catalogRank: catalogRank(m.displayModelName),
 }));
 ---
 
@@ -679,7 +681,7 @@ const rowDataPayload = allModels.map((m) => ({
 
     <Button variant="secondary" size="small" class="mc-reset" data-reset>
       <span class="mc-reset__full">{t.reset}</span>
-      <span class="mc-reset__short">Reset</span>
+      <span class="mc-reset__short">{isDE ? 'Zurücksetzen' : 'Reset'}</span>
     </Button>
   </div>
 
@@ -767,14 +769,22 @@ const rowDataPayload = allModels.map((m) => ({
                   </Tooltip>
                 )}
               </td>
-              <td data-label={t.colInput}>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td data-label={t.colInput}>
+                {m.capabilities.inputModalities.map((mod, index) => (
+                  <span class="mc-mod">{MODALITY_LABELS[mod]}{index < m.capabilities.inputModalities.length - 1 ? ',' : ''}</span>
+                ))}
+              </td>
               <td class="center" data-label={t.colStreaming}>
-                {m.capabilities.streaming
+                {m.capabilities.streaming == null
+                  ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
+                  : m.capabilities.streaming
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
               <td class="center" data-label={t.colTools}>
-                {m.capabilities.toolCalling
+                {m.capabilities.toolCalling == null
+                  ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
+                  : m.capabilities.toolCalling
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
@@ -841,13 +851,13 @@ const rowDataPayload = allModels.map((m) => ({
                           <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
                         </div>
                       )}
-                      {m.capabilities.streaming && (
+                      {m.capabilities.streaming === true && (
                         <div>
                           <dt>{t.colStreaming}</dt>
                           <dd>{isDE ? 'Ja' : 'Yes'}</dd>
                         </div>
                       )}
-                      {m.capabilities.toolCalling && (
+                      {m.capabilities.toolCalling === true && (
                         <div>
                           <dt>{t.colTools}</dt>
                           <dd>{isDE ? 'Ja' : 'Yes'}</dd>
@@ -904,14 +914,15 @@ const rowDataPayload = allModels.map((m) => ({
   type RowData = {
     key: string;
     displayModelName: string;
+    catalogRank?: number;
     category: string;        // primary, for sort
     categories: string[];    // multi, for filter chip
     provider: string;
     cloud: string;
     inputs: string[];
     outputs: string[];
-    streaming: boolean;
-    toolCalling: boolean;
+    streaming: boolean | null;
+    toolCalling: boolean | null;
     contextWindowRaw: string;
     contextWindowNum: number;
     reasoningEffort: string[];
@@ -994,7 +1005,9 @@ const rowDataPayload = allModels.map((m) => ({
           // Row passes this filter if ANY of its values is checked.
           if (!values.some((v) => checked.has(v))) return false;
         } else {
-          const v = valueToString(row[def.field]);
+          const raw = row[def.field];
+          if (raw == null || raw === '') continue;
+          const v = valueToString(raw);
           if (!checked.has(v)) return false;
         }
       }
@@ -1061,6 +1074,8 @@ const rowDataPayload = allModels.map((m) => ({
           const ar = CLOUD_RANK[a.cloud] ?? 99;
           const br = CLOUD_RANK[b.cloud] ?? 99;
           if (ar !== br) return sortAsc ? ar - br : br - ar;
+          const rankDiff = (a.catalogRank ?? 10000) - (b.catalogRank ?? 10000);
+          if (rankDiff !== 0) return rankDiff;
           av = a.displayModelName.toLowerCase();
           bv = b.displayModelName.toLowerCase();
           break;
@@ -1074,14 +1089,12 @@ const rowDataPayload = allModels.map((m) => ({
           bv = b.outputs.join(',').toLowerCase();
           break;
         case 'streaming':
-          // true sorts before false in asc — flip boolean to numeric so the
-          // generic numeric comparator below does the right thing.
-          av = a.streaming ? 0 : 1;
-          bv = b.streaming ? 0 : 1;
+          av = a.streaming == null ? 2 : a.streaming ? 0 : 1;
+          bv = b.streaming == null ? 2 : b.streaming ? 0 : 1;
           break;
         case 'tools':
-          av = a.toolCalling ? 0 : 1;
-          bv = b.toolCalling ? 0 : 1;
+          av = a.toolCalling == null ? 2 : a.toolCalling ? 0 : 1;
+          bv = b.toolCalling == null ? 2 : b.toolCalling ? 0 : 1;
           break;
         case 'context': {
           const an = a.contextWindowNum;
@@ -1515,18 +1528,33 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison__scroll {
     max-width: 100%;
-    overflow-x: visible;
+    overflow-x: auto;
     margin-bottom: 8px;
   }
 
   .models-comparison-table {
     display: table;
     width: 100%;
-    min-width: 0;
+    min-width: 56rem;
     table-layout: fixed;
     border-collapse: collapse;
     font-size: 0.8125rem;
     border: 0;
+  }
+
+  .models-comparison-table:has(th[data-sort='category']) {
+    min-width: 68rem;
+  }
+
+  /* A category page at viewport 1280 is about 53rem wide. Fit that sheet.
+     Narrower sheets, and the catalog table, keep the min-width and scroll. */
+  @container comparison (min-width: 52rem) {
+    .models-comparison-table:not(:has(th[data-sort='category'])) {
+      min-width: 0;
+    }
+    .models-comparison:not(:has(th[data-sort='category'])) .models-comparison__scroll {
+      overflow-x: clip;
+    }
   }
 
   .models-comparison-table th,
@@ -1534,10 +1562,8 @@ const rowDataPayload = allModels.map((m) => ({
     box-sizing: border-box;
     padding: 6px 3px;
     white-space: normal;
-  }
-
-  .models-comparison-table td {
-    overflow-wrap: break-word;
+    word-break: normal;
+    overflow-wrap: normal;
   }
 
   /* table.css gives the first and last cells extra inline padding. That
@@ -1560,15 +1586,20 @@ const rowDataPayload = allModels.map((m) => ({
     z-index: 3;
   }
   .models-comparison-table thead th {
-    overflow: hidden;
+    overflow: visible;
     line-height: 1.15;
     font-size: 11px;
     vertical-align: bottom;
+    hyphens: manual;
   }
 
   /* 13 columns in the sheet beside the sidebar (~850px at 1280).
      Percentages include padding (border-box) and sum to 100. */
-  .models-comparison-table th[data-sort='model'] { width: 11.1%; }
+  .models-comparison-table th[data-sort='model'],
+  .models-comparison-table td:first-child {
+    width: 16%;
+    min-width: 8.5rem;
+  }
   .models-comparison-table th[data-sort='provider'] { width: 6.5%; }
   .models-comparison-table th[data-sort='cloud'] { width: 8.5%; }
   .models-comparison-table th[data-sort='input'] { width: 6%; }
@@ -1579,18 +1610,13 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
   .models-comparison-table th[data-sort='inputPrice'],
   .models-comparison-table th[data-sort='outputPrice'] { width: 6.2%; }
-  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 7%; }
-  .models-comparison-table th[data-sort='plans'] { width: 11%; }
+  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 6.1%; }
+  .models-comparison-table th[data-sort='plans'] { width: 7%; }
 
-  /* The catalog table adds a Category column. Keep Plans wide enough for
-     "Professional" and take the extra width from columns that can wrap. */
-  .models-comparison-table:has(th[data-sort='category']) th[data-sort='model'] { width: 6.5%; }
-  .models-comparison-table th[data-sort='category'] { width: 9.5%; }
-  .models-comparison-table:has(th[data-sort='category']) th[data-sort='input'] { width: 5.2%; }
-  .models-comparison-table:has(th[data-sort='category']) th[data-sort='streaming'] { width: 7%; }
-  .models-comparison-table:has(th[data-sort='category']) th[data-sort='reasoningEffort'] { width: 6.8%; }
-  .models-comparison-table:has(th[data-sort='category']) th[data-sort='reasoningTokensUsage'] { width: 7.2%; }
-  .models-comparison-table:has(th[data-sort='category']) th[data-sort='cachedInputPrice'] { width: 6.4%; }
+  /* Catalog adds Category. Model drops from 18% to 12% so the columns still sum to 100.
+     min-width above keeps the name readable; the sheet scrolls. */
+  .models-comparison-table:has(th[data-sort='category']) :is(th[data-sort='model'], td:first-child) { width: 10%; }
+  .models-comparison-table th[data-sort='category'] { width: 6%; }
 
   /* Tooltip.astro owns these nodes, so the selectors have to be global
      or the header button stays shrink-to-fit and splits "Provider". */
@@ -1618,6 +1644,12 @@ const rowDataPayload = allModels.map((m) => ({
     flex: 1 1 100%;
     min-width: 0;
     max-width: 100%;
+    white-space: normal;
+  }
+
+  .models-comparison-table td[data-label='Input'],
+  .models-comparison-table td[data-label='Eingabe'] {
+    white-space: normal;
   }
 
   .models-comparison-table .plans-tag {
@@ -1636,6 +1668,27 @@ const rowDataPayload = allModels.map((m) => ({
     text-align: right;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  /* Comma stays with the word. A wrap starts the next modality, not ", Audio". */
+  .models-comparison-table .mc-mod {
+    white-space: nowrap;
+  }
+  .models-comparison-table .mc-mod + .mc-mod {
+    margin-inline-start: 0.25rem;
+  }
+
+  .models-comparison-table td[data-label='Model'] strong,
+  .models-comparison-table td[data-label='Modell'] strong {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+    hyphens: manual;
+  }
+
+  .models-comparison-table td[data-label='Input'],
+  .models-comparison-table td[data-label='Eingabe'] {
+    text-align: start;
   }
 
   .models-comparison-table td.mc-context {
@@ -1881,6 +1934,7 @@ const rowDataPayload = allModels.map((m) => ({
     }
 
     .models-comparison-table,
+    .models-comparison-table:has(th[data-sort='category']),
     .models-comparison-table tbody {
       display: block;
       width: 100%;
