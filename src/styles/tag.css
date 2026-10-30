@@ -1,0 +1,152 @@
+/* Tags, aligned with Scale's scale-tag (telekom/scale@e90165a,
+   packages/components/src/components/tag/tag.css) in its standard type and
+   all ten of its colours, plus a filled magenta variant and plan tags. Every value is a --aifs-tag-*
+   token from tokens.css. No dismissible variant: nothing on the site removes
+   a tag.
+
+   Use the Tag and PlanTag components (src/components/). Existing markup is
+   mapped onto the same styles below, so the tables, which build their rows
+   in scripts, need no new markup:
+   .plans-tag (table tags, small) and .hero-badge (homepage) → standard,
+   .tag-tcloud → magenta, .tag-plan-<plan> → plan colour. */
+
+.aifs-tag,
+.plans-tag,
+.hero-badge,
+.sl-badge {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: var(--aifs-tag-height);
+	margin: 0;
+	padding: 0 var(--aifs-tag-padding-x);
+	border: 0;
+	border-radius: var(--aifs-tag-radius);
+	background: var(--aifs-tag-standard-background);
+	color: var(--aifs-tag-standard-text);
+	font-family: inherit;
+	font-size: var(--aifs-tag-font-size);
+	font-weight: var(--aifs-tag-font-weight);
+	line-height: 1;
+	white-space: nowrap;
+	vertical-align: baseline;
+	text-decoration: none;
+	box-shadow: none;
+	text-transform: none;
+	letter-spacing: normal;
+}
+
+/* Size: small. The table tags are small, to sit in a dense row. */
+
+.aifs-tag--small,
+.plans-tag {
+	height: var(--aifs-tag-height-small);
+	padding: 0 var(--aifs-tag-padding-x-small);
+	font-size: var(--aifs-tag-font-size-small);
+}
+
+/* Colours, as in Scale's standard type: a subtle background with its
+   matching text colour. */
+
+.aifs-tag--cyan {
+	background: var(--aifs-tag-cyan-background);
+	color: var(--aifs-tag-cyan-text);
+}
+
+.aifs-tag--yellow {
+	background: var(--aifs-tag-yellow-background);
+	color: var(--aifs-tag-yellow-text);
+}
+
+.aifs-tag--green {
+	background: var(--aifs-tag-green-background);
+	color: var(--aifs-tag-green-text);
+}
+
+.aifs-tag--orange {
+	background: var(--aifs-tag-orange-background);
+	color: var(--aifs-tag-orange-text);
+}
+
+.aifs-tag--red {
+	background: var(--aifs-tag-red-background);
+	color: var(--aifs-tag-red-text);
+}
+
+.aifs-tag--violet {
+	background: var(--aifs-tag-violet-background);
+	color: var(--aifs-tag-violet-text);
+}
+
+.aifs-tag--brown {
+	background: var(--aifs-tag-brown-background);
+	color: var(--aifs-tag-brown-text);
+}
+
+.aifs-tag--olive {
+	background: var(--aifs-tag-olive-background);
+	color: var(--aifs-tag-olive-text);
+}
+
+.aifs-tag--teal {
+	background: var(--aifs-tag-teal-background);
+	color: var(--aifs-tag-teal-text);
+}
+
+/* Colour: magenta (not in Scale; filled, for the few labels that should stand out) */
+
+.aifs-tag--magenta,
+.tag-tcloud {
+	background: var(--aifs-tag-magenta-background);
+	color: var(--aifs-tag-magenta-text);
+}
+
+/* Plan tags: one fixed colour per plan. Test and the retired plans keep the
+   standard colour. */
+
+.aifs-tag--plan-essential,
+.tag-plan-essential {
+	background: var(--aifs-tag-plan-essential-background);
+	color: var(--aifs-tag-plan-essential-text);
+}
+
+.aifs-tag--plan-professional,
+.tag-plan-professional {
+	background: var(--aifs-tag-plan-professional-background);
+	color: var(--aifs-tag-plan-professional-text);
+}
+
+.aifs-tag--plan-agentic,
+.tag-plan-agentic {
+	background: var(--aifs-tag-plan-agentic-background);
+	color: var(--aifs-tag-plan-agentic-text);
+}
+
+.aifs-tag--plan-enterprise,
+.tag-plan-enterprise {
+	background: var(--aifs-tag-plan-enterprise-background);
+	color: var(--aifs-tag-plan-enterprise-text);
+}
+
+/* Tags that do something: links to a plan page, or buttons that filter a
+   table. Scale's link tag keeps its colours on hover; an underline marks the
+   hover here, so the colour stays readable and is not the only cue. */
+
+a.aifs-tag,
+a.plans-tag,
+button.aifs-tag,
+button.plans-tag {
+	cursor: pointer;
+	appearance: none;
+}
+
+:is(a, button):is(.aifs-tag, .plans-tag):hover {
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+:is(a, button):is(.aifs-tag, .plans-tag):focus-visible {
+	outline: 2px solid var(--aifs-tag-focus);
+	outline-offset: 1px;
+}

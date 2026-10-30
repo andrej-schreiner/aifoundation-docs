@@ -1,0 +1,203 @@
+/* Dropdown selects, aligned with Scale's dropdown select
+   (telekom/scale@e90165a, dropdown-select.css) on a native <select>, which
+   keeps the browser's own option list, keyboard handling and mobile picker.
+   Every value is an --aifs-select-* token from tokens.css.
+
+   Standard: Scale's field, 44px high with a border, the label inside above
+   the value. Ghost: the same field without border, for places where a frame
+   would be noise, such as the header. Use the Selector component; Starlight's
+   own selects in the header (version, theme, language) are mapped onto the
+   ghost variant at the end of this file. */
+
+.aifs-select {
+	display: block;
+	min-width: 11rem;
+	color: var(--aifs-select-text);
+}
+
+.aifs-select__field {
+	position: relative;
+	display: flex;
+	align-items: center;
+}
+
+.aifs-select__control {
+	box-sizing: border-box;
+	width: 100%;
+	height: var(--aifs-select-height);
+	margin: 0;
+	padding: 0 calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap))
+		0 calc(var(--aifs-select-padding-x) - var(--aifs-select-border-width));
+	border: var(--aifs-select-border-width) solid var(--aifs-select-border);
+	border-radius: var(--aifs-select-radius);
+	background: var(--aifs-select-background);
+	color: var(--aifs-select-text);
+	font-family: inherit;
+	font-size: var(--aifs-select-font-size);
+	line-height: 1.25;
+	text-overflow: ellipsis;
+	appearance: none;
+	cursor: pointer;
+	transition-property: background-color, border-color;
+	transition-duration: var(--aifs-select-transition-duration);
+	transition-timing-function: var(--aifs-select-transition-easing);
+}
+
+/* With a visible label, the value moves down to make room for it. */
+.aifs-select--labelled .aifs-select__control {
+	padding-top: calc(var(--aifs-select-padding-top-with-label) - var(--aifs-select-border-width));
+	padding-bottom: calc(var(--aifs-select-padding-bottom-with-label) - var(--aifs-select-border-width));
+}
+
+.aifs-select__label {
+	position: absolute;
+	top: var(--aifs-select-label-top);
+	left: var(--aifs-select-padding-x);
+	right: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size));
+	z-index: 1;
+	overflow: hidden;
+	color: var(--aifs-select-label);
+	font-size: var(--aifs-select-label-font-size);
+	font-weight: var(--aifs-select-label-font-weight);
+	line-height: 1.25;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	pointer-events: none;
+}
+
+/* Leading icon: the value and the label move right to make room. */
+.aifs-select--with-icon .aifs-select__control {
+	padding-left: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap) - var(--aifs-select-border-width));
+}
+
+.aifs-select--with-icon .aifs-select__label {
+	left: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap));
+}
+
+.aifs-select__lead-icon {
+	position: absolute;
+	left: var(--aifs-select-padding-x);
+	top: 50%;
+	z-index: 1;
+	display: flex;
+	transform: translateY(-50%);
+	color: var(--aifs-select-icon);
+	pointer-events: none;
+}
+
+.aifs-select__icon {
+	position: absolute;
+	right: var(--aifs-select-padding-x);
+	top: 50%;
+	display: flex;
+	transform: translateY(-50%);
+	color: var(--aifs-select-icon);
+	pointer-events: none;
+}
+
+.aifs-select__control:hover:not(:disabled) {
+	border-color: var(--aifs-select-border-hovered);
+	background: var(--aifs-select-background-hovered);
+}
+
+.aifs-select__control:focus-visible {
+	border-color: var(--aifs-select-border-hovered);
+	outline: 2px solid var(--aifs-select-focus);
+	outline-offset: 1px;
+}
+
+/* Ghost: no frame until hover or focus. */
+.aifs-select--ghost .aifs-select__control,
+.aifs-select--ghost .aifs-select__control:hover:not(:disabled) {
+	border-color: transparent;
+}
+
+/* Invalid: a 2px danger border, and the helper text says why. */
+.aifs-select--invalid .aifs-select__control,
+.aifs-select--invalid .aifs-select__control:hover:not(:disabled) {
+	border: var(--aifs-select-border-width-invalid) solid var(--aifs-select-border-invalid);
+}
+
+.aifs-select__control:disabled {
+	border-color: var(--aifs-select-border-disabled);
+	background: transparent;
+	color: var(--aifs-select-text-disabled);
+	cursor: not-allowed;
+}
+
+.aifs-select:has(.aifs-select__control:disabled) :is(.aifs-select__label, .aifs-select__icon, .aifs-select__lead-icon) {
+	color: var(--aifs-select-text-disabled);
+}
+
+.aifs-select__helper {
+	display: block;
+	margin-top: var(--aifs-select-helper-gap);
+	color: var(--aifs-select-label);
+	font-size: var(--aifs-select-helper-font-size);
+}
+
+.aifs-select--invalid .aifs-select__helper {
+	color: var(--aifs-select-helper-invalid);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aifs-select__control {
+		transition: none;
+	}
+}
+
+/* Starlight's selects in the header (version, theme, language) as ghost
+   selects. Starlight sizes them from these three variables, so its width
+   calculation keeps working. */
+.ts-header label {
+	--sl-label-icon-size: var(--aifs-select-icon-size);
+	--sl-caret-size: var(--aifs-select-icon-size);
+	--sl-inline-padding: var(--aifs-select-padding-x);
+	color: var(--aifs-select-text);
+}
+
+.ts-header label:hover {
+	color: var(--aifs-select-text);
+}
+
+.ts-header label .label-icon {
+	inset-inline-start: var(--aifs-select-padding-x);
+	width: var(--aifs-select-icon-size);
+	height: var(--aifs-select-icon-size);
+}
+
+.ts-header label :is(.caret, .caret-icon) {
+	inset-inline-end: var(--aifs-select-padding-x);
+	color: var(--aifs-select-icon);
+}
+
+.ts-header select {
+	box-sizing: border-box;
+	height: var(--aifs-select-height);
+	/* Starlight gives each select a fixed width, so the space before the caret
+	   varied; sized to its longest option, every select has the same padding.
+	   The version select (starlight-versions plugin) gets the same padding. */
+	width: auto;
+	padding-inline: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap) / 2);
+	/* Starlight pulls each select outwards by its padding, so neighbours touch;
+	   the header's gap spaces them instead. */
+	margin-inline: 0;
+	padding-block: 0;
+	border: var(--aifs-select-border-width) solid transparent;
+	border-radius: var(--aifs-select-radius);
+	background: var(--aifs-select-background);
+	color: var(--aifs-select-text);
+	font-size: var(--aifs-select-font-size);
+	transition-property: background-color;
+	transition-duration: var(--aifs-select-transition-duration);
+	transition-timing-function: var(--aifs-select-transition-easing);
+}
+
+.ts-header select:hover {
+	background: var(--aifs-select-background-hovered);
+}
+
+.ts-header select:focus-visible {
+	outline: 2px solid var(--aifs-select-focus);
+	outline-offset: 1px;
+}

@@ -1,27 +1,16 @@
-/* Deutsche Telekom Branding — Starlight CSS Variables */
+/* Starlight layout variables. Colours and layout widths come from tokens.css. */
 :root {
-	--sl-color-accent-low: hsl(224, 14%, 16%);
-	--sl-color-accent: #e20074;
-	--sl-color-accent-high: #ff4da6;
-	/* Widen main content area to reduce right-sidebar whitespace */
-	--sl-content-width: 55rem;
-
 	--sl-border-xs: 4px;
 	--sl-border-sm: 6px;
 	--sl-border-md: 8px;
 	--sl-border-lg: 12px;
 }
 
-:root[data-theme='light'] {
-	--sl-color-accent-low: #fce4ef;
-	--sl-color-accent: #e20074;
-	--sl-color-accent-high: #9e0050;
-}
-
 /* Plans pages use a wider content column for their tables. Starlight derives
    content centering AND header search alignment from --sl-content-width, so
    overriding the variable is all that's needed (no JS, no margin math). */
-:root:has(.plans-page) {
+/* [data-theme] lifts this above the token mapping in tokens.css. */
+:root[data-theme]:has(.plans-page) {
 	--sl-content-width: 85rem;
 }
 
@@ -40,17 +29,6 @@
 	margin-bottom: 1rem;
 }
 
-.hero-badge {
-	display: inline-block;
-	padding: 0.25rem 0.75rem;
-	border-radius: 9999px;
-	font-size: 0.85rem;
-	font-weight: 600;
-	background: var(--sl-color-accent-low);
-	color: var(--sl-color-accent-high);
-	border: 1px solid var(--sl-color-accent);
-}
-
 /* Link-card rows and Starlight CardGrid live in redesign.css.
    A flex + space-around rule here used to shrink each card to its text. */
 
@@ -62,6 +40,7 @@
 	border-radius: 12px;
 	padding: 20px;
 	text-align: center;
+	/* TODO(token-gap): Telekom shadow tokens are not converted yet. */
 	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 	transition: transform 0.2s ease, box-shadow 0.2s ease;
 	cursor: pointer;
@@ -71,6 +50,7 @@
 
 .hover-card:hover {
 	transform: scale(1.03);
+	/* TODO(token-gap): Telekom shadow tokens are not converted yet. */
 	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
@@ -159,34 +139,7 @@
 	border-radius: 8px;
 }
 
-.plans-tag {
-	display: inline-block;
-	padding: 4px 10px;
-	border-radius: 12px;
-	font-size: 0.85em;
-	font-weight: 600;
-}
-
-.plans-table {
-	width: 100%;
-	border-collapse: collapse;
-}
-
-.plans-table th,
-.plans-table td {
-	padding: 8px 12px;
-	border: 1px solid var(--sl-color-gray-5);
-	text-align: left;
-}
-
-.plans-table th {
-	cursor: pointer;
-	user-select: none;
-}
-
-.plans-table th:hover {
-	background: var(--sl-color-gray-6);
-}
+/* .plans-table: src/styles/table.css. */
 
 .sort-icon {
 	display: inline;
@@ -196,7 +149,7 @@
 
 .sort-icon.active {
 	opacity: 1;
-	color: #e20074;
+	color: var(--aifs-color-brand-text);
 }
 
 /* Pricing Tooltip */
@@ -213,6 +166,7 @@
 	border-radius: 8px;
 	padding: 8px 12px;
 	white-space: nowrap;
+	/* TODO(token-gap): Telekom shadow tokens are not converted yet. */
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
@@ -226,13 +180,14 @@
 	padding: 24px;
 	border: none;
 	border-radius: 12px;
+	/* TODO(token-gap): Telekom shadow tokens are not converted yet. */
 	box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 	background: var(--sl-color-bg);
 	color: var(--sl-color-text);
 }
 
 .plans-dialog::backdrop {
-	background: rgba(0, 0, 0, 0.5);
+	background: var(--aifs-color-backdrop);
 }
 
 /* Extended Filter Panel */
@@ -242,7 +197,7 @@
 	left: 0;
 	width: 100%;
 	height: 100%;
-	background: rgba(0, 0, 0, 0.3);
+	background: var(--aifs-color-backdrop);
 	z-index: 200;
 }
 
@@ -254,6 +209,7 @@
 	height: 100%;
 	z-index: 201;
 	background: var(--sl-color-bg);
+	/* TODO(token-gap): Telekom shadow tokens are not converted yet. */
 	box-shadow: -4px 0 16px rgba(0, 0, 0, 0.2);
 	overflow-y: auto;
 	padding: 24px;
@@ -274,24 +230,6 @@
 
 .copy-icon:hover {
 	opacity: 1;
-}
-
-/* Sidebar — scale nested group labels down so depth-2/depth-3 groups read as
-   children of their parent, not sibling sections. Starlight applies the same
-   .large class to every group <summary> regardless of nesting depth; without
-   this override, "Chat & Reasoning (LLMs)" (depth 3) looks identical to
-   "Models" (depth 1) and the hierarchy is illegible. */
-.sidebar-content details details > summary .large {
-	font-size: var(--sl-text-sm);
-	font-weight: 600;
-}
-
-.sidebar-content details details details > summary .large {
-	font-size: 0.875rem;
-	font-weight: 600;
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
-	opacity: 0.85;
 }
 
 /* Minimum Monthly Commitment explanatory note (Plans page) */

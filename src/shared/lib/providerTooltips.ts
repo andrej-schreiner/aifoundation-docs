@@ -1,6 +1,6 @@
 // Tooltip content for the brand logo on the plans and comparison pages.
 // Minimal: just the maker's company name. Keys must match the `creator`
-// strings used by modelBrandIcons (so the same dictionary works for any
+// strings used by logos (src/shared/lib/logos.ts) (so the same dictionary works for any
 // component that already has a creator string).
 
 export type CreatorKey =

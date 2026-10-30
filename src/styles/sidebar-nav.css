@@ -1,0 +1,215 @@
+/* Site navigation, aligned with Scale's sidebar navigation
+   (telekom/scale@e90165a, sidebar-nav.css, sidebar-nav-item.css,
+   sidebar-nav-collapsible.css). Every value is an --aifs-sidebar-nav-* token
+   from tokens.css.
+
+   Starlight's markup stays (SidebarSublist.astro): a list per level, each
+   entry a link or a <details> group. The three levels map onto Scale's:
+   1  bold rows with a line under each (Getting Started, Guides, …)
+   2  regular rows, indented a step, with a line under each
+   3  condensed entries with a line on their left (the model pages)
+   The current page gets magenta text and a 2px bar on its left edge. */
+
+/* Rows run from edge to edge, so their lines meet the column's border. */
+.sidebar-content {
+	padding-top: 0;
+}
+
+.sidebar-content .top-level {
+	margin-inline: calc(-1 * var(--sl-sidebar-pad-x));
+}
+
+/* Starlight's indents, side lines and gaps between groups give way to the
+   rows below. */
+.sidebar-content ul ul li {
+	margin-inline-start: 0;
+	padding-inline-start: 0;
+	border-inline-start: 0;
+}
+
+.sidebar-content .top-level > li + li {
+	margin-top: 0;
+}
+
+/* Every entry */
+.sidebar-content :is(a, summary) {
+	position: relative;
+	display: flex;
+	align-items: center;
+	padding: var(--aifs-sidebar-nav-padding-y) var(--aifs-sidebar-nav-padding-start);
+	border-radius: var(--aifs-sidebar-nav-radius);
+	background: none;
+	color: var(--aifs-sidebar-nav-text);
+	font-size: var(--aifs-sidebar-nav-font-size);
+	font-weight: inherit;
+	line-height: var(--aifs-sidebar-nav-line-height);
+	text-decoration: none;
+}
+
+.sidebar-content summary {
+	justify-content: space-between;
+	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
+}
+
+.sidebar-content .large {
+	color: inherit;
+	font-size: inherit;
+	font-weight: inherit;
+}
+
+.sidebar-content :is(a, summary):hover {
+	background: none;
+	color: var(--aifs-sidebar-nav-text-hovered);
+}
+
+.sidebar-content :is(a, summary):active {
+	color: var(--aifs-sidebar-nav-text-pressed);
+}
+
+/* Focus ring inside the row, as in Scale, so it isn't cut off by the
+   column's edge. */
+.sidebar-content :is(a, summary):focus-visible {
+	outline: none;
+	box-shadow: inset 0 0 0 var(--aifs-sidebar-nav-focus-width) var(--aifs-sidebar-nav-focus);
+}
+
+/* Level 1: bold, a line under each link and under each group heading. */
+.sidebar-content .top-level > li {
+	font-weight: var(--aifs-sidebar-nav-font-weight-group);
+}
+
+.sidebar-content .top-level > li > a,
+.sidebar-content .top-level > li > details > summary,
+.sidebar-content .top-level > li > details > ul > li > a {
+	border-bottom: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-row-border);
+}
+
+/* Level 2: regular, one step in. A group at this level has its line under
+   its entries instead of under its heading. */
+.sidebar-content .top-level > li > details > ul > li {
+	font-weight: normal;
+}
+
+.sidebar-content .top-level > li > details > ul > li > a,
+.sidebar-content .top-level > li > details > ul > li > details > summary {
+	padding-inline-start: calc(var(--aifs-sidebar-nav-padding-start) + var(--aifs-sidebar-nav-nested-indent));
+}
+
+.sidebar-content .top-level > li > details > ul > li:has(> details) {
+	border-bottom: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-row-border);
+}
+
+/* Level 3: condensed, behind a line that starts under the text above. */
+.sidebar-content .top-level > li > details > ul > li > details > ul {
+	margin: var(--aifs-sidebar-nav-condensed-gap) 0 calc(2 * var(--aifs-sidebar-nav-condensed-gap))
+		var(--aifs-sidebar-nav-padding-start);
+}
+
+.sidebar-content .top-level > li > details > ul > li > details > ul > li {
+	border-inline-start: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-nested-border);
+}
+
+.sidebar-content .top-level > li > details > ul > li > details > ul > li > a {
+	padding: var(--aifs-sidebar-nav-condensed-padding-y) var(--aifs-sidebar-nav-condensed-padding-y)
+		var(--aifs-sidebar-nav-condensed-padding-y) var(--aifs-sidebar-nav-condensed-padding-start);
+}
+
+/* Current page. The bar is a border, not a shadow, so it stays visible in
+   Windows high-contrast mode. */
+.sidebar-content a[aria-current='page'],
+.sidebar-content a[aria-current='page']:hover {
+	background: none;
+	color: var(--aifs-sidebar-nav-text-current);
+	font-weight: inherit;
+}
+
+.sidebar-content a[aria-current='page']::before {
+	content: '';
+	position: absolute;
+	inset-block: 0;
+	inset-inline-start: 0;
+	border-inline-start: var(--aifs-sidebar-nav-indicator-width) solid currentColor;
+}
+
+/* On level 3 the bar covers the line. */
+.sidebar-content .top-level > li > details > ul > li > details > ul > li > a[aria-current='page']::before {
+	inset-inline-start: calc(-1 * var(--aifs-border-width-standard));
+}
+
+/* Chevron: points down, and up when the group is open, as in Scale. The
+   icon itself is set in icons.css. */
+.sidebar-content summary > .caret {
+	width: var(--aifs-sidebar-nav-icon-size);
+	height: var(--aifs-sidebar-nav-icon-size);
+	transform: none;
+}
+
+.sidebar-content [open] > summary > .caret {
+	transform: rotate(0.5turn);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sidebar-content summary > .caret {
+		transition: none;
+	}
+}
+
+/* On this page (the table of contents, wide screens) takes the look of the
+   third level: one line on the left, condensed entries, the current section
+   in magenta with the bar over the line. Smaller text than the site
+   navigation, because the column is narrow and the list is secondary.
+   Deeper headings step in by --depth, which Starlight sets per level. */
+@media (min-width: 72rem) {
+	.right-sidebar-panel starlight-toc h2 {
+		margin: 0 0 var(--aifs-sidebar-nav-condensed-padding-y);
+		color: var(--aifs-sidebar-nav-text);
+		font-size: var(--aifs-text-small-font-size);
+		font-weight: var(--aifs-sidebar-nav-font-weight-group);
+		line-height: var(--aifs-sidebar-nav-line-height);
+	}
+
+	.right-sidebar-panel starlight-toc nav > ul {
+		border-inline-start: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-nested-border);
+	}
+
+	.right-sidebar-panel starlight-toc a {
+		position: relative;
+		display: block;
+		padding-block: var(--aifs-sidebar-nav-condensed-padding-y);
+		padding-inline: calc(
+				var(--aifs-sidebar-nav-condensed-padding-start) + var(--depth, 0) * var(--aifs-sidebar-nav-nested-indent)
+			)
+			var(--aifs-sidebar-nav-condensed-padding-y);
+		border-radius: var(--aifs-sidebar-nav-radius);
+		color: var(--aifs-sidebar-nav-text);
+		font-size: var(--aifs-text-small-font-size);
+		font-weight: normal;
+		line-height: var(--aifs-sidebar-nav-line-height);
+		text-decoration: none;
+	}
+
+	.right-sidebar-panel starlight-toc a:hover {
+		color: var(--aifs-sidebar-nav-text-hovered);
+	}
+
+	.right-sidebar-panel starlight-toc a:active {
+		color: var(--aifs-sidebar-nav-text-pressed);
+	}
+
+	.right-sidebar-panel starlight-toc a:focus-visible {
+		outline: none;
+		box-shadow: inset 0 0 0 var(--aifs-sidebar-nav-focus-width) var(--aifs-sidebar-nav-focus);
+	}
+
+	.right-sidebar-panel starlight-toc a[aria-current='true'] {
+		color: var(--aifs-sidebar-nav-toc-text-current);
+	}
+
+	.right-sidebar-panel starlight-toc a[aria-current='true']::before {
+		content: '';
+		position: absolute;
+		inset-block: 0;
+		inset-inline-start: calc(-1 * var(--aifs-border-width-standard));
+		border-inline-start: var(--aifs-sidebar-nav-indicator-width) solid currentColor;
+	}
+}

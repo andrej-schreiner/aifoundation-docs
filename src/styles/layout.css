@@ -1,0 +1,212 @@
+/* Page layout under the header, from left to right: site navigation, table
+   of contents (On this page), content. Starlight puts the table of contents
+   on the right; here it sits next to the site navigation, so both lists are
+   where the pointer already is. Widths are --aifs-layout-* tokens from
+   tokens.css, which also fill --sl-sidebar-width and --sl-content-width.
+
+   The table of contents already comes before the content in Starlight's
+   markup (TwoColumnContent.astro); Starlight only moves it right with
+   `order`. Dropping that makes the visual order match the reading order.
+
+   Below 72rem Starlight shows the table of contents as a menu above the
+   content instead; nothing changes there. */
+
+/* One colour for every line in the frame: under the header, right of the
+   site navigation, under the mobile table of contents. It matches the lines between navigation rows. */
+.header {
+	border-bottom-color: var(--aifs-layout-divider);
+}
+
+.sidebar-pane {
+	border-inline-end-color: var(--aifs-layout-divider);
+}
+
+mobile-starlight-toc nav {
+	border-bottom-color: var(--aifs-layout-divider);
+}
+
+@media (min-width: 72rem) {
+	[data-has-toc] .right-sidebar-container {
+		order: 0;
+		flex: none;
+		width: var(--aifs-layout-toc-width);
+	}
+
+	/* Sticky instead of fixed: the column keeps its place in the row, and the
+	   list scrolls on its own when it is longer than the window. */
+	/* --aifs-toc-offset is set by a script in astro.config.mjs so that "On
+	   this page" shares its baseline with the page title. As a margin on the
+	   sticky column, it only applies at the top: when the page scrolls, the
+	   column rises to its sticky position. */
+	[data-has-toc] .right-sidebar {
+		margin-top: var(--aifs-toc-offset, 0px);
+		position: sticky;
+		top: calc(var(--sl-nav-height) + var(--aifs-layout-frame-padding));
+		width: auto;
+		height: calc(100vh - var(--sl-nav-height) - var(--aifs-layout-frame-padding));
+		padding-top: 0;
+		border-inline-start: 0;
+	}
+
+	/* The table of contents sits on the tinted area, level with the top of
+	   the sheet. Its look is in sidebar-nav.css. */
+	[data-has-toc] .right-sidebar-panel {
+		padding: 0;
+	}
+
+	[data-has-toc] .right-sidebar-panel .sl-container {
+		width: auto;
+		max-width: none;
+	}
+
+	/* The content takes the rest of the row and starts next to the table of
+	   contents. */
+	[data-has-sidebar][data-has-toc] .main-pane {
+		--sl-content-margin-inline: 0 auto;
+		order: 1;
+		flex: 1;
+		min-width: 0;
+		width: auto;
+	}
+
+	/* Everything under the header is tinted; the content sits on a sheet in
+	   the page colour, as wide as the content column, starting right after
+	   the table of contents. It starts a gutter
+	   below the header with rounded top corners and runs off the bottom of
+	   the page. The tint is the backdrop colour mixed into the sheet colour,
+	   lighter than any Telekom step. */
+	:root[data-has-sidebar] body {
+		background-color: color-mix(
+			in srgb,
+			var(--aifs-layout-backdrop) calc(var(--aifs-layout-backdrop-strength) * 100%),
+			var(--aifs-layout-sheet)
+		);
+	}
+
+	/* More room on the sheet: Starlight's content padding, widened. */
+	[data-has-sidebar] .main-pane {
+		--sl-content-pad-x: var(--aifs-layout-sheet-padding);
+	}
+
+	/* The same padding above the first panel and below the last, so the
+	   sheet's padding is equal on all four sides. *-of-type: a <script>
+	   comes first in <main>. */
+	[data-has-sidebar] .main-pane .content-panel:first-of-type {
+		padding-top: var(--aifs-layout-sheet-padding);
+	}
+
+	[data-has-sidebar] .main-pane .content-panel:last-of-type {
+		padding-bottom: var(--aifs-layout-sheet-padding);
+	}
+
+	/* Starlight's own extras would break the equal padding: 3vh under <main>
+	   and a top margin on the page title. */
+	[data-has-sidebar] .main-pane > main {
+		padding-bottom: 0;
+	}
+
+	[data-has-sidebar] .main-pane .content-panel:first-of-type .sl-container > h1:first-child {
+		margin-top: 0;
+	}
+
+	[data-has-sidebar] .main-pane > main {
+		box-sizing: border-box;
+		max-width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x));
+		min-height: calc(100vh - var(--sl-nav-height) - var(--aifs-layout-frame-padding));
+		border: var(--aifs-border-width-standard) solid var(--aifs-layout-sheet-border);
+		border-bottom: 0;
+		border-radius: var(--aifs-layout-sheet-radius) var(--aifs-layout-sheet-radius) 0 0;
+		background-color: var(--aifs-layout-sheet);
+	}
+
+	/* The row Starlight wraps around the table of contents and the content
+	   (TwoColumnContent.astro) gets the frame's padding and gap. No padding
+	   below: the sheet runs off the bottom of the page. */
+	[data-has-sidebar] .main-frame > .lg\:sl-flex {
+		gap: var(--aifs-layout-frame-gap);
+		padding: var(--aifs-layout-frame-padding) var(--aifs-layout-frame-padding) 0;
+	}
+}
+
+/* Notice banners (PreviewModelsBanner) in a row of their own above the
+   table of contents and the content, spanning both. Created by the banner
+   script, so it is styled here, not in the component. */
+.qp-stack {
+	display: flex;
+	flex-direction: column;
+	gap: var(--aifs-rhythm-after-heading);
+	padding: var(--aifs-rhythm-stack) var(--sl-content-pad-x) 0;
+}
+
+@media (min-width: 72rem) {
+	[data-has-sidebar] .main-frame > .qp-stack {
+		padding: var(--aifs-layout-frame-padding) var(--aifs-layout-frame-padding) 0;
+	}
+}
+
+/* From 1440px there is room for more air left and right of the row. The
+   breakpoint is a raw value: media queries can't read custom properties. */
+@media (min-width: 90rem) {
+	[data-has-sidebar] .main-frame > :is(.lg\:sl-flex, .qp-stack) {
+		padding-inline: var(--aifs-layout-frame-padding-x-wide);
+	}
+}
+
+/* Line length: running text stops at the measure; code blocks, tables, tabs
+   and cards use the full content width. :where() keeps this easy to
+   override. The wide plans pages keep their own layout. */
+.sl-markdown-content
+	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *)) {
+	max-width: var(--aifs-layout-measure);
+}
+
+.content-panel :where(h1, h1 + p) {
+	max-width: var(--aifs-layout-measure);
+}
+
+/* Vertical rhythm, on Telekom's 8px scale (--aifs-rhythm-* tokens): the gap
+   grows with the size of the break. 16px between paragraphs (Starlight's
+   --sl-content-gap-y, set in tokens.css), 24px around blocks, 48, 32 or 24px
+   before a heading and 12px after it, so a heading sits with its section.
+   Unlayered, so these win over Starlight's content layer; :where() keeps the
+   block rule below the heading rules. */
+.content-panel {
+	padding-block: var(--aifs-rhythm-panel-padding-y);
+}
+
+.content-panel .sl-container > * + * {
+	margin-top: var(--aifs-rhythm-stack);
+}
+
+.sl-markdown-content
+	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content),
+.sl-markdown-content
+	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content)
+	+ * {
+	margin-top: var(--aifs-rhythm-block);
+}
+
+.sl-markdown-content > :first-child {
+	margin-top: 0;
+}
+
+.sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2) {
+	margin-top: var(--aifs-rhythm-heading-2);
+}
+
+.sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
+	margin-top: var(--aifs-rhythm-heading-3);
+}
+
+.sl-markdown-content > :is(h4, h5, h6, .sl-heading-wrapper:is(.level-h4, .level-h5, .level-h6)) {
+	margin-top: var(--aifs-rhythm-heading-4);
+}
+
+.sl-markdown-content > :is(h2, h3, h4, h5, h6, .sl-heading-wrapper) + * {
+	margin-top: var(--aifs-rhythm-after-heading);
+}
+
+/* A heading straight after another keeps its own gap. */
+.sl-markdown-content > :is(h2, h3, h4, h5, h6, .sl-heading-wrapper) + :is(h3, .sl-heading-wrapper.level-h3) {
+	margin-top: var(--aifs-rhythm-heading-4);
+}
