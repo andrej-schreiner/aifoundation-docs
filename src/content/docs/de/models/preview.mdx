@@ -1,6 +1,6 @@
 ---
 title: "Vorschau-Modelle"
-description: "Vorschau-Modelle auf AI Foundation Services, darunter OCR- und Decision-Modelle. Kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits und ohne SLA."
+description: "Vorschau-Modelle auf AI Foundation Services, darunter OCR- und Decision-Modelle. Kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits und ohne SLA. DeepSeek 4.1 Flash: Der Preis wird noch bekannt gegeben."
 tableOfContents: false
 ---
 
@@ -9,7 +9,8 @@ import PlansPage from '../../../../components/PlansPage.astro';
 <div style="max-width: 54rem;">
 
 :::tip[Neu in der Preview: DeepSeek 4.1 Flash]
-**DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash`) nimmt Text und Bild an und liefert Text, mit Tool Calling und Streaming. Es ist ein Vorschau-Modell. Der Preis wird noch bekannt gegeben. Das Hosting ist noch nicht bestätigt.
+**DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash`) nimmt Text und Bild an und liefert Text. Es ist ein Vorschau-Modell. Der Preis wird noch bekannt gegeben.
+:::
 
 :::tip[Neu in der Preview: zwei OCR-Modelle]
 **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) von LightOn aus Paris (Made in Europe) und **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) wandeln gescannte Dokumente, PDFs und Fotos in Markdown, HTML-Tabellen und LaTeX um. LightOnOCR liest pro Anfrage eine ganze Seite, auch Handschrift; PaddleOCR-VL liest Seitenelemente und funktioniert am besten mit der PaddleOCR-Pipeline. Beide nehmen Bilder über `/chat/completions` an. Siehe [OCR](/de/guides/ocr).
@@ -43,6 +44,7 @@ RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;<
 - Die Telekom behält sich vor, sie jederzeit ohne vorherige Ankündigung anzupassen, einzuschränken oder abzukündigen.
 - Es gilt **keine Mindestverfügbarkeit** und sie sind **nicht Teil eines Service Level Agreements (SLA)**.
 - Sie sind für Evaluierung und Prototyping vorgesehen; sie sind **nicht für den Produktivbetrieb geeignet**.
+- Vorschau-Modelle sind in jedem aktiven Tarif kostenlos. **DeepSeek 4.1 Flash: Der Preis wird noch bekannt gegeben.**
 
 Kunden, die vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token benötigen, sollten [Dedicated LLM Serving](/de/plans/dedicated) in Betracht ziehen — dort lassen sich solche Zusagen als Performance-SLAs auf reservierter Hardware verhandeln.
 
