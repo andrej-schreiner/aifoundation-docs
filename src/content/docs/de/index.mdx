@@ -20,17 +20,63 @@ Die souveräne europäische KI-Plattform von T-Systems. Nutzen Sie über 30 Open
 
 <div class="link-card-row">
 <LinkCard title="Kostenlosen API-Schlüssel erhalten" href="https://apikey.llmhub.t-systems.net/" description="Fordern Sie einen Test-API-Schlüssel an, um mit der Entwicklung zu beginnen." />
-<LinkCard title="Quickstart" href="/de/getting-started/quickstart" description="In weniger als 5 Minuten einsatzbereit." />
+<LinkCard title="Authentifizierung" href="/de/getting-started/authentication" description="API-Schlüssel, Umgebungsvariablen und Request-Header." />
 </div>
 
-## Jetzt ausprobieren
+## Quickstart
 
-Geben Sie Ihren API-Schlüssel ein und legen Sie los — die API ist identisch mit der von OpenAI. Lieber klicken statt curlen? Probieren Sie das [LLM Playground](https://playground.llmhub.t-systems.net/) — gleiche Modelle, keine Einrichtung nötig.
+In wenigen Minuten startklar: OpenAI-SDK installieren, API-Schlüssel setzen und die erste Anfrage senden. Lieber klicken statt curlen? Probieren Sie das [LLM Playground](https://playground.llmhub.t-systems.net/).
+
+## 1. OpenAI-Paket installieren
+
+AI Foundation Services verwendet eine OpenAI-kompatible API, sodass Sie die offiziellen OpenAI-SDKs nutzen können.
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+    ```bash
+    pip install openai
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```bash
+    npm install openai
+    ```
+  </TabItem>
+</Tabs>
+
+## 2. API-Schlüssel erhalten
+
+Einen kostenlosen Test-Schlüssel gibt es im [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/). Für produktive Workloads [kontaktieren Sie uns](mailto:ai@t-systems.com).
+
+## 3. Umgebungsvariablen setzen
+
+<Tabs>
+  <TabItem value="mac" label="macOS / Linux" default>
+    ```bash
+    export OPENAI_API_KEY="your_api_key_here"
+    export OPENAI_BASE_URL="https://llm-server.llmhub.t-systems.net/v2"
+    ```
+  </TabItem>
+  <TabItem value="windows-ps" label="Windows (PowerShell)">
+    ```powershell
+    [System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'your_api_key_here', 'User')
+    [System.Environment]::SetEnvironmentVariable('OPENAI_BASE_URL', 'https://llm-server.llmhub.t-systems.net/v2', 'User')
+    ```
+  </TabItem>
+  <TabItem value="windows-cmd" label="Windows (CMD)">
+    ```bash
+    setx OPENAI_API_KEY "your_api_key_here"
+    setx OPENAI_BASE_URL "https://llm-server.llmhub.t-systems.net/v2"
+    ```
+  </TabItem>
+</Tabs>
+
+## 4. Ersten API-Aufruf senden
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
     ```bash
-    curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \
+    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
@@ -43,7 +89,7 @@ Geben Sie Ihren API-Schlüssel ein und legen Sie los — die API ist identisch m
     ```python
     from openai import OpenAI
 
-    client = OpenAI(base_url="https://llm-server.llmhub.t-systems.net/v2")
+    client = OpenAI()
 
     response = client.chat.completions.create(
         model="gpt-oss-120b",
@@ -56,9 +102,7 @@ Geben Sie Ihren API-Schlüssel ein und legen Sie los — die API ist identisch m
     ```javascript
     import OpenAI from "openai";
 
-    const client = new OpenAI({
-      baseURL: "https://llm-server.llmhub.t-systems.net/v2",
-    });
+    const client = new OpenAI();
 
     const response = await client.chat.completions.create({
       model: "gpt-oss-120b",
@@ -68,6 +112,13 @@ Geben Sie Ihren API-Schlüssel ein und legen Sie los — die API ist identisch m
     ```
   </TabItem>
 </Tabs>
+
+## Nächste Schritte
+
+- **[Authentifizierung](/de/getting-started/authentication)** — API-Schlüssel
+- **[Katalog](/de/models)** — Gehostete Modelle
+- **[Chat Completions](/de/guides/chat-completions)** — Streaming, Parameter und mehr
+- **[Umstieg auf die neue API](/de/api-transition)** — Der Endpunktwechsel, in Phasen
 
 <AvailableModels/>
 

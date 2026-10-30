@@ -2,8 +2,10 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import starlightVersions from 'starlight-versions';
+import archivedVersions from './src/redirects/archived-versions.json' with { type: 'json' };
 
 // The design-system page is a draft unless AIFS_PREVIEW_DESIGN_SYSTEM=1.
 // The content store caches that draft flag, so drop the store when the flag changes.
@@ -86,7 +88,10 @@ export default defineConfig({
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
 	redirects: {
-		'/Quickstart': '/getting-started/quickstart',
+		...archivedVersions,
+		'/Quickstart': '/',
+		'/getting-started/quickstart': '/',
+		'/de/getting-started/quickstart': '/de/',
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
@@ -103,8 +108,39 @@ export default defineConfig({
 		// Archived versions and external links still use the old path.
 		'/guides/asynchronous-requests': '/guides/queued-requests',
 		'/de/guides/asynchronous-requests': '/de/guides/queued-requests',
+		'/plans/basic': '/plans',
+		'/de/plans/basic': '/de/plans',
+		'/plans/standard-1000': '/plans',
+		'/de/plans/standard-1000': '/de/plans',
+		'/plans/standard-2000': '/plans',
+		'/de/plans/standard-2000': '/de/plans',
+		'/plans/standard-3000': '/plans',
+		'/de/plans/standard-3000': '/de/plans',
+		'/plans/standard-4000': '/plans',
+		'/de/plans/standard-4000': '/de/plans',
+		'/plans/test': '/models/preview',
+		'/de/plans/test': '/de/models/preview',
+		'/plans/service-models': '/plans/dedicated',
+		'/de/plans/service-models': '/de/plans/dedicated',
+		'/models/comparison': '/models',
+		'/de/models/comparison': '/de/models',
+		'/models/scheduled-for-retirement': '/models/deprecations#upcoming',
+		'/de/models/scheduled-for-retirement': '/de/models/deprecations#upcoming',
+		'/models/retired': '/models/deprecations#retired',
+		'/de/models/retired': '/de/models/deprecations#retired',
+		'/smartchat/overview': 'https://docs.smartchat.ai.t-systems.net',
+		'/de/smartchat/overview': 'https://docs.smartchat.ai.t-systems.net',
+		'/smartchat/api-reference': 'https://docs.smartchat.ai.t-systems.net',
+		'/de/smartchat/api-reference': 'https://docs.smartchat.ai.t-systems.net',
+		'/smartchat/local-chat': 'https://docs.smartchat.ai.t-systems.net',
+		'/de/smartchat/local-chat': 'https://docs.smartchat.ai.t-systems.net',
+		'/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
+		'/de/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
 	},
 	integrations: [
+		sitemap({
+			filter: (page) => !page.includes('/v1-2-0'),
+		}),
 		starlight({
 			title: 'AI Foundation Services',
 			head: [
@@ -191,6 +227,7 @@ export default defineConfig({
 				},
 			],
 			components: {
+				Banner: './src/components/ArchiveBanner.astro',
 				Footer: './src/components/Footer.astro',
 				Header: './src/components/SiteHeader.astro',
 				MobileMenuFooter: './src/components/MobileMenuFooter.astro',
@@ -209,11 +246,7 @@ export default defineConfig({
 			},
 			plugins: [
 				starlightVersions({
-					versions: [
-						{ slug: 'v1', label: 'v1.0.0' },
-						{ slug: 'v1-1-0', label: 'v1.1.0' },
-						{ slug: 'v1-2-0', label: 'v1.2.0' },
-					],
+					versions: [{ slug: 'v1-2-0', label: 'v1.2.0 (Archived)' }],
 				}),
 			],
 			defaultLocale: 'root',
@@ -222,13 +255,39 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
-				{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 				{
-					label: 'Getting Started',
+					label: 'Get started',
 					translations: { de: 'Erste Schritte' },
 					items: [
-						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
+						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
+						{
+							label: 'Migrate to New API',
+							translations: { de: 'Umstieg auf neue API' },
+							badge: { text: { en: 'New', de: 'Neu' }, variant: 'tip' },
+							items: [
+								{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'api-transition' },
+								{ label: 'Requests', translations: { de: 'Anfragen' }, slug: 'api-transition/requests' },
+								{ label: 'Responses', translations: { de: 'Antworten' }, slug: 'api-transition/responses' },
+								{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'api-transition/streaming' },
+								{ label: 'Error handling', translations: { de: 'Fehlerbehandlung' }, slug: 'api-transition/errors' },
+							],
+						},
+					],
+				},
+				{
+					label: 'Models',
+					translations: { de: 'Modelle' },
+					items: [
+						{ label: 'Catalog', translations: { de: 'Katalog' }, slug: 'models' },
+						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
+						{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
+						{ label: 'Vision', translations: { de: 'Vision' }, slug: 'models/vision' },
+						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
+						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'models/audio' },
+						{ label: 'Images', translations: { de: 'Bilder' }, slug: 'models/image-generation' },
+						{ label: 'Preview models', translations: { de: 'Vorschau-Modelle' }, slug: 'models/preview' },
+						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
 					],
 				},
 				{
@@ -236,19 +295,19 @@ export default defineConfig({
 					translations: { de: 'Anleitungen' },
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'guides' },
-						{ label: 'Chat Completions', translations: { de: 'Chat Completions' }, slug: 'guides/chat-completions' },
-						{ label: 'Prefix Caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
+						{ label: 'Chat completions', translations: { de: 'Chat Completions' }, slug: 'guides/chat-completions' },
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },
-						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'guides/embeddings' },
-						{ label: 'Multimodal', translations: { de: 'Multimodal' }, slug: 'guides/multimodal' },
-						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr' },
-						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'guides/audio' },
-						{ label: 'Function Calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
-						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions' },
-						{ label: 'Image Generation', translations: { de: 'Image Generation' }, slug: 'guides/image-generation' },
+						{ label: 'Function calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
+						{ label: 'Vision', translations: { de: 'Vision' }, slug: 'guides/multimodal' },
+						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 						{ label: 'Visual RAG', translations: { de: 'Visual RAG' }, slug: 'guides/visual-rag' },
-						{ label: 'Queued Requests', translations: { de: 'Queued Requests' }, slug: 'guides/queued-requests' },
+						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'guides/embeddings' },
+						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'guides/audio' },
+						{ label: 'Image generation', translations: { de: 'Bildgenerierung' }, slug: 'guides/image-generation' },
+						{ label: 'Prefix caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
+						{ label: 'Queued requests', translations: { de: 'Queued Requests' }, slug: 'guides/queued-requests' },
+						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 					],
 				},
 				{
@@ -257,101 +316,63 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'integrations' },
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
-						{ label: 'Llama Index', translations: { de: 'Llama Index' }, slug: 'integrations/llama-index' },
-					],
-				},
-				{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
-				{
-					label: 'Plugins',
-					translations: { de: 'Plugins' },
-					items: [
-						{ label: 'Cline', slug: 'plugins/cline' },
-						{ label: 'Continue for JetBrains', slug: 'plugins/continue-jetbrains' },
-						{ label: 'Continue for VS Code', slug: 'plugins/continue-vscode' },
-						{ label: 'OpenCode', slug: 'plugins/opencode' },
-						{ label: 'Roo Code', slug: 'plugins/roo-code' },
-					],
-				},
-				{
-					label: 'Models',
-					translations: { de: 'Modelle' },
-					items: [
-						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'models' },
-						{ label: 'Comparison', translations: { de: 'Vergleich' }, slug: 'models/comparison' },
+						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
 						{
-							label: 'Active Models',
-							translations: { de: 'Aktive Modelle' },
+							label: 'Coding tools',
+							translations: { de: 'Coding-Tools' },
 							items: [
-								{ label: 'Chat & Reasoning (LLMs)', translations: { de: 'Chat & Reasoning (LLMs)' }, slug: 'models/llms' },
-								{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
-								{ label: 'Vision', translations: { de: 'Vision' }, slug: 'models/vision' },
-								{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
-								{ label: 'Audio (Speech-to-Text)', translations: { de: 'Audio (Sprache-zu-Text)' }, slug: 'models/audio' },
-								{ label: 'Image Generation', translations: { de: 'Bildgenerierung' }, slug: 'models/image-generation' },
+								{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
+								{ label: 'Cline', slug: 'plugins/cline' },
+								{ label: 'Continue for VS Code', slug: 'plugins/continue-vscode' },
+								{ label: 'Continue for JetBrains', slug: 'plugins/continue-jetbrains' },
+								{ label: 'OpenCode', slug: 'plugins/opencode' },
+								{ label: 'Roo Code', slug: 'plugins/roo-code' },
 							],
 						},
-						{ label: 'Scheduled for Retirement', translations: { de: 'Zur Stilllegung vorgesehen' }, slug: 'models/scheduled-for-retirement' },
-						{ label: 'Retired Models', translations: { de: 'Stillgelegte Modelle' }, slug: 'models/retired' },
 					],
 				},
 				{
-					label: 'Reference',
-					translations: { de: 'Referenz' },
+					label: 'API reference',
+					translations: { de: 'API-Referenz' },
 					items: [
-						{ label: 'API Endpoints', translations: { de: 'API-Endpunkte' }, slug: 'reference/api-endpoints' },
-						{ label: 'Error Codes', translations: { de: 'Fehlercodes' }, slug: 'reference/error-codes' },
-						{ label: 'Rate Limits', translations: { de: 'Rate-Limits' }, slug: 'reference/rate-limits' },
-						{ label: 'Service Levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
-						{ label: 'Enterprise Trust', translations: { de: 'Enterprise Trust' }, slug: 'reference/enterprise-trust' },
+						{ label: 'Endpoints', translations: { de: 'Endpunkte' }, slug: 'reference/api-endpoints' },
+						{ label: 'Error codes', translations: { de: 'Fehlercodes' }, slug: 'reference/error-codes' },
 					],
 				},
-				{
-					label: 'API Transition',
-					translations: { de: 'API-Umstellung' },
-					items: [
-						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'api-transition' },
-						{ label: 'Requests', translations: { de: 'Anfragen' }, slug: 'api-transition/requests' },
-						{ label: 'Responses', translations: { de: 'Antworten' }, slug: 'api-transition/responses' },
-						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'api-transition/streaming' },
-						{ label: 'Error Handling', translations: { de: 'Fehlerbehandlung' }, slug: 'api-transition/errors' },
-					],
-				},
-				{ label: 'SmartChat', translations: { de: 'SmartChat' }, slug: 'smartchat/overview' },
 				{
 					label: 'Plans & Pricing',
 					translations: { de: 'Tarife & Preise' },
 					items: [
-						{ label: 'Plans Overview', translations: { de: 'Tarifübersicht' }, slug: 'plans' },
-						{ label: 'Shared vs Dedicated LLM Serving', translations: { de: 'Shared vs. Dedicated LLM Serving' }, slug: 'plans/service-models' },
-						{ label: 'Dedicated LLM Serving', translations: { de: 'Dedicated LLM Serving' }, slug: 'plans/dedicated' },
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'plans' },
 						{ label: 'Essential', translations: { de: 'Essential' }, slug: 'plans/essential' },
 						{ label: 'Professional', translations: { de: 'Professional' }, slug: 'plans/professional' },
 						{ label: 'Agentic', translations: { de: 'Agentic' }, slug: 'plans/agentic' },
-						{ label: 'Test / Preview', translations: { de: 'Test / Vorschau' }, slug: 'plans/test' },
-						// { label: 'Basic', translations: { de: 'Basic' }, slug: 'plans/basic' },
-						// { label: 'Standard 1000', translations: { de: 'Standard 1000' }, slug: 'plans/standard-1000' },
-						// { label: 'Standard 2000', translations: { de: 'Standard 2000' }, slug: 'plans/standard-2000' },
-						// { label: 'Standard 3000', translations: { de: 'Standard 3000' }, slug: 'plans/standard-3000' },
-						// { label: 'Standard 4000', translations: { de: 'Standard 4000' }, slug: 'plans/standard-4000' },
+						{ label: 'Rate limits', translations: { de: 'Rate-Limits' }, slug: 'reference/rate-limits' },
+						{ label: 'Dedicated', translations: { de: 'Dedicated' }, slug: 'plans/dedicated' },
 					],
 				},
-				{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
-				{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },
 				{
-					label: 'Links',
-					translations: { de: 'Links' },
+					label: 'Trust & SLA',
+					translations: { de: 'Vertrauen & SLA' },
 					items: [
-						// These open another site. src/styles/icons.css adds Telekom's external-link
-						// icon after the label; it is decoration, so `aria-label` carries the name
-						// AND the "(opens in new tab)" hint. `rel="noopener noreferrer"` is the
-						// security-required pairing for `target="_blank"`.
-						{ label: 'Try SmartChat', translations: { de: 'SmartChat testen' }, link: 'https://public.oweb-chat.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Try SmartChat (opens in new tab)' } },
-						{ label: 'LLM Playground', translations: { de: 'LLM Playground' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
-						{ label: 'Model Status', translations: { de: 'Model Status' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model Status (opens in new tab)' } },
-						{ label: 'Service Description (PDF)', translations: { de: 'Leistungsbeschreibung (PDF)' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in new tab)' } },
+						{ label: 'Enterprise Trust', translations: { de: 'Enterprise Trust' }, slug: 'reference/enterprise-trust' },
+						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
+						{ label: 'Service description (PDF)', translations: { de: 'Leistungsbeschreibung (PDF)' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service description PDF (opens in new tab)' } },
 					],
 				},
-			],
+				{
+					label: 'Resources',
+					translations: { de: 'Ressourcen' },
+					items: [
+						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
+						{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },
+						{ label: 'Model status', translations: { de: 'Modellstatus' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model status (opens in new tab)' } },
+						{ label: 'Playground', translations: { de: 'Playground' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
+						{ label: 'SmartChat docs', translations: { de: 'SmartChat-Doku' }, link: 'https://docs.smartchat.ai.t-systems.net', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'SmartChat docs (opens in new tab)' } },
+						{ label: 'AI Engineer docs', translations: { de: 'AI-Engineer-Doku' }, link: 'https://docs.ai-engineer.ai.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'AI Engineer docs (opens in new tab)' } },
+					],
+				},
+		],
 		}),
 	],
 });

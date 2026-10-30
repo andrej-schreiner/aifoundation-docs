@@ -15,7 +15,7 @@ LLM Serving is offered in two service models. The **Essential / Professional / A
 
 <div class="link-card-row">
   <LinkCard title="Service Description (PDF)" href="/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf" description="Official, binding service description document." />
-  <LinkCard title="Shared vs Dedicated LLM Serving" href="/plans/service-models" description="Side-by-side comparison of both service models and when to pick which." />
+  <LinkCard title="Dedicated serving" href="/plans/dedicated#comparison" description="Side-by-side comparison of shared and dedicated serving, and when to pick which." />
 </div>
 
 <div style="max-width: 54rem;">
@@ -29,31 +29,6 @@ Pricing valid from August 1, 2026. Rate limits, and the RPM and TPM values in th
 <PlansPage />
 
 <div style="max-width: 54rem;">
-
-## Looking for more than the shared service?
-
-The plans above are the right starting point for most production workloads. **Dedicated LLM Serving** is the right choice when one or more of the following apply:
-
-- **You serve many users with strict latency SLAs.** Even the Agentic plan's high RPM/TPM are best-effort on shared infrastructure — there is no contractual guarantee on time-to-first-token or end-to-end latency when other tenants drive the platform load.
-- **Your workload is bursty.** Short windows of very high demand that would otherwise hit the shared service's rate-limit ceilings.
-- **You need to host a private, fine-tuned, or custom model** that isn't in the shared catalog.
-- **Your compliance posture requires single-tenant infrastructure.**
-- **You want a predictable cost structure** — a fixed fee for the reserved hardware and the managed inference service, instead of per-token billing.
-
-### What Dedicated LLM Serving gives you
-
-- **No RPM or TPM ceilings.** Throughput is limited only by the GPU hardware you reserve, not by per-minute quotas.
-- **Deterministic performance.** No contention from other tenants. The same prompt produces the same latency profile run after run.
-- **Negotiable performance SLAs.** Unlike the shared service — whose SLA covers API availability only — Dedicated LLM Serving contracts can include SLAs on time-to-first-token, end-to-end latency, sustained throughput, 24/7 support, and stricter availability targets.
-- **Any compatible model.** Any model that runs on the shared T-Cloud catalog can be deployed on a dedicated instance, plus your own private or fine-tuned variants.
-
-<div class="link-card-row">
-  <LinkCard title="Dedicated LLM Serving" href="/plans/dedicated" description="Reserve GPU hardware exclusively for your contract — full details, advantages, and how to order." />
-  <LinkCard title="Compare Shared vs Dedicated LLM Serving" href="/plans/service-models" description="Side-by-side comparison of both service models — pricing model, SLAs, performance, and when to pick which." />
-</div>
-
-Dedicated LLM Serving requires a tailored offer. [Contact us](mailto:ai@t-systems.com) for a quote based on your workload profile and SLA requirements.
-
 
 <a id="rpm-tpm-notes"></a>
 

@@ -6,17 +6,33 @@ description: "Überblick über LLMs, Vision-, Embedding- und Audiomodelle auf AI
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../../../components/AvailableModels.astro';
+import ModelsComparison from '../../../../components/ModelsComparison.astro';
 
 AI Foundation Services bietet Zugang zu einer breiten Palette von Open-Source- und proprietären LLMs, Embedding-Modellen, Vision-Modellen und Audio-Modellen — alles über eine einzige OpenAI-kompatible API.
 
-Jedes gehostete Modell hat eine eigene Modellkarte mit Fähigkeiten, Souveränitäts-Bewertung, Preisen, Tarifverfügbarkeit und einem Anwendungsbeispiel. Durchstöbern Sie die Kategorien in der Seitenleiste oder verwenden Sie die untenstehende Tabelle.
+Durchstöbern Sie die Kategorien in der Seitenleiste oder nutzen Sie den Katalog unten für Kontext, Preise und Tarifverfügbarkeit.
 
 
 ## Ausgewählte Modelle
 
 <AvailableModels showHeading={false} />
 
-Eine vollständige Liste mit Preisen finden Sie auf der Seite [Tarife & Preise](/de/plans).
+Preise und Rate-Limits stehen unter [Tarife & Preise](/de/plans).
+
+## Katalog
+
+<ModelsComparison />
+
+## Modellkategorien
+
+- **Chat & Reasoning** — Textgenerierung, Konversation und Reasoning.
+- **Coding** — Modelle für Code-Vervollständigung, Refactoring und Review.
+- **Vision** — Modelle, die neben Text auch Bilder annehmen.
+- **Embeddings** — Text als Vektoren für semantische Suche, Clustering und RAG.
+- **Audio** — Sprache-zu-Text für Transkription und Übersetzung.
+- **Bilder** — Bilder aus Textprompts erzeugen.
+
+Zum Umgang mit Daten siehe [Enterprise Trust](/de/reference/enterprise-trust).
 
 
 ## Modelle über die API auflisten

@@ -10,8 +10,23 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 Unlike the [shared LLM Serving Service](/plans), there are no rate-limit ceilings and no shared contention. End-to-end latency, time-to-first-token, and tokens-per-second become predictable functions of your model and prompt, not of other tenants' traffic.
 
+## Shared and dedicated
+
+<a id="comparison"></a>
+
+| | Shared LLM Serving Service | Dedicated LLM Serving |
+|---|---|---|
+| **Tenancy** | Multi-tenant — capacity is pooled across all customers | Single-tenant — hardware reserved for your contract |
+| **Pricing** | Pay-as-you-go, billed per token | Fixed monthly fee per GPU equivalent |
+| **Rate limits** | Per-plan RPM and TPM ceilings — best-effort, not part of the SLA | None — limited only by the hardware you reserve |
+| **Models** | The full catalog on the [Plans page](/plans) | Any model that fits on the reserved hardware, including private fine-tuned models |
+| **Performance** | Best-effort, varies with platform load; not part of the SLA | Predictable on the reserved hardware; performance SLAs negotiable |
+| **Availability SLA** | 99.5% API availability on the standard product (business hours); reachability only | Custom availability and performance SLAs, negotiated per contract |
+| **Ordering** | [API Key portal](https://apikey.llmhub.t-systems.net/login). [Contact us](mailto:ai@t-systems.com) to order | Contact the AIFS team for a quote |
+| **Best for** | Steady production traffic, exploration, prototyping | Tight latency SLAs, bursty workloads, high sustained throughput, private models |
+
 <div class="link-card-row">
-  <LinkCard title="Compare to Shared" href="/plans/service-models" description="Side-by-side comparison of the two service models and when to pick which." />
+  <LinkCard title="Shared plans" href="/plans" description="Compare Essential, Professional, and Agentic." />
   <LinkCard title="Request a Quote" href="mailto:ai@t-systems.com" description="Contact the AIFS team for a tailored Dedicated LLM Serving offering." />
 </div>
 
@@ -106,7 +121,6 @@ For very large or compliance-driven deployments, the AIFS team can also assess i
 
 ## Related Resources
 
-- **[Shared vs Dedicated LLM Serving](/plans/service-models)** — Compare both service models side-by-side
 - **[Plans & Pricing](/plans)** — Pricing for the shared Essential / Professional / Agentic plans
 - **[Rate Limits](/reference/rate-limits)** — How RPM/TPM work on the shared service
 - **[Service Levels](/reference/service-levels)** — Standard SLA terms (and how Dedicated LLM Serving can extend them)

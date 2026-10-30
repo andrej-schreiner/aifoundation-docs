@@ -13,4 +13,13 @@ export const onRequest = defineRouteMiddleware((context) => {
 	if (route.toc && countEntries(route.toc.items) < 2) {
 		route.toc = undefined;
 	}
+	const id = route.entry?.id ?? '';
+	const path = context.url.pathname;
+	if (id.startsWith('v1-2-0') || path.includes('/v1-2-0')) {
+		route.entry.data.pagefind = false;
+		route.head.push({
+			tag: 'meta',
+			attrs: { name: 'robots', content: 'noindex' },
+		});
+	}
 });
