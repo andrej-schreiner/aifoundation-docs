@@ -126,7 +126,7 @@ const priceBuckets = [
         </Selector>
       </div>
     ) : (
-      <div class="plans-filterbar" role="group" aria-label={translations.modelsTitle}>
+      <div class="plans-filterbar not-content" role="group" aria-label={translations.modelsTitle}>
         <details class="plans-filter" data-filter="location">
           <summary aria-label={translations.labelServerLocation}>
             <span class="plans-filter__label">{translations.labelServerLocation}</span>
@@ -818,6 +818,34 @@ const priceBuckets = [
       });
 
       // Reset button removes ALL filters (every checkbox checked).
+      if (!section.hasAttribute('data-popover-bound')) {
+        section.setAttribute('data-popover-bound', '');
+        const closeFilters = (except: HTMLDetailsElement | null) => {
+          section.querySelectorAll<HTMLDetailsElement>('details.plans-filter[open]').forEach((details) => {
+            if (details !== except) details.open = false;
+          });
+        };
+        section.addEventListener('toggle', (evt) => {
+          const details = evt.target;
+          if (details instanceof HTMLDetailsElement && details.classList.contains('plans-filter') && details.open) {
+            closeFilters(details);
+          }
+        }, true);
+        document.addEventListener('keydown', (evt) => {
+          if (evt.key !== 'Escape') return;
+          const open = section.querySelector<HTMLDetailsElement>('details.plans-filter[open]');
+          if (!open) return;
+          open.open = false;
+          open.querySelector<HTMLElement>('summary')?.focus();
+        });
+        document.addEventListener('click', (evt) => {
+          const target = evt.target;
+          if (!(target instanceof Node)) return;
+          if (target instanceof Element && target.closest('.plans-filter')) return;
+          closeFilters(null);
+        });
+      }
+
       const resetBtn = section.querySelector<HTMLButtonElement>('[data-reset]');
       if (resetBtn) {
         resetBtn.addEventListener('click', () => resetAllFilters());
@@ -1033,20 +1061,32 @@ const priceBuckets = [
   .plans-filter {
     position: relative;
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 6px;
-    background: var(--sl-color-gray-6);
+    border-inline-start-width: 1px;
+    border-radius: 999px;
+    background: transparent;
+    padding: 0;
+    margin: 0;
     font-size: 0.82rem;
   }
 
   .plans-filter > summary {
     cursor: pointer;
     list-style: none;
-    padding: 0.3rem 0.65rem;
+    padding: 0.4rem 0.8rem;
+    margin: 0;
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     line-height: 1.2;
     user-select: none;
+    border-radius: 999px;
+  }
+
+  .plans-filter > summary::before,
+  .plans-filter > summary::marker,
+  .plans-filter > summary::-webkit-details-marker {
+    content: none;
+    display: none;
   }
 
   .plans-filter > summary::-webkit-details-marker {
@@ -1082,11 +1122,15 @@ const priceBuckets = [
     border-radius: 5px;
   }
 
+  .plans-filter[open] {
+    z-index: 40;
+  }
+
   .plans-filter__menu {
     position: absolute;
-    top: calc(100% + 4px);
+    top: calc(100% + 6px);
     left: 0;
-    z-index: 20;
+    z-index: 40;
     min-width: 11rem;
     max-height: 22rem;
     overflow-y: auto;
@@ -1125,9 +1169,9 @@ const priceBuckets = [
     color: var(--sl-color-text);
     background: transparent;
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 6px;
+    border-radius: 999px;
     cursor: pointer;
-    margin-left: auto;
+    margin-left: 0;
   }
 
   .plans-filter-reset:hover {

@@ -160,6 +160,8 @@ body {
 }
 
 .sl-markdown-content table {
+	display: table;
+	width: 100%;
 	border-collapse: separate;
 	border-spacing: 0;
 	border: 1px solid var(--sl-color-gray-5);
@@ -173,6 +175,22 @@ body {
 	border: 0;
 	border-bottom: 1px solid var(--aifs-magenta);
 	padding: 0.7rem 0.85rem;
+}
+
+.sl-markdown-content tr:first-child th:first-child {
+	border-start-start-radius: 7px;
+}
+
+.sl-markdown-content tr:first-child th:last-child {
+	border-start-end-radius: 7px;
+}
+
+.sl-markdown-content th :not(pre) > code,
+.sl-markdown-content th code {
+	background: transparent;
+	color: #ffffff;
+	border: 1px solid color-mix(in srgb, #ffffff 35%, transparent);
+	box-shadow: none;
 }
 
 .sl-markdown-content td {
@@ -261,6 +279,16 @@ body {
 	--ec-codeFontSize: 0.875rem;
 	border: 1px solid var(--sl-color-gray-5);
 	border-radius: 8px;
+}
+
+:root[data-theme='light'] .expressive-code {
+	--ec-codeBg: #f6f6f6;
+	--ec-frm-edBg: #f6f6f6;
+	--ec-frm-edTabBarBg: #f3f3f3;
+	--ec-frm-edActTabBg: #f6f6f6;
+	--ec-frm-trmBg: #f6f6f6;
+	--ec-frm-trmTtbBg: #f3f3f3;
+	border-color: #d8d8d8;
 }
 
 .expressive-code pre {
@@ -575,4 +603,23 @@ html:not([data-has-sidebar]) .meta {
 :root[data-theme='dark'] .ts-header select:focus-visible {
 	outline: 2px solid var(--aifs-d-text);
 	outline-offset: 2px;
+}
+
+/* Plans intro, cards, and note share the table's content width. */
+.sl-markdown-content:has(.plans-page) > div {
+	max-width: none !important;
+	width: 100%;
+}
+
+.sl-markdown-content:has(.plans-page) .sl-link-card,
+.sl-markdown-content:has(.plans-page) .link-card-row,
+.plans-page,
+.plans-page .rate-plans-section,
+.plans-page .table-wrapper,
+.plans-table,
+.models-comparison,
+.models-comparison__scroll,
+.models-comparison-table {
+	width: 100%;
+	max-width: 100%;
 }
