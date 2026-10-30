@@ -341,21 +341,99 @@ html:not([data-has-sidebar]) .meta {
 	display: none;
 }
 
+/* Heading hash icons stay out of the way until the heading is hovered or focused. */
+.sl-markdown-content .sl-anchor-link {
+	opacity: 0;
+}
+
+.sl-markdown-content .sl-heading-wrapper:hover .sl-anchor-link,
+.sl-markdown-content .sl-heading-wrapper:focus-within .sl-anchor-link {
+	opacity: 1;
+}
+
+/* Card groups: one column, then two equal columns from 768px.
+   Unlayered so this wins over the old flex rule and Starlight's layered grid. */
+.card-grid,
+.link-card-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0.75rem;
+	width: 100%;
+	justify-content: stretch;
+	justify-items: stretch;
+	align-items: stretch;
+}
+
+@media (min-width: 768px) {
+	.card-grid,
+	.link-card-row {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+.card-grid > *,
+.link-card-row > * {
+	min-width: 0;
+	width: 100%;
+	height: 100%;
+	margin: 0;
+	max-width: none;
+	justify-self: stretch;
+	align-self: stretch;
+}
+
+.sl-markdown-content:has(.plans-page) .link-card-row > .sl-link-card,
+.sl-markdown-content:has(.plans-page) .card-grid > .sl-link-card {
+	max-width: none;
+}
+
 .sl-link-card {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: flex-start;
+	gap: 0.25rem;
+	width: 100%;
+	height: 100%;
+	min-width: 0;
+	box-sizing: border-box;
+	padding: 1.25rem 1.5rem;
 	border: 1px solid var(--sl-color-gray-5);
 	border-radius: 8px;
 	background: var(--sl-color-black);
 	box-shadow: none;
+	text-align: left;
+}
+
+.sl-link-card > .icon {
+	order: -1;
+	width: 1.5rem;
+	height: 1.5rem;
+	flex: 0 0 auto;
+	color: var(--aifs-magenta);
+}
+
+.sl-link-card .stack {
+	width: 100%;
+	align-items: flex-start;
 }
 
 .sl-link-card .title {
+	display: block;
+	margin-top: 0.75rem;
 	font-family: var(--aifs-font-bold);
 	font-weight: 700;
 	font-size: 1rem;
+	text-align: left;
 }
 
-.sl-link-card .icon {
-	color: var(--aifs-magenta);
+.sl-link-card .description {
+	display: block;
+	text-align: left;
+}
+
+.sl-link-card a {
+	text-align: left;
 }
 
 .sl-link-card:hover,
