@@ -4,7 +4,10 @@ description: "Code-tuned language models on AI Foundation Services. Filter by cl
 ---
 
 import ModelsComparison from '../../../components/ModelsComparison.astro';
+import ModelPick from '../../../components/ModelPick.astro';
 
 Models tuned for code completion, refactoring, and review. Stronger on programming benchmarks than general LLMs of similar parameter count, while remaining usable through the standard Chat Completions endpoint.
+
+<ModelPick useCase="coding" />
 
 <ModelsComparison category="coding" />

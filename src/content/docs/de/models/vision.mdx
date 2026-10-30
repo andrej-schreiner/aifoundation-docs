@@ -4,7 +4,10 @@ description: "Multimodale Modelle auf AI Foundation Services, die Bildeingaben n
 ---
 
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Multimodale Modelle, die Bildeingaben neben Text akzeptieren. Verwendung über den Standard-Chat-Completions-Endpunkt mit Image-Content-Parts.
+
+<ModelPick useCase="vision" />
 
 <ModelsComparison capabilityFilter="accepts-image" />

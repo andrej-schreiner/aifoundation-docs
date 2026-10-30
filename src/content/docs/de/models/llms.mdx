@@ -4,7 +4,10 @@ description: "Sprachmodelle auf AI Foundation Services für allgemeine Chats, Re
 ---
 
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Allgemeine Textgenerierung, Konversationsagenten und Reasoning. Die meisten LLMs auf AI Foundation Services akzeptieren mehrsprachige Eingaben und unterstützen Streaming sowie Tool-/Function-Calling.
+
+<ModelPick useCase="chat" />
 
 <ModelsComparison category="llms" />

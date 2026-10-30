@@ -4,7 +4,10 @@ description: "Embedding models on AI Foundation Services for semantic search, cl
 ---
 
 import ModelsComparison from '../../../components/ModelsComparison.astro';
+import ModelPick from '../../../components/ModelPick.astro';
 
 Convert text to dense vectors for semantic search, clustering, and retrieval-augmented generation. Available via the `POST /embeddings` endpoint.
+
+<ModelPick useCase="embeddings" />
 
 <ModelsComparison category="embeddings" />

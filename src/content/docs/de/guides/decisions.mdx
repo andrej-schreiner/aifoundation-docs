@@ -4,10 +4,13 @@ description: "Typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder e
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Der Endpunkt `/decisions` beantwortet Fragen zu einem Zustand mit **typisierten Werten statt Text**: einer Wahrscheinlichkeit, einer Option aus einer Liste oder einer Stufe auf einer Skala. Es gibt keinen Freitext zu parsen, und ein Aufruf dauert in der Regel weniger als eine Sekunde.
 
 Nutzen Sie Decisions in einem Agenten für die kleinen Bewertungsschritte (welches Tool aufgerufen wird, ob ein Mensch freigeben muss, ob die Aufgabe erledigt ist, ob eine Antwort belegt ist) und Chat Completions für das Schreiben von Text.
+
+<ModelPick useCase="decisions" />
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))

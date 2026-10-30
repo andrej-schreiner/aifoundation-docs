@@ -4,10 +4,13 @@ description: "Gescannte Dokumente, PDFs und Fotos mit den Preview-Modellen Light
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Zwei OCR-Modelle lesen Dokumente für Sie: gescannte Briefe, Rechnungen, Formulare, wissenschaftliche Artikel und Folien. Sie liefern den Inhalt als **Markdown, HTML-Tabellen und LaTeX**, bereit für Suche, RAG-Pipelines oder Datenextraktion, statt als unstrukturierten Textblock.
 
 Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre Dokumente werden also in Deutschland verarbeitet.
+
+<ModelPick useCase="ocr" />
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))

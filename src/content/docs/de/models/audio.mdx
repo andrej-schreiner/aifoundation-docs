@@ -4,7 +4,10 @@ description: "Whisper-basierte Sprache-zu-Text-Modelle auf AI Foundation Service
 ---
 
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Whisper-basierte Modelle für Transkription und Übersetzung. Verfügbar über die Endpunkte `POST /audio/transcriptions` und `POST /audio/translations`.
+
+<ModelPick useCase="audio" />
 
 <ModelsComparison category="audio" />

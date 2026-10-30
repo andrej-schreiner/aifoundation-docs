@@ -4,7 +4,10 @@ description: "Image generation models on AI Foundation Services that turn text p
 ---
 
 import ModelsComparison from '../../../components/ModelsComparison.astro';
+import ModelPick from '../../../components/ModelPick.astro';
 
 Generate images from text prompts and optional reference images. Available via the `POST /images/generations` endpoint.
+
+<ModelPick useCase="image" />
 
 <ModelsComparison category="image-generation" />

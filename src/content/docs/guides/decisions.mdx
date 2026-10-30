@@ -4,10 +4,13 @@ description: "Get typed answers (a probability, a choice or a score) instead of 
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import ModelPick from '../../../components/ModelPick.astro';
 
 The `/decisions` endpoint answers questions about a piece of state with **typed values instead of text**: a probability, one option from a list, or a level on a rubric. There is no free text to parse, and a call typically takes under a second.
 
 In an agent, use decisions for the small judgement steps (which tool to call, whether a human must approve, whether the task is done, whether an answer is grounded), and keep chat completions for writing text.
+
+<ModelPick useCase="decisions" />
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
