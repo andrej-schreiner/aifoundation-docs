@@ -65,10 +65,13 @@ const showSearch =
 		border-radius: 2px;
 	}
 
+	/* The file is a magenta T on transparency. On a magenta plate it vanishes.
+	   Paint that same shape white so the mark reads in light and dark. */
 	.ts-mark img {
-		width: 1.7rem;
-		height: 1.7rem;
+		width: 1.85rem;
+		height: 1.85rem;
 		object-fit: contain;
+		filter: brightness(0) invert(1);
 	}
 
 	.ts-word {

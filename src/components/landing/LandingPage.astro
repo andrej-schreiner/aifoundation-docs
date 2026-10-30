@@ -7,12 +7,13 @@ const p = isDE ? '/de' : '';
 
 const copy = isDE
 	? {
-			title: 'Die souveräne europäische KI-Plattform von T-Systems.',
+			titleLead: 'Die souveräne europäische KI-Plattform von ',
+			titleBrand: 'T\u2011Systems.',
 			lead: `Nutzen Sie ${availableModelCount} Open-Source- und proprietäre LLMs über eine OpenAI-kompatible API, mit souveränem EU-Hosting für Open-Source-Modelle.`,
 			primary: 'API-Key holen',
 			primaryAria: 'API-Key generieren (öffnet in neuem Tab)',
 			secondary: 'Quickstart',
-			tilesTitle: 'Was die Dokumentation abdeckt',
+			tilesTitle: 'Warum AI Foundation Services',
 			modelsTitle: 'Modelle im Katalog',
 			modelsLink: 'Alle Modelle',
 			stepsTitle: 'In drei Schritten starten',
@@ -25,12 +26,13 @@ const copy = isDE
 			deprecated: 'Veraltet',
 		}
 	: {
-			title: 'The sovereign European AI platform by T-Systems.',
+			titleLead: 'The sovereign European AI platform by ',
+			titleBrand: 'T\u2011Systems.',
 			lead: `Run ${availableModelCount} open-source and proprietary LLMs through an OpenAI-compatible API, with sovereign EU hosting for open-source models.`,
 			primary: 'Get API key',
 			primaryAria: 'Get API key (opens in a new tab)',
 			secondary: 'Quickstart',
-			tilesTitle: 'What the docs cover',
+			tilesTitle: 'Why AI Foundation Services',
 			modelsTitle: 'Models in the catalog',
 			modelsLink: 'All models',
 			stepsTitle: 'Get started in three steps',
@@ -45,16 +47,16 @@ const copy = isDE
 
 const tiles = isDE
 	? [
-			{ href: `${p}/reference/enterprise-trust`, title: 'T-Cloud in Deutschland', body: 'Open-Source-Modelle mit souveränem EU-Hosting. Das Datenmodell steht unter Enterprise Trust.' },
-			{ href: `${p}/getting-started/quickstart`, title: 'OpenAI-kompatibel', body: 'Wechseln Sie von OpenAI mit einer Zeile Code. Dieselbe Chat-Completions-Form.' },
-			{ href: `${p}/models`, title: `${availableModelCount} Modelle`, body: 'Der Katalog zählt die Modelle aus den Tarifdaten, ohne die am 31.10.2026 veraltete Gruppe.' },
-			{ href: `${p}/reference/enterprise-trust`, title: 'Enterprise Trust', body: 'Zwei Modellkategorien. Die verbindliche Quelle ist die Leistungsbeschreibung.' },
+			{ href: `${p}/reference/enterprise-trust`, title: 'T\u2011Cloud in Deutschland', body: 'Open-Source-Modelle laufen auf der T\u2011Cloud in Deutschland, mit souveränem EU-Hosting.' },
+			{ href: `${p}/getting-started/quickstart`, title: 'OpenAI-kompatibel', body: 'Wechseln Sie von OpenAI mit nur einer Zeile Code.' },
+			{ href: `${p}/models`, title: `${availableModelCount} Modelle`, body: 'Open-Source- und proprietäre LLMs, Embeddings, OCR und mehr, über eine API.' },
+			{ href: `${p}/reference/enterprise-trust`, title: 'Enterprise Trust', body: 'Sicherheit, Compliance und Datensouveränität für den Dienst.' },
 		]
 	: [
-			{ href: `${p}/reference/enterprise-trust`, title: 'T-Cloud in Germany', body: 'Open-source models with sovereign EU hosting. The data-handling model is on Enterprise Trust.' },
-			{ href: `${p}/getting-started/quickstart`, title: 'OpenAI-compatible', body: 'Switch from OpenAI with one line of code. Same chat-completions shape.' },
-			{ href: `${p}/models`, title: `${availableModelCount} models`, body: 'The catalog count comes from the plan data, excluding the cohort deprecated on 2026-10-31.' },
-			{ href: `${p}/reference/enterprise-trust`, title: 'Enterprise Trust', body: 'Two model categories. The Service Description is the binding source.' },
+			{ href: `${p}/reference/enterprise-trust`, title: 'T\u2011Cloud in Germany', body: 'Open-source models run on T\u2011Cloud in Germany, with sovereign EU hosting.' },
+			{ href: `${p}/getting-started/quickstart`, title: 'OpenAI-compatible', body: 'Switch from OpenAI with one line of code.' },
+			{ href: `${p}/models`, title: `${availableModelCount} models`, body: 'Open-source and proprietary LLMs, embeddings, OCR and more, behind one API.' },
+			{ href: `${p}/reference/enterprise-trust`, title: 'Enterprise Trust', body: 'Security, compliance, and data sovereignty for the service.' },
 		];
 
 const steps = isDE
@@ -135,7 +137,7 @@ console.log(response.choices[0].message.content);`,
 
 <section class="hero">
 	<div>
-		<h1>{copy.title}</h1>
+		<h1>{copy.titleLead}<span class="nowrap">{copy.titleBrand}</span></h1>
 		<p class="lead">{copy.lead}</p>
 		<div class="actions">
 			<a class="btn btn-primary" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer" aria-label={copy.primaryAria}>{copy.primary}</a>
@@ -261,11 +263,21 @@ console.log(response.choices[0].message.content);`,
 
 	h1 {
 		margin: 0 0 0.8rem;
+		max-width: 12em;
 		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
 		font-weight: 500;
-		font-size: 2.25rem;
-		line-height: 1.1;
+		font-size: clamp(1.85rem, 2.6vw, 2.65rem);
+		line-height: 1.12;
+		text-wrap: balance;
+		overflow-wrap: normal;
+		word-break: normal;
 		color: var(--sl-color-white);
+	}
+
+	.nowrap {
+		white-space: nowrap;
+		overflow-wrap: normal;
+		word-break: normal;
 	}
 
 	.lead {
@@ -365,10 +377,15 @@ console.log(response.choices[0].message.content);`,
 
 	pre {
 		margin: 0;
-		padding: 1rem 1.1rem 1.2rem;
+		max-height: 16rem;
+		padding: 0.85rem 1rem 1rem;
 		overflow: auto;
-		font-size: 0.86rem;
-		line-height: 1.5;
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+		font-size: 0.78rem;
+		line-height: 1.45;
+		scrollbar-width: thin;
+		scrollbar-color: #e20074 transparent;
 	}
 
 	code {
@@ -413,6 +430,8 @@ console.log(response.choices[0].message.content);`,
 	.tiles a,
 	.models a,
 	.steps a {
+		overflow-wrap: normal;
+		word-break: normal;
 		display: flex;
 		flex-direction: column;
 		gap: 0.4rem;
@@ -512,7 +531,7 @@ console.log(response.choices[0].message.content);`,
 			padding-top: 2.5rem;
 		}
 		h1 {
-			font-size: 3rem;
+			font-size: clamp(2.15rem, 2.4vw, 2.65rem);
 		}
 		.tiles,
 		.models {
