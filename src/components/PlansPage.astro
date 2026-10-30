@@ -71,7 +71,7 @@ const t = {
       ],
   labelRatePlan: isDE ? 'Gewählter Tarif' : 'Rate Plan',
   labelSearch: isDE ? 'Suche' : 'Search',
-  labelServerLocation: 'Server Location',
+  labelServerLocation: isDE ? 'Serverstandort' : 'Server Location',
   labelCloud: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
   labelModelTier: isDE ? 'Modell-Tier' : 'Model Tier',
   labelInputPriceRange: isDE ? 'Input-Preis' : 'Input Price',
@@ -106,7 +106,7 @@ const t = {
   blurbEnterprise: isDE
     ? 'Individueller Mindestumsatz und individuelle Rate-Limits. Kontaktieren Sie uns für ein Angebot.'
     : 'Custom commitment and rate limits. Contact us for an offer.',
-  thHosting: 'Hosting',
+  thHosting: isDE ? 'Hosting' : 'Hosting',
   thHostingSub: isDE ? 'Host · Cloud · Standort' : 'Host · Cloud · Location',
   thInput: 'Input',
   thOutput: 'Output',
@@ -139,7 +139,12 @@ const t = {
   linkTermsOfUse: isDE ? 'Nutzungsbedingungen' : 'Terms of Use',
   linkDataProtection: isDE ? 'Datenschutz' : 'Data Protection',
   thHostingPlatform: 'Hosting Platform',
-  thServerLocation: 'Server Location',
+  thServerLocation: isDE ? 'Serverstandort' : 'Server Location',
+  emptyCatalogNote: isDE
+    ? 'Für diesen Tarif sind im aktuellen Katalog keine Modelle gelistet.'
+    : 'This plan has no models in the current catalog.',
+  emptyCatalogLink: isDE ? 'Zu Tarife und Preise' : 'See Plans & Pricing',
+  emptyCatalogHref: isDE ? '/de/plans/' : '/plans/',
   thInputTokenLimit: 'Input Token Limit',
   thOutputTokenLimit: 'Output Token Limit',
   thRPMLimit: isDE ? 'RPM-Limit' : 'RPM Limit',

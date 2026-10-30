@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" fill="none">
-  <g font-family="system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif" fill="CanvasText" stroke="CanvasText">
+  <g font-family="system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif" fill="#1a1a1a" stroke="#1a1a1a">
     <g transform="translate(16,16)">
       <rect width="296" height="252" rx="12" fill="none" stroke="CanvasText" stroke-opacity="0.35"/>
       <g transform="translate(124,28)" fill="none" stroke="CanvasText" stroke-width="1.6">
@@ -7,8 +7,8 @@
         <path d="M14 6h14a4 4 0 0 1 4 4v10H18"/>
       </g>
       <text x="148" y="118" text-anchor="middle" font-size="28" font-weight="700" stroke="none">1</text>
-      <text x="148" y="156" text-anchor="middle" font-size="15" stroke="none">Contact us to set up</text>
-      <text x="148" y="176" text-anchor="middle" font-size="15" stroke="none">storage instances for you</text>
+      <text x="148" y="156" text-anchor="middle" font-size="22" stroke="none">Contact us to set up</text>
+      <text x="148" y="176" text-anchor="middle" font-size="22" stroke="none">storage instances for you</text>
     </g>
     <g transform="translate(332,16)">
       <rect width="296" height="252" rx="12" fill="none" stroke="CanvasText" stroke-opacity="0.35"/>
@@ -16,9 +16,9 @@
         <path d="M4 10h8l2-4h12v18H4V10z"/>
       </g>
       <text x="148" y="118" text-anchor="middle" font-size="28" font-weight="700" stroke="none">2</text>
-      <text x="148" y="152" text-anchor="middle" font-size="15" stroke="none">Prepare the files that you</text>
-      <text x="148" y="172" text-anchor="middle" font-size="15" stroke="none">want to ingest:</text>
-      <text x="148" y="192" text-anchor="middle" font-size="15" stroke="none">pdf, pptx, docx, html, png</text>
+      <text x="148" y="152" text-anchor="middle" font-size="22" stroke="none">Prepare the files that you</text>
+      <text x="148" y="172" text-anchor="middle" font-size="22" stroke="none">want to ingest:</text>
+      <text x="148" y="192" text-anchor="middle" font-size="22" stroke="none">pdf, pptx, docx, html, png</text>
     </g>
     <g transform="translate(648,16)">
       <rect width="296" height="252" rx="12" fill="none" stroke="CanvasText" stroke-opacity="0.35"/>
@@ -28,7 +28,7 @@
         <path d="M22 26v-8M18 22h8" stroke="#e20074"/>
       </g>
       <text x="148" y="118" text-anchor="middle" font-size="28" font-weight="700" stroke="none">3</text>
-      <text x="148" y="160" text-anchor="middle" font-size="15" stroke="none">Upload the files</text>
+      <text x="148" y="160" text-anchor="middle" font-size="22" stroke="none">Upload the files</text>
     </g>
     <g transform="translate(16,288)">
       <rect width="296" height="252" rx="12" fill="none" stroke="CanvasText" stroke-opacity="0.35"/>
@@ -38,7 +38,7 @@
         <path d="M8 22 L22 8" stroke="#e20074"/>
       </g>
       <text x="148" y="118" text-anchor="middle" font-size="28" font-weight="700" stroke="none">4</text>
-      <text x="148" y="160" text-anchor="middle" font-size="15" stroke="none">Create a Vector Store</text>
+      <text x="148" y="160" text-anchor="middle" font-size="22" stroke="none">Create a Vector Store</text>
     </g>
     <g transform="translate(332,288)">
       <rect width="296" height="252" rx="12" fill="none" stroke="CanvasText" stroke-opacity="0.35"/>
@@ -48,8 +48,8 @@
         <path d="M10 8h4M18 6h4M20 10h4" stroke="#e20074"/>
       </g>
       <text x="148" y="118" text-anchor="middle" font-size="28" font-weight="700" stroke="none">5</text>
-      <text x="148" y="152" text-anchor="middle" font-size="15" stroke="none">Ingest your uploaded files</text>
-      <text x="148" y="172" text-anchor="middle" font-size="15" stroke="none">into a Vector Store</text>
+      <text x="148" y="152" text-anchor="middle" font-size="22" stroke="none">Ingest your uploaded files</text>
+      <text x="148" y="172" text-anchor="middle" font-size="22" stroke="none">into a Vector Store</text>
     </g>
     <g transform="translate(648,288)">
       <rect width="296" height="252" rx="12" fill="none" stroke="CanvasText" stroke-opacity="0.35"/>
@@ -58,7 +58,7 @@
         <path d="M20 20l8 8" stroke="#e20074"/>
       </g>
       <text x="148" y="118" text-anchor="middle" font-size="28" font-weight="700" stroke="none">6</text>
-      <text x="148" y="160" text-anchor="middle" font-size="15" stroke="none">Search</text>
+      <text x="148" y="160" text-anchor="middle" font-size="22" stroke="none">Search</text>
     </g>
   </g>
 </svg>

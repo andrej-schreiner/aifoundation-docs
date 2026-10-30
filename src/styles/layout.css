@@ -161,8 +161,21 @@ mobile-starlight-toc nav {
 }
 
 .content-panel :where(h1, h1 + p) {
-	max-width: var(--aifs-layout-measure);
+	max-width: min(100%, var(--aifs-layout-measure));
+	min-width: 0;
+	box-sizing: border-box;
 }
+
+/* The version notice is a max-content bar. On a phone that becomes a 560px
+   strip and the page scrolls sideways. */
+.content-panel p:has(> svg) {
+	width: auto;
+	max-width: 100%;
+	min-width: 0;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
 
 /* Vertical rhythm, on Telekom's 8px scale (--aifs-rhythm-* tokens): the gap
    grows with the size of the break. 16px between paragraphs (Starlight's

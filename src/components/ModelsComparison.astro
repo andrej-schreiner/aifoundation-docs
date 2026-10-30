@@ -690,18 +690,18 @@ const rowDataPayload = allModels.map((m) => ({
           const fullCloud = cloudFullName(m.cloud);
           return (
             <tr data-key={m.exactModelName}>
-              <td><strong>{m.displayModelName}</strong></td>
+              <td data-label={t.colModel}><strong>{m.displayModelName}</strong></td>
               {!categoryFilter && (
-                <td>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
+                <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
               )}
-              <td>
+              <td data-label={t.colProvider}>
                 <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
                   <span class="creator-brand">
                     <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
                   </span>
                 </Tooltip>
               </td>
-              <td>
+              <td data-label={t.colCloud}>
                 <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
                   <button
                     type="button"
@@ -713,25 +713,25 @@ const rowDataPayload = allModels.map((m) => ({
                   </button>
                 </Tooltip>
               </td>
-              <td>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
-              <td>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
-              <td class="center">
+              <td data-label={t.colInput}>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td data-label={t.colOutput}>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
+              <td class="center" data-label={t.colStreaming}>
                 {m.capabilities.streaming
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
-              <td class="center">
+              <td class="center" data-label={t.colTools}>
                 {m.capabilities.toolCalling
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
-              <td>{m.contextWindow}</td>
-              <td class="mc-reasoning-effort">
+              <td data-label={t.colContext}>{m.contextWindow}</td>
+              <td class="mc-reasoning-effort" data-label={t.colReasoningEffort}>
                 {m.reasoningEffort.length > 0
                   ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
                   : <span aria-label="No reasoning_effort values published">{t.reasoningEffortNone}</span>}
               </td>
-              <td class="mc-usage-field">
+              <td class="mc-usage-field" data-label={t.colReasoningTokensUsage}>
                 {m.reasoningTokensUsage === 'completion_tokens_details' && (
                   <code>completion_tokens_details<wbr />.reasoning_tokens</code>
                 )}
@@ -743,10 +743,10 @@ const rowDataPayload = allModels.map((m) => ({
                   <span aria-label="Not documented">{t.reasoningTokensUnknown}</span>
                 )}
               </td>
-              <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
-              <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
-              <td class="num">{formatCachedPrice(m)}</td>
-              <td>
+              <td class="num" data-label={t.colInputPrice}>{formatPrice(m.inputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colOutputPrice}>{formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colCachedPrice}>{formatCachedPrice(m)}</td>
+              <td data-label={t.colPlans}>
                 <span class="mc-plans">
                   {m.plans.map((p) => (
                     <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{p}</a>
@@ -1181,7 +1181,11 @@ const rowDataPayload = allModels.map((m) => ({
 
 <style>
   .models-comparison {
-    margin: 1.5rem 0 2.5rem;
+    margin: 8px 0;
+    container-type: inline-size;
+    container-name: comparison;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .models-comparison__filterbar {
@@ -1304,9 +1308,11 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison__scroll {
+    max-width: 100%;
     overflow-x: auto;
-    margin-bottom: 1.5rem;
-    box-shadow: inset -16px 0 12px -14px rgba(0, 0, 0, 0.35);
+    margin-bottom: 8px;
+    box-shadow: inset -16px 0 12px -14px rgba(0, 0, 0, 0.18);
+    scrollbar-gutter: stable;
   }
 
   .models-comparison-table {
@@ -1521,6 +1527,72 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table th.mc-sort-active .mc-sort-header {
     color: var(--aifs-color-table-head-text);
   }
+
+  @container comparison (max-width: 64rem) {
+    .models-comparison__scroll {
+      overflow: visible;
+      box-shadow: none;
+    }
+
+    .models-comparison-table,
+    .models-comparison-table tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .models-comparison-table thead {
+      display: none;
+    }
+
+    .models-comparison-table tr[data-key] {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0 0 8px;
+      padding: 10px 12px;
+      border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+      border-radius: var(--aifs-table-radius);
+      background: var(--aifs-color-surface-chrome);
+    }
+
+    .models-comparison-table td {
+      display: block;
+      min-width: 0 !important;
+      width: auto;
+      padding: 0;
+      border: 0;
+      position: static;
+      white-space: normal;
+      background: transparent;
+    }
+
+    .models-comparison-table td:first-child {
+      grid-column: 1 / -1;
+      font-size: 1rem;
+    }
+
+    .models-comparison-table td::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 2px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--aifs-color-text-muted);
+    }
+
+    .models-comparison-table td:first-child::before {
+      display: none;
+    }
+
+    .models-comparison-table .mc-no-results {
+      display: block;
+      border: 0;
+      background: transparent;
+      padding: 8px 0;
+    }
+  }
 </style>
-</content>
-</invoke>

@@ -34,6 +34,32 @@ const links = isDE
   </div>
 </footer>
 
+<script>
+  const pageTitle = document.querySelector('main h1');
+  if (pageTitle) {
+    document.querySelectorAll('.sl-markdown-content h1').forEach((heading) => {
+      if (heading !== pageTitle && heading.textContent?.trim() === pageTitle.textContent?.trim()) {
+        heading.setAttribute('hidden', '');
+      }
+    });
+  }
+  const onPlugins = /\/plugins\//.test(location.pathname);
+  if (onPlugins) {
+    document.querySelectorAll<HTMLImageElement>('.sl-markdown-content img').forEach((img) => {
+      if (img.closest('a')) return;
+      const href = img.currentSrc || img.src;
+      if (!href) return;
+      const link = document.createElement('a');
+      link.href = href;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.className = 'plugin-shot';
+      img.replaceWith(link);
+      link.appendChild(img);
+    });
+  }
+</script>
+
 <style>
   /* Sits in the content column, under the content, like the pagination
      above it. A full-width band would have to break out of the column, and
@@ -53,8 +79,6 @@ const links = isDE
     /* No padding below: the content panel's padding ends the sheet. */
     padding-block: 1.25rem 0;
     font-size: 0.9rem;
-    box-shadow: 0 0 0 100vw var(--aifs-color-surface-page);
-    clip-path: inset(0 -100vw);
   }
 
   .site-footer-inner {

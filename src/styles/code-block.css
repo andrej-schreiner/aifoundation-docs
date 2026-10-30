@@ -98,3 +98,9 @@ html:root[data-theme] .expressive-code {
 .expressive-code .frame.has-title:not(.is-terminal) .header .title::after {
 	display: none;
 }
+
+@media (max-width: 50rem) {
+	.expressive-code .frame:not(.has-title) {
+		padding-top: 2.25rem;
+	}
+}

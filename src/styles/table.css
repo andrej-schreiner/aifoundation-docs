@@ -31,8 +31,17 @@
 }
 
 .sl-markdown-content .aifs-table-scroll {
+	max-width: 100%;
+	min-width: 0;
 	overflow-x: auto;
 	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
+	scrollbar-gutter: stable;
+}
+
+@media (max-width: 50rem) {
+	.sl-markdown-content .aifs-table-scroll {
+		box-shadow: inset -18px 0 14px -16px color-mix(in srgb, var(--aifs-color-text-body) 45%, transparent);
+	}
 }
 
 .sl-markdown-content .aifs-table-scroll > table:not(.plans-table):not(.models-comparison-table) {

@@ -225,6 +225,11 @@ const priceBuckets = [
     )
   }
 
+  <p class="models-empty-note" hidden>
+    {translations.emptyCatalogNote || 'This plan has no models in the current catalog.'}{' '}
+    <a href={translations.emptyCatalogHref || '/plans/'}>{translations.emptyCatalogLink || 'See Plans & Pricing'}</a>
+  </p>
+
   <div class:list={['table-wrapper', { 'mt-compact-wrap': !legacy }]}>
     <table class:list={['plans-table', { 'mt-compact': !legacy }]} id="models-table">
       {!legacy && (
@@ -314,6 +319,17 @@ const priceBuckets = [
     const visibleCountEl = section.querySelector<HTMLElement>('[data-visible-count]');
     const totalCountEl = section.querySelector<HTMLElement>('[data-total-count]');
     const maxHeightRowThreshold = 12;
+
+    const initialPlan = plansData[currentIndex];
+    if (!legacy && (!initialPlan || !initialPlan.models || initialPlan.models.length === 0)) {
+      section.querySelector('.models-controls')?.setAttribute('hidden', '');
+      section.querySelector('.plans-filterbar')?.setAttribute('hidden', '');
+      section.querySelector('.plans-filter-status')?.setAttribute('hidden', '');
+      section.querySelector('.mt-toolbar')?.setAttribute('hidden', '');
+      section.querySelector('.table-wrapper')?.setAttribute('hidden', '');
+      section.querySelector('.models-empty-note')?.removeAttribute('hidden');
+      return;
+    }
 
     // Default sort is the shared catalog order (T-Cloud first, then
     // hyperscalers). A column click or the sort menu replaces it.
@@ -1969,6 +1985,26 @@ const priceBuckets = [
     .models-table-section .mt-compact .mt-details-cell {
       flex: 0 0 auto;
       margin-left: auto;
+    }
+
+    .models-table-section .mt-compact .mt-card-label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+      display: block;
+      flex: 1 1 100%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--aifs-color-text-muted);
+    }
+
+    .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) {
+      flex-direction: column;
+      align-items: flex-start;
     }
 
     .models-table-section .mt-compact tr.mt-row::after {
