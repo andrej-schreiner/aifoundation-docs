@@ -1,13 +1,15 @@
 ---
 title: "Umstieg von OpenAI"
-description: "Ein OpenAI-SDK auf AI Foundation Services zeigen, mit der Basis-URL aus dem Quickstart, und wo sich Modell-IDs unterscheiden."
+description: "Ein OpenAI-SDK auf AI Foundation Services umstellen, mit der Basis-URL aus dem Quickstart und einer Katalog-Modell-ID."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
 <div set:html="<!-- TODO(andrej): bestätigen, wie OpenAI und Azure OpenAI auf dieser Seite heißen sollen und welche Azure-OpenAI-Felder (Deployment-Name, api-version) sich tatsächlich unterscheiden. -->"></div>
 
-Diese Seite ist für eine Anwendung, die bereits OpenAI oder Azure OpenAI aufruft. Sie ist nicht der Wechsel vom heutigen AIFS-Endpunkt zur neuen API. Dieser Wechsel ist [Umstieg auf die neue API](/de/api-transition).
+Stellen Sie eine Anwendung, die bereits OpenAI oder Azure OpenAI aufruft, auf AI Foundation Services um. Das SDK bleibt. Basis-URL, API-Schlüssel und Modell-ID ändern sich.
+
+Der Wechsel vom heutigen AIFS-Endpunkt zur neuen API ist eine eigene Anleitung: [Umstieg auf die neue API](/de/api-transition).
 
 :::note[Voraussetzungen]
 - Ein AIFS-API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
@@ -15,8 +17,6 @@ Diese Seite ist für eine Anwendung, die bereits OpenAI oder Azure OpenAI aufruf
 :::
 
 ## Minimales Beispiel
-
-Der Quickstart setzt die Basis-URL und sendet eine Chat Completion. Das SDK bleibt. Basis-URL und Schlüssel ändern sich. Die Modell-ID in diesem Beispiel ist `gpt-oss-120b`.
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
@@ -34,17 +34,17 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-Der Quickstart gibt `response.choices[0].message.content` aus.
+Der Antworttext steht in `response.choices[0].message.content`.
 
 ## Parameter
 
-`OPENAI_BASE_URL` und `OPENAI_API_KEY` sind die beiden Umgebungsvariablen im Quickstart. Der Chat-Körper nutzt `model` und `messages`.
+Setzen Sie `OPENAI_BASE_URL` und `OPENAI_API_KEY`. Der Chat-Körper nutzt `model` und `messages`.
 
-Modell-IDs auf AIFS sind nicht dieselben Zeichenketten wie jede OpenAI-Modell-ID. [Modell wählen](/de/getting-started/choosing-a-model) listet Katalog-IDs, und [Abkündigungen](/de/models/deprecations) nennt Ersatz für Modelle, die am 31.10.2026 oder 30.11.2026 stillgelegt werden.
+Modell-IDs auf AIFS unterscheiden sich von OpenAI-Modell-IDs. [Modell wählen](/de/getting-started/choosing-a-model) listet den Katalog. [Abkündigungen](/de/models/deprecations) listet Stilllegungsdaten und Ersatzmodelle.
 
 ## Grenzen und Fehlersuche
 
-Die Dokumente nennen die API OpenAI-kompatibel. Sie sagen auch, dass nicht jeder Parameter auf jedem Modell existiert und dass einige Modelle die Responses API mit HTTP 400 ablehnen. Nutzen Sie die Anleitung für den Aufruf, den Sie verschieben.
+Die API ist OpenAI-kompatibel. Nicht jeder Parameter existiert auf jedem Modell. Einige Modelle antworten auf die Responses API mit HTTP 400. Nutzen Sie die Anleitung für den Aufruf, den Sie migrieren.
 
 <div set:html="<!-- TODO(andrej): Azure-OpenAI-Deployment-Namen und api-version sind in den aktuellen Dokumenten nicht beschrieben. Lesern nicht sagen, sie zu streichen oder zu behalten, bevor das festgehalten ist. -->"></div>
 
@@ -54,6 +54,6 @@ Authentifizierungsfehler sind HTTP 401 oder 403. Siehe [Fehlercodes](/de/referen
 
 <div class="link-card-row">
   <LinkCard title="Quickstart" href="/de/" description="Installation, Schlüssel und der erste Chat-Aufruf." />
-  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Welche Katalog-ID in model gehört." />
-  <LinkCard title="Umstieg auf die neue API" href="/de/api-transition" description="Ein anderer Umstieg: der AIFS-Endpunktwechsel." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Katalog-IDs nach Anwendungsfall." />
+  <LinkCard title="Umstieg auf die neue API" href="/de/api-transition" description="Der Wechsel des AIFS-Endpunkts." />
 </div>

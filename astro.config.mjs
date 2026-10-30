@@ -1,5 +1,7 @@
 // @ts-check
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
@@ -138,6 +140,30 @@ export default defineConfig({
 		'/de/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
 	},
 	integrations: [
+		{
+			name: 'strip-andrej-todos',
+			hooks: {
+				'astro:build:done': ({ dir }) => {
+					const root = fileURLToPath(dir);
+					const visit = (directory) => {
+						for (const name of readdirSync(directory)) {
+							const path = join(directory, name);
+							if (statSync(path).isDirectory()) {
+								visit(path);
+								continue;
+							}
+							if (!name.endsWith('.html')) continue;
+							const html = readFileSync(path, 'utf8');
+							const next = html
+								.replace(/<div>\s*<!--\s*TODO\(andrej\)[\s\S]*?-->\s*<\/div>/g, '')
+								.replace(/<!--\s*TODO\(andrej\)[\s\S]*?-->/g, '');
+							if (next !== html) writeFileSync(path, next);
+						}
+					};
+					visit(root);
+				},
+			},
+		},
 		sitemap({
 			filter: (page) => !page.includes('/v1-2-0'),
 		}),
@@ -268,7 +294,7 @@ export default defineConfig({
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
 						{ label: 'Choosing a model', translations: { de: 'Modell wählen' }, slug: 'getting-started/choosing-a-model' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
-						{ label: 'Shared vs Dedicated', translations: { de: 'Shared und Dedicated' }, slug: 'getting-started/shared-vs-dedicated' },
+						{ label: 'Shared vs dedicated', translations: { de: 'Shared und dedicated' }, slug: 'getting-started/shared-vs-dedicated' },
 						{ label: 'Concepts and glossary', translations: { de: 'Begriffe' }, slug: 'getting-started/concepts' },
 						{
 							label: 'Migrate to New API',

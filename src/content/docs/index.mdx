@@ -1,6 +1,6 @@
 ---
 title: "AI Foundation Services"
-description: "Run AI in Europe with full data sovereignty. 30+ LLMs on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany."
+description: "Run AI in Europe with full data sovereignty. 30+ models on a single OpenAI-compatible API — GDPR-compliant, hosted on T-Cloud in Germany."
 head:
   - tag: title
     content: "AI Foundation Services"
@@ -10,7 +10,7 @@ tableOfContents: false
 import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../components/AvailableModels.astro';
 
-The sovereign European AI platform by T-Systems. Run 30+ open-source and proprietary LLMs through an OpenAI-compatible API, with sovereign EU hosting for open-source models. Switch from OpenAI with one line of code. See [Enterprise Trust](/reference/enterprise-trust) for the full data-handling model.
+The sovereign European AI platform by T-Systems. Run 30+ open-source and proprietary models through an OpenAI-compatible API, with sovereign EU hosting for open-source models. Switch from OpenAI with one line of code. See [Enterprise Trust](/reference/enterprise-trust) for the full data-handling model.
 
 <div class="hero-badges">
   <span class="hero-badge">EU Data Sovereignty</span>
@@ -115,7 +115,7 @@ Get a free trial key in the [API Key Portal](https://apikey.llmhub.t-systems.net
 
 ## Try a capability
 
-The same client and base URL. Each tab is a short form of a sample that already lives in the guides. Model ids are the ones those pages already use.
+The same client and base URL. Try streaming, tools, structured output, reasoning, and vision.
 
 ### Streaming
 
@@ -163,7 +163,7 @@ Full streaming notes: [Streaming](/guides/streaming).
 
 ### Function calling
 
-The function-calling guide uses this shape. The model id is `GLM-5.3`.
+Call a tool with `GLM-5.3`.
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -194,13 +194,13 @@ The function-calling guide uses this shape. The model id is `GLM-5.3`.
 
 ### Structured output
 
-Same JSON Schema shape as [Structured outputs](/guides/structured-outputs). The model id is `gpt-6.1-sol`, the replacement named for GPT-5 on the deprecations page.
+JSON that matches a schema, on the Responses API. The Responses API is confirmed on `gpt-oss-120b`. See [Structured outputs](/guides/structured-outputs).
 
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python
     response = client.responses.create(
-        model="gpt-6.1-sol",
+        model="gpt-oss-120b",
         input="Extract structured product information: Premium Laptop Backpack, $79.99.",
         text={
             "format": {
@@ -298,7 +298,7 @@ Image limits differ by model. See [Vision](/guides/multimodal).
 ## Next steps
 
 <div class="link-card-row">
-  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Draft picks from the catalog, T-Cloud first." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Recommendations as of 30 October 2026. T-Cloud first." />
   <LinkCard title="Guides" href="/guides" description="Chat, streaming, vision, tools, and production." />
   <LinkCard title="API reference" href="/reference/api-endpoints" description="Endpoints and error codes." />
   <LinkCard title="Plans" href="/plans" description="Shared rate plans and Dedicated serving." />

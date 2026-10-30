@@ -1,6 +1,6 @@
 ---
 title: "AI Foundation Services"
-description: "KI in Europa betreiben mit voller Datensouveränität. 30+ LLMs über eine einzige OpenAI-kompatible API — DSGVO-konform, betrieben auf der T-Cloud in Deutschland."
+description: "KI in Europa betreiben mit voller Datensouveränität. 30+ Modelle über eine einzige OpenAI-kompatible API — DSGVO-konform, betrieben auf der T-Cloud in Deutschland."
 head:
   - tag: title
     content: "AI Foundation Services"
@@ -10,7 +10,7 @@ tableOfContents: false
 import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../../components/AvailableModels.astro';
 
-Die souveräne europäische KI-Plattform von T-Systems. Nutzen Sie über 30 Open-Source- und proprietäre LLMs über eine OpenAI-kompatible API, mit souveränem EU-Hosting für Open-Source-Modelle. Wechseln Sie von OpenAI mit nur einer Zeile Code. Details zum Datenverarbeitungs-Modell finden Sie unter [Enterprise Trust](/de/reference/enterprise-trust).
+Die souveräne europäische KI-Plattform von T-Systems. Nutzen Sie über 30 Open-Source- und proprietäre Modelle über eine OpenAI-kompatible API, mit souveränem EU-Hosting für Open-Source-Modelle. Wechseln Sie von OpenAI mit nur einer Zeile Code. Details zum Datenverarbeitungs-Modell finden Sie unter [Enterprise Trust](/de/reference/enterprise-trust).
 
 <div class="hero-badges">
   <span class="hero-badge">EU-Datensouveränität</span>
@@ -115,7 +115,7 @@ Einen kostenlosen Test-Schlüssel gibt es im [API-Schlüssel-Portal](https://api
 
 ## Eine Fähigkeit ausprobieren
 
-Derselbe Client und dieselbe Basis-URL. Jeder Tab ist eine Kurzform eines Beispiels, das schon in den Anleitungen steht. Die Modell-IDs sind die, die diese Seiten bereits verwenden.
+Derselbe Client und dieselbe Basis-URL. Streaming, Tools, strukturierte Ausgabe, Reasoning und Vision.
 
 ### Streaming
 
@@ -163,7 +163,7 @@ Ausführlich: [Streaming](/de/guides/streaming).
 
 ### Function Calling
 
-Die Function-Calling-Anleitung verwendet diese Form. Die Modell-ID ist `GLM-5.3`.
+Rufen Sie ein Tool mit `GLM-5.3` auf.
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -194,13 +194,13 @@ Die Function-Calling-Anleitung verwendet diese Form. Die Modell-ID ist `GLM-5.3`
 
 ### Strukturierte Ausgabe
 
-Dieselbe JSON-Schema-Form wie unter [Strukturierte Ausgaben](/de/guides/structured-outputs). Die Modell-ID ist `gpt-6.1-sol`, der auf der Abkündigungsseite genannte Ersatz für GPT-5.
+JSON, das einem Schema entspricht, über die Responses API. Die Responses API ist für `gpt-oss-120b` bestätigt. Siehe [Strukturierte Ausgaben](/de/guides/structured-outputs).
 
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python
     response = client.responses.create(
-        model="gpt-6.1-sol",
+        model="gpt-oss-120b",
         input="Extract structured product information: Premium Laptop Backpack, $79.99.",
         text={
             "format": {
@@ -298,7 +298,7 @@ Bildlimits unterscheiden sich je Modell. Siehe [Vision](/de/guides/multimodal).
 ## Nächste Schritte
 
 <div class="link-card-row">
-  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Entwurf aus dem Katalog, T-Cloud zuerst." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Empfehlungen zum 30. Oktober 2026. T-Cloud zuerst." />
   <LinkCard title="Anleitungen" href="/de/guides" description="Chat, Streaming, Vision, Tools und Produktion." />
   <LinkCard title="API-Referenz" href="/de/reference/api-endpoints" description="Endpunkte und Fehlercodes." />
   <LinkCard title="Tarife" href="/de/plans" description="Shared-Tarife und Dedicated Serving." />

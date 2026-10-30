@@ -42,7 +42,7 @@ const bars = isDE
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'Neu',
-        msg: 'Neu: <b>GLM 5.3</b> und <b>DeepSeek 4.1 Flash</b>, verfügbar ab 2. November 2026.',
+        msg: '<b>GLM 5.3</b> und <b>DeepSeek 4.1 Flash</b> ab 2. Nov.',
         cta: 'Modelle ansehen',
         href: `${prefix}/models/llms`,
       },
@@ -58,7 +58,7 @@ const bars = isDE
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'New',
-        msg: 'New: <b>GLM 5.3</b> and <b>DeepSeek 4.1 Flash</b>, available from 2 November 2026.',
+        msg: '<b>GLM 5.3</b> and <b>DeepSeek 4.1 Flash</b> from 2 Nov',
         cta: 'View models',
         href: `${prefix}/models/llms`,
       },
@@ -167,20 +167,32 @@ import Icon from './Icon.astro';
   /* Phones: one line of text, the link, and the close control on the right. */
   @media (max-width: 40rem) {
     .qp-bar {
-      flex-wrap: nowrap;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: "badge msg close" "badge cta close";
       align-items: center;
-      gap: 6px;
+      column-gap: 6px;
+      row-gap: 2px;
       padding: 4px 6px;
     }
+    .qp-bar :global(.qp-badge) {
+      grid-area: badge;
+      align-self: start;
+    }
     .qp-msg {
-      flex: 1 1 auto;
+      grid-area: msg;
       min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+    }
+    .qp-cta {
+      grid-area: cta;
+      justify-self: start;
     }
     .qp-bar :global(.qp-close) {
-      align-self: center;
+      grid-area: close;
+      align-self: start;
     }
   }
 

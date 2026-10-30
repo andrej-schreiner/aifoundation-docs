@@ -1,11 +1,11 @@
 ---
 title: "RAG mit AIFS"
-description: "Text mit einem T-Cloud-Embedding-Modell vektorisieren und die gefundene Stelle an ein T-Cloud-Chat-Modell senden."
+description: "Text mit BGE-M3 auf T-Cloud vektorisieren und die Stelle mit einem T-Cloud-Chat-Modell beantworten."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-Retrieval-Augmented Generation bedeutet hier zwei Aufrufe, die es schon gibt: Embeddings, dann eine Chat Completion, die den gefundenen Text enthält. Diese Seite fügt keine Vektordatenbank hinzu.
+Vektorisieren Sie eine Textstelle und senden Sie sie zusammen mit der Frage an ein Chat-Modell. Beide Aufrufe nutzen denselben Client.
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
@@ -15,7 +15,7 @@ Retrieval-Augmented Generation bedeutet hier zwei Aufrufe, die es schon gibt: Em
 
 ## Minimales Beispiel
 
-Der Embedding-Aufruf ist der aus der [Embeddings-Anleitung](/de/guides/embeddings), mit `text-embedding-bge-m3` (T-Cloud, Kontext 8K). Der Chat-Aufruf nutzt `gpt-oss-120b`, das Quickstart-Modell, ebenfalls auf T-Cloud. Die „gefundene“ Zeichenkette ist Text, den Sie schon haben. Nichts in den Dokumenten speichert ihn für Sie.
+`text-embedding-bge-m3` und `gpt-oss-120b` laufen beide auf T-Cloud. BGE-M3 hat ein Kontextfenster von 8K.
 
 ```python
 from openai import OpenAI
@@ -38,24 +38,24 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-Die Embeddings-Anleitung zeichnet diese Ergebnisform für das Jina-Modell auf: eine Embedding-Dimension, eine Vektoranzahl und die Token-Nutzung. Für BGE-M3 liegt kein Beispiel vor, deshalb erfindet diese Seite keines. Der Chat-Aufruf liefert Nachrichteninhalt wie der Quickstart.
+BGE-M3 liefert 1024-dimensionale Vektoren. Jina Embeddings v2 Base DE liefert 768. Die Chat-Antwort steht in `choices[0].message.content`.
 
 ## Parameter
 
-Embeddings: `model` und `input`, wie in der Embeddings-Anleitung. Chat: `model` und `messages`, wie in der Chat-Completions-Anleitung.
+Embeddings nehmen `model` und `input`. Chat nimmt `model` und `messages`.
 
 ## Grenzen und Fehlersuche
 
-Die Embeddings-Anleitung listet zwei Beispielmodelle und ihre Dimensionen: `jina-embeddings-v2-base-de` (768) und `text-embedding-bge-m3` (1024). Qwen3 Embedding 8B läuft ebenfalls auf T-Cloud; seine Dimension steht auf dieser Seite nicht.
+Qwen3 Embedding 8B läuft ebenfalls auf T-Cloud, mit einem Kontextfenster von 32K.
 
 <div set:html="<!-- TODO(andrej): für dieses Muster ist keine Vektordatenbank, keine Chunk-Größe und keine Index-API dokumentiert. Visual RAG ist eine eigene Anleitung. Keine Datenbank nennen, bevor eine unterstützt wird. -->"></div>
 
-Für Dokumente, die Diagramme oder Scans sind, siehe [Visual RAG](/de/guides/visual-rag) und [OCR](/de/guides/ocr).
+Für Diagramme und Scans [Visual RAG](/de/guides/visual-rag) und [OCR](/de/guides/ocr) verwenden.
 
 ## Nächste Schritte
 
 <div class="link-card-row">
   <LinkCard title="Embeddings" href="/de/guides/embeddings" description="Der Embedding-Aufruf und die Dimensionstabelle." />
   <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="BGE-M3, Jina DE und Qwen3 Embedding 8B." />
-  <LinkCard title="Visual RAG" href="/de/guides/visual-rag" description="Die bestehende Dokumentindex-Anleitung." />
+  <LinkCard title="Visual RAG" href="/de/guides/visual-rag" description="Dokumente mit Diagrammen und Tabellen indizieren." />
 </div>

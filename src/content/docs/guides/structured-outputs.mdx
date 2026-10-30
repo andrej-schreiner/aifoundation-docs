@@ -1,11 +1,11 @@
 ---
 title: "Structured outputs"
-description: "Ask a model for JSON that matches a schema, using the Responses API example already published on the function-calling guide."
+description: "Ask a model for JSON that matches a schema, on the Responses API."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-Parse text into JSON that follows a schema. This page is the JSON Schema example that used to sit on the function-calling guide. It does not add a second API.
+Ask for JSON that follows a schema. The Responses API is confirmed on `gpt-oss-120b`.
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
@@ -14,8 +14,6 @@ Parse text into JSON that follows a schema. This page is the JSON Schema example
 :::
 
 ## Minimal example
-
-The model id is `gpt-6.1-sol`, the replacement the [deprecations page](/models/deprecations) names for GPT-5.
 
 ```python
 import json
@@ -30,7 +28,7 @@ Price: $79.99, on sale for $64.99.
 """
 
 response = client.responses.create(
-    model="gpt-6.1-sol",
+    model="gpt-oss-120b",
     input=f"Extract structured product information: {description}",
     max_output_tokens=2000,
     text={
@@ -67,26 +65,26 @@ print(json.dumps(json.loads(response.output_text), indent=2))
 
 <div set:html="<!-- TODO(andrej): no recorded output_text for this call is in the docs. Do not publish a sample JSON until one is captured. -->"></div>
 
-The call prints `response.output_text`. A captured response body is not in the current docs.
+The call returns `response.output_text`.
 
 ## Parameters
 
-The fields in the example are `model`, `input`, `max_output_tokens`, and `text.format` with `type`, `name`, `schema`, and `strict`. The chat-completions guide documents `model`, `messages`, `temperature`, `max_tokens`, `stream`, and `top_p` for the chat API. It does not document `response_format` on chat completions.
+The example sets `model`, `input`, `max_output_tokens`, and `text.format` with `type`, `name`, `schema`, and `strict`.
 
 <div set:html="<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->"></div>
 
 ## Limitations and troubleshooting
 
-The chat-completions guide says the Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`, and that some models still return HTTP 400. If a model rejects the Responses API, use Chat Completions.
+The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400. Use Chat Completions when a model rejects the Responses API.
 
-<div set:html="<!-- TODO(andrej): json_schema on gpt-6.1-sol is the replacement named for GPT-5. Confirm that this model accepts the same text.format payload. -->"></div>
+<div set:html="<!-- TODO(andrej): confirm that gpt-oss-120b accepts this text.format json_schema payload. -->"></div>
 
-Function calling, which returns JSON arguments for a tool you defined, stays on [Function calling](/guides/function-calling).
+[Function calling](/guides/function-calling) returns JSON arguments for a tool you defined.
 
 ## Next steps
 
 <div class="link-card-row">
   <LinkCard title="Function calling" href="/guides/function-calling" description="Tools and JSON arguments." />
-  <LinkCard title="Chat completions" href="/guides/chat-completions" description="The Responses API note and chat parameters." />
-  <LinkCard title="Deprecations" href="/models/deprecations" description="Dates and named replacements." />
+  <LinkCard title="Chat completions" href="/guides/chat-completions" description="Responses API and chat parameters." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="T-Cloud models by use case." />
 </div>

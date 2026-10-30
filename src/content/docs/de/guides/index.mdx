@@ -5,7 +5,7 @@ description: "Aufgabenorientierte Anleitungen für AI Foundation Services — Ch
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-Der Abschnitt „Anleitungen“ beantwortet „Wie mache ich…“-Fragen. Jede Seite konzentriert sich auf eine Funktion: sie zeigt den minimalen Code, erklärt die Parameter, die schon dokumentiert sind, und verweist auf plattformspezifisches Verhalten. Die Beispiele nutzen die OpenAI-kompatible API.
+Der Abschnitt „Anleitungen“ beantwortet „Wie mache ich …?“-Fragen. Jede Seite behandelt eine Funktion: der minimale Aufruf, die Parameter und das plattformspezifische Verhalten. Die Beispiele nutzen die OpenAI-kompatible API.
 
 ## Nach Modalität
 
@@ -13,7 +13,7 @@ Der Abschnitt „Anleitungen“ beantwortet „Wie mache ich…“-Fragen. Jede 
   <LinkCard title="Chat Completions" href="/de/guides/chat-completions/" description="System- und Nutzernachrichten auf der Chat-API." />
   <LinkCard title="Streaming" href="/de/guides/streaming/" description="Antworten Token für Token über Server-Sent Events." />
   <LinkCard title="Vision" href="/de/guides/multimodal/" description="Bildeingabe auf der Chat-API." />
-  <LinkCard title="Multimodal" href="/de/guides/modalities/" description="Wo Bild, Audio, Bildausgabe und OCR stehen." />
+  <LinkCard title="Multimodal" href="/de/guides/modalities/" description="Bildeingabe, Audio, Bildausgabe und OCR." />
   <LinkCard title="Bildgenerierung" href="/de/guides/image-generation/" description="Textprompts zu Bildern." />
   <LinkCard title="Audio" href="/de/guides/audio/" description="Whisper-Transkription und Übersetzung." />
   <LinkCard title="Embeddings" href="/de/guides/embeddings/" description="Vektoren für Suche und RAG." />
@@ -34,8 +34,8 @@ Der Abschnitt „Anleitungen“ beantwortet „Wie mache ich…“-Fragen. Jede 
 <CardGrid>
   <LinkCard title="Prefix Caching" href="/de/guides/prefix-caching/" description="Ein wiederholtes Prompt-Präfix wiederverwenden." />
   <LinkCard title="Queued Requests" href="/de/guides/queued-requests/" description="Auf Rate-Limit-Budget warten statt sofort 429 zu erhalten." />
-  <LinkCard title="Zuverlässigkeit und Wiederholungen" href="/de/guides/reliability/" description="Was wiederholt wird, laut Fehlercode-Seite." />
+  <LinkCard title="Zuverlässigkeit und Wiederholungen" href="/de/guides/reliability/" description="429, 500 und 503 wiederholen." />
   <LinkCard title="RAG" href="/de/guides/rag/" description="T-Cloud-Embeddings plus ein T-Cloud-Chat-Modell." />
   <LinkCard title="Visual RAG" href="/de/guides/visual-rag/" description="Dokumente mit Diagrammen und Tabellen indizieren." />
-  <LinkCard title="Umstieg von OpenAI" href="/de/guides/migrate-from-openai/" description="Ein OpenAI-SDK auf diese API zeigen." />
+  <LinkCard title="Umstieg von OpenAI" href="/de/guides/migrate-from-openai/" description="Ein OpenAI-SDK auf diese API umstellen." />
 </CardGrid>

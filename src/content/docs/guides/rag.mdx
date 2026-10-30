@@ -1,11 +1,11 @@
 ---
 title: "RAG with AIFS"
-description: "Embed text with a T-Cloud embedding model, then send the retrieved passage to a T-Cloud chat model."
+description: "Embed text with BGE-M3 on T-Cloud, then answer from that passage with a T-Cloud chat model."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-Retrieval-augmented generation here means two calls that already exist: embeddings, then a chat completion that includes the retrieved text. This page does not add a vector database.
+Embed a passage, then send that passage to a chat model with the question. Both calls use the same client.
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
@@ -15,7 +15,7 @@ Retrieval-augmented generation here means two calls that already exist: embeddin
 
 ## Minimal example
 
-The embedding call is the one on the [embeddings guide](/guides/embeddings), with `text-embedding-bge-m3` (T-Cloud, context 8K). The chat call uses `gpt-oss-120b`, the quickstart model, also on T-Cloud. The "retrieved" string is text you already have. Nothing in the docs stores it for you.
+`text-embedding-bge-m3` and `gpt-oss-120b` both run on T-Cloud. BGE-M3 has an 8K context window.
 
 ```python
 from openai import OpenAI
@@ -38,24 +38,24 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-The embeddings guide records this shape of result for the Jina model: an embedding dimension, a vector count, and token usage. It does not record a sample for BGE-M3, so this page does not invent one. The chat call returns message content the same way as the quickstart.
+BGE-M3 returns 1024-dimensional vectors. Jina Embeddings v2 Base DE returns 768. The chat answer is in `choices[0].message.content`.
 
 ## Parameters
 
-Embeddings: `model` and `input`, as on the embeddings guide. Chat: `model` and `messages`, as on the chat-completions guide.
+Embeddings take `model` and `input`. Chat takes `model` and `messages`.
 
 ## Limitations and troubleshooting
 
-The embeddings guide lists two example models and their dimensions: `jina-embeddings-v2-base-de` (768) and `text-embedding-bge-m3` (1024). Qwen3 Embedding 8B is also on T-Cloud; its dimension is not on that page.
+Qwen3 Embedding 8B also runs on T-Cloud, with a 32K context window.
 
 <div set:html="<!-- TODO(andrej): no vector database, chunk size, or index API is documented for this pattern. Visual RAG is a separate guide. Do not name a database until one is supported. -->"></div>
 
-For documents that are charts or scanned pages, see [Visual RAG](/guides/visual-rag) and [OCR](/guides/ocr).
+For charts and scanned pages, use [Visual RAG](/guides/visual-rag) and [OCR](/guides/ocr).
 
 ## Next steps
 
 <div class="link-card-row">
   <LinkCard title="Embeddings" href="/guides/embeddings" description="The embeddings call and the dimension table." />
   <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="BGE-M3, Jina DE, and Qwen3 Embedding 8B." />
-  <LinkCard title="Visual RAG" href="/guides/visual-rag" description="The existing document-index guide." />
+  <LinkCard title="Visual RAG" href="/guides/visual-rag" description="Index documents that include charts and tables." />
 </div>

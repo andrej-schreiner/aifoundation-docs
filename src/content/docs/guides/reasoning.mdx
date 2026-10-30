@@ -1,5 +1,5 @@
 ---
-title: "Reasoning Control"
+title: "Reasoning"
 description: "Control chain-of-thought depth with the reasoning_effort parameter. Accepted values come from the platform datasheet and differ by model."
 ---
 
@@ -23,15 +23,13 @@ For models that support reasoning (chain-of-thought), you can control the depth 
 
 ## Accepted values
 
-The table is the platform datasheet (`reasoning_effort` values and the datasheet default). Models that retire on 2026-10-31 or 2026-11-30 are omitted. A model with an empty value list in the datasheet is omitted too.
+Accepted `reasoning_effort` values and the datasheet default:
 
 <ReasoningTable />
 
 <div set:html="<!-- TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) supports a vendor thinking mode. Confirm the reasoning_effort values on AIFS before adding them to the table. -->"></div>
 
-DeepSeek 4.1 Flash supports a thinking mode according to the vendor. Its `reasoning_effort` values on AIFS are not confirmed, so the table does not list them.
-
-Qwen 3.6 also documents a prompt keyword, `/no_think`, in the section below. That keyword is not a column in the datasheet.
+Qwen 3.6 also accepts the prompt keyword `/no_think`, in the section below.
 
 A few models are exceptions worth knowing about:
 

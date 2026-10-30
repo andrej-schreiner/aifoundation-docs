@@ -1,24 +1,24 @@
 ---
-title: "Shared vs Dedicated"
-description: "How the shared rate plans differ from Dedicated LLM Serving, and where to read the existing plan and hardware pages."
+title: "Shared vs dedicated"
+description: "Shared rate plans and Dedicated LLM Serving."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-AI Foundation Services offers two ways to run models. This page only points at the pages that already describe them. It does not add prices, limits, or SLA figures.
+AI Foundation Services runs models in two ways: a shared rate plan, or dedicated hardware.
 
 ## Shared rate plans
 
-The shared service is the multi-tenant API behind the [rate plans](/plans): Essential, Professional, and Agentic. You call the same OpenAI-compatible endpoint as in the [quickstart](/). Capacity is pooled, and each plan has request and token ceilings. Those ceilings, and the conditions on them, are on [Rate limits](/reference/rate-limits).
+The shared service is the multi-tenant API behind the [rate plans](/plans): Essential, Professional, and Agentic. You call the same OpenAI-compatible endpoint as in the [quickstart](/). Capacity is pooled. Each plan publishes request and token ceilings on [Rate limits](/reference/rate-limits).
 
-Shared hosting is the right starting point for a trial key, a prototype, and steady traffic that fits a published plan.
+A shared plan is the starting point for a trial key, a prototype, and traffic that fits a published plan.
 
 ## Dedicated serving
 
-[Dedicated LLM Serving](/plans/dedicated) reserves GPU hardware for your contract. The dedicated page is where tenancy, model choice, and how to request a quote are written down. Use it when you need hardware that is not shared with other customers, including a private model that fits on that hardware.
+[Dedicated LLM Serving](/plans/dedicated) reserves GPU hardware for your contract. That page covers tenancy, model choice, and how to request a quote. Use it when you need hardware that is not shared with other customers, including a private model that fits on that hardware.
 
 <div class="link-card-row">
   <LinkCard title="Plans and pricing" href="/plans" description="Essential, Professional, Agentic, and Enterprise." />
   <LinkCard title="Dedicated LLM Serving" href="/plans/dedicated" description="Reserved hardware and how to ask for a quote." />
-  <LinkCard title="Rate limits" href="/reference/rate-limits" description="How shared-plan RPM and TPM are published." />
+  <LinkCard title="Rate limits" href="/reference/rate-limits" description="RPM and TPM on the shared plans." />
 </div>

@@ -1,13 +1,15 @@
 ---
 title: "Migrate from OpenAI"
-description: "Point an OpenAI SDK at AI Foundation Services using the base URL from the quickstart, and where model ids differ."
+description: "Point an OpenAI SDK at AI Foundation Services with the quickstart base URL, and use a catalog model id."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
 <div set:html="<!-- TODO(andrej): confirm how to name OpenAI and Azure OpenAI on this page, and which Azure OpenAI fields (deployment name, api-version) actually differ. -->"></div>
 
-This page is for an application that already calls OpenAI or Azure OpenAI. It is not the move from the current AIFS endpoint to the New API. That move is [Migrate to the New API](/api-transition).
+Point an application that already calls OpenAI or Azure OpenAI at AI Foundation Services. Keep the SDK. Change the base URL, the API key, and the model id.
+
+The move from the current AIFS endpoint to the New API is a separate guide: [Migrate to the New API](/api-transition).
 
 :::note[Prerequisites]
 - An AIFS API key ([get one here](https://apikey.llmhub.t-systems.net/))
@@ -15,8 +17,6 @@ This page is for an application that already calls OpenAI or Azure OpenAI. It is
 :::
 
 ## Minimal example
-
-The quickstart sets the base URL and sends a chat completion. Keep the SDK. Change the base URL and the key. The model id in that sample is `gpt-oss-120b`.
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
@@ -34,17 +34,17 @@ response = client.chat.completions.create(
 print(response.choices[0].message.content)
 ```
 
-The quickstart prints `response.choices[0].message.content`.
+The response text is `response.choices[0].message.content`.
 
 ## Parameters
 
-`OPENAI_BASE_URL` and `OPENAI_API_KEY` are the two environment variables in the quickstart. The chat body uses `model` and `messages`.
+Set `OPENAI_BASE_URL` and `OPENAI_API_KEY`. The chat body uses `model` and `messages`.
 
-Model ids on AIFS are not the same strings as every OpenAI model id. [Choosing a model](/getting-started/choosing-a-model) lists catalog ids, and [Deprecations](/models/deprecations) names replacements for models that retire on 2026-10-31 or 2026-11-30.
+Model ids on AIFS differ from OpenAI model ids. [Choosing a model](/getting-started/choosing-a-model) lists the catalog. [Deprecations](/models/deprecations) lists retirement dates and replacements.
 
 ## Limitations and troubleshooting
 
-The docs call the API OpenAI-compatible. They also say that not every parameter exists on every model, and that some models reject the Responses API with HTTP 400. Use the guide for the call you are moving.
+The API is OpenAI-compatible. Not every parameter exists on every model. Some models return HTTP 400 for the Responses API. Use the guide for the call you are migrating.
 
 <div set:html="<!-- TODO(andrej): Azure OpenAI deployment names and api-version are not described in the current docs. Do not tell readers to drop or keep them until that is written down. -->"></div>
 
@@ -54,6 +54,6 @@ Authentication failures are HTTP 401 or 403. See [Error codes](/reference/error-
 
 <div class="link-card-row">
   <LinkCard title="Quickstart" href="/" description="Install, key, and the first chat call." />
-  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Which catalog id to put in model." />
-  <LinkCard title="Migrate to the New API" href="/api-transition" description="A different migration: the AIFS endpoint change." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Catalog ids by use case." />
+  <LinkCard title="Migrate to the New API" href="/api-transition" description="The AIFS endpoint change." />
 </div>

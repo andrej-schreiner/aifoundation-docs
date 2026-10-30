@@ -1,11 +1,11 @@
 ---
 title: "Strukturierte Ausgaben"
-description: "JSON nach einem Schema anfordern, mit dem Responses-API-Beispiel, das bisher in der Function-Calling-Anleitung stand."
+description: "JSON anfordern, das einem Schema entspricht, über die Responses API."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-Text in JSON überführen, das einem Schema folgt. Diese Seite ist das JSON-Schema-Beispiel, das bisher in der Function-Calling-Anleitung stand. Sie führt keine zweite API ein.
+Fordern Sie JSON an, das einem Schema folgt. Die Responses API ist für `gpt-oss-120b` bestätigt.
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
@@ -14,8 +14,6 @@ Text in JSON überführen, das einem Schema folgt. Diese Seite ist das JSON-Sche
 :::
 
 ## Minimales Beispiel
-
-Die Modell-ID ist `gpt-6.1-sol`, der Ersatz, den die [Abkündigungsseite](/de/models/deprecations) für GPT-5 nennt.
 
 ```python
 import json
@@ -30,7 +28,7 @@ Price: $79.99, on sale for $64.99.
 """
 
 response = client.responses.create(
-    model="gpt-6.1-sol",
+    model="gpt-oss-120b",
     input=f"Extract structured product information: {description}",
     max_output_tokens=2000,
     text={
@@ -67,26 +65,26 @@ print(json.dumps(json.loads(response.output_text), indent=2))
 
 <div set:html="<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text in den Dokumenten. Kein Beispiel-JSON veröffentlichen, bevor eines erfasst ist. -->"></div>
 
-Der Aufruf gibt `response.output_text` aus. Ein aufgezeichneter Antwortkörper steht in den aktuellen Dokumenten nicht.
+Der Aufruf liefert `response.output_text`.
 
 ## Parameter
 
-Die Felder im Beispiel sind `model`, `input`, `max_output_tokens` und `text.format` mit `type`, `name`, `schema` und `strict`. Die Chat-Completions-Anleitung dokumentiert `model`, `messages`, `temperature`, `max_tokens`, `stream` und `top_p` für die Chat-API. Sie dokumentiert kein `response_format` auf Chat Completions.
+Das Beispiel setzt `model`, `input`, `max_output_tokens` und `text.format` mit `type`, `name`, `schema` und `strict`.
 
 <div set:html="<!-- TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. -->"></div>
 
 ## Grenzen und Fehlersuche
 
-Die Chat-Completions-Anleitung sagt, die Responses API sei für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt, und dass einige Modelle weiterhin HTTP 400 liefern. Wenn ein Modell die Responses API ablehnt, Chat Completions verwenden.
+Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten mit HTTP 400. Nutzen Sie Chat Completions, wenn ein Modell die Responses API ablehnt.
 
-<div set:html="<!-- TODO(andrej): json_schema auf gpt-6.1-sol ist der für GPT-5 genannte Ersatz. Bestätigen, dass dieses Modell dieselbe text.format-Nutzlast akzeptiert. -->"></div>
+<div set:html="<!-- TODO(andrej): bestätigen, dass gpt-oss-120b diese text.format-Nutzlast mit json_schema akzeptiert. -->"></div>
 
-Function Calling, das JSON-Argumente für ein von Ihnen definiertes Tool liefert, bleibt unter [Function Calling](/de/guides/function-calling).
+[Function Calling](/de/guides/function-calling) liefert JSON-Argumente für ein Tool, das Sie definiert haben.
 
 ## Nächste Schritte
 
 <div class="link-card-row">
   <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools und JSON-Argumente." />
-  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Die Responses-API-Notiz und Chat-Parameter." />
-  <LinkCard title="Abkündigungen" href="/de/models/deprecations" description="Termine und genannte Ersatzmodelle." />
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Responses API und Chat-Parameter." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="T-Cloud-Modelle nach Anwendungsfall." />
 </div>

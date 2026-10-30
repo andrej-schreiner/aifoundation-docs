@@ -5,9 +5,9 @@
 ## Get started
 
 - [Quickstart](https://docs.llmhub.t-systems.net/): Install the OpenAI SDK and send your first request.
-- [Choosing a model](https://docs.llmhub.t-systems.net/getting-started/choosing-a-model): Draft catalog recommendations. T-Cloud first. Pending AIFS review.
+- [Choosing a model](https://docs.llmhub.t-systems.net/getting-started/choosing-a-model): Recommendations as of 30 October 2026. T-Cloud first.
 - [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): API keys and bearer-token requests.
-- [Shared vs Dedicated](https://docs.llmhub.t-systems.net/getting-started/shared-vs-dedicated): Shared rate plans versus Dedicated LLM Serving.
+- [Shared vs dedicated](https://docs.llmhub.t-systems.net/getting-started/shared-vs-dedicated): Shared rate plans versus Dedicated LLM Serving.
 - [Concepts and glossary](https://docs.llmhub.t-systems.net/getting-started/concepts): Tokens, TPM, RPM, context window, T-Cloud, partner models.
 - [Migrate to the New API](https://docs.llmhub.t-systems.net/api-transition): Phased move from the existing endpoint to the New API.
 
@@ -15,8 +15,8 @@
 
 - [Catalog](https://docs.llmhub.t-systems.net/models): Hosted LLMs, embeddings, vision, audio, and image models.
 - GLM 5.3 (`GLM-5.3`) on T-Cloud, in the shared rate plans, from 2 November 2026. Input €1.40 / output €4.40 per 1M tokens.
-- DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash`) in the preview catalog from 2 November 2026. Price and hosting are not confirmed.
-- [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR and decision models, free on any active plan.
+- DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash`) in the preview catalog from 2 November 2026. DeepSeek 4.1 Flash: pricing to be announced.
+- [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR and decision models are free on any active plan. DeepSeek 4.1 Flash: pricing to be announced.
 - [Deprecations](https://docs.llmhub.t-systems.net/models/deprecations): Upcoming retirements and models already retired.
 
 ## Guides
@@ -30,8 +30,8 @@
 - [Function calling](https://docs.llmhub.t-systems.net/guides/function-calling): Tool definitions and JSON arguments.
 - [Structured outputs](https://docs.llmhub.t-systems.net/guides/structured-outputs): JSON Schema on the Responses API.
 - [RAG](https://docs.llmhub.t-systems.net/guides/rag): T-Cloud embeddings plus a T-Cloud chat model.
-- [Reliability and retries](https://docs.llmhub.t-systems.net/guides/reliability): Retry guidance from the error-codes page.
-- [Migrate from OpenAI](https://docs.llmhub.t-systems.net/guides/migrate-from-openai): Point an OpenAI SDK at this API.
+- [Reliability and retries](https://docs.llmhub.t-systems.net/guides/reliability): Retry 429, 500, and 503, or queue the request.
+- [Migrate from OpenAI](https://docs.llmhub.t-systems.net/guides/migrate-from-openai): Point an OpenAI SDK at this API and use a catalog model id.
 - [Decisions](https://docs.llmhub.t-systems.net/guides/decisions): Typed decisions for agent steps.
 
 ## API reference

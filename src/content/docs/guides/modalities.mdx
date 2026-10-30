@@ -1,16 +1,16 @@
 ---
 title: "Multimodal"
-description: "Where image input, audio, image output, and OCR are documented. No combined request format beyond those guides."
+description: "Image input, audio, image output, and OCR on AI Foundation Services."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-The catalog separates modalities. Each one already has a guide. This page only points at them.
+Each modality has its own call.
 
 - **Image input** alongside text is [Vision](/guides/multimodal). The chat body uses a content array with `text` and `image_url`.
 - **Audio** (speech to text) is [Audio](/guides/audio), on `POST /audio/transcriptions` and `POST /audio/translations`.
-- **Image output** is [Image generation](/guides/image-generation), on `POST /images/generations`. No image model in the catalog runs on T-Cloud.
-- **Scanned documents** are [OCR](/guides/ocr), preview models on T-Cloud.
+- **Image output** is [Image generation](/guides/image-generation), on `POST /images/generations`. No image-generation model runs on T-Cloud.
+- **Scanned documents** are [OCR](/guides/ocr). The OCR models are in preview and run on T-Cloud.
 
 <div set:html="<!-- TODO(andrej): the docs do not show one request that mixes audio and image. Do not describe a combined payload until one exists. -->"></div>
 

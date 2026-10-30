@@ -1,24 +1,24 @@
 ---
-title: "Shared und Dedicated"
-description: "Wie sich die gemeinsamen Tarife von Dedicated LLM Serving unterscheiden, und wo die bestehenden Tarif- und Hardware-Seiten stehen."
+title: "Shared und dedicated"
+description: "Gemeinsame Tarife und Dedicated LLM Serving."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-AI Foundation Services bietet zwei Wege, Modelle zu betreiben. Diese Seite verweist nur auf die Seiten, die das bereits beschreiben. Sie ergänzt keine Preise, Limits oder SLA-Zahlen.
+AI Foundation Services betreibt Modelle auf zwei Wegen: über einen gemeinsamen Tarif oder auf dedizierter Hardware.
 
 ## Gemeinsame Tarife
 
-Der Shared-Dienst ist die Mehrmandanten-API hinter den [Tarifen](/de/plans): Essential, Professional und Agentic. Sie rufen denselben OpenAI-kompatiblen Endpunkt auf wie im [Quickstart](/de/). Die Kapazität ist geteilt, und jeder Tarif hat Grenzen für Anfragen und Tokens. Diese Grenzen und ihre Bedingungen stehen unter [Rate-Limits](/de/reference/rate-limits).
+Der Shared-Dienst ist die Mehrmandanten-API hinter den [Tarifen](/de/plans): Essential, Professional und Agentic. Sie rufen denselben OpenAI-kompatiblen Endpunkt auf wie im [Quickstart](/de/). Die Kapazität ist geteilt. Jeder Tarif gibt Grenzen für Anfragen und Tokens unter [Rate-Limits](/de/reference/rate-limits) an.
 
-Shared-Hosting ist der Einstieg für einen Testschlüssel, einen Prototyp und gleichmäßigen Verkehr, der in einen veröffentlichten Tarif passt.
+Ein gemeinsamer Tarif ist der Einstieg für einen Testschlüssel, einen Prototyp und Verkehr, der in einen veröffentlichten Tarif passt.
 
-## Dedicated Serving
+## Dedicated-Betrieb
 
-[Dedicated LLM Serving](/de/plans/dedicated) reserviert GPU-Hardware für Ihren Vertrag. Auf der Dedicated-Seite stehen Mandantentrennung, Modellauswahl und wie Sie ein Angebot anfragen. Nutzen Sie sie, wenn Sie Hardware brauchen, die nicht mit anderen Kunden geteilt wird, einschließlich eines privaten Modells, das auf diese Hardware passt.
+[Dedicated LLM Serving](/de/plans/dedicated) reserviert GPU-Hardware für Ihren Vertrag. Dort stehen Mandantentrennung, Modellauswahl und die Angebotsanfrage. Nutzen Sie das, wenn Sie Hardware brauchen, die nicht mit anderen Kunden geteilt wird, auch für ein privates Modell, das auf diese Hardware passt.
 
 <div class="link-card-row">
   <LinkCard title="Tarife und Preise" href="/de/plans" description="Essential, Professional, Agentic und Enterprise." />
-  <LinkCard title="Dedicated LLM Serving" href="/de/plans/dedicated" description="Reservierte Hardware und wie Sie ein Angebot anfragen." />
-  <LinkCard title="Rate-Limits" href="/de/reference/rate-limits" description="Wie RPM und TPM der Shared-Tarife veröffentlicht sind." />
+  <LinkCard title="Dedicated LLM Serving" href="/de/plans/dedicated" description="Reservierte Hardware und die Angebotsanfrage." />
+  <LinkCard title="Rate-Limits" href="/de/reference/rate-limits" description="RPM und TPM der gemeinsamen Tarife." />
 </div>

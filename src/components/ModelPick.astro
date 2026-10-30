@@ -1,5 +1,6 @@
 ---
 import { choiceById, modelFact, picksFor } from '../shared/lib/choosingModels';
+import { creatorNameFor, getLogo } from '../shared/lib/logos';
 
 interface Props {
   useCase: string;
@@ -10,24 +11,19 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const prefix = isDE ? '/de' : '';
 const row = choiceById(useCase);
 const picks = picksFor(useCase);
-const snippet = row.snippetModel ?? row.recommended;
 
 const t = isDE
   ? {
       heading: 'Empfohlen',
-      trust: 'Enterprise Trust',
       guide: 'Zur Anleitung',
       preview: 'Vorschau',
-      unpublished: 'Kontext nicht veröffentlicht',
-      where: 'Betrieb',
+      unpublished: 'Kontext nicht angegeben',
     }
   : {
       heading: 'Recommended',
-      trust: 'Enterprise Trust',
       guide: 'Matching guide',
       preview: 'Preview',
       unpublished: 'Context not published',
-      where: 'Runs on',
     };
 
 function place(hosting: string): string {
@@ -36,23 +32,127 @@ function place(hosting: string): string {
 }
 ---
 
-<section class="not-content">
+<section class="model-pick not-content">
   <h2>{t.heading}</h2>
-  <ul>
-    {picks.map((model) => (
-      <li>
-        <strong>{model.name}</strong>
-        {model.preview ? ` (${t.preview})` : ''}
-        {' — '}
-        <code>{model.id}</code>
-        {'. '}
-        {t.where}: <a href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
-        {'. '}
-        {model.context || t.unpublished}.
-      </li>
-    ))}
+  <ul class="model-pick__list">
+    {picks.map((model) => {
+      const creator = creatorNameFor(model.id, model.name);
+      const logo = getLogo(creator) || getLogo('Other');
+      const zoom = creator.startsWith('Google');
+      return (
+        <li class="model-pick__card">
+          <div class="model-pick__head">
+            <span class:list={['model-pick__mark', { 'model-pick__mark--zoom': zoom }]}>
+              <img src={logo} alt="" width="20" height="20" />
+            </span>
+            <strong>{model.name}</strong>
+            {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
+          </div>
+          <p class="model-pick__meta">
+            <code>{model.id}</code>
+            <a class="aifs-tag aifs-tag--small" href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
+            <span>{model.context || t.unpublished}</span>
+          </p>
+        </li>
+      );
+    })}
   </ul>
-  <p>{isDE ? row.notes.de : row.notes.en}</p>
-  <pre><code>{`model: ${snippet}`}</code></pre>
-  <p><a href={`${prefix}${row.guide}`}>{t.guide}</a></p>
+  <p class="model-pick__notes">{isDE ? row.notes.de : row.notes.en}</p>
+  <p class="model-pick__guide"><a href={`${prefix}${row.guide}`}>{t.guide}</a></p>
 </section>
+
+<style>
+  .model-pick h2 {
+    margin: 0 0 8px;
+    font-size: 1.25rem;
+    line-height: 1.3;
+  }
+
+  .model-pick__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 8px;
+  }
+
+  .model-pick__card {
+    background: var(--aifs-color-surface-chrome);
+    color: var(--aifs-color-text-body);
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: var(--aifs-table-radius, 8px);
+    padding: 10px 12px;
+  }
+
+  .model-pick__head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .model-pick__head strong {
+    min-width: 0;
+    line-height: 1.3;
+  }
+
+  .model-pick__mark {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background, #fff);
+  }
+
+  .model-pick__mark--zoom {
+    padding: 0;
+  }
+
+  .model-pick__mark img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .model-pick__mark--zoom img {
+    width: 175%;
+    height: 175%;
+    max-width: none;
+    flex: 0 0 auto;
+  }
+
+  .model-pick__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin: 6px 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+
+  .model-pick__meta code {
+    white-space: nowrap;
+  }
+
+  .model-pick__meta :global(a.aifs-tag) {
+    text-decoration: none;
+  }
+
+  .model-pick__notes {
+    margin: 8px 0 0;
+    font-size: 0.875rem;
+    line-height: 1.45;
+  }
+
+  .model-pick__guide {
+    margin: 8px 0 0;
+  }
+</style>
