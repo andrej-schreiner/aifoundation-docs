@@ -502,7 +502,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                 <li class="plan-tile">
                   <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
                   <p class="plan-tile__price">{price}</p>
-                  {plan.basePrice !== 'Custom' && <p class="plan-tile__unit">{t.perMonth}</p>}
+                  <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
                   <p class="plan-tile__for">{blurb}</p>
                   <a class="plan-meter" href={t.rateLimitsHref}>
                     <span class="plan-meter__label">{t.throughputLabel}</span>
@@ -530,11 +530,13 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                       </li>
                     ))}
                   </ul>
-                  {plan.basePrice === 'Custom' && (
-                    <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
-                      {t.contactCta}
-                    </Button>
-                  )}
+                  <div class="plan-tile__action">
+                    {plan.basePrice === 'Custom' && (
+                      <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
+                        {t.contactCta}
+                      </Button>
+                    )}
+                  </div>
                 </li>
               );
             })}
@@ -602,16 +604,21 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .plan-tile {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 7;
+    gap: 8px;
     min-width: 0;
-    height: 100%;
     margin: 0;
-    padding: 12px 10px;
+    padding: 16px;
     border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
     border-radius: var(--aifs-radius-card);
     background: var(--aifs-color-surface-chrome);
+  }
+
+  .plan-tile > .plans-tag {
+    align-self: start;
+    justify-self: start;
   }
 
   .plan-tile__price {
@@ -733,8 +740,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     margin: 8px 0 0;
     max-width: 54rem;
     color: var(--aifs-color-text-muted);
-    font-size: 0.8125rem;
-    line-height: 1.35;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
   }
 
   /* Phones stay one column. Two by two until four cards of about 215px fit.
@@ -804,7 +811,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .token-price-note {
     margin: 8px 0 0;
-    font-size: 0.8125rem;
+    font-size: var(--aifs-text-small-font-size);
   }
 
   .plans-table {

@@ -109,7 +109,7 @@ html:root[data-theme] .expressive-code {
 }
 
 @media (max-width: 50rem) {
-	.expressive-code .frame:not(.has-title) {
+	.expressive-code .frame:not(.has-title):not(.is-terminal) {
 		padding-top: 2.25rem;
 		background:
 			linear-gradient(var(--aifs-code-block-header-background), var(--aifs-code-block-header-background)) top / 100% 2.25rem no-repeat,

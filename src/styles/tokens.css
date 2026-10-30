@@ -406,6 +406,7 @@
 	--sl-text-h4: var(--aifs-text-h4-font-size);
 	--sl-text-base: var(--aifs-text-body-font-size);
 	--sl-text-sm: var(--aifs-text-small-font-size);
+	--sl-text-code-sm: 14px;
 	--sl-sidebar-width: var(--aifs-layout-sidebar-width);
 	--sl-content-width: var(--aifs-layout-content-width);
 	--sl-content-gap-y: var(--aifs-rhythm-flow);
@@ -817,6 +818,7 @@
 	--sl-text-h4: var(--aifs-text-h4-font-size);
 	--sl-text-base: var(--aifs-text-body-font-size);
 	--sl-text-sm: var(--aifs-text-small-font-size);
+	--sl-text-code-sm: 14px;
 	--sl-sidebar-width: var(--aifs-layout-sidebar-width);
 	--sl-content-width: var(--aifs-layout-content-width);
 	--sl-content-gap-y: var(--aifs-rhythm-flow);

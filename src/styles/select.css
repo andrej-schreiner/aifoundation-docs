@@ -203,3 +203,15 @@
 	outline: 2px solid var(--aifs-select-focus);
 	outline-offset: 1px;
 }
+
+/* Header search uses the same focus ring, radius and type size as the selects. */
+site-search button {
+	border-radius: var(--aifs-select-radius);
+	font-size: var(--aifs-select-font-size);
+	font-family: inherit;
+}
+
+site-search button:focus-visible {
+	outline: 2px solid var(--aifs-select-focus);
+	outline-offset: 1px;
+}
