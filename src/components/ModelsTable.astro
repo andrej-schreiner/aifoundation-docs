@@ -684,8 +684,10 @@ const priceBuckets = [
     }
 
     function formatPrice(value: number | null | undefined) {
-      // `null` = price not published yet (placeholder rows for newly
-      // announced models), rendered as "xx" rather than a dash.
+      // `null` = price not published yet. Never render that as €0.00.
+      if (value == null) {
+        return `<span class="mt-price-tba">${escapeHtml(translations.priceTba || 'Pricing to be announced')}</span>`;
+      }
       return formatEuro(value, 2);
     }
 
@@ -827,8 +829,8 @@ const priceBuckets = [
           <td class="mt-hosting">
             <span class="mt-card-label">${escapeHtml(translations.thHosting || 'Hosting')}</span>
               <div class="mt-hosting__main">
-              <span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>
-              <span class="mt-cloud">${escapeHtml(cloudProvider)}</span>
+              ${model.modelHost ? `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>` : `<span class="mt-muted">${emptyMark()}</span>`}
+              ${cloudProvider ? `<span class="mt-cloud">${escapeHtml(cloudProvider)}</span>` : ''}
             </div>
             <div class="mt-muted loc-wrapper">${loc}</div>
           </td>
@@ -1830,6 +1832,12 @@ const priceBuckets = [
 
   .mt-compact .mt-num strong {
     white-space: nowrap;
+  }
+
+  .mt-compact .mt-price-tba {
+    display: block;
+    white-space: normal;
+    font-weight: 600;
   }
 
   .mt-details-cell {

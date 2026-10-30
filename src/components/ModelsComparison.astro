@@ -2,6 +2,8 @@
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
@@ -87,6 +89,8 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // appear on /models/coding in addition to its primary category (/models/llms).
 const EXTRA_CATEGORIES: Record<string, Category[]> = {
   'GLM-5.2': ['coding'],
+  // TODO(andrej): confirm the exact id GLM-5.3. Same coding tag as GLM-5.2.
+  'GLM-5.3': ['coding'],
   // GLM-5.3-Flash is positioned by Z.ai as a coding/agentic model —
   // its model card reports it approaching Claude Opus 4.8 on coding and
   // agentic benchmarks — but stays primary 'llms' as a general-purpose model.
@@ -168,6 +172,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3.8-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemma-4-31B-it-FP8':            { inputModalities: ['Text', 'Image'] },
+  // TODO(andrej): confirm id DeepSeek-V4.1-Flash. Text and image in, text out.
+  // Tool calling and streaming are vendor-supported. Hosting is not confirmed.
+  'DeepSeek-V4.1-Flash':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: true, toolCalling: true },
   // Mistral Small 4 is multimodal (Text+Image in). Keys match the GA ids in the
   // pricing catalog (the earlier `-Preview`/`-preview` suffixes are retired).
   'Mistral-Small-4-119B-2603':     { inputModalities: ['Text', 'Image'] },
@@ -394,7 +401,7 @@ const allModels = [...byName.values()]
   .sort((a, b) => {
     const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
     if (rankDiff !== 0) return rankDiff;
-    return a.displayModelName.localeCompare(b.displayModelName);
+    return compareCatalogName(a.displayModelName, b.displayModelName);
   });
 
 // ---------------- Translations & formatters ----------------
@@ -417,6 +424,7 @@ const t = {
   colPlans: isDE ? 'Tarife' : 'Plans',
   details: 'Details',
   freeInPreview: isDE ? 'Kostenlos in der Preview' : 'Free in preview',
+  priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
   free: isDE ? 'Kostenlos' : 'Free',
   perMillion: isDE ? 'pro 1M' : 'per 1M',
   priceIn: isDE ? 'Ein' : 'In',
@@ -483,6 +491,7 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 // `null` means the price has not been published yet (placeholder rows for
 // newly announced models); `0` means the model is genuinely free of charge.
 function formatPrice(n: number | null | undefined): string {
+  if (n == null) return t.priceTba;
   return formatEuro(n, 2);
 }
 
@@ -524,7 +533,7 @@ function previewCatalog(m: CompiledModel): boolean {
 function mobilePriceLine(m: CompiledModel): string | null {
   const input = m.inputPricePerMillionTokens;
   const output = m.outputPricePerMillionTokens;
-  if (input == null && output == null) return null;
+  if (input == null && output == null) return t.priceTba;
   const inputFree = input == null || input === 0;
   const outputFree = output == null || output === 0;
   if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
@@ -744,16 +753,18 @@ const rowDataPayload = allModels.map((m) => ({
                 </Tooltip>
               </td>
               <td data-label={t.colCloud}>
-                <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
-                  <button
-                    type="button"
-                    class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
-                    data-cloud={m.cloud}
-                    aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
-                  >
-                    {cloudLabelFor(m.exactModelName, m.cloud)}
-                  </button>
-                </Tooltip>
+                {!hostingUnconfirmed(m.exactModelName) && (
+                  <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
+                    <button
+                      type="button"
+                      class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
+                      data-cloud={m.cloud}
+                      aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
+                    >
+                      {cloudLabelFor(m.exactModelName, m.cloud)}
+                    </button>
+                  </Tooltip>
+                )}
               </td>
               <td data-label={t.colInput}>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
               <td class="center" data-label={t.colStreaming}>
@@ -786,8 +797,8 @@ const rowDataPayload = allModels.map((m) => ({
                   <span aria-label="Not documented">{t.reasoningTokensUnknown}</span>
                 )}
               </td>
-              <td class="num" data-label={t.colInputPrice}>{formatPrice(m.inputPricePerMillionTokens)}</td>
-              <td class="num" data-label={t.colOutputPrice}>{formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colInputPrice} title={m.inputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.inputPricePerMillionTokens == null ? '—' : formatPrice(m.inputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colOutputPrice} title={m.outputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.outputPricePerMillionTokens == null ? '—' : formatPrice(m.outputPricePerMillionTokens)}</td>
               <td class="num" data-label={t.colCachedPrice}>{formatCachedPrice(m)}</td>
               <td data-label={t.colPlans}>
                 <span class="mc-plans">
@@ -816,10 +827,10 @@ const rowDataPayload = allModels.map((m) => ({
                     </Button>
                   </div>
                   <div class="mc-m__meta">
-                    <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>
+                    {!hostingUnconfirmed(m.exactModelName) && <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>}
                     {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small aifs-tag--yellow">Premium</span>}
                     {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
-                    {priceLine && <span class="mc-m__price">{priceLine}</span>}
+                    {priceLine && <span class:list={['mc-m__price', { 'mc-m__price--wrap': priceLine === t.priceTba }]}>{priceLine}</span>}
                   </div>
                   <div class="mc-m__panel" id={detailsId} hidden="until-found">
                     <dl class="mc-m__dl">
@@ -1987,6 +1998,10 @@ const rowDataPayload = allModels.map((m) => ({
 
   .mc-m__price {
     white-space: nowrap;
+  }
+
+  .mc-m__price--wrap {
+    white-space: normal;
   }
 
   .mc-m__panel:not([hidden]) {

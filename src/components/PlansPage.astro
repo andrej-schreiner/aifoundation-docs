@@ -9,6 +9,7 @@ import { creatorNameFor, logos } from '../shared/lib/logos';
 import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
+import { hostingUnconfirmed } from '../shared/lib/launchModels';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
@@ -130,6 +131,7 @@ const t = {
     ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
     : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only; cached token pricing for models on external providers will be added later.`,
   cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  priceTba: isDE ? 'Preis wird noch bekannt gegeben' : 'Pricing to be announced',
   worldwideLocationNote: isDE
     ? 'Weltweit (Worldwide) bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
     : 'Worldwide means the third-party provider runs the model on its own infrastructure and may process data outside the EU/EEA.',
@@ -399,9 +401,12 @@ const plansData = allPricing
     if (selectedPlanId && plan.packageName !== selectedPlanId) return null;
     const models = (plan.modelQuotaConfigs || [])
       .map((m: any) => {
-        const modelHost = parseModelHost(m.deploymentRegion);
-        const cloudProvider = parseCloudProvider(m.deploymentRegion);
-        const { name: locName, code: locCode } = parseLocation(m.deploymentRegion);
+        const unconfirmed = hostingUnconfirmed(m.exactModelName) || !m.deploymentRegion;
+        const modelHost = unconfirmed ? '' : parseModelHost(m.deploymentRegion);
+        const cloudProvider = unconfirmed ? '' : parseCloudProvider(m.deploymentRegion);
+        const { name: locName, code: locCode } = unconfirmed
+          ? { name: '', code: '' }
+          : parseLocation(m.deploymentRegion);
         const rows: any[] = [mapModelRow(m, m, modelHost, cloudProvider, locName, locCode, false)];
         if (m.modelQuotaMetadata?.data) {
           for (const sub of m.modelQuotaMetadata.data) {

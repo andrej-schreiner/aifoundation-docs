@@ -8,6 +8,9 @@ import PlansPage from '../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
+:::tip[New in preview: DeepSeek 4.1 Flash]
+**DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash`) accepts text and image and returns text, with tool calling and streaming. It is a preview model. Pricing is to be announced. Hosting is not confirmed yet.
+
 :::tip[New in preview: two OCR models]
 **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris (made in Europe), and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) turn scanned documents, PDFs and photos into Markdown, HTML tables and LaTeX. LightOnOCR reads a whole page per request, including handwriting; PaddleOCR-VL reads page elements and works best with the PaddleOCR pipeline. Both take image input through `/chat/completions`. See [OCR](/guides/ocr).
 :::

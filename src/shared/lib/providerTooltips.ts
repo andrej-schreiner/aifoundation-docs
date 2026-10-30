@@ -17,6 +17,7 @@ export type CreatorKey =
   | 'BAAI'
   | 'Jina AI'
   | 'T-Systems'
+  | 'DeepSeek'
   | 'Other';
 
 const PROVIDER_NAMES: Record<CreatorKey, string> = {
@@ -33,6 +34,7 @@ const PROVIDER_NAMES: Record<CreatorKey, string> = {
   BAAI: 'BAAI',
   'Jina AI': 'Jina AI',
   'T-Systems': 'T-Systems',
+  DeepSeek: 'DeepSeek',
   Other: 'Independent maker',
 };
 

@@ -14,6 +14,8 @@
 ## Models
 
 - [Catalog](https://docs.llmhub.t-systems.net/models): Hosted LLMs, embeddings, vision, audio, and image models.
+- GLM 5.3 (`GLM-5.3`) on T-Cloud, in the shared rate plans, from 2 November 2026. Input €1.40 / output €4.40 per 1M tokens.
+- DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash`) in the preview catalog from 2 November 2026. Price and hosting are not confirmed.
 - [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR and decision models, free on any active plan.
 - [Deprecations](https://docs.llmhub.t-systems.net/models/deprecations): Upcoming retirements and models already retired.
 

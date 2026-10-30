@@ -16,7 +16,8 @@
 
 export const MODEL_CATALOG_ORDER = [
   // --- T-Cloud: chat, newest generation first, then larger older models ---
-  'GLM 5.3 Flash', // Latest GLM (5.3). GA 2026-09. Flash is the smaller sibling of 5.2 — unsure: 5.2's token price is higher.
+  'GLM 5.3', // Full GLM 5.3, launching 2026-11-02. Newer than 5.3 Flash and 5.2.
+  'GLM 5.3 Flash', // GLM 5.3 Flash stays. Smaller sibling of the full 5.3 model.
   'GLM 5.2', // Previous GLM, 1M context, higher token price than 5.3 Flash.
   'Mistral Small 4', // Generation 4, 119B in the model id (2603). Larger than Gemma 4.
   'Gemma 4', // Generation 4, 31B in the model id.
@@ -26,6 +27,7 @@ export const MODEL_CATALOG_ORDER = [
   'GPT-OSS 120B', // 120B open model, 128K context. Documented replacement for retired Llama 3.3 70B.
   'DiffusionGemma 26B A4B', // Preview, 26B diffusion/decision model (changelog 2026-10). Specialized, so after the GA chat models.
   'd3', // Preview 27B decision model (changelog 2026-10). Same placement call as DiffusionGemma.
+  'DeepSeek 4.1 Flash', // Preview, launching 2026-11-02. Hosting is unconfirmed, so it is not ranked as a T-Cloud GA model.
 
   // --- T-Cloud: embeddings, then OCR, then audio ---
   'Qwen3 Embedding 8B', // Newest embedding (changelog 2026-10), 8B, 32K.

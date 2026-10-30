@@ -6,6 +6,7 @@ import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/al
 import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { hostingUnconfirmed } from '../shared/lib/launchModels';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
@@ -72,6 +73,9 @@ function parseRegion(region: string): {
   dataProcessing: string;
   dataProcessingCode: string;
 } {
+  if (!region) {
+    return { provider: '', hosted: '', countryCode: '', dataProcessing: '', dataProcessingCode: '' };
+  }
   const parts = region.split('-');
   const raw = parts[0].toLowerCase();
   const PROVIDER_MAP: Record<string, string> = { otc: 'T-Cloud', azure: 'Azure', gcp: 'GCP' };
@@ -109,6 +113,7 @@ interface ModelCard {
   dataProcessing: string;
   dataProcessingCode: string;
   preview?: boolean;
+  showHosting?: boolean;
 }
 
 // Build model cards from pricing data (filtering out offline models)
@@ -130,6 +135,7 @@ const pricingModels: ModelCard[] = configs
       dataProcessing,
       dataProcessingCode,
       preview: c.isPreview,
+      showHosting: !hostingUnconfirmed(c.exactModelName) && Boolean(c.deploymentRegion),
     };
   });
 
@@ -190,13 +196,15 @@ const INITIAL_COUNT = 6;
               {model.preview && <span class="status-badge status-badge--preview">{t.preview}</span>}
             </span>
           </h3>
+          {model.showHosting !== false && model.provider && (
           <p class="model-card__where">
             <span>{model.provider}</span>
             <span aria-hidden="true">·</span>
             {model.countryCode && <Flag code={model.countryCode} size={16} decorative />}
             <span>{model.hosted}</span>
           </p>
-          {model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
+          )}
+          {model.showHosting !== false && model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
             <p class="model-card__where model-card__where--extra">
               <span class="model-card__k">{t.dataProcessing}</span>
               {model.dataProcessingCode && <Flag code={model.dataProcessingCode} size={16} decorative />}

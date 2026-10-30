@@ -9,6 +9,14 @@
       ],
       "default": "max"
     },
+    "GLM-5.3": {
+      "values": [
+        "none",
+        "high",
+        "max"
+      ],
+      "default": "max"
+    },
     "GLM-5.2-B200-Lab": {
       "values": [
         "none",

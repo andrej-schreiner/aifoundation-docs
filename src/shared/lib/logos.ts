@@ -69,6 +69,7 @@ export function creatorNameFor(exactModelName: string | undefined, displayModelN
   if (source.includes('qwen')) return 'Alibaba Cloud';
   if (source.includes('nemotron') || source.includes('nvidia')) return 'NVIDIA';
   if (source.includes('glm') || source.includes('zhipu') || source.includes('z.ai')) return 'Zhipu AI';
+  if (source.includes('deepseek')) return 'DeepSeek';
   if (source.includes('jina')) return 'Jina AI';
   if (source.includes('bge')) return 'BAAI';
   if (source.includes('teuken') || source.includes('tsi') || source.includes('col qwen')) return 'T-Systems';
