@@ -38,6 +38,7 @@ const t = {
   thMinConsumption: isDE ? 'Mindestverbrauch' : 'Min. Consumption',
   thTokenPrice: isDE ? 'Input- / Output-Token-Preis' : 'Input / Output Token Price',
   thTokenPriceUnit: '€ / M Tokens',
+  thRateLimits: isDE ? 'Rate-Limits' : 'Rate limits',
   thRPM: isDE ? 'Beispiel RPM' : 'RPM',
   thRPMUnit: isDE ? 'Anfragen/Minute' : 'Requests/Minute',
   thRPMUnitShort: isDE ? 'Anfragen/Min' : 'Requests/Min',
@@ -157,7 +158,7 @@ const currentPlanConfigs = [
     color: '#4de0af',
     basePrice: '1,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
-    rpm: '300',
+    rpm: isDE ? 'Niedriger' : 'Lower',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard'],
     isFilterAvailable: true,
@@ -168,7 +169,7 @@ const currentPlanConfigs = [
     color: '#4ad9cd',
     basePrice: '3,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
-    rpm: '600',
+    rpm: isDE ? 'Mittel' : 'Medium',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard', 'Premium'],
     isFilterAvailable: true,
@@ -179,7 +180,7 @@ const currentPlanConfigs = [
     color: '#4dd1e0',
     basePrice: '5,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
-    rpm: '1,000',
+    rpm: isDE ? 'Höchster' : 'Highest',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard', 'Premium'],
     isFilterAvailable: true,
@@ -190,7 +191,7 @@ const currentPlanConfigs = [
     color: '#5ec2ed',
     basePrice: 'Custom',
     tokenPrice: '0.20 / 0.65',
-    rpm: 'Custom',
+    rpm: isDE ? 'Individuell' : 'Custom',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard', 'Premium'],
     isFilterAvailable: false,
@@ -257,6 +258,9 @@ const legacyPlanConfigs = [
 ];
 
 const planConfigs = legacy ? legacyPlanConfigs : currentPlanConfigs;
+const tokenPricesIdentical =
+  planConfigs.length > 0 && planConfigs.every((plan) => plan.tokenPrice === planConfigs[0].tokenPrice);
+const showTokenPriceColumn = !tokenPricesIdentical;
 
 // Helper: parse deployment region
 function parseCloud(deploymentRegion: string): string {
@@ -428,13 +432,15 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   {t.thCommitment}
                   <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
                 </th>
+                {showTokenPriceColumn && (
+                  <th>
+                    {t.thTokenPrice}
+                    <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
+                  </th>
+                )}
                 <th>
-                  {t.thTokenPrice}
-                  <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
-                </th>
-                <th>
-                  {t.thRPM} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}
-                  <div class="plans-table__small-text">{t.thRPMUnit}</div>
+                  {legacy ? t.thRPM : t.thRateLimits} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}
+                  {legacy && <div class="plans-table__small-text">{t.thRPMUnit}</div>}
                 </th>
                 <th>{t.thModelHost}</th>
                 {!legacy && <th>{t.thModelTier}</th>}
@@ -451,7 +457,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   <td>
                     <span class="plans-table__main-text">{plan.basePrice}</span>
                   </td>
-                  <td>{plan.tokenPrice} †</td>
+                  {showTokenPriceColumn && <td>{plan.tokenPrice} †</td>}
                   <td>{plan.rpm} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}</td>
                   <td>
                     {plan.modelHost.map((cloud, i) => (
@@ -480,6 +486,11 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             </tbody>
           </table>
         </div>
+        {!showTokenPriceColumn && (
+          <p class="token-price-note">
+            {t.thTokenPrice}: {planConfigs[0].tokenPrice} {t.thTokenPriceUnit} †
+          </p>
+        )}
         <small>{t.footnote}</small>
         <br />
         <small>
@@ -595,6 +606,10 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .par-description {
     width: min(100%, 54rem);
+  }
+
+  .token-price-note {
+    margin: 0.75rem 0 0.25rem;
   }
 
   .plans-table {
