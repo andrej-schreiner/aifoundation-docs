@@ -308,6 +308,8 @@ interface CompiledModel {
   cachedInputPricePerMillionTokens: number | null;
   cachedPricingPublished: boolean;
   plans: string[];
+  /** Lowercase catalog tier. Only `premium` is shown; Standard is omitted. */
+  modelTier: string;
   capabilities: Capabilities;
 }
 
@@ -345,6 +347,7 @@ for (const pkg of pricingData as Array<{
     const existing = byName.get(exactModelName);
     if (existing) {
       if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);
+      if (String(entry.modelTier || '').toLowerCase() === 'premium') existing.modelTier = 'premium';
       continue;
     }
     const deploymentRegion = entry.deploymentRegion as string;
@@ -367,6 +370,7 @@ for (const pkg of pricingData as Array<{
       ),
       cachedPricingPublished: hasCachedTokenPricing(deploymentRegion),
       plans: [pkg.packageName],
+      modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
     });
   }
@@ -421,6 +425,13 @@ const t = {
   colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
   colCachedPrice: isDE ? 'Cached €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
+  details: 'Details',
+  freeInPreview: isDE ? 'Kostenlos in der Preview' : 'Free in preview',
+  free: isDE ? 'Kostenlos' : 'Free',
+  perMillion: isDE ? 'pro M' : 'per M',
+  priceIn: isDE ? 'Ein' : 'In',
+  priceOut: isDE ? 'Aus' : 'Out',
+  planPreview: isDE ? 'Vorschau' : 'Preview',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
   showing: isDE ? 'Zeige' : 'Showing',
   of: isDE ? 'von' : 'of',
@@ -503,6 +514,59 @@ function planTagClass(plan: string): string {
   return `tag-plan-${plan.toLowerCase()}`;
 }
 
+/** The Test catalog is the preview catalog. The tag says Preview; the plan id stays Test. */
+function planLabel(plan: string): string {
+  return plan === 'Test' ? t.planPreview : plan;
+}
+
+function blankContext(raw: string | null | undefined): boolean {
+  const value = (raw ?? '').trim();
+  const lower = value.toLowerCase();
+  return value === '' || value === '—' || value === '-' || value === '–' || lower === 'n/a' || lower === 'none' || lower === 'null';
+}
+
+function previewCatalog(m: CompiledModel): boolean {
+  return m.plans.includes('Test');
+}
+
+/** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
+function mobilePriceLine(m: CompiledModel): string | null {
+  const input = m.inputPricePerMillionTokens;
+  const output = m.outputPricePerMillionTokens;
+  if (input == null && output == null) return null;
+  const inputFree = input == null || input === 0;
+  const outputFree = output == null || output === 0;
+  if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
+  const bits: string[] = [];
+  if (input != null && input !== 0) bits.push(`${t.priceIn} ${formatEuro(input, 2)}`);
+  if (output != null && output !== 0) bits.push(`${t.priceOut} ${formatEuro(output, 2)}`);
+  if (bits.length === 0) return null;
+  return `${bits.join(' / ')} ${t.perMillion}`;
+}
+
+function cachedDetail(m: CompiledModel): string | null {
+  if (!m.cachedPricingPublished) return null;
+  const value = m.cachedInputPricePerMillionTokens;
+  if (value == null || value === 0) return null;
+  return formatEuro(value, 4);
+}
+
+function reasoningTokensDetail(m: CompiledModel): string | null {
+  if (m.reasoningTokensUsage === 'completion_tokens_details') return 'completion_tokens_details.reasoning_tokens';
+  if (m.reasoningTokensUsage === 'usage') return 'usage.reasoning_tokens';
+  if (m.reasoningTokensUsage === 'none') return t.reasoningTokensNotReported;
+  return null;
+}
+
+function hasReasoning(m: CompiledModel): boolean {
+  return m.reasoningEffort.length > 0 || m.reasoningTokensUsage != null;
+}
+
+function detailsIdFor(exactModelName: string): string {
+  const scope = categoryFilter || capabilityFilter || 'all';
+  return `mc-d-${scope}-${exactModelName.replace(/[^a-zA-Z0-9_-]+/g, '-')}`;
+}
+
 // ---------------- Filter values (unique sets) ----------------
 
 // Unique-value sets per filter, pruned to only what's actually in the current row set.
@@ -549,7 +613,7 @@ const filterChips: FilterChip[] = [
   { id: 'output', label: t.colOutput, values: uniqueOutputs, optionLabel: (v) => MODALITY_LABELS[v as OutputModality] },
   { id: 'streaming', label: t.colStreaming, values: ['true', 'false'], optionLabel: boolToTick },
   { id: 'tools', label: t.colTools, values: ['true', 'false'], optionLabel: boolToTick },
-  { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => v },
+  { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => planLabel(v) },
 ];
 
 // Build the row-data payload consumed by the client script. We render the
@@ -593,28 +657,33 @@ const rowDataPayload = allModels.map((m) => ({
   class="models-comparison"
   data-rows={JSON.stringify(rowDataPayload)}>
   <div class="models-comparison__filterbar not-content" role="group" aria-label={t.heading}>
-    {filterChips.map((chip) => (
-      <details class="mc-filter" data-filter={chip.id}>
-        <summary>
-          <span class="mc-filter__label">{chip.label}</span>
-          <span class="mc-filter__count" data-count></span>
-        </summary>
-        <div class="mc-filter__menu">
-          {chip.values.map((v) => (
-            <label class="mc-filter__option">
-              <input
-                type="checkbox"
-                value={v}
-                checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
-              />
-              <span>{chip.optionLabel(v)}</span>
-            </label>
-          ))}
-        </div>
-      </details>
-    ))}
+    <div class="models-comparison__chips">
+      {filterChips.map((chip) => (
+        <details class="mc-filter" data-filter={chip.id}>
+          <summary>
+            <span class="mc-filter__label">{chip.label}</span>
+            <span class="mc-filter__count" data-count></span>
+          </summary>
+          <div class="mc-filter__menu">
+            {chip.values.map((v) => (
+              <label class="mc-filter__option">
+                <input
+                  type="checkbox"
+                  value={v}
+                  checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
+                />
+                <span>{chip.optionLabel(v)}</span>
+              </label>
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
 
-    <Button variant="secondary" size="small" class="mc-reset" data-reset>{t.reset}</Button>
+    <Button variant="secondary" size="small" class="mc-reset" data-reset>
+      <span class="mc-reset__full">{t.reset}</span>
+      <span class="mc-reset__short">Reset</span>
+    </Button>
   </div>
 
   <div class="models-comparison__status" aria-live="polite">
@@ -666,6 +735,17 @@ const rowDataPayload = allModels.map((m) => ({
         {allModels.map((m) => {
           const creatorLogo = getLogo(m.capabilities.creator) || getLogo('Other');
           const fullCloud = cloudFullName(m.cloud);
+          const cloudLabel = cloudLabelFor(m.exactModelName, m.cloud);
+          const detailsId = detailsIdFor(m.exactModelName);
+          const priceLine = mobilePriceLine(m);
+          const metaParts = [
+            blankContext(m.contextWindow) ? '' : m.contextWindow,
+            m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', '),
+            priceLine ?? '',
+          ].filter(Boolean);
+          const cached = cachedDetail(m);
+          const reasoningTokens = reasoningTokensDetail(m);
+          const showReasoning = hasReasoning(m);
           return (
             <tr data-key={m.exactModelName}>
               <td data-label={t.colModel}><strong>{m.displayModelName}</strong></td>
@@ -727,9 +807,95 @@ const rowDataPayload = allModels.map((m) => ({
               <td data-label={t.colPlans}>
                 <span class="mc-plans">
                   {m.plans.map((p) => (
-                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{p}</a>
+                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
                   ))}
                 </span>
+              </td>
+              <td class="mc-mobile-cell">
+                <div class="mc-m">
+                  <div class="mc-m__top">
+                    <span class:list={['creator-brand', 'creator-brand--icon', 'mc-m__logo', { 'mc-m__logo--zoom': m.capabilities.creator.startsWith('Google') }]}>
+                      <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />
+                    </span>
+                    <strong class="mc-m__name" title={m.displayModelName}>{m.displayModelName}</strong>
+                    <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>
+                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small aifs-tag--yellow">Premium</span>}
+                    <Button
+                      variant="ghost"
+                      size="small"
+                      class="mc-m__details"
+                      aria-expanded="false"
+                      aria-controls={detailsId}
+                    >
+                      {t.details}
+                      <svg class="mc-m__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </Button>
+                  </div>
+                  <div class="mc-m__meta">
+                    <span class="mc-m__meta-text">{metaParts.join(' · ')}</span>
+                    {(m.capabilities.streaming || m.capabilities.toolCalling || showReasoning) && (
+                      <span class="mc-m__caps">
+                        {m.capabilities.toolCalling && (
+                          <span class="mc-m__cap" title={t.colTools}>
+                            <Icon name="service-settings" size={16} label={t.colTools} />
+                          </span>
+                        )}
+                        {m.capabilities.streaming && (
+                          <span class="mc-m__cap" title={t.colStreaming}>
+                            <Icon name="action-stream-on" size={16} label={t.colStreaming} />
+                          </span>
+                        )}
+                        {showReasoning && (
+                          <span class="mc-m__cap" title={t.colReasoningEffort}>
+                            <Icon name="content-data-visualisation" size={16} label={t.colReasoningEffort} />
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  <div class="mc-m__panel" id={detailsId} hidden="until-found">
+                    <dl class="mc-m__dl">
+                      {m.capabilities.outputModalities.length > 0 && (
+                        <div>
+                          <dt>{t.colOutput}</dt>
+                          <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
+                        </div>
+                      )}
+                      {cached && (
+                        <div>
+                          <dt>{t.colCachedPrice}</dt>
+                          <dd>{cached}</dd>
+                        </div>
+                      )}
+                      {m.reasoningEffort.length > 0 && (
+                        <div>
+                          <dt>{t.colReasoningEffort}</dt>
+                          <dd class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</dd>
+                        </div>
+                      )}
+                      {reasoningTokens && (
+                        <div>
+                          <dt>{t.colReasoningTokensUsage}</dt>
+                          <dd><code>{reasoningTokens}</code></dd>
+                        </div>
+                      )}
+                      {!categoryFilter && (
+                        <div>
+                          <dt>{t.colCategory}</dt>
+                          <dd>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</dd>
+                        </div>
+                      )}
+                      <div>
+                        <dt>{t.colPlans}</dt>
+                        <dd class="mc-plans">
+                          {m.plans.map((p) => (
+                            <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
+                          ))}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
               </td>
             </tr>
           );
@@ -1118,6 +1284,64 @@ const rowDataPayload = allModels.map((m) => ({
     // synthetic 'change' event so the existing change listener handles both
     // the apply() call AND the zero-selection auto-revert (uncheck the last
     // remaining cloud → all three snap back to checked).
+    function setMobileDetails(btn: HTMLButtonElement, open: boolean) {
+      const id = btn.getAttribute('aria-controls');
+      if (!id) return;
+      const panel = root.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+      if (!panel) return;
+      if (open) panel.removeAttribute('hidden');
+      else panel.setAttribute('hidden', 'until-found');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    root.addEventListener('click', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      const detailsBtn = target?.closest('button.mc-m__details') as HTMLButtonElement | null;
+      if (!detailsBtn || !root.contains(detailsBtn)) return;
+      setMobileDetails(detailsBtn, detailsBtn.getAttribute('aria-expanded') !== 'true');
+    });
+
+    root.addEventListener('beforematch', (evt) => {
+      const panel = evt.target;
+      if (!(panel instanceof HTMLElement) || !panel.classList.contains('mc-m__panel')) return;
+      const btn = root.querySelector<HTMLButtonElement>(`button.mc-m__details[aria-controls="${CSS.escape(panel.id)}"]`);
+      if (btn) setMobileDetails(btn, true);
+    });
+
+    // On a narrow column the chip row scrolls, which would clip an absolute
+    // menu. Pin the open menu to the viewport instead.
+    function placeFilterMenu(details: HTMLDetailsElement) {
+      const menu = details.querySelector<HTMLElement>('.mc-filter__menu');
+      const summary = details.querySelector<HTMLElement>('summary');
+      if (!menu || !summary) return;
+      const narrow = root.getBoundingClientRect().width <= 640;
+      if (!details.open || !narrow) {
+        menu.style.position = '';
+        menu.style.top = '';
+        menu.style.left = '';
+        menu.style.maxWidth = '';
+        return;
+      }
+      const rect = summary.getBoundingClientRect();
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - 196));
+      menu.style.position = 'fixed';
+      menu.style.top = `${Math.round(rect.bottom + 6)}px`;
+      menu.style.left = `${Math.round(left)}px`;
+      menu.style.maxWidth = 'calc(100vw - 16px)';
+    }
+
+    root.addEventListener('toggle', (evt) => {
+      const details = evt.target;
+      if (details instanceof HTMLDetailsElement && details.classList.contains('mc-filter')) {
+        placeFilterMenu(details);
+      }
+    }, true);
+
+    root.querySelector('.models-comparison__chips')?.addEventListener('scroll', () => {
+      const open = root.querySelector<HTMLDetailsElement>('details.mc-filter[open]');
+      if (open) placeFilterMenu(open);
+    }, { passive: true });
+
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
       const btn = target?.closest('.mc-cloud-filter-btn') as HTMLElement | null;
@@ -1172,6 +1396,18 @@ const rowDataPayload = allModels.map((m) => ({
     gap: 0.5rem;
     align-items: center;
     margin-bottom: 0.75rem;
+  }
+
+  .models-comparison__chips {
+    display: contents;
+  }
+
+  .mc-reset__short {
+    display: none;
+  }
+
+  .mc-mobile-cell {
+    display: none;
   }
 
   .mc-filter {
@@ -1506,9 +1742,43 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--aifs-color-table-head-text);
   }
 
-  /* Cards only when the column is about 40rem. At 1440 the column is ~950px,
-     so the wide table stays and scrolls inside .models-comparison__scroll. */
+  /* Compact list under ~40rem. The wide table stays above that and scrolls. */
   @container comparison (max-width: 40rem) {
+    .models-comparison__filterbar {
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .models-comparison__chips {
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1 1 auto;
+      overflow-x: auto;
+      overscroll-behavior-x: contain;
+      scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+
+    .models-comparison__chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .models-comparison__filterbar .mc-reset {
+      flex: 0 0 auto;
+    }
+
+    .mc-reset__full {
+      display: none;
+    }
+
+    .mc-reset__short {
+      display: inline;
+    }
+
     .models-comparison__scroll {
       overflow: visible;
       box-shadow: none;
@@ -1526,20 +1796,36 @@ const rowDataPayload = allModels.map((m) => ({
       display: none;
     }
 
-    .models-comparison-table tr[data-key] {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 12px;
-      width: 100%;
-      box-sizing: border-box;
-      margin: 0 0 8px;
-      padding: 10px 12px;
-      border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-      border-radius: var(--aifs-table-radius);
-      background: var(--aifs-color-surface-chrome);
+    .models-comparison-table tr[hidden] {
+      display: none !important;
     }
 
-    .models-comparison-table td {
+    /* Touch can leave :hover stuck on the last row. The list has no hover fill. */
+    .models-comparison .models-comparison-table tbody tr[data-key]:hover {
+      background: transparent;
+    }
+
+    .models-comparison-table tr[data-key] {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 4px 0;
+      border: 0;
+      border-bottom: 1px solid var(--aifs-color-border-subtle);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .models-comparison-table tr[data-key]:first-child {
+      border-top: 1px solid var(--aifs-color-border-subtle);
+    }
+
+    .models-comparison-table td:not(.mc-mobile-cell) {
+      display: none;
+    }
+
+    .models-comparison-table td.mc-mobile-cell {
       display: block;
       min-width: 0 !important;
       width: auto;
@@ -1550,30 +1836,173 @@ const rowDataPayload = allModels.map((m) => ({
       background: transparent;
     }
 
-    .models-comparison-table td:first-child {
-      grid-column: 1 / -1;
-      font-size: 1rem;
-    }
-
-    .models-comparison-table td::before {
-      content: attr(data-label);
-      display: block;
-      margin-bottom: 2px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: var(--aifs-color-text-muted);
-    }
-
-    .models-comparison-table td:first-child::before {
-      display: none;
-    }
-
     .models-comparison-table .mc-no-results {
       display: block;
       border: 0;
       background: transparent;
       padding: 8px 0;
     }
+
+    .models-comparison-table .mc-no-results td {
+      display: block;
+      padding: 8px 0;
+      border: 0;
+    }
+  }
+
+  .mc-m__top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 32px;
+  }
+
+  .mc-m__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .mc-m__top > .plans-tag,
+  .mc-m__top > .aifs-tag {
+    flex: 0 0 auto;
+  }
+
+  .mc-m__details {
+    flex: 0 0 auto;
+    margin-left: 2px;
+  }
+
+  .mc-m__chevron {
+    display: block;
+    transition: transform 160ms ease;
+  }
+
+  .mc-m__details[aria-expanded='true'] .mc-m__chevron {
+    transform: rotate(180deg);
+  }
+
+  .mc-m__details[aria-expanded='true'] {
+    background: var(--aifs-button-ghost-background-pressed);
+    color: var(--aifs-button-ghost-text-pressed);
+  }
+
+  .mc-m__meta {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin: 0 0 0 22px;
+    min-width: 0;
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 1.25;
+  }
+
+  .mc-m__meta-text {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .mc-m__caps {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    color: var(--sl-color-white);
+  }
+
+  .mc-m__cap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 16px;
+    height: 16px;
+  }
+
+  .mc-m__panel:not([hidden]) {
+    margin: 8px 0 0 22px;
+    padding: 8px 10px;
+    border-radius: var(--aifs-radius-control, 8px);
+    background: var(--aifs-color-surface-subtle);
+  }
+
+  /* until-found keeps the panel searchable, but its box must not paint a bar. */
+  .models-comparison .mc-m__panel[hidden] {
+    height: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    border: 0;
+    content-visibility: hidden;
+  }
+
+  .mc-m__dl {
+    display: grid;
+    gap: 8px 16px;
+    margin: 0;
+  }
+
+  .mc-m__dl div {
+    min-width: 0;
+  }
+
+  .mc-m__dl dt {
+    margin: 0 0 2px;
+    color: var(--aifs-color-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .mc-m__dl dd {
+    margin: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 1.3;
+  }
+
+  /* Same tile as the plans compact table: 16px border box, no padding.
+     Google's mark is mostly margin, so it is scaled inside the tile. */
+  .models-comparison .mc-m__logo.creator-brand--icon {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    padding: 0;
+    box-sizing: border-box;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex: 0 0 16px;
+    line-height: 0;
+  }
+
+  .models-comparison .mc-m__logo .creator-brand__icon {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    object-fit: contain;
+  }
+
+  .models-comparison .mc-m__logo--zoom .creator-brand__icon {
+    width: 175%;
+    height: 175%;
+    max-width: none;
   }
 </style>
