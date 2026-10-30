@@ -45,7 +45,18 @@ const sortableHeaders = [
   ...(legacy ? [] : [{ key: 'contextWindow', label: translations.thContextWindow, unit: translations.thContextWindowUnit }]),
 ];
 
-const totalColumnCount = sortableHeaders.length + (legacy ? 0 : 1);
+const compactHeaders = [
+  { key: 'displayName', label: translations.thModel || 'Model', unit: translations.thModelSub || 'Creator · Tier' },
+  { key: 'cloudProvider', label: translations.thHosting || 'Hosting', unit: translations.thHostingSub || 'Host · Cloud · Location' },
+  { key: 'inputPrice', label: translations.thInput || 'Input', unit: '€ / M Tokens' },
+  { key: 'outputPrice', label: translations.thOutput || 'Output', unit: '€ / M Tokens' },
+  { key: 'rpm', label: translations.thLimits || 'Limits', unit: translations.thLimitsSub || 'RPM · TPM', star: true },
+  { key: 'contextWindow', label: translations.thContext || 'Context', unit: translations.thContextWindowUnit || 'Tokens' },
+];
+
+const visibleHeaders = legacy ? sortableHeaders : compactHeaders;
+const totalColumnCount = legacy ? sortableHeaders.length : 7;
+const sortOptions = sortableHeaders;
 
 // Price filter buckets are static (don't depend on plan), so we can SSR them.
 const priceBuckets = [
@@ -56,7 +67,7 @@ const priceBuckets = [
 ---
 
 <section
-  class="models-section models-table-section"
+  class:list={['models-section', 'models-table-section', { 'models-table-section--legacy': legacy }]}
   data-plans={JSON.stringify(plansData)}
   data-brand-icons={JSON.stringify(modelBrandIcons)}
   data-host-tooltips={JSON.stringify(hostTooltips)}
@@ -202,21 +213,47 @@ const priceBuckets = [
     )
   }
 
-  <div class="table-wrapper">
-    <table class="plans-table" id="models-table">
+  {
+    !legacy && (
+      <div class="mt-toolbar">
+        <label class="mt-sort">
+          <span>{translations.labelSortBy || 'Sort by'}</span>
+          <select data-sort-by>
+            {sortOptions.map((header) => (
+              <option value={header.key}>{header.label}</option>
+            ))}
+          </select>
+        </label>
+        <button type="button" class="mt-expand-all" data-expand-all>
+          {translations.labelExpandAll || 'Expand all details'}
+        </button>
+      </div>
+    )
+  }
+
+  <div class:list={['table-wrapper', { 'mt-compact-wrap': !legacy }]}>
+    <table class:list={['plans-table', { 'mt-compact': !legacy }]} id="models-table">
+      {!legacy && (
+        <colgroup>
+          <col class="mt-col-model" />
+          <col class="mt-col-hosting" />
+          <col class="mt-col-price" />
+          <col class="mt-col-price" />
+          <col class="mt-col-limits" />
+          <col class="mt-col-context" />
+          <col class="mt-col-details" />
+        </colgroup>
+      )}
       <thead>
         <tr>
           {
-            sortableHeaders.map((header) => (
-              <th data-sort={header.key}>
+            visibleHeaders.map((header) => (
+              <th data-sort={header.key} tabindex="0">
                 <span class="sort-header">
                   <span>
                     {header.label}
-                    {!legacy && (header.key === 'rpm' || header.key === 'tpm') && (
+                    {!legacy && header.star && (
                       <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>
-                    )}
-                    {!legacy && header.key === 'cachedInputPrice' && (
-                      <sup><a href="#cached-token-notes" onclick="event.stopPropagation()">†</a></sup>
                     )}
                     {header.unit && <div class="plans-table__small-text">{header.unit}</div>}
                   </span>
@@ -227,7 +264,7 @@ const priceBuckets = [
               </th>
             ))
           }
-          {!legacy && <th>{translations.thLinks}</th>}
+          {!legacy && <th class="mt-details-head">{translations.thDetails || 'Details'}</th>}
         </tr>
       </thead>
       <tbody id="models-tbody">
@@ -682,6 +719,151 @@ const priceBuckets = [
       return normalized;
     }
 
+    const externalIcon = `<svg class="model-links__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 3H21V10"/><path d="M21 3L10 14"/><path d="M11 5H6C4.89543 5 4 5.89543 4 7V18C4 19.1046 4.89543 20 6 20H17C18.1046 20 19 19.1046 19 18V13"/></svg>`;
+    const chevron = `<svg class="mt-chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const star = `<sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>`;
+    const dagger = `<sup><a href="#cached-token-notes" onclick="event.stopPropagation()">†</a></sup>`;
+    const openDetails = new Set<string>();
+    let detailsExpandedAll = false;
+
+    function modelKey(model: any) {
+      return `${currentIndex}|${model.exactModelName || model.displayName}|${model.subName || ''}|${model.isSubRow ? 's' : 'm'}`;
+    }
+
+    function detailsDomId(key: string) {
+      return 'mtd-' + key.replace(/[^a-zA-Z0-9_-]+/g, '-');
+    }
+
+    function limitText(value: unknown) {
+      if (value == null || value === '') return emptyMark();
+      if (typeof value === 'number') return formatNumber(value);
+      if (typeof value === 'string' && value !== 'Dynamic Shared Quota' && value.trim() !== '' && !Number.isNaN(Number(value))) {
+        return formatNumber(Number(value));
+      }
+      return escapeHtml(String(value));
+    }
+
+    function isDynamicQuota(model: any) {
+      return model.rpm === 'Dynamic Shared Quota' || model.tpm === 'Dynamic Shared Quota';
+    }
+
+    function limitsHtml(model: any) {
+      if (isDynamicQuota(model)) {
+        return `<div class="mt-limits__dynamic">${escapeHtml('Dynamic Shared Quota')}</div>`;
+      }
+      return `<div>${limitText(model.rpm)} RPM ${star}</div><div class="mt-muted">${limitText(model.tpm)} TPM ${star}</div>`;
+    }
+
+    function linkItem(url: string, label: string) {
+      if (!url) return '';
+      return `<a href="${escapeHtml(url)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${escapeHtml(label)}${externalIcon}</a>`;
+    }
+
+    function applyDetailsOpen(key: string, open: boolean) {
+      if (!tbody) return;
+      const row = tbody.querySelector<HTMLTableRowElement>(`tr.mt-details-row[data-key="${CSS.escape(key)}"]`);
+      const btn = tbody.querySelector<HTMLButtonElement>(`button.mt-details-btn[data-key="${CSS.escape(key)}"]`);
+      const main = tbody.querySelector<HTMLTableRowElement>(`tr.mt-row[data-key="${CSS.escape(key)}"]`);
+      if (row) {
+        if (open) row.removeAttribute('hidden');
+        else row.setAttribute('hidden', 'until-found');
+      }
+      if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      main?.classList.toggle('is-open', open);
+    }
+
+    function syncExpandButton() {
+      const btn = section.querySelector<HTMLButtonElement>('[data-expand-all]');
+      if (!btn) return;
+      const label = detailsExpandedAll
+        ? translations.labelCollapseAll || 'Collapse all details'
+        : translations.labelExpandAll || 'Expand all details';
+      btn.textContent = label;
+      btn.setAttribute('aria-pressed', detailsExpandedAll ? 'true' : 'false');
+    }
+
+    function appendCompactRow(model: any) {
+      if (!tbody) return;
+      const key = modelKey(model);
+      const id = detailsDomId(key);
+      const open = detailsExpandedAll || openDetails.has(key);
+      const modelTier = capitalize(model.modelTier);
+      const hostClass = model.modelHost?.toLowerCase() === 't-cloud' ? 'tag-tcloud' : 'tag-cloud';
+      const tierClass = modelTier.toLowerCase() === 'premium' ? 'tag-premium' : 'tag-tier';
+      const cloudProvider = model.cloudProviderLabel || normalizeCloudProvider(model.cloudProvider);
+      const cloudProviderFullName = model.cloudProviderFullName || getCloudProviderFullName(model.cloudProvider);
+      const hostTooltip = hostTooltips[model.modelHost] || '';
+      const tierTooltip = tierTooltips[modelTier] || '';
+      const creatorIcon = brandIcons[model.creator] || '';
+      const loc = `${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation || '')}`;
+      const contextText = model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark();
+      const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of Use');
+      const privacy = linkItem(model.dataProtectionUrl, translations.linkDataProtection || 'Data Protection');
+      const links = terms || privacy ? `${terms}${privacy}` : `<span class="model-links__empty">${emptyMark()}</span>`;
+      const limitsDetail = isDynamicQuota(model)
+        ? escapeHtml('Dynamic Shared Quota')
+        : `${limitText(model.rpm)} ${escapeHtml(translations.thRPMUnitShort || 'Requests/Min')} ${star} · ${limitText(model.tpm)} ${escapeHtml(translations.thTPMUnit || 'Tokens/Min')} ${star}`;
+      tbody.insertAdjacentHTML(
+        'beforeend',
+        `<tr class="mt-row${model.isSubRow ? ' sub-row' : ''}${open ? ' is-open' : ''}" data-key="${escapeHtml(key)}">
+          <td class="mt-model">
+            <div class="mt-model__main">
+              ${creatorIcon ? `<span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="" /></span>` : ''}
+              <strong>${escapeHtml(model.displayName)}</strong>
+            </div>
+            <div class="mt-model__meta">
+              <span class="mt-muted">${escapeHtml(model.creator || '')}</span>
+              <span class="plans-tag ${tierClass}">${escapeHtml(modelTier)}</span>
+            </div>
+          </td>
+          <td class="mt-hosting">
+            <span class="mt-card-label">${escapeHtml(translations.thHosting || 'Hosting')}</span>
+            <div class="mt-hosting__main">
+              <span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>
+              <span>${escapeHtml(cloudProvider)}</span>
+            </div>
+            <div class="mt-muted loc-wrapper">${loc}</div>
+          </td>
+          <td class="mt-num mt-input">
+            <span class="mt-card-label">${escapeHtml(translations.thInput || 'Input')}</span>
+            <strong>${formatPrice(model.inputPrice)}</strong>
+            <div class="mt-muted">${escapeHtml(translations.cachedShort || 'cached')} ${formatCachedPrice(model)} ${dagger}</div>
+          </td>
+          <td class="mt-num">
+            <span class="mt-card-label">${escapeHtml(translations.thOutput || 'Output')}</span>
+            <strong>${formatPrice(model.outputPrice)}</strong>
+          </td>
+          <td class="mt-limits">
+            <span class="mt-card-label">${escapeHtml(translations.thLimits || 'Limits')}</span>
+            ${limitsHtml(model)}
+          </td>
+          <td class="mt-num mt-context">
+            <span class="mt-card-label">${escapeHtml(translations.thContext || 'Context')}</span>
+            ${contextText}
+          </td>
+          <td class="mt-details-cell">
+            <button type="button" class="mt-details-btn" data-key="${escapeHtml(key)}" aria-expanded="${open ? 'true' : 'false'}" aria-controls="${id}">
+              ${escapeHtml(translations.thDetails || 'Details')}${chevron}
+            </button>
+          </td>
+        </tr>
+        <tr class="mt-details-row" id="${id}" data-key="${escapeHtml(key)}" ${open ? '' : 'hidden="until-found"'}>
+          <td colspan="7">
+            <dl class="mt-details">
+              <div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="plans-tag ${tierClass}">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>
+              <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
+              <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
+              <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
+              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached Input Token Price')} ${dagger}</dt><dd>${formatCachedPrice(model)} <span class="mt-muted">€ / M Tokens</span></dd></div>
+              <div><dt>${escapeHtml(translations.thRPMLimit || 'RPM Limit')} · ${escapeHtml(translations.thTPM || 'TPM')}</dt><dd>${limitsDetail}</dd></div>
+              <div><dt>${escapeHtml(translations.thContextWindow || 'Context Window')}</dt><dd>${contextText} ${escapeHtml(translations.thContextWindowUnit || 'Tokens')}</dd></div>
+              <div><dt>${escapeHtml(translations.thLinks || 'Links')}</dt><dd><span class="model-links">${links}</span></dd></div>
+            </dl>
+          </td>
+        </tr>`,
+      );
+    }
+
     function render() {
       if (!tbody) return;
       const plan = plansData[currentIndex];
@@ -690,6 +872,10 @@ const priceBuckets = [
       tbody.innerHTML = '';
 
       for (const model of models) {
+        if (!legacy) {
+          appendCompactRow(model);
+          continue;
+        }
         const row = document.createElement('tr');
         if (model.isSubRow) row.classList.add('sub-row');
 
@@ -769,6 +955,9 @@ const priceBuckets = [
         if (visibleCountEl) visibleCountEl.textContent = String(models.length);
         if (totalCountEl) totalCountEl.textContent = String(totalRows);
         updateChipCounts();
+        const sortSelect = section.querySelector<HTMLSelectElement>('[data-sort-by]');
+        if (sortSelect) sortSelect.value = sortKey;
+        syncExpandButton();
       }
     }
 
@@ -862,7 +1051,7 @@ const priceBuckets = [
 
     if (table) {
       table.querySelectorAll<HTMLElement>('th[data-sort]').forEach((header: HTMLElement) => {
-        header.addEventListener('click', () => {
+        const sortThis = () => {
           const key = header.dataset.sort || '';
           if (sortKey === key) {
             sortAsc = !sortAsc;
@@ -871,7 +1060,43 @@ const priceBuckets = [
             sortAsc = true;
           }
           render();
+        };
+        header.addEventListener('click', sortThis);
+        header.addEventListener('keydown', (evt) => {
+          if (evt.key !== 'Enter' && evt.key !== ' ') return;
+          evt.preventDefault();
+          sortThis();
         });
+      });
+    }
+
+    const sortSelect = section.querySelector<HTMLSelectElement>('[data-sort-by]');
+    if (sortSelect) {
+      sortSelect.value = sortKey;
+      sortSelect.addEventListener('change', () => {
+        sortKey = sortSelect.value;
+        sortAsc = true;
+        render();
+      });
+    }
+
+    const expandAllBtn = section.querySelector<HTMLButtonElement>('[data-expand-all]');
+    if (expandAllBtn) {
+      expandAllBtn.addEventListener('click', () => {
+        detailsExpandedAll = !detailsExpandedAll;
+        if (!detailsExpandedAll) openDetails.clear();
+        render();
+      });
+    }
+
+    if (tbody && !legacy) {
+      tbody.addEventListener('beforematch', (evt) => {
+        const row = evt.target instanceof Element ? evt.target.closest('tr.mt-details-row') : null;
+        if (!row) return;
+        const key = row.dataset.key || '';
+        if (!key) return;
+        openDetails.add(key);
+        applyDetailsOpen(key, true);
       });
     }
 
@@ -881,6 +1106,23 @@ const priceBuckets = [
     // existing listener handles apply + auto-revert in one place.
     section.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
+      const detailsBtn = target?.closest('.mt-details-btn') as HTMLButtonElement | null;
+      if (detailsBtn && !legacy) {
+        const key = detailsBtn.dataset.key || '';
+        const willOpen = detailsBtn.getAttribute('aria-expanded') !== 'true';
+        if (detailsExpandedAll && !willOpen) {
+          detailsExpandedAll = false;
+          tbody?.querySelectorAll<HTMLElement>('tr.mt-details-row').forEach((row) => {
+            const rowKey = row.dataset.key || '';
+            if (rowKey && rowKey !== key) openDetails.add(rowKey);
+          });
+        }
+        if (willOpen) openDetails.add(key);
+        else openDetails.delete(key);
+        applyDetailsOpen(key, willOpen);
+        syncExpandButton();
+        return;
+      }
       const cloudBtn = target?.closest('.mt-cloud-tag-btn') as HTMLElement | null;
       if (cloudBtn) {
         const value = cloudBtn.dataset.cloud ?? '';
@@ -947,16 +1189,27 @@ const priceBuckets = [
   .models-table-section .table-wrapper {
     width: 100%;
     max-width: 100%;
+  }
+
+  .models-table-section--legacy .table-wrapper {
     overflow-x: auto;
     overflow-y: auto;
     max-height: 42rem;
   }
 
-  .models-table-section .table-wrapper.table-wrapper--auto-height {
+  .models-table-section--legacy .table-wrapper.table-wrapper--auto-height {
     max-height: none;
   }
 
-  .models-table-section .plans-table {
+  .models-table-section .mt-compact-wrap {
+    overflow: visible;
+    max-height: none;
+    container-type: inline-size;
+    container-name: models;
+    box-shadow: none;
+  }
+
+  .models-table-section--legacy .plans-table {
     display: table;
     width: max-content;
     min-width: 72rem;
@@ -965,6 +1218,23 @@ const priceBuckets = [
     font-size: 0.875rem;
     border: 0;
   }
+
+  .models-table-section .mt-compact {
+    display: table;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    table-layout: fixed;
+    font-size: 0.875rem;
+    border: 0;
+  }
+
+  .mt-col-model { width: 22%; }
+  .mt-col-hosting { width: 20%; }
+  .mt-col-price { width: 13%; }
+  .mt-col-limits { width: 14%; }
+  .mt-col-context { width: 10%; }
+  .mt-col-details { width: 8%; }
 
   .models-table-section .plans-table th,
   .models-table-section .plans-table td {
@@ -1500,5 +1770,246 @@ const priceBuckets = [
   .model-id-label {
     font-weight: normal;
     text-decoration: underline;
+  }
+
+  .mt-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 0.75rem;
+    margin: 0.75rem 0;
+    flex-wrap: wrap;
+  }
+
+  .mt-sort {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+  }
+
+  .mt-sort select,
+  .mt-expand-all,
+  .mt-details-btn {
+    font: inherit;
+    font-size: 0.875rem;
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    padding: 0.35rem 0.65rem;
+  }
+
+  .mt-expand-all,
+  .mt-details-btn {
+    cursor: pointer;
+  }
+
+  .mt-compact th[data-sort] {
+    cursor: pointer;
+  }
+
+  .mt-compact td,
+  .mt-compact th {
+    overflow-wrap: anywhere;
+  }
+
+  .mt-model__main,
+  .mt-hosting__main,
+  .mt-model__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .mt-model__meta,
+  .mt-hosting .loc-wrapper,
+  .mt-input .mt-muted,
+  .mt-limits .mt-muted {
+    margin-top: 0.2rem;
+  }
+
+  .mt-muted,
+  .mt-explain {
+    color: var(--sl-color-gray-3);
+    font-size: 0.8125rem;
+  }
+
+  .mt-compact .loc-wrapper {
+    white-space: normal;
+    flex-wrap: wrap;
+  }
+
+  .mt-compact .mt-num strong {
+    white-space: nowrap;
+  }
+
+  .mt-details-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    white-space: nowrap;
+  }
+
+  .mt-details-btn[aria-expanded='true'] {
+    background: #e20074;
+    border-color: #e20074;
+    color: #fff;
+  }
+
+  .mt-details-btn[aria-expanded='true'] .mt-chevron {
+    transform: rotate(180deg);
+  }
+
+  .mt-compact .tag-premium {
+    background: transparent !important;
+    color: var(--sl-color-text) !important;
+    box-shadow: inset 0 0 0 1px #e20074 !important;
+  }
+
+  :root[data-theme='dark'] .mt-compact .tag-premium {
+    box-shadow: inset 0 0 0 1px #ff52a3 !important;
+  }
+
+  .mt-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 0.75rem 1.25rem;
+    margin: 0;
+  }
+
+  .mt-details dt {
+    font-size: 0.75rem;
+    color: var(--sl-color-gray-3);
+    margin: 0 0 0.15rem;
+  }
+
+  .mt-details dd {
+    margin: 0;
+  }
+
+  .mt-details-row td {
+    background: var(--sl-color-gray-7, var(--sl-color-gray-6));
+  }
+
+  :root[data-theme='dark'] .mt-details-row td {
+    background: var(--aifs-d-bg, #17181c);
+  }
+
+  .mt-details .model-links {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.85rem;
+  }
+
+  .mt-details .model-links__item {
+    white-space: normal;
+  }
+
+  .mt-card-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .mt-compact tr.sub-row .mt-model__main {
+    padding-left: 0.75rem;
+  }
+
+  @container models (max-width: 50rem) {
+    .models-table-section .mt-compact,
+    .models-table-section .mt-compact tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .models-table-section .mt-compact thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .models-table-section .mt-compact tr.mt-row {
+      display: grid;
+      width: 100%;
+      box-sizing: border-box;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      grid-template-areas:
+        'model details'
+        'hosting input'
+        'output limits'
+        'context context';
+      gap: 0.45rem 0.75rem;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 8px;
+      margin: 0 0 0.75rem;
+      padding: 0.85rem;
+    }
+
+    .models-table-section .mt-compact tr.mt-row.is-open {
+      margin-bottom: 0;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+    }
+
+    .models-table-section .mt-compact tr.mt-row > td {
+      display: block;
+      width: auto;
+      border: 0;
+      padding: 0;
+      min-width: 0;
+    }
+
+    .models-table-section .mt-compact .mt-model { grid-area: model; }
+    .models-table-section .mt-compact .mt-details-cell { grid-area: details; justify-self: end; align-self: start; }
+    .models-table-section .mt-compact .mt-hosting { grid-area: hosting; }
+    .models-table-section .mt-compact .mt-input { grid-area: input; }
+    .models-table-section .mt-compact tr.mt-row > td:nth-child(4) { grid-area: output; }
+    .models-table-section .mt-compact .mt-limits { grid-area: limits; }
+    .models-table-section .mt-compact .mt-context { grid-area: context; }
+
+    .mt-card-label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0 0 0.1rem;
+      overflow: visible;
+      clip: auto;
+      display: block;
+      font-size: 0.75rem;
+      color: var(--sl-color-gray-3);
+    }
+
+    .models-table-section .mt-compact tr.mt-details-row {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--sl-color-gray-5);
+      border-top: 0;
+      border-radius: 0 0 8px 8px;
+      margin: 0 0 0.75rem;
+      padding: 0 0.85rem 0.85rem;
+    }
+
+    .models-table-section .mt-compact tr.mt-details-row > td {
+      display: block;
+      width: auto;
+      border: 0;
+      padding: 0;
+    }
   }
 </style>

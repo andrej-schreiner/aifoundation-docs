@@ -707,6 +707,11 @@ html:not([data-has-sidebar]) .meta {
 	box-shadow: inset -16px 0 12px -14px rgba(0, 0, 0, 0.35);
 }
 
+.models-table-section .mt-compact-wrap {
+	box-shadow: none;
+	overflow: visible;
+}
+
 /* Model catalog pages use the wide plans column and drop the TOC. */
 :root:has(.models-table-section),
 :root:has(.models-comparison) {
