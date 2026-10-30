@@ -200,6 +200,12 @@ export default defineConfig({
 					content: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].q=[];var f=d.getElementsByTagName(s)[0];var j=d.createElement(s);j.async=true;j.src='https://chat.ai.t-systems.net/widget.js';j.setAttribute('data-chatbot-id','5004f2f1-b699-42d9-b170-b937c3ec924e');j.setAttribute('data-api-url','https://chat.ai.t-systems.net');j.setAttribute('data-position','bottom-right');j.setAttribute('data-theme','dark');j.setAttribute('data-primary-color','#E20074');f.parentNode.insertBefore(j,f);})(window,document,'script','TSWidget','ts');`,
 				},
 				{
+					// The launcher lives in the widget's shadow root, so page CSS cannot
+					// reach it. On a phone it covers Details and copy buttons; shrink it.
+					tag: 'script',
+					content: `(function(){function shrink(){if(!matchMedia('(max-width: 40rem)').matches)return;var host=document.getElementById('tsystems-chat-widget');var root=host&&host.shadowRoot;if(!root||root.getElementById('aifs-launcher-size'))return;var style=document.createElement('style');style.id='aifs-launcher-size';style.textContent='.widget-launcher{width:40px!important;height:40px!important}.widget-launcher svg{width:20px!important;height:20px!important}.widget-container.bottom-right{right:8px;bottom:max(8px,env(safe-area-inset-bottom))}';root.appendChild(style);}var n=0;var t=setInterval(function(){shrink();if(++n>20)clearInterval(t);},250);})();`,
+				},
+				{
 					// Language-aware Service Description PDF link, normalized at runtime.
 					// The sidebar "Links" entry is authored as an ABSOLUTE production URL
 					// in the config on purpose: Starlight localizes root-relative sidebar

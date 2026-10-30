@@ -164,18 +164,23 @@ import Icon from './Icon.astro';
     border-radius: 6px;
   }
 
-  /* Phones: the message wraps, with compact padding so the bars stay short. */
-  @media (max-width: 50rem) {
+  /* Phones: one line of text, the link, and the close control on the right. */
+  @media (max-width: 40rem) {
     .qp-bar {
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 6px 8px;
-      padding: 6px 8px;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 6px;
     }
     .qp-msg {
-      flex: 1 1 12rem;
+      flex: 1 1 auto;
       min-width: 0;
-      white-space: normal;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .qp-bar :global(.qp-close) {
+      align-self: center;
     }
   }
 

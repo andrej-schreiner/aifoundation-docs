@@ -417,10 +417,10 @@ const t = {
   colCloud: isDE ? 'Cloud' : 'Cloud',
   colInput: isDE ? 'Eingabe' : 'Input',
   colOutput: isDE ? 'Ausgabe' : 'Output',
-  colStreaming: isDE ? 'Streaming-Ausgabe' : 'Streaming output',
-  colTools: isDE ? 'Tool Calling' : 'Tool calling',
+  colStreaming: 'Streaming',
+  colTools: 'Tools',
   colContext: isDE ? 'Kontext' : 'Context',
-  colReasoningEffort: 'Reasoning Effort',
+  colReasoningEffort: 'Reasoning',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
   colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
   colCachedPrice: isDE ? 'Cached €/M' : 'Cached €/M',
@@ -428,7 +428,7 @@ const t = {
   details: 'Details',
   freeInPreview: isDE ? 'Kostenlos in der Preview' : 'Free in preview',
   free: isDE ? 'Kostenlos' : 'Free',
-  perMillion: isDE ? 'pro M' : 'per M',
+  perMillion: isDE ? 'pro 1M' : 'per 1M',
   priceIn: isDE ? 'Ein' : 'In',
   priceOut: isDE ? 'Aus' : 'Out',
   planPreview: isDE ? 'Vorschau' : 'Preview',
@@ -452,7 +452,7 @@ const t = {
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
     : 'Accepted values of the reasoning_effort parameter, from the platform model datasheet. "-": no values are published for this model. See the Reasoning Control guide.',
   reasoningEffortNone: '—',
-  colReasoningTokensUsage: isDE ? 'Reasoning-Tokens in usage' : 'Reasoning tokens in usage',
+  colReasoningTokensUsage: isDE ? 'Reasoning-Tokens' : 'Reasoning tokens',
   tooltipReasoningTokensUsage: isDE
     ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder not reported (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
     : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
@@ -539,8 +539,8 @@ function mobilePriceLine(m: CompiledModel): string | null {
   const outputFree = output == null || output === 0;
   if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
   const bits: string[] = [];
-  if (input != null && input !== 0) bits.push(`${t.priceIn} ${formatEuro(input, 2)}`);
-  if (output != null && output !== 0) bits.push(`${t.priceOut} ${formatEuro(output, 2)}`);
+  if (input != null && input !== 0) bits.push(formatEuro(input, 2));
+  if (output != null && output !== 0) bits.push(formatEuro(output, 2));
   if (bits.length === 0) return null;
   return `${bits.join(' / ')} ${t.perMillion}`;
 }
@@ -557,10 +557,6 @@ function reasoningTokensDetail(m: CompiledModel): string | null {
   if (m.reasoningTokensUsage === 'usage') return 'usage.reasoning_tokens';
   if (m.reasoningTokensUsage === 'none') return t.reasoningTokensNotReported;
   return null;
-}
-
-function hasReasoning(m: CompiledModel): boolean {
-  return m.reasoningEffort.length > 0 || m.reasoningTokensUsage != null;
 }
 
 function detailsIdFor(exactModelName: string): string {
@@ -703,7 +699,6 @@ const rowDataPayload = allModels.map((m) => ({
             { key: 'provider', label: t.colProvider, cls: '', tooltip: undefined as string | undefined },
             { key: 'cloud', label: t.colCloud, cls: '', tooltip: undefined as string | undefined },
             { key: 'input', label: t.colInput, cls: '', tooltip: undefined as string | undefined },
-            { key: 'output', label: t.colOutput, cls: '', tooltip: undefined as string | undefined },
             { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming },
             { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
             { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
@@ -739,14 +734,12 @@ const rowDataPayload = allModels.map((m) => ({
           const cloudLabel = cloudLabelFor(m.exactModelName, m.cloud);
           const detailsId = detailsIdFor(m.exactModelName);
           const priceLine = mobilePriceLine(m);
-          const metaParts = [
+          const factParts = [
             blankContext(m.contextWindow) ? '' : m.contextWindow,
             m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', '),
-            priceLine ?? '',
           ].filter(Boolean);
           const cached = cachedDetail(m);
           const reasoningTokens = reasoningTokensDetail(m);
-          const showReasoning = hasReasoning(m);
           return (
             <tr data-key={m.exactModelName}>
               <td data-label={t.colModel}><strong>{m.displayModelName}</strong></td>
@@ -755,7 +748,7 @@ const rowDataPayload = allModels.map((m) => ({
               )}
               <td data-label={t.colProvider}>
                 <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
-                  <span class="creator-brand">
+                  <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]}>
                     <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
                   </span>
                 </Tooltip>
@@ -773,7 +766,6 @@ const rowDataPayload = allModels.map((m) => ({
                 </Tooltip>
               </td>
               <td data-label={t.colInput}>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
-              <td data-label={t.colOutput}>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
               <td class="center" data-label={t.colStreaming}>
                 {m.capabilities.streaming
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
@@ -784,7 +776,7 @@ const rowDataPayload = allModels.map((m) => ({
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
-              <td data-label={t.colContext}>{m.contextWindow}</td>
+              <td class="mc-context" data-label={t.colContext}>{m.contextWindow}</td>
               <td class="mc-reasoning-effort" data-label={t.colReasoningEffort}>
                 {m.reasoningEffort.length > 0
                   ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
@@ -792,11 +784,13 @@ const rowDataPayload = allModels.map((m) => ({
               </td>
               <td class="mc-usage-field" data-label={t.colReasoningTokensUsage}>
                 {m.reasoningTokensUsage === 'completion_tokens_details' && (
-                  <code>completion_tokens_details<wbr />.reasoning_tokens</code>
+                  <span title="completion_tokens_details.reasoning_tokens">details</span>
                 )}
-                {m.reasoningTokensUsage === 'usage' && <code>usage<wbr />.reasoning_tokens</code>}
+                {m.reasoningTokensUsage === 'usage' && (
+                  <span title="usage.reasoning_tokens">usage</span>
+                )}
                 {m.reasoningTokensUsage === 'none' && (
-                  <span class="mc-usage-field__none">{t.reasoningTokensNotReported}</span>
+                  <span class="mc-usage-field__none" title={t.reasoningTokensNotReported}>{t.reasoningTokensNotReported}</span>
                 )}
                 {m.reasoningTokensUsage === null && (
                   <span aria-label="Not documented">{t.reasoningTokensUnknown}</span>
@@ -815,44 +809,27 @@ const rowDataPayload = allModels.map((m) => ({
               <td class="mc-mobile-cell">
                 <div class="mc-m">
                   <div class="mc-m__top">
-                    <span class:list={['creator-brand', 'creator-brand--icon', 'mc-m__logo', { 'mc-m__logo--zoom': m.capabilities.creator.startsWith('Google') }]}>
-                      <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />
+                    <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]}>
+                      <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
                     </span>
-                    <strong class="mc-m__name" title={m.displayModelName}>{m.displayModelName}</strong>
-                    <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>
-                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small aifs-tag--yellow">Premium</span>}
+                    <strong class="mc-m__name">{m.displayModelName}</strong>
                     <Button
                       variant="ghost"
                       size="small"
+                      iconOnly
                       class="mc-m__details"
+                      ariaLabel={t.details}
                       aria-expanded="false"
                       aria-controls={detailsId}
                     >
-                      {t.details}
                       <svg class="mc-m__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                     </Button>
                   </div>
                   <div class="mc-m__meta">
-                    <span class="mc-m__meta-text">{metaParts.join(' · ')}</span>
-                    {(m.capabilities.streaming || m.capabilities.toolCalling || showReasoning) && (
-                      <span class="mc-m__caps">
-                        {m.capabilities.toolCalling && (
-                          <span class="mc-m__cap" title={t.colTools}>
-                            <Icon name="service-settings" size={16} label={t.colTools} />
-                          </span>
-                        )}
-                        {m.capabilities.streaming && (
-                          <span class="mc-m__cap" title={t.colStreaming}>
-                            <Icon name="action-stream-on" size={16} label={t.colStreaming} />
-                          </span>
-                        )}
-                        {showReasoning && (
-                          <span class="mc-m__cap" title={t.colReasoningEffort}>
-                            <Icon name="content-data-visualisation" size={16} label={t.colReasoningEffort} />
-                          </span>
-                        )}
-                      </span>
-                    )}
+                    <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>
+                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small aifs-tag--yellow">Premium</span>}
+                    {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
+                    {priceLine && <span class="mc-m__price">{priceLine}</span>}
                   </div>
                   <div class="mc-m__panel" id={detailsId} hidden="until-found">
                     <dl class="mc-m__dl">
@@ -860,6 +837,18 @@ const rowDataPayload = allModels.map((m) => ({
                         <div>
                           <dt>{t.colOutput}</dt>
                           <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
+                        </div>
+                      )}
+                      {m.capabilities.streaming && (
+                        <div>
+                          <dt>{t.colStreaming}</dt>
+                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
+                        </div>
+                      )}
+                      {m.capabilities.toolCalling && (
+                        <div>
+                          <dt>{t.colTools}</dt>
+                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
                         </div>
                       )}
                       {cached && (
@@ -1524,29 +1513,44 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison__scroll {
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
     margin-bottom: 8px;
-    box-shadow: inset -16px 0 12px -14px rgba(0, 0, 0, 0.18);
-    scrollbar-gutter: stable;
   }
 
   .models-comparison-table {
     display: table;
-    width: max-content;
-    min-width: 100%;
-    max-width: none;
+    width: 100%;
+    min-width: 0;
+    table-layout: fixed;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     border: 0;
+  }
+
+  .models-comparison-table th,
+  .models-comparison-table td {
+    box-sizing: border-box;
+    padding: 6px 3px;
+    white-space: normal;
+  }
+
+  .models-comparison-table td {
+    overflow-wrap: break-word;
+  }
+
+  /* table.css gives the first and last cells extra inline padding. That
+     padding sits outside a content-box percentage and pushes the last
+     column out of the sheet. */
+  .models-comparison-table :is(th, td):first-child,
+  .models-comparison-table :is(th, td):last-child {
+    padding-inline: 4px;
   }
 
   .models-comparison-table th:first-child,
   .models-comparison-table td:first-child {
-    position: sticky;
-    left: 0;
-    z-index: 2;
-    min-width: 11rem;
-    background: var(--aifs-color-surface-page);
+    position: static;
+    min-width: 0;
+    background: transparent;
   }
 
   .models-comparison-table th:first-child {
@@ -1554,7 +1558,70 @@ const rowDataPayload = allModels.map((m) => ({
     z-index: 3;
   }
   .models-comparison-table thead th {
-    white-space: nowrap;
+    overflow: hidden;
+    line-height: 1.15;
+    font-size: 11px;
+    vertical-align: bottom;
+  }
+
+  /* 13 columns in the sheet beside the sidebar (~850px at 1280).
+     Percentages include padding (border-box) and sum to 100. */
+  .models-comparison-table th[data-sort='model'] { width: 11.1%; }
+  .models-comparison-table th[data-sort='provider'] { width: 6.5%; }
+  .models-comparison-table th[data-sort='cloud'] { width: 8.5%; }
+  .models-comparison-table th[data-sort='input'] { width: 6%; }
+  .models-comparison-table th[data-sort='streaming'] { width: 8.5%; }
+  .models-comparison-table th[data-sort='tools'] { width: 5.5%; }
+  .models-comparison-table th[data-sort='context'] { width: 7.5%; }
+  .models-comparison-table th[data-sort='reasoningEffort'] { width: 8%; }
+  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
+  .models-comparison-table th[data-sort='inputPrice'],
+  .models-comparison-table th[data-sort='outputPrice'] { width: 6.2%; }
+  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 7%; }
+  .models-comparison-table th[data-sort='plans'] { width: 11%; }
+
+  /* The catalog table adds a Category column. Keep Plans wide enough for
+     "Professional" and take the extra width from columns that can wrap. */
+  .models-comparison-table:has(th[data-sort='category']) th[data-sort='model'] { width: 6.5%; }
+  .models-comparison-table th[data-sort='category'] { width: 9.5%; }
+  .models-comparison-table:has(th[data-sort='category']) th[data-sort='input'] { width: 5.2%; }
+  .models-comparison-table:has(th[data-sort='category']) th[data-sort='streaming'] { width: 7%; }
+  .models-comparison-table:has(th[data-sort='category']) th[data-sort='reasoningEffort'] { width: 6.8%; }
+  .models-comparison-table:has(th[data-sort='category']) th[data-sort='reasoningTokensUsage'] { width: 7.2%; }
+  .models-comparison-table:has(th[data-sort='category']) th[data-sort='cachedInputPrice'] { width: 6.4%; }
+
+  /* Tooltip.astro owns these nodes, so the selectors have to be global
+     or the header button stays shrink-to-fit and splits "Provider". */
+  .models-comparison-table th :global(.ui-tooltip),
+  .models-comparison-table th :global(.ui-tooltip__trigger) {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .models-comparison-table .mc-sort-header {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 2px;
+  }
+
+  .models-comparison-table .mc-sort-header > span {
+    flex: 1 1 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .models-comparison-table .plans-tag {
+    height: 18px;
+    padding-inline: 4px;
+    font-size: 11px;
   }
 
   .models-comparison-table tbody td {
@@ -1562,10 +1629,15 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table th.num,
-  .models-comparison-table td.num {
+  .models-comparison-table td.num,
+  .models-comparison-table td.mc-context {
     text-align: right;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+  }
+
+  .models-comparison-table td.mc-context {
+    text-align: start;
   }
 
   /* Capability cells (Streaming output, Tool calling): give the tick/cross a
@@ -1578,10 +1650,8 @@ const rowDataPayload = allModels.map((m) => ({
   }
   /* Values flow inline and wrap onto a second line once they exceed the cap,
      so six levels take two short lines instead of one long row. */
-  .models-comparison-table th[data-sort='reasoningEffort'],
   .models-comparison-table td.mc-reasoning-effort {
-    min-width: 14rem;
-    overflow: visible;
+    min-width: 0;
     white-space: normal;
   }
 
@@ -1590,8 +1660,7 @@ const rowDataPayload = allModels.map((m) => ({
     flex-wrap: wrap;
     align-items: center;
     gap: 0.25rem;
-    max-width: none;
-    overflow: visible;
+    max-width: 100%;
   }
 
   .models-comparison .mc-effort-values code {
@@ -1637,30 +1706,53 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--sl-color-gray-3);
   }
 
-  /* Brand-icon: icon-only cell. Creator name lives in aria-label/title for
-     a11y and hover; we only fall back to text when no logo is registered. */
-  .models-comparison .creator-brand {
+  /* Same tile as the catalog cards: 20px, white field, hairline. Google's
+     mark is mostly margin, so it is scaled inside the tile. */
+  .models-comparison .creator-brand--tile {
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    min-height: 20px;
+    flex: 0 0 20px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 2px;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background);
+    line-height: 0;
     vertical-align: middle;
   }
 
-  .models-comparison .creator-brand,
-  .models-comparison .creator-brand__icon,
-  .models-comparison .creator-brand__fallback {
-    width: 20px;
-    height: 20px;
+  .models-comparison .creator-brand--zoom {
+    padding: 0;
   }
 
-  .models-comparison .creator-brand__icon {
+  .models-comparison .creator-brand--tile .creator-brand__icon {
     display: block;
-    width: 20px;
-    height: 20px;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     object-fit: contain;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 4px;
-    padding: 2px;
-    background: var(--aifs-color-logo-background);
+  }
+
+  .models-comparison .creator-brand--tile.creator-brand--zoom .creator-brand__icon {
+    width: 175%;
+    height: 175%;
+    min-width: 175%;
+    min-height: 175%;
+    max-width: none;
+    max-height: none;
+    flex: 0 0 auto;
+    object-fit: contain;
   }
 
   .models-comparison .creator-brand:not(:has(img)),
@@ -1713,8 +1805,8 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison :global(.mc-sort-icon) {
-    width: 1rem;
-    height: 1rem;
+    width: 12px;
+    height: 12px;
     flex: 0 0 auto;
     opacity: 0.4;
     transform: rotate(0deg);
@@ -1862,22 +1954,15 @@ const rowDataPayload = allModels.map((m) => ({
   .mc-m__name {
     flex: 1 1 auto;
     min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     font-size: 16px;
     font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .mc-m__top > .plans-tag,
-  .mc-m__top > .aifs-tag {
-    flex: 0 0 auto;
+    line-height: 1.25;
+    overflow-wrap: break-word;
   }
 
   .mc-m__details {
     flex: 0 0 auto;
-    margin-left: 2px;
+    align-self: flex-start;
   }
 
   .mc-m__chevron {
@@ -1896,34 +1981,22 @@ const rowDataPayload = allModels.map((m) => ({
 
   .mc-m__meta {
     display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    margin: 0 0 0 22px;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 2px 0 0 26px;
     min-width: 0;
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
-    line-height: 1.25;
+    line-height: 1.3;
   }
 
-  .mc-m__meta-text {
+  .mc-m__facts {
     min-width: 0;
-    flex: 1 1 auto;
   }
 
-  .mc-m__caps {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex: 0 0 auto;
-    color: var(--sl-color-white);
-  }
-
-  .mc-m__cap {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 16px;
-    height: 16px;
+  .mc-m__price {
+    white-space: nowrap;
   }
 
   .mc-m__panel:not([hidden]) {
@@ -1969,41 +2042,4 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1.3;
   }
 
-  /* Same tile as the plans compact table: 16px border box, no padding.
-     Google's mark is mostly margin, so it is scaled inside the tile. */
-  .models-comparison .mc-m__logo.creator-brand--icon {
-    width: 16px;
-    height: 16px;
-    min-width: 16px;
-    padding: 0;
-    box-sizing: border-box;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 4px;
-    background: var(--aifs-color-logo-background);
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    flex: 0 0 16px;
-    line-height: 0;
-  }
-
-  .models-comparison .mc-m__logo .creator-brand__icon {
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    object-fit: contain;
-  }
-
-  .models-comparison .mc-m__logo--zoom .creator-brand__icon {
-    width: 175%;
-    height: 175%;
-    max-width: none;
-  }
 </style>

@@ -174,11 +174,45 @@ mobile-starlight-toc nav {
 	}
 }
 
+/* Starlight draws a hairline between the title panel and the body. The title
+   is only as wide as the measure, so the line reads as a stray rule across
+   the sheet. */
+.content-panel + .content-panel {
+	border-top: 0;
+}
+
 /* The chat launcher sits fixed in the bottom-right and covers the last lines
    and the mobile menu footer. Clearance is padding, because the launcher is
    injected from chat.ai.t-systems.net and is not in the page flow. */
 .main-pane > main {
 	padding-bottom: 4.5rem;
+}
+
+@media (max-width: 40rem) {
+	.main-pane > main {
+		padding-bottom: 5rem;
+	}
+
+	/* Right-edge controls (Details, copy) stay clear of the launcher. */
+	.models-comparison,
+	.available-models {
+		padding-inline-end: 3.25rem;
+	}
+
+	.widget-container.bottom-right {
+		right: 8px;
+		bottom: max(8px, env(safe-area-inset-bottom));
+	}
+
+	.widget-launcher {
+		width: 44px !important;
+		height: 44px !important;
+	}
+
+	.widget-launcher svg {
+		width: 22px !important;
+		height: 22px !important;
+	}
 }
 
 @media (min-width: 72rem) {
