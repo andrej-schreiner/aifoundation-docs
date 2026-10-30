@@ -1179,6 +1179,11 @@ const priceBuckets = [
 </script>
 
 <style is:global>
+  .models-table-section:not(.models-table-section--legacy) {
+    container-type: inline-size;
+    container-name: models;
+  }
+
   .models-table-section {
     margin-bottom: 2rem;
     --model-link-color: var(--sl-color-text-accent);
@@ -1889,6 +1894,23 @@ const priceBuckets = [
     margin: 0;
   }
 
+  /* hidden=until-found uses content-visibility, which Chrome ignores on
+     display:table-row, so every details row stayed painted. A block box lets
+     that hiding apply. Do not use display:none: find-in-page must still see
+     the text and fire beforematch. Open rows are not matched here. */
+  .models-table-section .mt-compact tr.mt-details-row[hidden] {
+    display: block;
+    content-visibility: hidden;
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+
+  .models-table-section .mt-compact tr.mt-details-row[hidden] > td {
+    padding: 0;
+    border: 0;
+  }
+
   .mt-details-row td {
     background: var(--sl-color-gray-7, var(--sl-color-gray-6));
   }
@@ -1994,7 +2016,14 @@ const priceBuckets = [
       color: var(--sl-color-gray-3);
     }
 
-    .models-table-section .mt-compact tr.mt-details-row {
+    .models-table-section .mt-compact-wrap {
+      border: 0;
+      padding: 0;
+      box-shadow: none;
+      background: transparent;
+    }
+
+    .models-table-section .mt-compact tr.mt-details-row:not([hidden]) {
       display: block;
       width: 100%;
       box-sizing: border-box;
