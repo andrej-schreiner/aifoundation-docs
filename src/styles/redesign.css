@@ -211,7 +211,9 @@ body {
 	font-weight: 700;
 	border: 0;
 	border-bottom: 1px solid #d8d8d8;
-	padding: 0.7rem 0.85rem;
+	padding: 0.55rem 0.65rem;
+	vertical-align: bottom;
+	text-align: start;
 }
 
 .sl-markdown-content tr:first-child th:first-child {
@@ -233,8 +235,8 @@ body {
 .sl-markdown-content td {
 	border: 0;
 	border-bottom: 1px solid var(--sl-color-gray-5);
-	padding: 0.7rem 0.85rem;
-	vertical-align: middle;
+	padding: 0.55rem 0.65rem;
+	vertical-align: bottom;
 	background: transparent;
 }
 
