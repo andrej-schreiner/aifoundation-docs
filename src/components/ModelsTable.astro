@@ -957,10 +957,12 @@ const priceBuckets = [
   }
 
   .models-table-section .plans-table {
+    display: table;
     width: 100%;
     max-width: 100%;
     table-layout: fixed;
-    font-size: 0.76rem;
+    font-size: 0.875rem;
+    border: 0;
   }
 
   .models-table-section .plans-table th,
@@ -974,15 +976,16 @@ const priceBuckets = [
   }
 
   .models-table-section .plans-table th a {
-    color: #ffffff;
+    color: inherit;
   }
 
   .models-table-section .plans-table th {
     position: sticky;
     top: 0;
     z-index: 5;
-    background: #e20074;
-    color: #ffffff;
+    background: #f2f2f2;
+    color: #262626;
+    font-weight: 700;
     padding-top: 0.65rem;
     padding-bottom: 0.65rem;
     white-space: wrap;
@@ -1035,8 +1038,8 @@ const priceBuckets = [
 
   :root[data-theme='dark'] .models-table-section .plans-table th {
     background: var(--aifs-d-surface);
-    color: var(--aifs-d-btn-text);
-    border-bottom: 2px solid var(--aifs-d-magenta);
+    color: var(--aifs-d-text);
+    border-bottom: 1px solid var(--aifs-d-border);
   }
 
   .models-controls {
@@ -1066,7 +1069,7 @@ const priceBuckets = [
     background: transparent;
     padding: 0;
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
   }
 
   .plans-filter > summary {
@@ -1164,7 +1167,7 @@ const priceBuckets = [
 
   .plans-filter-reset {
     padding: 0.3rem 0.7rem;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     font-weight: 500;
     color: var(--sl-color-text);
     background: transparent;
@@ -1180,7 +1183,7 @@ const priceBuckets = [
 
   .plans-filter-status {
     margin-bottom: 0.5rem;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     color: var(--sl-color-gray-3);
   }
 
@@ -1381,7 +1384,7 @@ const priceBuckets = [
 
   .creator-brand__label {
     font-weight: 600;
-    font-size: 0.76rem;
+    font-size: 0.875rem;
     white-space: nowrap;
     font-style: normal;
   }
@@ -1414,7 +1417,7 @@ const priceBuckets = [
     gap: 0.25rem;
     color: var(--model-link-color);
     text-decoration-color: currentColor;
-    font-size: 0.74rem;
+    font-size: 0.875rem;
     white-space: nowrap;
   }
 

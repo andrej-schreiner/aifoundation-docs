@@ -1206,7 +1206,7 @@ const rowDataPayload = allModels.map((m) => ({
     background: transparent;
     padding: 0;
     margin: 0;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
   }
 
   .mc-filter > summary {
@@ -1304,7 +1304,7 @@ const rowDataPayload = allModels.map((m) => ({
 
   .mc-reset {
     padding: 0.4rem 0.8rem;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     font-weight: 500;
     line-height: 1.2;
     color: var(--sl-color-text);
@@ -1321,7 +1321,7 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison__status {
     margin-bottom: 0.5rem;
-    font-size: 0.82rem;
+    font-size: 0.875rem;
     color: var(--sl-color-gray-3);
   }
 
@@ -1331,18 +1331,20 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table {
+    display: table;
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.85rem;
+    font-size: 0.875rem;
+    border: 0;
   }
 
   .models-comparison-table thead th {
     text-align: left;
     padding: 0.55rem 0.65rem;
-    border-bottom: 1px solid var(--sl-color-gray-5);
-    background: #e20074;
-    color: #ffffff;
-    font-weight: 600;
+    border-bottom: 1px solid #d8d8d8;
+    background: #f2f2f2;
+    color: #262626;
+    font-weight: 700;
     white-space: nowrap;
   }
 
@@ -1530,8 +1532,8 @@ const rowDataPayload = allModels.map((m) => ({
 
   :root[data-theme='dark'] .models-comparison-table thead th {
     background: var(--aifs-d-surface);
-    color: var(--aifs-d-btn-text);
-    border-bottom: 2px solid var(--aifs-d-magenta);
+    color: var(--aifs-d-text);
+    border-bottom: 1px solid var(--aifs-d-border);
   }
 
   :root[data-theme='dark'] .models-comparison .tag-plan-essential {

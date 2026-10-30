@@ -523,12 +523,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   :root[data-theme='dark'] .plans-table th {
     background: var(--aifs-d-surface);
-    color: var(--aifs-d-btn-text);
-    border-bottom: 2px solid var(--aifs-d-magenta);
+    color: var(--aifs-d-text);
+    border-bottom: 1px solid var(--aifs-d-border);
   }
 
   :root[data-theme='dark'] .plans-table th a {
-    color: var(--aifs-d-btn-text);
+    color: inherit;
   }
 
   :root[data-theme='dark'] .sort-icon.active {
@@ -548,6 +548,10 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
      on the same page (vertical scroller with sticky headers) that must not
      inherit the padding/margin trick below. */
+  .rate-plans-section .plans-table {
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
   .rate-plans-section .table-wrapper {
     max-width: 100%;
     overflow-x: auto;
@@ -594,10 +598,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .plans-table {
+    display: table;
     width: 100%;
     border-collapse: collapse;
-    font-size: 0.8rem;
+    font-size: 0.875rem;
     overflow-wrap: break-word;
+    border: 0;
   }
 
   .plans-table th,
@@ -608,8 +614,9 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .plans-table th {
-    background: #e20074;
-    color: #ffffff;
+    background: #f2f2f2;
+    color: #262626;
+    font-weight: 700;
     cursor: pointer;
     user-select: none;
     vertical-align: middle;

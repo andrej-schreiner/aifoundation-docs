@@ -1,6 +1,7 @@
 /* T-Systems docs chrome. Loaded after custom.css so these unlayered
    rules win over Starlight's layered defaults and the older accent block.
-   TeleNeo is named only; no font files are shipped. */
+   TeleNeo is not shipped (no woff2 in the repo). The stack below is the
+   deliberate fallback until a licensed webfont can be added. */
 
 :root {
 	--aifs-magenta: #e20074;
@@ -8,20 +9,23 @@
 	--aifs-white: #ffffff;
 	--aifs-grey: #ededed;
 	--aifs-muted: #616161;
-	--aifs-font: 'TeleNeoWeb-Regular', Arial, Helvetica, sans-serif;
-	--aifs-font-medium: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
-	--aifs-font-bold: 'TeleNeoWeb-Bold', Arial, Helvetica, sans-serif;
+	--aifs-font: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+	--aifs-font-medium: var(--aifs-font);
+	--aifs-font-bold: var(--aifs-font);
+	--aifs-table-head: #f2f2f2;
+	--aifs-table-head-text: #262626;
 	--sl-font: var(--aifs-font);
 	--sl-font-system: var(--aifs-font);
 	--sl-nav-height: 4.25rem;
 	--sl-content-width: 46rem;
-	--sl-text-h1: 2rem;
-	--sl-text-h2: 1.5rem;
-	--sl-text-h3: 1.25rem;
+	--sl-text-h1: 2.5rem; /* 40px */
+	--sl-text-h2: 2rem; /* 32px */
+	--sl-text-h3: 1.5rem; /* 24px */
+	--sl-text-h4: 1.25rem; /* 20px */
 	--sl-line-height: 1.6;
-	--sl-line-height-headings: 1.15;
+	--sl-line-height-headings: 1.2;
 	color-scheme: dark;
-	font-synthesis: none;
+	font-synthesis: weight;
 }
 
 :root[data-theme='light'] {
@@ -97,11 +101,12 @@
 	color-scheme: dark;
 }
 
-@media (min-width: 80rem) {
+@media (max-width: 50rem) {
 	:root {
-		--sl-text-h1: 2.25rem;
-		--sl-text-h2: 1.625rem;
-		--sl-text-h3: 1.375rem;
+		--sl-text-h1: 2rem; /* 32px */
+		--sl-text-h2: 1.625rem; /* 26px */
+		--sl-text-h3: 1.375rem; /* 22px */
+		--sl-text-h4: 1.125rem; /* 18px */
 	}
 }
 
@@ -109,12 +114,12 @@ body {
 	font-family: var(--aifs-font);
 }
 
-/* Current sidebar item: magenta bar and bold text, not a filled pill. */
+/* Current sidebar item: magenta bar, tinted background, and bold text. */
 .sidebar-content a[aria-current='page'],
 .sidebar-content a[aria-current='page']:hover,
 .sidebar-content a[aria-current='page']:focus {
-	background: transparent;
-	color: var(--sl-color-white);
+	background: #fce4ef;
+	color: #1a1a1a;
 	font-family: var(--aifs-font-bold);
 	font-weight: 700;
 	border-radius: 0;
@@ -124,7 +129,8 @@ body {
 :root[data-theme='dark'] .sidebar-content a[aria-current='page'],
 :root[data-theme='dark'] .sidebar-content a[aria-current='page']:hover,
 :root[data-theme='dark'] .sidebar-content a[aria-current='page']:focus {
-	color: var(--aifs-d-text);
+	background: color-mix(in srgb, var(--aifs-magenta) 22%, var(--aifs-d-surface));
+	color: #ffffff;
 	box-shadow: inset 3px 0 0 var(--aifs-d-accent-bar);
 }
 
@@ -139,9 +145,17 @@ body {
 }
 
 .sl-markdown-content :is(h1, h2, h3, h4) {
-	font-family: var(--aifs-font-medium);
-	font-weight: 500;
+	font-family: var(--aifs-font);
 	letter-spacing: 0;
+}
+
+.sl-markdown-content :is(h1, h2),
+.sl-container > h1 {
+	font-weight: 700;
+}
+
+.sl-markdown-content :is(h3, h4) {
+	font-weight: 600;
 }
 
 .sl-markdown-content :is(strong, b, th) {
@@ -149,31 +163,38 @@ body {
 	font-weight: 700;
 }
 
-.sl-markdown-content a:not(:where(.not-content *)) {
-	font-family: var(--aifs-font-medium);
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *)) {
+	font-family: var(--aifs-font);
 	font-weight: 500;
-	text-decoration: none;
-}
-
-.sl-markdown-content a:not(:where(.not-content *)):hover {
 	text-decoration: underline;
+	text-underline-offset: 2px;
+	text-decoration-thickness: 1px;
 }
 
-.sl-markdown-content table {
-	display: table;
-	width: 100%;
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *)):hover {
+	text-decoration: underline;
+	text-decoration-thickness: 2px;
+}
+
+/* Starlight sets display:block on tables, so a border on the table box is
+   wider than the columns. Shrink the box to the columns and scroll inside it. */
+.sl-markdown-content table:not(.plans-table):not(.models-comparison-table) {
+	display: block;
+	width: max-content;
+	max-width: 100%;
+	overflow-x: auto;
 	border-collapse: separate;
 	border-spacing: 0;
 	border: 1px solid var(--sl-color-gray-5);
 	border-radius: 8px;
-	overflow: hidden;
 }
 
 .sl-markdown-content th {
-	background: var(--aifs-magenta);
-	color: #ffffff;
+	background: var(--aifs-table-head);
+	color: var(--aifs-table-head-text);
+	font-weight: 700;
 	border: 0;
-	border-bottom: 1px solid var(--aifs-magenta);
+	border-bottom: 1px solid #d8d8d8;
 	padding: 0.7rem 0.85rem;
 }
 
@@ -188,8 +209,8 @@ body {
 .sl-markdown-content th :not(pre) > code,
 .sl-markdown-content th code {
 	background: transparent;
-	color: #ffffff;
-	border: 1px solid color-mix(in srgb, #ffffff 35%, transparent);
+	color: var(--aifs-table-head-text);
+	border: 1px solid #c8c8c8;
 	box-shadow: none;
 }
 
@@ -231,25 +252,25 @@ body {
 	color: #262626;
 }
 :root[data-theme='light'] .starlight-aside--tip {
-	--sl-color-asides-text-accent: #00774b;
-	background: #ffffff;
-	border-color: #d8d8d8;
-	border-inline-start-color: #00774b;
-	color: #262626;
+	--sl-color-asides-text-accent: #0b6b42;
+	background: #e8f6ee;
+	border-color: #b7e0cc;
+	border-inline-start-color: #0b7a4b;
+	color: #1a1a1a;
 }
 :root[data-theme='light'] .starlight-aside--caution {
-	--sl-color-asides-text-accent: #262626;
-	background: #ffffff;
-	border-color: #d8d8d8;
-	border-inline-start-color: #262626;
-	color: #262626;
+	--sl-color-asides-text-accent: #9a3412;
+	background: #fff4e0;
+	border-color: #f0c36a;
+	border-inline-start-color: #c2410c;
+	color: #1a1a1a;
 }
 :root[data-theme='light'] .starlight-aside--danger {
-	--sl-color-asides-text-accent: #c30a03;
-	background: #ffffff;
-	border-color: #d8d8d8;
-	border-inline-start-color: #e81919;
-	color: #262626;
+	--sl-color-asides-text-accent: #b42318;
+	background: #fff0f0;
+	border-color: #f5b4b0;
+	border-inline-start-color: #c30a03;
+	color: #1a1a1a;
 }
 
 :root[data-theme='dark'] .starlight-aside {
@@ -259,19 +280,31 @@ body {
 }
 :root[data-theme='dark'] .starlight-aside--note {
 	--sl-color-asides-text-accent: var(--aifs-d-link);
+	background: var(--aifs-d-surface);
+	border-color: var(--aifs-d-border);
 	border-inline-start-color: var(--aifs-d-link);
+	color: var(--aifs-d-text-body);
 }
 :root[data-theme='dark'] .starlight-aside--tip {
-	--sl-color-asides-text-accent: #8ddfd8;
-	border-inline-start-color: #8ddfd8;
+	--sl-color-asides-text-accent: #9be7c4;
+	background: #143028;
+	border-color: #1f6b52;
+	border-inline-start-color: #3dbe8c;
+	color: #e7fff4;
 }
 :root[data-theme='dark'] .starlight-aside--caution {
-	--sl-color-asides-text-accent: #efdc34;
-	border-inline-start-color: #efdc34;
+	--sl-color-asides-text-accent: #ffd27a;
+	background: #3a2a14;
+	border-color: #8a5a1a;
+	border-inline-start-color: #f5b942;
+	color: #fff6e4;
 }
 :root[data-theme='dark'] .starlight-aside--danger {
-	--sl-color-asides-text-accent: var(--aifs-d-danger);
-	border-inline-start-color: var(--aifs-d-danger);
+	--sl-color-asides-text-accent: #ffb3c0;
+	background: #3a1a22;
+	border-color: #8a3040;
+	border-inline-start-color: #ff6b81;
+	color: #ffe8ec;
 }
 
 .expressive-code {
@@ -310,7 +343,7 @@ body {
 
 .sidebar-content a[aria-current='page']:hover,
 .sidebar-content a[aria-current='page']:focus-visible {
-	color: var(--sl-color-white);
+	color: #1a1a1a;
 }
 
 :root[data-theme='dark'] .sidebar-content a:hover,
@@ -321,6 +354,11 @@ body {
 :root[data-theme='dark'] .sidebar-content a[aria-current='page']:hover,
 :root[data-theme='dark'] .sidebar-content a[aria-current='page']:focus-visible {
 	color: #ffffff;
+}
+
+.right-sidebar-panel a,
+.right-sidebar a {
+	font-size: 0.9375rem;
 }
 
 .right-sidebar a[aria-current='true'] {
@@ -517,13 +555,17 @@ html:not([data-has-sidebar]) .meta {
 }
 
 /* Dark content chrome. Light rules above are not restated here. */
-:root[data-theme='dark'] .sl-markdown-content a:not(:where(.not-content *, .sl-link-card *, th *)) {
+:root[data-theme='dark'] .sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *, th *)) {
 	color: var(--aifs-d-link);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	text-decoration-thickness: 1px;
 }
 
-:root[data-theme='dark'] .sl-markdown-content a:not(:where(.not-content *, .sl-link-card *, th *)):hover {
+:root[data-theme='dark'] .sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *, th *)):hover {
 	color: #ffffff;
 	text-decoration: underline;
+	text-decoration-thickness: 2px;
 }
 
 :root[data-theme='dark'] .hero-badge,
@@ -559,16 +601,23 @@ html:not([data-has-sidebar]) .meta {
 :root[data-theme='dark'] .models-comparison-table thead th {
 	background: var(--aifs-d-surface);
 	color: var(--aifs-d-text);
-	border-bottom: 2px solid var(--aifs-d-magenta);
+	border-bottom: 1px solid var(--aifs-d-border);
+}
+
+:root[data-theme='dark'] .sl-markdown-content th code,
+:root[data-theme='dark'] .sl-markdown-content th :not(pre) > code {
+	color: var(--aifs-d-text);
+	border-color: var(--aifs-d-border-strong);
 }
 
 .plans-table th a,
 .models-table-section .plans-table th a,
 .models-comparison-table thead th a,
 .sl-markdown-content th a {
-	color: #ffffff;
+	color: inherit;
 	text-decoration: underline;
 	text-underline-offset: 2px;
+	text-decoration-thickness: 1px;
 }
 
 :root[data-theme='dark'] input,
@@ -622,4 +671,10 @@ html:not([data-has-sidebar]) .meta {
 .models-comparison-table {
 	width: 100%;
 	max-width: 100%;
+}
+
+.models-table-section .table-wrapper,
+.models-comparison__scroll {
+	border: 1px solid var(--sl-color-gray-5);
+	border-radius: 8px;
 }

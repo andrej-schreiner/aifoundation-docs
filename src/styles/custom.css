@@ -287,7 +287,7 @@
 }
 
 .sidebar-content details details details > summary .large {
-	font-size: var(--sl-text-xs);
+	font-size: 0.875rem;
 	font-weight: 600;
 	text-transform: uppercase;
 	letter-spacing: 0.04em;
@@ -328,7 +328,7 @@
 
 @media (max-width: 30rem) {
 	.site-title {
-		font-size: 0.8125rem; /* 13px */
+		font-size: 0.875rem; /* 14px */
 		gap: 0.25rem;
 	}
 	.site-title img {
@@ -339,7 +339,7 @@
 
 @media (max-width: 22.5rem) {
 	.site-title {
-		font-size: 0.75rem; /* 12px */
+		font-size: 0.875rem; /* 14px */
 		gap: 0.25rem;
 	}
 	.site-title img {
