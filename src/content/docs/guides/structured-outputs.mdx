@@ -65,7 +65,7 @@ response = client.responses.create(
 print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
-<!-- TODO(andrej): no recorded output_text for this call is in the docs. Do not publish a sample JSON until one is captured. -->
+<div set:html="<!-- TODO(andrej): no recorded output_text for this call is in the docs. Do not publish a sample JSON until one is captured. -->"></div>
 
 The call prints `response.output_text`. A captured response body is not in the current docs.
 
@@ -73,7 +73,7 @@ The call prints `response.output_text`. A captured response body is not in the c
 
 The fields in the example are `model`, `input`, `max_output_tokens`, and `text.format` with `type`, `name`, `schema`, and `strict`. The chat-completions guide documents `model`, `messages`, `temperature`, `max_tokens`, `stream`, and `top_p` for the chat API. It does not document `response_format` on chat completions.
 
-<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->
+<div set:html="<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->"></div>
 
 ## Limitations and troubleshooting
 

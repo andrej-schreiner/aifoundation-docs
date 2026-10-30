@@ -65,7 +65,7 @@ response = client.responses.create(
 print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
-<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text in den Dokumenten. Kein Beispiel-JSON veröffentlichen, bevor eines erfasst ist. -->
+<div set:html="<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text in den Dokumenten. Kein Beispiel-JSON veröffentlichen, bevor eines erfasst ist. -->"></div>
 
 Der Aufruf gibt `response.output_text` aus. Ein aufgezeichneter Antwortkörper steht in den aktuellen Dokumenten nicht.
 
@@ -73,7 +73,7 @@ Der Aufruf gibt `response.output_text` aus. Ein aufgezeichneter Antwortkörper s
 
 Die Felder im Beispiel sind `model`, `input`, `max_output_tokens` und `text.format` mit `type`, `name`, `schema` und `strict`. Die Chat-Completions-Anleitung dokumentiert `model`, `messages`, `temperature`, `max_tokens`, `stream` und `top_p` für die Chat-API. Sie dokumentiert kein `response_format` auf Chat Completions.
 
-<!-- TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. -->
+<div set:html="<!-- TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. -->"></div>
 
 ## Grenzen und Fehlersuche
 

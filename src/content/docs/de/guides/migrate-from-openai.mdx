@@ -5,7 +5,7 @@ description: "Ein OpenAI-SDK auf AI Foundation Services zeigen, mit der Basis-UR
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-<!-- TODO(andrej): bestätigen, wie OpenAI und Azure OpenAI auf dieser Seite heißen sollen und welche Azure-OpenAI-Felder (Deployment-Name, api-version) sich tatsächlich unterscheiden. -->
+<div set:html="<!-- TODO(andrej): bestätigen, wie OpenAI und Azure OpenAI auf dieser Seite heißen sollen und welche Azure-OpenAI-Felder (Deployment-Name, api-version) sich tatsächlich unterscheiden. -->"></div>
 
 Diese Seite ist für eine Anwendung, die bereits OpenAI oder Azure OpenAI aufruft. Sie ist nicht der Wechsel vom heutigen AIFS-Endpunkt zur neuen API. Dieser Wechsel ist [Umstieg auf die neue API](/de/api-transition).
 
@@ -46,7 +46,7 @@ Modell-IDs auf AIFS sind nicht dieselben Zeichenketten wie jede OpenAI-Modell-ID
 
 Die Dokumente nennen die API OpenAI-kompatibel. Sie sagen auch, dass nicht jeder Parameter auf jedem Modell existiert und dass einige Modelle die Responses API mit HTTP 400 ablehnen. Nutzen Sie die Anleitung für den Aufruf, den Sie verschieben.
 
-<!-- TODO(andrej): Azure-OpenAI-Deployment-Namen und api-version sind in den aktuellen Dokumenten nicht beschrieben. Lesern nicht sagen, sie zu streichen oder zu behalten, bevor das festgehalten ist. -->
+<div set:html="<!-- TODO(andrej): Azure-OpenAI-Deployment-Namen und api-version sind in den aktuellen Dokumenten nicht beschrieben. Lesern nicht sagen, sie zu streichen oder zu behalten, bevor das festgehalten ist. -->"></div>
 
 Authentifizierungsfehler sind HTTP 401 oder 403. Siehe [Fehlercodes](/de/reference/error-codes).
 

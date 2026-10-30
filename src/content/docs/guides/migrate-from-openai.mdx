@@ -5,7 +5,7 @@ description: "Point an OpenAI SDK at AI Foundation Services using the base URL f
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-<!-- TODO(andrej): confirm how to name OpenAI and Azure OpenAI on this page, and which Azure OpenAI fields (deployment name, api-version) actually differ. -->
+<div set:html="<!-- TODO(andrej): confirm how to name OpenAI and Azure OpenAI on this page, and which Azure OpenAI fields (deployment name, api-version) actually differ. -->"></div>
 
 This page is for an application that already calls OpenAI or Azure OpenAI. It is not the move from the current AIFS endpoint to the New API. That move is [Migrate to the New API](/api-transition).
 
@@ -46,7 +46,7 @@ Model ids on AIFS are not the same strings as every OpenAI model id. [Choosing a
 
 The docs call the API OpenAI-compatible. They also say that not every parameter exists on every model, and that some models reject the Responses API with HTTP 400. Use the guide for the call you are moving.
 
-<!-- TODO(andrej): Azure OpenAI deployment names and api-version are not described in the current docs. Do not tell readers to drop or keep them until that is written down. -->
+<div set:html="<!-- TODO(andrej): Azure OpenAI deployment names and api-version are not described in the current docs. Do not tell readers to drop or keep them until that is written down. -->"></div>
 
 Authentication failures are HTTP 401 or 403. See [Error codes](/reference/error-codes).
 
