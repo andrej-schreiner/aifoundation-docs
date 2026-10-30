@@ -1187,7 +1187,7 @@ const priceBuckets = [
   }
 
   .models-table-section {
-    margin-bottom: 2rem;
+    margin-bottom: 8px;
     --model-link-color: var(--aifs-color-link-standard);
     --model-link-icon-color: var(--aifs-color-text-body);
     --models-sort-active-color: var(--sl-color-accent);
@@ -1237,11 +1237,11 @@ const priceBuckets = [
   }
 
   .mt-col-model { width: 22%; }
-  .mt-col-hosting { width: 20%; }
-  .mt-col-price { width: 13%; }
+  .mt-col-hosting { width: 17%; }
+  .mt-col-price { width: 12%; }
   .mt-col-limits { width: 14%; }
   .mt-col-context { width: 10%; }
-  .mt-col-details { width: 8%; }
+  .mt-col-details { width: 13%; }
 
   .models-table-section .plans-table th,
   .models-table-section .plans-table td {
@@ -1254,14 +1254,41 @@ const priceBuckets = [
     word-break: normal;
   }
 
-  .models-table-section .plans-table td.mt-num,
-  .models-table-section .plans-table th[data-sort='inputPrice'],
-  .models-table-section .plans-table th[data-sort='outputPrice'],
-  .models-table-section .plans-table th[data-sort='cachedInputPrice'],
-  .models-table-section .plans-table th[data-sort='rpm'],
-  .models-table-section .plans-table th[data-sort='tpm'],
-  .models-table-section .plans-table th[data-sort='contextWindow'] {
+  .models-table-section--legacy .plans-table td.mt-num,
+  .models-table-section--legacy .plans-table th[data-sort='inputPrice'],
+  .models-table-section--legacy .plans-table th[data-sort='outputPrice'],
+  .models-table-section--legacy .plans-table th[data-sort='cachedInputPrice'],
+  .models-table-section--legacy .plans-table th[data-sort='rpm'],
+  .models-table-section--legacy .plans-table th[data-sort='tpm'],
+  .models-table-section--legacy .plans-table th[data-sort='contextWindow'] {
     white-space: nowrap;
+  }
+
+  .models-table-section .mt-compact :is(th, td) {
+    min-width: 0;
+    max-width: none;
+    white-space: normal;
+    padding: 8px;
+    line-height: 1.15;
+    vertical-align: middle;
+  }
+
+  .content-panel .models-table-section > * + * {
+    margin-top: 8px;
+  }
+
+  .models-table-section > div:not(:has(*)) {
+    display: none;
+    margin: 0;
+  }
+
+  .models-table-section .models-controls,
+  .models-table-section .plans-filterbar,
+  .models-table-section .plans-filter-status,
+  .models-table-section .mt-toolbar,
+  .models-table-section .mt-compact-wrap {
+    margin-top: 6px;
+    margin-bottom: 0;
   }
 
   .models-table-section .plans-table th a {
@@ -1286,8 +1313,8 @@ const priceBuckets = [
      tighten it, and give Model Name a min-width so it wraps across a few lines
      instead of one short word per line. Pair with word-break:normal below so
      names only ever break at spaces, never mid-word. */
-  .models-table-section .plans-table th[data-sort='displayName'],
-  .models-table-section .plans-table td.mt-model-name-cell {
+  .models-table-section--legacy .plans-table th[data-sort='displayName'],
+  .models-table-section--legacy .plans-table td.mt-model-name-cell {
     min-width: 10rem;
   }
 
@@ -1297,8 +1324,12 @@ const priceBuckets = [
   }
 
   .models-table-section .plans-table__small-text {
+    display: block;
+    max-width: 100%;
     margin-top: 0.1rem;
     line-height: 1.1;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   :root[data-theme='dark'] .models-table-section {
@@ -1432,7 +1463,7 @@ const priceBuckets = [
   }
 
   .plans-filter-status {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0;
     font-size: 0.875rem;
     color: var(--sl-color-gray-3);
   }
@@ -1446,13 +1477,22 @@ const priceBuckets = [
     color: inherit;
   }
 
+  .mt-compact .sort-header > span {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .mt-compact .plans-table__small-text {
+    margin-top: 0;
+  }
+
   th.sort-active .sort-header {
     color: var(--aifs-color-table-head-text);
   }
 
-  .models-table-section :global(.sort-icon) {
-    width: 1rem;
-    height: 1rem;
+  .models-table-section .sort-icon {
+    width: 10px;
+    height: 8px;
     flex: 0 0 auto;
     display: inline-block;
     opacity: 0.85;
@@ -1466,16 +1506,16 @@ const priceBuckets = [
 
   /* The arrow marks the sorted column; as a graphic it needs 3:1, which magenta
      has on the grey head in both modes (4.1:1 light, 4.0:1 dark). */
-  .models-table-section :global(.sort-icon--active) {
+  .models-table-section .sort-icon--active {
     opacity: 1;
     color: var(--aifs-color-brand-text);
   }
 
-  .models-table-section :global(.sort-icon--asc) {
+  .models-table-section .sort-icon--asc {
     transform: rotate(180deg);
   }
 
-  .models-table-section :global(.sort-icon--desc) {
+  .models-table-section .sort-icon--desc {
     transform: rotate(0deg);
   }
 
@@ -1689,7 +1729,7 @@ const priceBuckets = [
     justify-content: space-between;
     align-items: flex-end;
     gap: 0.75rem;
-    margin: 0.75rem 0;
+    margin: 6px 0 0;
     flex-wrap: wrap;
   }
 
@@ -1739,7 +1779,44 @@ const priceBuckets = [
   .mt-hosting .loc-wrapper,
   .mt-input .mt-muted,
   .mt-limits .mt-muted {
-    margin-top: 0.2rem;
+    margin-top: 0;
+    line-height: 1.15;
+  }
+
+  /* Two text lines plus 8px of cell padding stay inside a ~48px row. */
+  .mt-compact .creator-brand--icon {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    padding: 0;
+    border-width: 1px;
+    box-sizing: border-box;
+  }
+
+  .mt-compact .plans-tag {
+    height: 16px;
+    padding-inline: 4px;
+    font-size: 11px;
+  }
+
+  .mt-compact .mt-muted {
+    font-size: 12px;
+    line-height: 16px;
+  }
+
+  .mt-compact .mt-model__main,
+  .mt-compact .mt-hosting__main,
+  .mt-compact .mt-model__meta {
+    gap: 4px;
+  }
+
+  .mt-compact .mt-model__main {
+    flex-wrap: nowrap;
+  }
+
+  .mt-compact .mt-model__main > strong {
+    min-width: 0;
+    flex: 1 1 auto;
   }
 
   .mt-muted,
@@ -1757,10 +1834,20 @@ const priceBuckets = [
     white-space: nowrap;
   }
 
+  .mt-details-cell {
+    min-width: 0;
+  }
+
   .mt-details-btn {
     display: inline-flex;
     align-items: center;
-    gap: 0.3rem;
+    justify-content: center;
+    gap: 0.25rem;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 2px 8px;
+    font-size: 12px;
+    line-height: 16px;
     white-space: nowrap;
   }
 
@@ -1808,6 +1895,8 @@ const priceBuckets = [
   .models-table-section .mt-compact tr.mt-details-row[hidden] {
     display: block;
     content-visibility: hidden;
+    height: 0;
+    overflow: hidden;
     padding: 0;
     margin: 0;
     border: 0;
@@ -1857,15 +1946,7 @@ const priceBuckets = [
     }
 
     .models-table-section .mt-compact thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+      display: none;
     }
 
     .models-table-section .mt-compact tr.mt-row {
@@ -1878,11 +1959,11 @@ const priceBuckets = [
         'hosting input'
         'output limits'
         'context context';
-      gap: 0.45rem 0.75rem;
+      gap: 4px 8px;
       border: 1px solid var(--aifs-color-border-subtle);
       border-radius: var(--aifs-table-radius);
-      margin: 0 0 0.75rem;
-      padding: 0.85rem;
+      margin: 0 0 6px;
+      padding: 8px;
     }
 
     .models-table-section .mt-compact tr.mt-row.is-open {
@@ -1934,8 +2015,8 @@ const priceBuckets = [
       border: 1px solid var(--aifs-color-border-subtle);
       border-top: 0;
       border-radius: 0 0 var(--aifs-table-radius) var(--aifs-table-radius);
-      margin: 0 0 0.75rem;
-      padding: 0 0.85rem 0.85rem;
+      margin: 0 0 6px;
+      padding: 0 8px 8px;
     }
 
     .models-table-section .mt-compact tr.mt-details-row > td {

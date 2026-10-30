@@ -547,22 +547,25 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .rate-plans-section {
-    margin-bottom: 2rem;
+    margin-bottom: 8px;
     container-type: inline-size;
     container-name: rateplans;
   }
 
-  /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
-     on the same page (vertical scroller with sticky headers) that must not
-     inherit the padding/margin trick below. */
+  .content-panel .rate-plans-section > * + * {
+    margin-top: 8px;
+  }
+
+  .rate-plans-section .plans-table :is(th, td) {
+    padding-block: 8px;
+    line-height: 1.2;
+  }
+
   .rate-plans-section .table-wrapper {
     max-width: 100%;
     overflow-x: auto;
-    /* Scroll-clipping makes overflow-y compute to auto too; the padding/margin
-       pair keeps room inside the scrollport for the row tooltips that open
-       upward, so they aren't cut off at the wrapper's top edge. */
-    padding-top: 7rem;
-    margin-top: -7rem;
+    padding-top: 0;
+    margin-top: 0;
   }
 
   @media (min-width: 80rem) {
@@ -616,8 +619,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   /* Head, cells, rows and hover: src/styles/table.css. */
 
   .plans-table__small-text {
+    display: block;
+    max-width: 100%;
     font-weight: normal;
     font-size: var(--sl-text-2xs);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .plans-table__main-text {
@@ -657,27 +664,19 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     }
 
     .rate-plans-section .plans-table thead {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
+      display: none;
     }
 
     .rate-plans-section .plans-table tr {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 0.45rem 0.75rem;
+      gap: 4px 8px;
       width: 100%;
       box-sizing: border-box;
       border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
       border-radius: var(--aifs-table-radius);
-      margin: 0 0 0.75rem;
-      padding: 0.85rem;
+      margin: 0 0 6px;
+      padding: 8px;
     }
 
     .rate-plans-section .plans-table td {
