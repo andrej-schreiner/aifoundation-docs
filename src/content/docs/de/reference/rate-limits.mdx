@@ -74,7 +74,9 @@ Manche `429`-Antworten haben diese Ursache: Anfragen, die ein clientseitiger Tim
 Antworten von Azure-gehosteten Modellen (GPT, o-Serie) enthalten Header, die Ihnen helfen, die Nutzung im Verhältnis zu den Limits zu verfolgen:
 
 :::note
-Rate-Limit-Header werden derzeit von Azure-gehosteten Modellen zurückgegeben (z. B. `gpt-5`, `gpt-5-mini`). Open-Source-Modelle, die auf T-Cloud gehostet werden (z. B. `gpt-oss-120b`), geben diese Header nicht zurück.
+Rate-Limit-Header werden derzeit von Azure-gehosteten Modellen zurückgegeben. Open-Source-Modelle auf T-Cloud (zum Beispiel `gpt-oss-120b`) geben diese Header nicht zurück.
+
+<div set:html="<!-- TODO(andrej): die veröffentlichten Beispiele dieser Header nutzten gpt-5 und gpt-5-mini. Dieselben Header auf gpt-6.1-sol bestätigen; dieses Beispiel ruft jetzt diese ID auf. -->"></div>
 :::
 
 | Header | Beschreibung |
@@ -100,7 +102,7 @@ response = httpx.post(
     "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-5",
+        "model": "gpt-6.1-sol",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -119,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-5",
+    "model": "gpt-6.1-sol",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'

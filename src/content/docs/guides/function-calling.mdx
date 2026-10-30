@@ -60,7 +60,7 @@ Function calling lets models generate structured JSON arguments for functions yo
     ]
 
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="GLM-5.3",
         messages=messages,
         tools=tools,
     )
@@ -116,7 +116,7 @@ tools = [
 ]
 
 response = client.responses.create(
-    model="gpt-5",
+    model="GLM-5.3",
     input=[{"role": "user", "content": "What is the weather like in Paris today?"}],
     tools=tools,
 )
@@ -127,7 +127,7 @@ print(response.output)
 
 ## Structured output
 
-JSON Schema on the Responses API is documented on [Structured outputs](/guides/structured-outputs). The example that was here, including `gpt-5`, moved there unchanged.
+JSON Schema on the Responses API is documented on [Structured outputs](/guides/structured-outputs).
 
 ## Limitations and troubleshooting
 
@@ -138,7 +138,7 @@ The Responses API is not limited to OpenAI models either — tool calls through 
 :::
 
 
-## Next Steps
+## Next steps
 
 - [Streaming](/guides/streaming) — Stream function calling responses in real-time
 - [Chat Completions](/guides/chat-completions) — Basic chat API usage

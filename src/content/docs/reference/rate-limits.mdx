@@ -74,7 +74,9 @@ Some `429` responses are caused by this: requests spaced 60 seconds apart by a c
 Responses from Azure-hosted models (GPT, o-series) include headers that help you track usage against limits:
 
 :::note
-Rate limit headers are currently returned by Azure-hosted models (e.g., `gpt-5`, `gpt-5-mini`). Open-source models hosted on T-Cloud (e.g., `gpt-oss-120b`) do not return these headers.
+Rate limit headers are currently returned by Azure-hosted models. Open-source models hosted on T-Cloud (for example `gpt-oss-120b`) do not return these headers.
+
+<div set:html="<!-- TODO(andrej): the published examples of these headers used gpt-5 and gpt-5-mini. Confirm the same headers on gpt-6.1-sol, which this sample now calls. -->"></div>
 :::
 
 | Header | Description |
@@ -100,7 +102,7 @@ response = httpx.post(
     "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-5",
+        "model": "gpt-6.1-sol",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -119,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-5",
+    "model": "gpt-6.1-sol",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'

@@ -205,7 +205,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4.6",
+        model="claude-sonnet-5",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-4.6",
+        "model": "claude-sonnet-5",
         "messages": [
           {
             "role": "system",

@@ -1,6 +1,6 @@
 ---
 title: "Reasoning Control"
-description: "Control chain-of-thought depth with the `reasoning_effort` parameter on reasoning-capable models such as GPT-5, Gemini 3, and Claude 4.6."
+description: "Control chain-of-thought depth with the reasoning_effort parameter. Accepted values come from the platform datasheet and differ by model."
 ---
 
 
@@ -52,12 +52,12 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4.6",
+        model="GLM-5.3",
         messages=[
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
         ],
-        reasoning_effort="low",  # "low", "medium", or "high"
+        reasoning_effort="high",  # "low", "medium", or "high"
     )
 
     print(response.choices[0].message.content)
@@ -65,7 +65,7 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
   </TabItem>
 </Tabs>
 
-The sample uses `reasoning_effort="low"` on `claude-sonnet-4.6`. That model retires on 2026-10-31. The datasheet table above is the list of values per model still in the catalog. Do not assume every model accepts only `low`, `medium`, and `high`.
+The sample uses `reasoning_effort="high"` on `GLM-5.3`. The datasheet lists `none`, `high`, and `max` for that model. Do not assume every model accepts the same values.
 
 
 ## Disabling Reasoning for Qwen 3.6
@@ -78,7 +78,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen3.6-35B-A3B-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},

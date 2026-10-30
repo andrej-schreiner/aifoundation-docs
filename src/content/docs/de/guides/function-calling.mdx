@@ -60,7 +60,7 @@ Function Calling ermöglicht es Modellen, strukturierte JSON-Argumente für von 
     ]
 
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="GLM-5.3",
         messages=messages,
         tools=tools,
     )
@@ -116,7 +116,7 @@ tools = [
 ]
 
 response = client.responses.create(
-    model="gpt-5",
+    model="GLM-5.3",
     input=[{"role": "user", "content": "What is the weather like in Paris today?"}],
     tools=tools,
 )
@@ -127,7 +127,7 @@ print(response.output)
 
 ## Strukturierte Ausgabe
 
-JSON Schema auf der Responses API steht unter [Strukturierte Ausgaben](/de/guides/structured-outputs). Das Beispiel, das hier stand, einschließlich `gpt-5`, ist unverändert dorthin gezogen.
+JSON Schema auf der Responses API steht unter [Strukturierte Ausgaben](/de/guides/structured-outputs).
 
 ## Grenzen und Fehlersuche
 

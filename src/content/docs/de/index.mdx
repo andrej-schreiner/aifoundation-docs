@@ -163,13 +163,13 @@ Ausführlich: [Streaming](/de/guides/streaming).
 
 ### Function Calling
 
-Die Function-Calling-Anleitung sendet diese Form mit `gpt-5`. Dieses Modell wird am 31.10.2026 stillgelegt; die [Abkündigungsseite](/de/models/deprecations) nennt den Ersatz. Das Snippet bleibt unverändert, damit die ID zur Anleitung passt.
+Die Function-Calling-Anleitung verwendet diese Form. Die Modell-ID ist `GLM-5.3`.
 
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="GLM-5.3",
         messages=[{"role": "user", "content": "What's the weather like today in Hamburg?"}],
         tools=[{
             "type": "function",
@@ -194,13 +194,13 @@ Die Function-Calling-Anleitung sendet diese Form mit `gpt-5`. Dieses Modell wird
 
 ### Strukturierte Ausgabe
 
-Dieselbe Quelle wie das JSON-Schema-Beispiel in der Function-Calling-Anleitung, einschließlich `gpt-5` und der Responses API. Siehe [Strukturierte Ausgaben](/de/guides/structured-outputs).
+Dieselbe JSON-Schema-Form wie unter [Strukturierte Ausgaben](/de/guides/structured-outputs). Die Modell-ID ist `gpt-6.1-sol`, der auf der Abkündigungsseite genannte Ersatz für GPT-5.
 
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-6.1-sol",
         input="Extract structured product information: Premium Laptop Backpack, $79.99.",
         text={
             "format": {
@@ -240,7 +240,7 @@ Das Datenblatt listet für `gpt-oss-120b` die Werte `low`, `medium` und `high`. 
 
 ### Vision
 
-<div set:html="<!-- TODO(andrej): dieses Beispiel nutzt Qwen3.6-35B-A3B-FP8, die ID aus der Vision-Anleitung. Die Katalog-ID ist Qwen-3.6-35B-FP8. Bitte bestätigen, welche ID veröffentlicht wird. -->"></div>
+<div set:html="<!-- TODO(andrej): dieses Beispiel nutzt Qwen-3.6-35B-FP8, die ID aus der Vision-Anleitung. Die Katalog-ID ist Qwen-3.6-35B-FP8. Bitte bestätigen, welche ID veröffentlicht wird. -->"></div>
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -249,7 +249,7 @@ Das Datenblatt listet für `gpt-oss-120b` die Werte `low`, `medium` und `high`. 
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Qwen3.6-35B-A3B-FP8",
+        "model": "Qwen-3.6-35B-FP8",
         "messages": [{
           "role": "user",
           "content": [
@@ -264,7 +264,7 @@ Das Datenblatt listet für `gpt-oss-120b` die Werte `low`, `medium` und `high`. 
   <TabItem value="python" label="Python">
     ```python
     response = client.chat.completions.create(
-        model="Qwen3.6-35B-A3B-FP8",
+        model="Qwen-3.6-35B-FP8",
         messages=[{
             "role": "user",
             "content": [
@@ -280,7 +280,7 @@ Das Datenblatt listet für `gpt-oss-120b` die Werte `low`, `medium` und `high`. 
   <TabItem value="node" label="Node.js">
     ```javascript
     const response = await client.chat.completions.create({
-      model: "Qwen3.6-35B-A3B-FP8",
+      model: "Qwen-3.6-35B-FP8",
       messages: [{
         role: "user",
         content: [

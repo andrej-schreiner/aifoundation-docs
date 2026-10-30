@@ -140,7 +140,7 @@ Mit einer aktuellen Version des OpenAI Python-Pakets können Sie die Responses A
     client = OpenAI()
 
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-oss-120b",
         input="Write a one-sentence bedtime story about a unicorn.",
     )
 
@@ -153,7 +153,7 @@ Sie können auch die Felder input und instructions gemeinsam verwenden:
 
 ```python showLineNumbers
 response = client.responses.create(
-    model="gpt-5",
+    model="gpt-oss-120b",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
     max_output_tokens=2000,
@@ -163,7 +163,7 @@ print(response.output_text)
 ```
 
 :::note
-Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Calls und Streaming sind bestätigt für OpenAI-Modelle (`gpt-5`), Google-Modelle (`gemini-3-flash`), Anthropic-Modelle (`claude-sonnet-4.6`) und T-Cloud-gehostete Open-Source-Modelle (`gpt-oss-120b`). Die Abdeckung ist jedoch noch nicht vollständig: Einzelne Modelle weisen Responses-API-Anfragen mit HTTP 400 zurück. Nutzen Sie in dem Fall die Chat Completions API, die überall unterstützt wird.
+Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Calls und Streaming sind bestätigt für T-Cloud-gehostete Open-Source-Modelle (`gpt-oss-120b`). Die Abdeckung ist jedoch noch nicht vollständig: Einzelne Modelle weisen Responses-API-Anfragen mit HTTP 400 zurück. Nutzen Sie in dem Fall die Chat Completions API, die überall unterstützt wird.
 :::
 
 

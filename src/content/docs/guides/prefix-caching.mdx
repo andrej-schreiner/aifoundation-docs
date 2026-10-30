@@ -205,7 +205,7 @@ This requires the structured content-block form of a message (a list of parts in
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4.6",
+        model="claude-sonnet-5",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ This requires the structured content-block form of a message (a list of parts in
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-4.6",
+        "model": "claude-sonnet-5",
         "messages": [
           {
             "role": "system",
@@ -339,7 +339,7 @@ The per-model cached price is listed in the **Cached Input Token Price** column 
 - **Short prefixes are not cached.** Below roughly a thousand tokens of shared prefix, expect no measurable reuse.
 
 
-## Next Steps
+## Next steps
 
 - [Chat Completions](/guides/chat-completions) — Standard chat API usage
 - [Streaming](/guides/streaming) — Combine with streaming for the lowest perceived latency

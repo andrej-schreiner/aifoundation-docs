@@ -2,6 +2,7 @@
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { isRetiringModel } from '../shared/lib/choosingModels';
 import { hostingUnconfirmed } from '../shared/lib/launchModels';
 import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
@@ -340,7 +341,7 @@ for (const pkg of pricingData as Array<{
 }>) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const exactModelName = entry.exactModelName as string;
-    if (isHiddenModel(exactModelName)) continue;
+    if (isHiddenModel(exactModelName) || isRetiringModel(exactModelName)) continue;
     const existing = byName.get(exactModelName);
     if (existing) {
       if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);

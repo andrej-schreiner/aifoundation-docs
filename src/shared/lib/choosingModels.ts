@@ -9,7 +9,7 @@ export const LAST_REVIEWED = '2026-10-30';
  * exact ids whose display names are on /models/deprecations for 2026-10-31
  * or 2026-11-30. They stay out of every recommendation.
  */
-const RETIRING = new Set(
+export const RETIRING_MODEL_IDS = new Set(
   [
     'gpt-5-nano',
     'gpt-5-mini',
@@ -27,6 +27,11 @@ const RETIRING = new Set(
     'gemini-3-flash',
   ].map((id) => id.toLowerCase()),
 );
+
+/** Models retiring on 2026-10-31 or 2026-11-30. They stay on the deprecations page only. */
+export function isRetiringModel(exactModelName: string | undefined): boolean {
+  return RETIRING_MODEL_IDS.has((exactModelName ?? '').toLowerCase());
+}
 
 interface Quota {
   exactModelName: string;
@@ -56,7 +61,7 @@ const byId = new Map<string, ModelFact>();
 for (const pkg of pricingData as Package[]) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const id = entry.exactModelName;
-    if (isHiddenModel(id) || RETIRING.has(id.toLowerCase())) continue;
+    if (isHiddenModel(id) || isRetiringModel(id)) continue;
     const existing = byId.get(id);
     if (existing) {
       if (pkg.packageName === 'Test' && existing.preview === false) {

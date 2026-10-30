@@ -1,6 +1,6 @@
 ---
 import InlineNotification from './InlineNotification.astro';
-import { CHOICE_ROWS, LAST_REVIEWED, MIGRATION_ROWS, modelFact } from '../shared/lib/choosingModels';
+import { CHOICE_ROWS, LAST_REVIEWED, modelFact } from '../shared/lib/choosingModels';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
@@ -106,40 +106,10 @@ function contextCell(recommended: string, alternative: string): string {
 
 <h2>{t.migrate}</h2>
 
-<!-- TODO(andrej): confirm the OpenAI, Anthropic, and Google names in this migration section before it leaves draft. -->
-
 <p>
   {isDE
-    ? 'Die Namen und Ersatzmodelle stammen von der Abkündigungsseite. Das ist keine Aussage darüber, ob eine Anfrage unverändert funktioniert.'
-    : 'The names and replacements come from the deprecations page. This is not a claim that a request works unchanged.'}
+    ? 'Modelle mit Stilllegung am 31.10.2026 oder 30.11.2026 stehen nur noch auf der Abkündigungsseite, mit Datum und genanntem Ersatz.'
+    : 'Models that retire on 2026-10-31 or 2026-11-30 are listed only on the deprecations page, with the date and the named replacement.'}
   {' '}
   <a href={`${prefix}/models/deprecations`}>{t.deprecations}</a>.
 </p>
-
-<div class="aifs-table-scroll">
-  <table>
-    <thead>
-      <tr>
-        <th>{t.from}</th>
-        <th>{t.replacement}</th>
-        <th>{t.where}</th>
-        <th>{t.context}</th>
-        <th>{t.notes}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {MIGRATION_ROWS.map((row) => {
-        const replacement = modelFact(row.replacement);
-        return (
-          <tr>
-            <td>{isDE ? row.from.de : row.from.en}</td>
-            <td>{replacement.name}</td>
-            <td>{place(replacement.hosting)}</td>
-            <td>{contextLabel(replacement.context)}</td>
-            <td>{isDE ? row.note.de : row.note.en}</td>
-          </tr>
-        );
-      })}
-    </tbody>
-  </table>
-</div>

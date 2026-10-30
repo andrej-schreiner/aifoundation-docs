@@ -20,7 +20,7 @@ The Chat Completions API is the primary way to interact with LLMs on AI Foundati
 - Key parameters for controlling output
 
 
-## Basic Usage
+## Basic usage
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -140,7 +140,7 @@ Using an up-to-date version of the OpenAI Python package, you can use the Respon
     client = OpenAI()
 
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-oss-120b",
         input="Write a one-sentence bedtime story about a unicorn.",
     )
 
@@ -153,7 +153,7 @@ You can also use both input and instructions fields:
 
 ```python showLineNumbers
 response = client.responses.create(
-    model="gpt-5",
+    model="gpt-oss-120b",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
     max_output_tokens=2000,
@@ -163,7 +163,7 @@ print(response.output_text)
 ```
 
 :::note
-The Responses API works with models from several providers — text, tool calls and streaming are all confirmed on OpenAI models (`gpt-5`), Google models (`gemini-3-flash`), Anthropic models (`claude-sonnet-4.6`) and T-Cloud-hosted open-source models (`gpt-oss-120b`). Coverage is still not universal: a few models reject Responses API requests and return HTTP 400. If you hit one, use the Chat Completions API, which is supported everywhere.
+The Responses API works with models from several providers — text, tool calls and streaming are all confirmed on T-Cloud-hosted open-source models (`gpt-oss-120b`). Coverage is still not universal: a few models reject Responses API requests and return HTTP 400. If you hit one, use the Chat Completions API, which is supported everywhere.
 :::
 
 

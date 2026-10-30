@@ -10,6 +10,7 @@ import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { isRetiringModel } from '../shared/lib/choosingModels';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
@@ -400,6 +401,7 @@ const plansData = allPricing
     if (!selectedPlanId && (!config || !config.isFilterAvailable)) return null;
     if (selectedPlanId && plan.packageName !== selectedPlanId) return null;
     const models = (plan.modelQuotaConfigs || [])
+      .filter((m: any) => !isRetiringModel(m.exactModelName))
       .map((m: any) => {
         const unconfirmed = hostingUnconfirmed(m.exactModelName) || !m.deploymentRegion;
         const modelHost = unconfirmed ? '' : parseModelHost(m.deploymentRegion);

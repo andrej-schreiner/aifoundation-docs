@@ -21,7 +21,7 @@ import os
 from llama_index.llms.azure_openai import AzureOpenAI
 
 llm = AzureOpenAI(
-    deployment_name="gpt-5",
+    deployment_name="gpt-6.1-sol",
     api_key=os.getenv("OPENAI_API_KEY"),
     azure_endpoint=os.getenv("OPENAI_BASE_URL"),
     api_version="2023-07-01-preview",

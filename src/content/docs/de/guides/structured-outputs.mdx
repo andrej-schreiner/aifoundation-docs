@@ -15,7 +15,7 @@ Text in JSON überführen, das einem Schema folgt. Diese Seite ist das JSON-Sche
 
 ## Minimales Beispiel
 
-Die Modell-ID ist `gpt-5`, die ID aus dem ursprünglichen Beispiel. Dieses Modell wird am 31.10.2026 stillgelegt. Die [Abkündigungsseite](/de/models/deprecations) nennt GPT-6.1 Sol als Ersatz. Das Snippet bleibt unverändert.
+Die Modell-ID ist `gpt-6.1-sol`, der Ersatz, den die [Abkündigungsseite](/de/models/deprecations) für GPT-5 nennt.
 
 ```python
 import json
@@ -30,7 +30,7 @@ Price: $79.99, on sale for $64.99.
 """
 
 response = client.responses.create(
-    model="gpt-5",
+    model="gpt-6.1-sol",
     input=f"Extract structured product information: {description}",
     max_output_tokens=2000,
     text={
@@ -77,7 +77,9 @@ Die Felder im Beispiel sind `model`, `input`, `max_output_tokens` und `text.form
 
 ## Grenzen und Fehlersuche
 
-Die Chat-Completions-Anleitung sagt, die Responses API sei für Text, Tool Calls und Streaming auf `gpt-5`, `gemini-3-flash`, `claude-sonnet-4.6` und `gpt-oss-120b` bestätigt, und dass einige Modelle weiterhin HTTP 400 liefern. Die drei Partner-IDs stehen auf der Stilllegungsliste. Wenn ein Modell die Responses API ablehnt, sagt dieselbe Notiz, Chat Completions zu verwenden.
+Die Chat-Completions-Anleitung sagt, die Responses API sei für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt, und dass einige Modelle weiterhin HTTP 400 liefern. Wenn ein Modell die Responses API ablehnt, Chat Completions verwenden.
+
+<div set:html="<!-- TODO(andrej): json_schema auf gpt-6.1-sol ist der für GPT-5 genannte Ersatz. Bestätigen, dass dieses Modell dieselbe text.format-Nutzlast akzeptiert. -->"></div>
 
 Function Calling, das JSON-Argumente für ein von Ihnen definiertes Tool liefert, bleibt unter [Function Calling](/de/guides/function-calling).
 
@@ -86,5 +88,5 @@ Function Calling, das JSON-Argumente für ein von Ihnen definiertes Tool liefert
 <div class="link-card-row">
   <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools und JSON-Argumente." />
   <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Die Responses-API-Notiz und Chat-Parameter." />
-  <LinkCard title="Abkündigungen" href="/de/models/deprecations" description="gpt-5 wird am 31.10.2026 stillgelegt." />
+  <LinkCard title="Abkündigungen" href="/de/models/deprecations" description="Termine und genannte Ersatzmodelle." />
 </div>

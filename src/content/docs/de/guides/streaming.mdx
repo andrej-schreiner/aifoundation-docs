@@ -202,7 +202,7 @@ tools = [
 ]
 
 stream = client.chat.completions.create(
-    model="gpt-5",
+    model="GLM-5.3",
     messages=[{"role": "user", "content": "What's the weather in Berlin?"}],
     tools=tools,
     stream=True,

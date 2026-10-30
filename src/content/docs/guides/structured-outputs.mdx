@@ -15,7 +15,7 @@ Parse text into JSON that follows a schema. This page is the JSON Schema example
 
 ## Minimal example
 
-The model id is `gpt-5`, the id in the original example. That model retires on 2026-10-31. The [deprecations page](/models/deprecations) names GPT-6.1 Sol as a replacement. The snippet is unchanged.
+The model id is `gpt-6.1-sol`, the replacement the [deprecations page](/models/deprecations) names for GPT-5.
 
 ```python
 import json
@@ -30,7 +30,7 @@ Price: $79.99, on sale for $64.99.
 """
 
 response = client.responses.create(
-    model="gpt-5",
+    model="gpt-6.1-sol",
     input=f"Extract structured product information: {description}",
     max_output_tokens=2000,
     text={
@@ -77,7 +77,9 @@ The fields in the example are `model`, `input`, `max_output_tokens`, and `text.f
 
 ## Limitations and troubleshooting
 
-The chat-completions guide says the Responses API is confirmed for text, tool calls, and streaming on `gpt-5`, `gemini-3-flash`, `claude-sonnet-4.6`, and `gpt-oss-120b`, and that some models still return HTTP 400. Those three partner ids are on the retirement list. If a model rejects the Responses API, the same note says to use Chat Completions.
+The chat-completions guide says the Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`, and that some models still return HTTP 400. If a model rejects the Responses API, use Chat Completions.
+
+<div set:html="<!-- TODO(andrej): json_schema on gpt-6.1-sol is the replacement named for GPT-5. Confirm that this model accepts the same text.format payload. -->"></div>
 
 Function calling, which returns JSON arguments for a tool you defined, stays on [Function calling](/guides/function-calling).
 
@@ -86,5 +88,5 @@ Function calling, which returns JSON arguments for a tool you defined, stays on 
 <div class="link-card-row">
   <LinkCard title="Function calling" href="/guides/function-calling" description="Tools and JSON arguments." />
   <LinkCard title="Chat completions" href="/guides/chat-completions" description="The Responses API note and chat parameters." />
-  <LinkCard title="Deprecations" href="/models/deprecations" description="gpt-5 retires on 2026-10-31." />
+  <LinkCard title="Deprecations" href="/models/deprecations" description="Dates and named replacements." />
 </div>

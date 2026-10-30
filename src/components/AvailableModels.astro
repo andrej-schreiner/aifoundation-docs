@@ -6,6 +6,7 @@ import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/al
 import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { isRetiringModel } from '../shared/lib/choosingModels';
 import { hostingUnconfirmed } from '../shared/lib/launchModels';
 
 // Locale detection (mirrors PlansPage.astro pattern)
@@ -118,7 +119,7 @@ interface ModelCard {
 
 // Build model cards from pricing data (filtering out offline models)
 const pricingModels: ModelCard[] = configs
-  .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName))
+  .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName) && !isRetiringModel(c.exactModelName))
   .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; isPreview: boolean }) => {
     const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
       c.deploymentRegion,

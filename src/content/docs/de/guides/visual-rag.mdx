@@ -188,7 +188,7 @@ for ctx in contexts:
 
 # 3. Get answer from LLM
 response = llm_client.chat.completions.create(
-    model="claude-sonnet-4.6",
+    model="Qwen-3.6-35B-FP8",
     messages=[{"role": "user", "content": content}],
     max_tokens=2048,
 )

@@ -44,24 +44,14 @@ export const MODEL_CATALOG_ORDER = [
   'Claude Opus 5.5', // Newest Opus. Retirement table: replaces Opus 4.6 and Opus 4.8. Premium tier.
   'Claude Fable 5', // Premium, generation 5, highest token price in the catalog. Unsure: the name is not Opus/Sonnet/Haiku, and it is not the documented Opus successor.
   'Claude Opus 5', // Previous Opus. Retirement table: replaces retired Claude 4.5 Opus.
-  'Claude Opus 4.8', // Older Opus, premium. Retires 2026-10-31 in favour of Opus 5.5.
-  'Claude 4.6 Opus', // Older Opus, premium. Same retirement entry.
   'GPT-5.6 Sol', // Generation 5.6, Sol — the same name as the GPT-6.1 flagship. Highest price of the three 5.6 names.
-  'GPT 5.5', // Older full GPT. Retires 2026-10-31 in favour of GPT-6.1 Sol.
-  'GPT 5.4', // Older full GPT. Same retirement entry.
-  'GPT-5', // Older full GPT. Same retirement entry.
   'Gemini 3.1 Pro (≤200k)', // Newer Pro (3.1). Retirement table: replaces Gemini 3 Pro.
   'Gemini 3.1 Pro (>200k)', // Same model, long-context price.
-  'Gemini 3 Pro (≤200k)', // Older Pro. Retires 2026-10-31 in favour of Gemini 3.1 Pro.
-  'Gemini 3 Pro (>200k)', // Same model, long-context price.
 
   // --- Hyperscalers: mid (Sonnet, Terra, Medium, coding, image) ---
   'Claude Sonnet 5.5', // Newest Sonnet. Retirement table: replaces Claude 4.6 Sonnet and Claude 4.5 Haiku.
   'Claude Sonnet 5', // Previous Sonnet. Retirement table: replaces retired Claude 4.5 Sonnet.
-  'Claude 4.6 Sonnet', // Older Sonnet. Retires 2026-10-31 in favour of Sonnet 5.5.
   'GPT-5.6 Terra', // Price sits between 5.6 Sol and 5.6 Luna. Unsure: the name has no size token.
-  'GPT-5 Codex', // GPT-5 coding model, not a full or mini name.
-  'Mistral Medium 3', // Provider tier "Medium", generation 3, hosted on GCP.
   'Gemini 3 Pro Image', // Pro image model. Unsure: placed after chat mids because it is a different task, not a smaller Gemini.
   'GPT Image 2', // Image model. Retirement table: replaces GPT Image 1.
 
@@ -69,13 +59,8 @@ export const MODEL_CATALOG_ORDER = [
   'GPT-6 Luna (≤272k)', // Newest small GPT. Retirement table: replaces GPT-5 nano, GPT-5 mini, and GPT 5.4 mini.
   'GPT-6 Luna (>272k)', // Same model, long-context price.
   'GPT-5.6 Luna', // 5.6 small name. Lowest token price of the three 5.6 names.
-  'GPT 5.4 mini', // Mini. Retires 2026-10-31 in favour of GPT-6 Luna.
-  'GPT-5 mini', // Mini of GPT-5. Same retirement entry.
-  'GPT-5 nano', // Smallest GPT-5 name. Same retirement entry.
-  'Claude 4.5 Haiku', // Smallest Claude name. Retires 2026-10-31 in favour of Sonnet 5.5.
   'Gemini 3.8 Flash', // Newest Flash. Retirement table: replaces Gemini 3 Flash.
   'Gemini 3.5 Flash', // Previous Flash generation.
-  'Gemini 3 Flash', // Older Flash. Retires 2026-11-30 in favour of Gemini 3.8 Flash.
 
   // --- Hyperscalers: embeddings last in the group ---
   'Ada Text Embedding', // Azure embedding.

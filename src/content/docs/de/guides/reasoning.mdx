@@ -1,6 +1,6 @@
 ---
 title: "Reasoning"
-description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf Reasoning-fähigen Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
+description: "Tiefe des Chain-of-Thought mit dem Parameter reasoning_effort steuern. Die zulässigen Werte stehen im Datenblatt und unterscheiden sich je Modell."
 ---
 
 
@@ -52,12 +52,12 @@ Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat &
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4.6",
+        model="GLM-5.3",
         messages=[
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
         ],
-        reasoning_effort="low",  # "low", "medium", or "high"
+        reasoning_effort="high",  # "low", "medium", or "high"
     )
 
     print(response.choices[0].message.content)
@@ -65,7 +65,7 @@ Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat &
   </TabItem>
 </Tabs>
 
-Das Beispiel setzt `reasoning_effort="low"` auf `claude-sonnet-4.6`. Dieses Modell wird am 31.10.2026 stillgelegt. Die Datenblatt-Tabelle oben ist die Werteliste je Modell, das noch im Katalog steht. Nicht davon ausgehen, dass jedes Modell nur `low`, `medium` und `high` akzeptiert.
+Das Beispiel setzt `reasoning_effort="high"` auf `GLM-5.3`. Das Datenblatt listet für dieses Modell `none`, `high` und `max`. Nicht davon ausgehen, dass jedes Modell dieselben Werte akzeptiert.
 
 
 ## Reasoning für Qwen 3.6 deaktivieren
@@ -78,7 +78,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen3.6-35B-A3B-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},

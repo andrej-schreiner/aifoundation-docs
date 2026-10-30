@@ -98,9 +98,15 @@ https://llm-server.llmhub.t-systems.net/v2
 This is the OpenAI-compatible endpoint. For the full API specification, see the [API Reference](https://llm-server.llmhub.t-systems.net/redoc).
 
 
-## Best Practices
+## Best practices
 
 - **Never commit API keys** to version control. Use `.env` files and add them to `.gitignore`.
 - **Use environment variables** in production rather than hardcoding keys.
 - **Rotate keys regularly** via the [API Key Portal](https://apikey.llmhub.t-systems.net/).
 - **Monitor usage** through the API Key Portal to track token consumption and costs.
+
+## Next steps
+
+- [Quickstart](/) sends the first chat request with this key.
+- [Choosing a model](/getting-started/choosing-a-model) picks a live model.
+- [Error codes](/reference/error-codes) covers 401 and 403.

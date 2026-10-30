@@ -163,13 +163,13 @@ Full streaming notes: [Streaming](/guides/streaming).
 
 ### Function calling
 
-The function-calling guide sends this shape with `gpt-5`. That model retires on 2026-10-31; the [deprecations page](/models/deprecations) names the replacement. The snippet is unchanged so the id matches the guide.
+The function-calling guide uses this shape. The model id is `GLM-5.3`.
 
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="GLM-5.3",
         messages=[{"role": "user", "content": "What's the weather like today in Hamburg?"}],
         tools=[{
             "type": "function",
@@ -194,13 +194,13 @@ The function-calling guide sends this shape with `gpt-5`. That model retires on 
 
 ### Structured output
 
-Same source as the JSON Schema example on the function-calling guide, including `gpt-5` and the Responses API. See [Structured outputs](/guides/structured-outputs).
+Same JSON Schema shape as [Structured outputs](/guides/structured-outputs). The model id is `gpt-6.1-sol`, the replacement named for GPT-5 on the deprecations page.
 
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-6.1-sol",
         input="Extract structured product information: Premium Laptop Backpack, $79.99.",
         text={
             "format": {
@@ -240,7 +240,7 @@ The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models
 
 ### Vision
 
-<div set:html="<!-- TODO(andrej): this sample uses Qwen3.6-35B-A3B-FP8, the id already in the vision guide. The catalog id is Qwen-3.6-35B-FP8. Confirm which id to publish. -->"></div>
+<div set:html="<!-- TODO(andrej): this sample uses Qwen-3.6-35B-FP8, the id already in the vision guide. The catalog id is Qwen-3.6-35B-FP8. Confirm which id to publish. -->"></div>
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -249,7 +249,7 @@ The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Qwen3.6-35B-A3B-FP8",
+        "model": "Qwen-3.6-35B-FP8",
         "messages": [{
           "role": "user",
           "content": [
@@ -264,7 +264,7 @@ The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models
   <TabItem value="python" label="Python">
     ```python
     response = client.chat.completions.create(
-        model="Qwen3.6-35B-A3B-FP8",
+        model="Qwen-3.6-35B-FP8",
         messages=[{
             "role": "user",
             "content": [
@@ -280,7 +280,7 @@ The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models
   <TabItem value="node" label="Node.js">
     ```javascript
     const response = await client.chat.completions.create({
-      model: "Qwen3.6-35B-A3B-FP8",
+      model: "Qwen-3.6-35B-FP8",
       messages: [{
         role: "user",
         content: [
