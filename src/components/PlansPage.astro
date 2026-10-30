@@ -591,7 +591,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tiles {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 8px;
     margin: 0;
     padding: 0;
     list-style: none;
@@ -601,11 +601,11 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tile {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
     min-width: 0;
     height: 100%;
     margin: 0;
-    padding: 16px 14px;
+    padding: 12px 10px;
     border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
     border-radius: var(--aifs-radius-card);
     background: var(--aifs-color-surface-chrome);
@@ -624,7 +624,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tile__price {
     margin: 0;
     color: var(--aifs-color-text-body);
-    font-size: 1.75rem;
+    font-size: 1.5rem;
     font-weight: 700;
     line-height: 1.1;
   }
@@ -754,15 +754,15 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     line-height: 1.35;
   }
 
-  /* ~920px viewport with the sidebar open is about 34rem of content: 2×2.
-     Phones stay one column. Four across starts at 1100px of content. */
+  /* Phones stay one column. Two by two until four cards of about 215px fit.
+     With the sidebar open that is 1280 (content about 854px) and 1440. */
   @container rateplans (min-width: 34rem) {
     .plan-tiles {
       grid-template-columns: 1fr 1fr;
     }
   }
 
-  @container rateplans (min-width: 68.75rem) {
+  @container rateplans (min-width: 53rem) {
     .plan-tiles {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
