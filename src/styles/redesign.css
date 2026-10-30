@@ -53,15 +53,15 @@
 }
 
 :root[data-theme='dark'] {
-	--aifs-d-bg: #141414;
-	--aifs-d-surface: #202020;
-	--aifs-d-raised: #2e2e2e;
-	--aifs-d-code: #1c1c1c;
-	--aifs-d-border: #414141;
-	--aifs-d-border-strong: #8c8c8c;
-	--aifs-d-text: #f5f5f5;
-	--aifs-d-text-body: #e6e6e6;
-	--aifs-d-text-muted: #cccccc;
+	/* Live docs.llmhub.t-systems.net dark greys (Starlight defaults). */
+	--aifs-d-bg: hsl(224, 10%, 10%); /* #17181c page */
+	--aifs-d-surface: hsl(224, 14%, 16%); /* #23262f gray-6 */
+	--aifs-d-raised: hsl(224, 10%, 23%); /* #353841 gray-5 hover */
+	--aifs-d-border: hsl(224, 10%, 23%);
+	--aifs-d-border-strong: hsl(224, 7%, 36%);
+	--aifs-d-text: hsl(0, 0%, 100%);
+	--aifs-d-text-body: hsl(224, 6%, 77%);
+	--aifs-d-text-muted: hsl(224, 6%, 56%);
 	--aifs-d-link: #ff52a3; /* hover #fff + underline */
 	--aifs-d-magenta: #e20074; /* fills, bars, rules only; never small text */
 	--aifs-d-btn-bg: #e20074;
@@ -70,27 +70,26 @@
 	--aifs-d-btn-hover-text: #e20074;
 	--aifs-d-accent-bar: #e20074;
 	--aifs-d-danger: #ff5470;
-	--sl-color-accent-low: #202020;
+	--sl-color-white: hsl(0, 0%, 100%);
+	--sl-color-gray-1: hsl(224, 20%, 94%);
+	--sl-color-gray-2: hsl(224, 6%, 77%);
+	--sl-color-gray-3: hsl(224, 6%, 56%);
+	--sl-color-gray-4: hsl(224, 7%, 36%);
+	--sl-color-gray-5: hsl(224, 10%, 23%);
+	--sl-color-gray-6: hsl(224, 14%, 16%);
+	--sl-color-gray-7: hsl(224, 14%, 16%);
+	--sl-color-black: hsl(224, 10%, 10%);
+	--sl-color-bg-nav: var(--sl-color-gray-6);
+	--sl-color-bg-sidebar: var(--sl-color-gray-6);
+	--sl-color-accent-low: var(--sl-color-gray-6);
 	--sl-color-accent: #e20074;
 	--sl-color-accent-high: #ff52a3;
 	--sl-color-text-accent: #ff52a3;
-	--sl-color-text-invert: #141414;
-	--sl-color-black: #141414;
-	--sl-color-bg-nav: #141414;
-	--sl-color-bg-sidebar: #141414;
-	--sl-color-gray-1: #f5f5f5;
-	--sl-color-gray-2: #e6e6e6;
-	--sl-color-gray-3: #cccccc;
-	--sl-color-gray-4: #8c8c8c;
-	--sl-color-gray-5: #414141;
-	--sl-color-gray-6: #2e2e2e;
-	/* Same palette, mapped onto the Starlight names the chrome already reads. */
-	--sl-color-white: var(--aifs-d-text);
-	--sl-color-gray-7: var(--aifs-d-surface);
-	--sl-color-bg-inline-code: var(--aifs-d-code);
-	--sl-color-hairline: var(--aifs-d-border);
-	--sl-color-hairline-light: var(--aifs-d-border);
-	--sl-color-hairline-shade: var(--aifs-d-border);
+	--sl-color-text-invert: hsl(224, 10%, 10%);
+	--sl-color-bg-inline-code: var(--sl-color-gray-5);
+	--sl-color-hairline-light: var(--sl-color-gray-5);
+	--sl-color-hairline: var(--sl-color-gray-6);
+	--sl-color-hairline-shade: var(--sl-color-black);
 	--sl-color-bg-accent: var(--aifs-d-magenta);
 	--sl-color-banner-text: var(--aifs-d-btn-text);
 	--sl-shadow-sm: none;
@@ -485,8 +484,8 @@ html:not([data-has-sidebar]) .meta {
 
 :root[data-theme='dark'] .sl-link-card:hover,
 :root[data-theme='dark'] .sl-link-card:focus-within {
-	background: var(--aifs-d-surface);
-	border-color: var(--aifs-d-link);
+	background: var(--aifs-d-raised);
+	border-color: var(--aifs-d-border);
 }
 
 /* Dark content chrome. Light rules above are not restated here. */
@@ -530,8 +529,8 @@ html:not([data-has-sidebar]) .meta {
 :root[data-theme='dark'] .sl-markdown-content th,
 :root[data-theme='dark'] .plans-table th,
 :root[data-theme='dark'] .models-comparison-table thead th {
-	background: var(--aifs-d-raised);
-	color: #ffffff;
+	background: var(--aifs-d-surface);
+	color: var(--aifs-d-text);
 	border-bottom: 2px solid var(--aifs-d-magenta);
 }
 
@@ -544,26 +543,10 @@ html:not([data-has-sidebar]) .meta {
 	text-underline-offset: 2px;
 }
 
-:root[data-theme='dark'] .expressive-code {
-	--ec-codeBg: var(--aifs-d-code);
-	--ec-frm-edBg: var(--aifs-d-surface);
-	--ec-frm-edTabBarBg: var(--aifs-d-surface);
-	--ec-frm-edActTabBg: var(--aifs-d-code);
-	--ec-frm-trmBg: var(--aifs-d-surface);
-	--ec-frm-trmTtbBg: var(--aifs-d-raised);
-	--ec-brdCol: var(--aifs-d-border);
-	--ec-frm-edTabBarBrdCol: var(--aifs-d-border);
-	--ec-frm-edTabBarBrdBtmCol: var(--aifs-d-border);
-	--ec-gtrFg: var(--aifs-d-text-muted);
-	--ec-gtrBrdCol: var(--aifs-d-border);
-	background: var(--aifs-d-surface);
-	border-color: var(--aifs-d-border);
-}
-
 :root[data-theme='dark'] input,
 :root[data-theme='dark'] select,
 :root[data-theme='dark'] textarea {
-	background-color: var(--aifs-d-raised);
+	background-color: var(--aifs-d-surface);
 	color: var(--aifs-d-text);
 	border-color: var(--aifs-d-border);
 }
@@ -585,7 +568,7 @@ html:not([data-has-sidebar]) .meta {
 
 :root[data-theme='dark'] .ts-header label:hover select,
 :root[data-theme='dark'] .ts-header label:focus-within select {
-	background-color: var(--aifs-d-surface);
+	background-color: var(--aifs-d-raised);
 	color: var(--aifs-d-text-body);
 }
 

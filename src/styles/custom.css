@@ -1,6 +1,6 @@
 /* Deutsche Telekom Branding — Starlight CSS Variables */
 :root {
-	--sl-color-accent-low: #3d0019;
+	--sl-color-accent-low: hsl(224, 14%, 16%);
 	--sl-color-accent: #e20074;
 	--sl-color-accent-high: #ff4da6;
 	/* Widen main content area to reduce right-sidebar whitespace */

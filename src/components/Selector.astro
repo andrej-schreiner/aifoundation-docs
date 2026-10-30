@@ -116,7 +116,7 @@ const hasLabel = Boolean(label?.trim());
 
   :global(:root[data-theme='dark']) .selector__control option,
   :global(:root[data-theme='dark']) .selector__control optgroup {
-    background-color: var(--aifs-d-code) !important;
+    background-color: var(--aifs-d-surface) !important;
     color: var(--aifs-d-text);
     color: var(--sl-color-white) !important;
   }
@@ -131,7 +131,7 @@ const hasLabel = Boolean(label?.trim());
     }
 
     :global(:root:not([data-theme='light'])) .selector__control {
-      background-color: var(--aifs-d-raised) !important;
+      background-color: var(--aifs-d-surface) !important;
       background-image: none;
       border-color: var(--aifs-d-border);
       color: var(--aifs-d-text) !important;
@@ -144,7 +144,7 @@ const hasLabel = Boolean(label?.trim());
 
     :global(:root:not([data-theme='light'])) .selector__control option,
     :global(:root:not([data-theme='light'])) .selector__control optgroup {
-      background-color: var(--aifs-d-code) !important;
+      background-color: var(--aifs-d-surface) !important;
       color: var(--aifs-d-text) !important;
     }
 
