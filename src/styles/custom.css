@@ -26,9 +26,9 @@
 }
 
 /* Keep LinkCards and pagination at normal content width on wide plans page */
-.sl-markdown-content:has(.plans-page) .sl-link-card,
+.sl-markdown-content:has(.plans-page) :is(.link-card-row, .card-grid, .sl-link-card),
 .sl-container:has(.plans-page) .pagination-links {
-	max-width: 55rem;
+	max-width: 46rem;
 }
 
 /* Hero Badges */
