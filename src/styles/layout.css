@@ -95,7 +95,7 @@ mobile-starlight-toc nav {
 	/* :first-of-type does not match once the banner row (also a div) sits
 	   above the title. nth-child(1 of .content-panel) is the title panel. */
 	[data-has-sidebar] .main-pane > main > .content-panel:nth-child(1 of .content-panel) {
-		padding-top: 16px;
+		padding-top: var(--aifs-layout-sheet-padding);
 		padding-bottom: 0;
 	}
 
@@ -148,7 +148,8 @@ mobile-starlight-toc nav {
 	width: 100%;
 	box-sizing: border-box;
 	margin: 0;
-	padding: 0 0 8px;
+	/* Same inset as the content column, so the bars share its left edge. */
+	padding: 0 var(--sl-content-pad-x, 1rem) 8px;
 }
 
 /* Below the desktop sheet, the content column was flush with the window.
@@ -190,15 +191,15 @@ mobile-starlight-toc nav {
 	}
 }
 
-/* Running text, code and tables share the content column. A shorter measure
-   left prose inset from the code and table edges. */
+/* Line length: running text stops at the measure (about 75 characters).
+   Code blocks, tables, tabs and cards use the full content width. */
 .sl-markdown-content
-	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *)) {
-	max-width: 100%;
+	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *)) {
+	max-width: var(--aifs-layout-measure);
 }
 
 .content-panel :where(h1, h1 + p) {
-	max-width: 100%;
+	max-width: min(100%, var(--aifs-layout-measure));
 	min-width: 0;
 	box-sizing: border-box;
 }
@@ -228,7 +229,7 @@ mobile-starlight-toc nav {
    Keep a short inset above the title and none below it. The next panel starts
    close under the heading. */
 main > .content-panel:nth-child(1 of .content-panel) {
-	padding-top: 16px;
+	padding-top: var(--aifs-layout-sheet-padding);
 	padding-bottom: 0;
 }
 

@@ -164,21 +164,18 @@ import Icon from './Icon.astro';
     border-radius: 6px;
   }
 
-  /* Phones: one line per bar. The message ellipsizes; the link and dismiss stay. */
+  /* Phones: the message wraps, with compact padding so the bars stay short. */
   @media (max-width: 50rem) {
     .qp-bar {
-      flex-wrap: nowrap;
-      gap: 8px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 6px 8px;
       padding: 6px 8px;
     }
-    .qp-bar :global(.qp-badge) {
-      display: none;
-    }
     .qp-msg {
+      flex: 1 1 12rem;
       min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      white-space: normal;
     }
   }
 
