@@ -684,6 +684,15 @@ const priceBuckets = [
       return models;
     }
 
+    function formatContext(value: number | string | null | undefined) {
+      if (value == null || value === '' || value === 'None' || value === 'null') return emptyMark();
+      const text = String(value).trim();
+      const compact = text.replace(/,/g, '');
+      if (compact === '102400') return '102K';
+      if (/^1050k$/i.test(compact)) return '1.05M';
+      return text;
+    }
+
     function formatNumber(value: number | null | undefined) {
       return value != null ? value.toLocaleString('en-US') : emptyMark();
     }
@@ -814,7 +823,7 @@ const priceBuckets = [
       const creatorName = model.creator || '';
       const creatorIcon = logos[creatorName] || logos.Other || '';
       const loc = `${flagHtml(model.locationCode)}${escapeHtml(model.serverLocation || '')}`;
-      const contextText = model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark();
+      const contextText = formatContext(model.contextWindow);
       const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of Use');
       const privacy = linkItem(model.dataProtectionUrl, translations.linkDataProtection || 'Data Protection');
       const links = terms || privacy ? `${terms}${privacy}` : `<span class="model-links__empty">${emptyMark()}</span>`;
@@ -932,7 +941,7 @@ const priceBuckets = [
           <td class="mt-num"><div class="loc-wrapper">${flagHtml(model.locationCode)}${escapeHtml(model.serverLocation)}</div></td>
           <td class="mt-num">${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
           <td class="mt-num">${formatNumber(model.tpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
-          ${legacy ? '' : `<td class="mt-num">${model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark()}</td>`}
+          ${legacy ? '' : `<td class="mt-num">${escapeHtml(formatContext(model.contextWindow))}</td>`}
           ${legacy ? '' : `<td>
             <span class="model-links">
               ${model.termsOfUseUrl ? `<a href="${escapeHtml(model.termsOfUseUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkTermsOfUse || 'Terms of Use'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}

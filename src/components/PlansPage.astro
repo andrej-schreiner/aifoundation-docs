@@ -132,7 +132,7 @@ const t = {
   cachedPriceNote: isDE
     ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
     : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only; cached token pricing for models on external providers will be added later.`,
-  cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  cachedPriceUnavailable: '—',
   priceTba: isDE ? 'Preis wird noch bekannt gegeben' : 'Pricing to be announced',
   worldwideLocationNote: isDE
     ? 'Weltweit (Worldwide) bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
@@ -334,11 +334,21 @@ const COUNTRY_CODES: Record<string, string> = {
   worldwide: 'globe',
 };
 
+const REGION_DE: Record<string, string> = {
+  germany: 'Deutschland',
+  sweden: 'Schweden',
+  france: 'Frankreich',
+  europe: 'Europa',
+  worldwide: 'weltweit',
+  us: 'USA',
+};
+
 function parseLocation(deploymentRegion: string): { name: string; code: string } {
   const parts = deploymentRegion.toLowerCase().split('-');
   if (parts.length < 2) return { name: deploymentRegion, code: '' };
   const raw = parts[1];
-  const name = raw.charAt(0).toUpperCase() + raw.slice(1);
+  const english = raw.charAt(0).toUpperCase() + raw.slice(1);
+  const name = isDE ? (REGION_DE[raw] ?? english) : english;
   const code = COUNTRY_CODES[raw] || '';
   return { name, code };
 }

@@ -447,7 +447,7 @@ const t = {
   tooltipCachedPrice: isDE
     ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle — für externe Anbieter wird die Cache-Preisgestaltung später ergänzt.`
     : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only — cached pricing for external providers will be added later.`,
-  cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  cachedPriceUnavailable: '—',
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
     : 'Accepted values of the reasoning_effort parameter, from the platform model datasheet. "-": no values are published for this model. See the Reasoning Control guide.',
@@ -519,6 +519,16 @@ function planTagClass(plan: string): string {
 /** The Test catalog is the preview catalog. The tag says Preview; the plan id stays Test. */
 function planLabel(plan: string): string {
   return plan === 'Test' ? t.planPreview : plan;
+}
+
+/** Catalog context labels. 102,400 is 102.4K, not 100K. 1050K is 1.05M. */
+function formatContextLabel(raw: string | null | undefined): string {
+  if (blankContext(raw)) return '—';
+  const text = (raw ?? '').trim();
+  const compact = text.replace(/,/g, '');
+  if (compact === '102400') return '102K';
+  if (/^1050k$/i.test(compact)) return '1.05M';
+  return text;
 }
 
 function blankContext(raw: string | null | undefined): boolean {
@@ -737,7 +747,7 @@ const rowDataPayload = allModels.map((m) => ({
           const detailsId = detailsIdFor(m.exactModelName);
           const priceLine = mobilePriceLine(m);
           const factParts = [
-            blankContext(m.contextWindow) ? '' : m.contextWindow,
+            blankContext(m.contextWindow) ? '' : formatContextLabel(m.contextWindow),
             m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', '),
           ].filter(Boolean);
           const cached = cachedDetail(m);
@@ -788,7 +798,7 @@ const rowDataPayload = allModels.map((m) => ({
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
-              <td class="mc-context" data-label={t.colContext}>{m.contextWindow}</td>
+              <td class="mc-context" data-label={t.colContext}>{formatContextLabel(m.contextWindow)}</td>
               <td class="mc-reasoning-effort" data-label={t.colReasoningEffort}>
                 {m.reasoningEffort.length > 0
                   ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
@@ -959,7 +969,7 @@ const rowDataPayload = allModels.map((m) => ({
     // Sort state. Default: cloud (Telekom-first via custom rank). SSR-render
     // is already in this order so the first paint matches; subsequent sorts
     // reorder the rows in-place.
-    let sortKey = 'cloud';
+    let sortKey = '';
     let sortAsc = true;
     const CLOUD_RANK: Record<string, number> = { 'T-Cloud': 0, Azure: 1, GCP: 2, Other: 3 };
 
@@ -1173,7 +1183,7 @@ const rowDataPayload = allModels.map((m) => ({
       const state = readState();
       // Sort the row list, then re-append matching <tr>s to <tbody> in the
       // new order. Skips the no-results row, which stays at the end.
-      const ordered = [...rows].sort(compareRows);
+      const ordered = sortKey ? [...rows].sort(compareRows) : [...rows];
       if (tbody) {
         for (const row of ordered) {
           const tr = tableRowsByKey.get(row.key);
@@ -1543,17 +1553,14 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table:has(th[data-sort='category']) {
-    min-width: 68rem;
+    min-width: 80rem;
   }
 
-  /* A category page at viewport 1280 is about 53rem wide. Fit that sheet.
-     Narrower sheets, and the catalog table, keep the min-width and scroll. */
+  /* Category pages fit the sheet at viewport 1280. The catalog table keeps
+     its min-width and scrolls. */
   @container comparison (min-width: 52rem) {
     .models-comparison-table:not(:has(th[data-sort='category'])) {
       min-width: 0;
-    }
-    .models-comparison:not(:has(th[data-sort='category'])) .models-comparison__scroll {
-      overflow-x: clip;
     }
   }
 
@@ -1597,26 +1604,22 @@ const rowDataPayload = allModels.map((m) => ({
      Percentages include padding (border-box) and sum to 100. */
   .models-comparison-table th[data-sort='model'],
   .models-comparison-table td:first-child {
-    width: 16%;
-    min-width: 8.5rem;
+    width: 14%;
+    min-width: 0;
   }
-  .models-comparison-table th[data-sort='provider'] { width: 6.5%; }
-  .models-comparison-table th[data-sort='cloud'] { width: 8.5%; }
-  .models-comparison-table th[data-sort='input'] { width: 6%; }
-  .models-comparison-table th[data-sort='streaming'] { width: 8.5%; }
-  .models-comparison-table th[data-sort='tools'] { width: 5.5%; }
-  .models-comparison-table th[data-sort='context'] { width: 7.5%; }
-  .models-comparison-table th[data-sort='reasoningEffort'] { width: 8%; }
-  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
+  .models-comparison-table th[data-sort='provider'] { width: 5.5%; }
+  .models-comparison-table th[data-sort='cloud'] { width: 9.5%; }
+  .models-comparison-table th[data-sort='input'] { width: 8%; }
+  .models-comparison-table th[data-sort='streaming'] { width: 7.5%; }
+  .models-comparison-table th[data-sort='tools'] { width: 5%; }
+  .models-comparison-table th[data-sort='context'] { width: 6.5%; }
+  .models-comparison-table th[data-sort='reasoningEffort'] { width: 9%; }
+  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 7.5%; }
   .models-comparison-table th[data-sort='inputPrice'],
-  .models-comparison-table th[data-sort='outputPrice'] { width: 6.2%; }
-  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 6.1%; }
-  .models-comparison-table th[data-sort='plans'] { width: 7%; }
-
-  /* Catalog adds Category. Model drops from 18% to 12% so the columns still sum to 100.
-     min-width above keeps the name readable; the sheet scrolls. */
-  .models-comparison-table:has(th[data-sort='category']) :is(th[data-sort='model'], td:first-child) { width: 10%; }
-  .models-comparison-table th[data-sort='category'] { width: 6%; }
+  .models-comparison-table th[data-sort='outputPrice'] { width: 6%; }
+  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 5.5%; }
+  .models-comparison-table th[data-sort='plans'] { width: 10%; }
+  .models-comparison-table th[data-sort='category'] { width: 8%; }
 
   /* Tooltip.astro owns these nodes, so the selectors have to be global
      or the header button stays shrink-to-fit and splits "Provider". */
@@ -1629,21 +1632,24 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table .mc-sort-header {
-    display: flex;
+    display: block;
+    position: relative;
     width: 100%;
     max-width: 100%;
     min-width: 0;
     white-space: normal;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 2px;
+    text-align: start;
+  }
+
+  .models-comparison-table .mc-sort-icon {
+    position: absolute;
+    inset-inline-end: 0;
+    top: 0;
   }
 
   .models-comparison-table .mc-sort-header > span {
-    flex: 1 1 100%;
-    min-width: 0;
-    max-width: 100%;
+    display: inline;
+    padding-inline-end: 14px;
     white-space: normal;
   }
 
@@ -1653,13 +1659,25 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table .plans-tag {
-    height: 18px;
+    height: auto;
+    min-height: 18px;
+    max-width: 100%;
     padding-inline: 4px;
     font-size: 11px;
+    white-space: normal;
+    text-align: center;
   }
 
   .models-comparison-table tbody td {
     vertical-align: top;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .models-comparison-table td[data-label='Model'] strong,
+  .models-comparison-table td[data-label='Modell'] strong {
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   .models-comparison-table th.num,
@@ -1668,11 +1686,15 @@ const rowDataPayload = allModels.map((m) => ({
     text-align: right;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
+    padding-inline: 1px;
+    font-size: 12px;
   }
 
   /* Comma stays with the word. A wrap starts the next modality, not ", Audio". */
   .models-comparison-table .mc-mod {
+    display: inline-block;
     white-space: nowrap;
+    max-width: 100%;
   }
   .models-comparison-table .mc-mod + .mc-mod {
     margin-inline-start: 0.25rem;
@@ -1714,19 +1736,25 @@ const rowDataPayload = allModels.map((m) => ({
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem;
+    gap: 2px;
     max-width: 100%;
   }
 
   .models-comparison .mc-effort-values code {
     white-space: nowrap;
     overflow: visible;
+    max-width: 100%;
+    font-size: 10px;
+    padding: 0 2px;
+    border: 0;
   }
 
   /* Field paths may break after the dot (<wbr>) instead of widening the row. */
+  .models-comparison .mc-usage-field,
   .models-comparison .mc-usage-field code {
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
+    word-break: normal;
   }
 
   .models-comparison .mc-usage-field__none {

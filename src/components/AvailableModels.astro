@@ -85,12 +85,25 @@ function parseRegion(region: string): {
   let country = parts[1] ?? '';
   const isWorldwide = country.toLowerCase() === 'worldwide';
   country = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+  const regionDe: Record<string, string> = {
+    Germany: 'Deutschland',
+    Sweden: 'Schweden',
+    France: 'Frankreich',
+    Europe: 'Europa',
+    Worldwide: 'weltweit',
+    Us: 'USA',
+  };
+  if (isDE && regionDe[country]) country = regionDe[country];
   // A worldwide region resolves to the globe glyph rather than a country flag.
   const countryCode = getCountryCode(country);
 
   // A `worldwide` region means the third-party provider may run the model —
   // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
-  const dataProcessing = raw === 'otc' ? 'Germany' : isWorldwide ? 'Worldwide' : 'EU';
+  const dataProcessing = raw === 'otc'
+    ? (isDE ? 'Deutschland' : 'Germany')
+    : isWorldwide
+      ? (isDE ? 'weltweit' : 'Worldwide')
+      : 'EU';
   // Only worldwide processing carries a glyph; Germany and EU stay text-only.
   const dataProcessingCode = isWorldwide ? 'globe' : '';
   return { provider, hosted: country, countryCode, dataProcessing, dataProcessingCode };
