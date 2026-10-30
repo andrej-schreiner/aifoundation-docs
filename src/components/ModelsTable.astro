@@ -35,7 +35,6 @@ const {
 const sortableHeaders = [
   { key: 'modelHost', label: translations.thModelHost },
   { key: 'cloudProvider', label: translations.thCloudProvider },
-  ...(legacy ? [] : [{ key: 'modelTier', label: translations.thModelTier }]),
   { key: 'creator', label: translations.thCreator },
   { key: 'displayName', label: translations.thModelName },
   { key: 'inputPrice', label: translations.thInputPrice, unit: 'M Tokens' },
@@ -153,14 +152,6 @@ const priceBuckets = [
         <details class="plans-filter" data-filter="cloud">
           <summary aria-label={translations.labelCloud}>
             <span class="plans-filter__label">{translations.labelCloud}</span>
-            <span class="plans-filter__count" data-count />
-          </summary>
-          <div class="plans-filter__menu" data-options />
-        </details>
-
-        <details class="plans-filter" data-filter="tier">
-          <summary aria-label={translations.labelModelTier || translations.thModelTier}>
-            <span class="plans-filter__label">{translations.labelModelTier || translations.thModelTier}</span>
             <span class="plans-filter__count" data-count />
           </summary>
           <div class="plans-filter__menu" data-options />
@@ -383,21 +374,18 @@ const priceBuckets = [
 
     function getPlanFilterValues(): Record<string, string[]> {
       const plan = plansData[currentIndex];
-      if (!plan) return { location: [], cloud: [], tier: [] };
+      if (!plan) return { location: [], cloud: [] };
       const locations = new Set<string>();
       const clouds = new Set<string>();
-      const tiers = new Set<string>();
       for (const model of plan.models) {
         if (model.serverLocation) locations.add(model.serverLocation);
         if (model.cloudProvider) clouds.add(model.cloudProvider);
-        if (model.modelTier) tiers.add(model.modelTier);
       }
       return {
         location: [...locations].sort(),
         cloud: ['Telekom', 'Azure', 'GCP', 'Other'].filter((c) => clouds.has(c)).concat(
           [...clouds].filter((c) => !['Telekom', 'Azure', 'GCP', 'Other'].includes(c)).sort(),
         ),
-        tier: [...tiers].sort(),
       };
     }
 
@@ -441,10 +429,9 @@ const priceBuckets = [
     }
 
     function rebuildDynamicFilters() {
-      const { location, cloud, tier } = getPlanFilterValues();
+      const { location, cloud } = getPlanFilterValues();
       renderFilterOptions('location', location, (v) => v);
       renderFilterOptions('cloud', cloud, (v) => v);
-      renderFilterOptions('tier', tier, (v) => v.charAt(0).toUpperCase() + v.slice(1));
     }
 
     function readFilterState(): FilterState {
@@ -596,7 +583,6 @@ const priceBuckets = [
         const state = readFilterState();
         const locationChecked = state.get('location');
         const cloudChecked = state.get('cloud');
-        const tierChecked = state.get('tier');
         const inputPriceChecked = state.get('inputPrice');
         const outputPriceChecked = state.get('outputPrice');
 
@@ -605,9 +591,6 @@ const priceBuckets = [
         }
         if (cloudChecked && cloudChecked.size > 0) {
           models = models.filter((model) => passesMultiSelect(model.cloudProvider, cloudChecked));
-        }
-        if (tierChecked && tierChecked.size > 0) {
-          models = models.filter((model) => passesMultiSelect(model.modelTier, tierChecked));
         }
         if (inputPriceChecked && inputPriceChecked.size > 0) {
           models = models.filter((model) => {
@@ -797,12 +780,12 @@ const priceBuckets = [
       const open = detailsExpandedAll || openDetails.has(key);
       const modelTier = capitalize(model.modelTier);
       const hostClass = model.modelHost?.toLowerCase() === 't-cloud' ? 'tag-tcloud' : 'tag-cloud';
-      const tierClass = modelTier.toLowerCase() === 'premium' ? 'tag-premium' : 'tag-tier';
       const cloudProvider = model.cloudProviderLabel || normalizeCloudProvider(model.cloudProvider);
       const cloudProviderFullName = model.cloudProviderFullName || getCloudProviderFullName(model.cloudProvider);
       const hostTooltip = hostTooltips[model.modelHost] || '';
       const tierTooltip = tierTooltips[modelTier] || '';
-      const creatorIcon = logos[model.creator] || '';
+      const creatorName = model.creator || '';
+      const creatorIcon = logos[creatorName] || logos.Other || '';
       const loc = `${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation || '')}`;
       const contextText = model.contextWindow != null ? formatNumber(model.contextWindow) : emptyMark();
       const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of Use');
@@ -816,12 +799,9 @@ const priceBuckets = [
         `<tr class="mt-row${model.isSubRow ? ' sub-row' : ''}${open ? ' is-open' : ''}" data-key="${escapeHtml(key)}">
           <td class="mt-model">
             <div class="mt-model__main">
-              ${creatorIcon ? `<span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="" /></span>` : ''}
+              <span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" /></span>
               <strong>${escapeHtml(model.displayName)}</strong>
-            </div>
-            <div class="mt-model__meta">
-              <span class="mt-muted">${escapeHtml(model.creator || '')}</span>
-              <span class="plans-tag ${tierClass}">${escapeHtml(modelTier)}</span>
+              ${modelTier.toLowerCase() === 'premium' ? `<span class="plans-tag tag-premium">${escapeHtml(modelTier)}</span>` : ''}
             </div>
           </td>
           <td class="mt-hosting">
@@ -858,7 +838,7 @@ const priceBuckets = [
         <tr class="mt-details-row" id="${id}" data-key="${escapeHtml(key)}" ${open ? '' : 'hidden="until-found"'}>
           <td colspan="7">
             <dl class="mt-details">
-              <div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="plans-tag ${tierClass}">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>
+              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="plans-tag tag-premium">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
               <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
               <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
@@ -897,8 +877,9 @@ const priceBuckets = [
         const cloudProviderClass = getCloudProviderTagClass(model.cloudProvider);
         const hostTooltip = hostTooltips[model.modelHost] || '';
         const tierTooltip = tierTooltips[modelTier] || '';
-        const creatorLogo = logos[model.creator] || '';
-        const creatorTooltip = creatorTooltips[model.creator] || creatorTooltips['Other'] || model.creator;
+        const creatorName = model.creator || '';
+        const creatorLogo = logos[creatorName] || logos.Other || '';
+        const creatorTooltip = creatorTooltips[creatorName] || creatorTooltips['Other'] || creatorName;
         row.innerHTML = `
           <td>${hostTooltip ? `<span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 26rem;"><span class="ui-tooltip__trigger"><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(hostTooltip)}</span></span>` : `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>`}</td>
           <td><span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;"><span class="ui-tooltip__trigger"><button type="button" class="plans-tag ${cloudProviderClass} mt-cloud-tag-btn" data-cloud="${escapeHtml(model.cloudProvider)}" title="${escapeHtml(cloudProviderFullName)} — click to toggle in filter" aria-label="Toggle ${escapeHtml(cloudProvider)} cloud in the filter">${escapeHtml(cloudProvider)}</button></span><span class="ui-tooltip__content" role="tooltip">${escapeHtml(cloudProviderFullName)}</span></span></td>
@@ -906,8 +887,8 @@ const priceBuckets = [
           <td class="mt-creator-cell">
             <span class="ui-tooltip ui-tooltip--right-center" style="--ui-tooltip-max-width: 24rem;">
               <span class="ui-tooltip__trigger" tabindex="0">
-                <span class="creator-brand ${creatorLogo ? 'creator-brand--icon' : 'creator-brand--text'}" aria-label="${escapeHtml(model.creator)}">
-                  ${creatorLogo ? `<img class="creator-brand__icon" src="${escapeHtml(creatorLogo)}" alt="${escapeHtml(model.creator)}" />` : `<span class="creator-brand__label">${escapeHtml(model.creator)}</span>`}
+                <span class="creator-brand creator-brand--icon">
+                  <img class="creator-brand__icon" src="${escapeHtml(creatorLogo)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" />
                 </span>
               </span>
               <span class="ui-tooltip__content" role="tooltip">${escapeHtml(creatorTooltip)}</span>
@@ -1150,17 +1131,6 @@ const priceBuckets = [
           }
         }
         return;
-      }
-      const tierBtn = target?.closest('.mt-tier-tag-btn') as HTMLElement | null;
-      if (tierBtn && !legacy) {
-        const value = tierBtn.dataset.tier ?? '';
-        const checkbox = section.querySelector<HTMLInputElement>(
-          `.plans-filter[data-filter="tier"] input[type="checkbox"][value="${value}"]`,
-        );
-        if (checkbox) {
-          checkbox.checked = !checkbox.checked;
-          checkbox.dispatchEvent(new Event('change', { bubbles: true }));
-        }
       }
     });
 

@@ -686,7 +686,7 @@ const rowDataPayload = allModels.map((m) => ({
       </thead>
       <tbody>
         {allModels.map((m) => {
-          const creatorLogo = getLogo(m.capabilities.creator);
+          const creatorLogo = getLogo(m.capabilities.creator) || getLogo('Other');
           const fullCloud = cloudFullName(m.cloud);
           return (
             <tr data-key={m.exactModelName}>
@@ -696,10 +696,8 @@ const rowDataPayload = allModels.map((m) => ({
               )}
               <td>
                 <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
-                  <span class="creator-brand" aria-label={m.capabilities.creator}>
-                    {creatorLogo
-                      ? <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} width="18" height="18" />
-                      : <span class="creator-brand__fallback">{m.capabilities.creator}</span>}
+                  <span class="creator-brand">
+                    <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
                   </span>
                 </Tooltip>
               </td>

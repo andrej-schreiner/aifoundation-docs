@@ -183,42 +183,38 @@ const INITIAL_COUNT = 6;
             <Icon name="action-checkmark" size={16} class="icon-check" />
           </Button>
           <h3 class="model-card__name">
-            <img
-              class="model-card__logo"
-              src={model.logo}
-              alt={model.creator === 'Other' ? '' : model.creator}
-              width="20"
-              height="20"
-            />
+            <span class:list={['model-card__mark', { 'model-card__mark--zoom': model.creator.startsWith('Google') }]}>
+              <img
+                class="model-card__logo"
+                src={model.logo}
+                alt={model.creator === 'Other' ? '' : model.creator}
+                title={model.creator === 'Other' ? undefined : model.creator}
+                width="20"
+                height="20"
+              />
+            </span>
             <span class="model-card__title">
               {model.name}
               {model.preview && <span class="status-badge status-badge--preview">Preview</span>}
             </span>
           </h3>
-          <dl class="model-card__dl">
-            <div>
-              <dt>{t.cloud}</dt>
-              <dd>{model.provider}</dd>
-            </div>
-            <div>
-              <dt>{t.serverLocation}</dt>
-              <dd>
-                {model.hosted}
-                {model.countryCode && (
-                  <span class={`fi fi-${model.countryCode}`} role="presentation" aria-hidden="true" />
-                )}
-              </dd>
-            </div>
-            <div>
-              <dt>{t.dataProcessing}</dt>
-              <dd>
-                {model.dataProcessing}
-                {model.dataProcessingCode && (
-                  <span class={`fi fi-${model.dataProcessingCode}`} role="presentation" aria-hidden="true" />
-                )}
-              </dd>
-            </div>
-          </dl>
+          <p class="model-card__where">
+            <span>{model.provider}</span>
+            <span aria-hidden="true">·</span>
+            {model.countryCode && (
+              <span class={`fi fi-${model.countryCode}`} role="presentation" aria-hidden="true" />
+            )}
+            <span>{model.hosted}</span>
+          </p>
+          {model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
+            <p class="model-card__where model-card__where--extra">
+              <span class="model-card__k">{t.dataProcessing}</span>
+              {model.dataProcessingCode && (
+                <span class={`fi fi-${model.dataProcessingCode}`} role="presentation" aria-hidden="true" />
+              )}
+              <span>{model.dataProcessing}</span>
+            </p>
+          )}
         </div>
       ))
     }
@@ -287,7 +283,7 @@ const INITIAL_COUNT = 6;
     color: var(--sl-color-white);
     border: 1px solid var(--sl-color-gray-5);
     border-radius: var(--aifs-table-radius, 8px);
-    padding: 8px 12px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -326,50 +322,61 @@ const INITIAL_COUNT = 6;
     gap: 6px;
   }
 
-  /* 20px tile, border-box, centered on the title line so the card does not grow. */
-  .model-card__logo {
+  /* 20px tile on the title line. Google's mark is mostly margin, so it is scaled up. */
+  .model-card__mark {
     width: 20px;
     height: 20px;
     flex: 0 0 20px;
-    box-sizing: border-box;
     align-self: center;
-    object-fit: contain;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
     padding: 2px;
     border: 1px solid var(--aifs-color-border-subtle);
     border-radius: 4px;
     background: var(--aifs-color-logo-background);
   }
 
+  .model-card__mark--zoom {
+    padding: 0;
+  }
+
+  .model-card__logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .model-card__mark--zoom .model-card__logo {
+    width: 175%;
+    height: 175%;
+    max-width: none;
+  }
+
   .model-card__title {
     min-width: 0;
   }
 
-  .model-card__dl {
-    display: grid;
-    gap: 2px;
-    margin: 0;
-    font-size: 0.8125rem;
-    line-height: 1.2;
-  }
-
-  .model-card__dl div {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 2px 8px;
-    align-items: baseline;
-  }
-
-  .model-card__dl dt {
-    margin: 0;
-    color: var(--sl-color-gray-3);
-  }
-
-  .model-card__dl dd {
-    margin: 0;
-    white-space: nowrap;
-    display: inline-flex;
+  .model-card__where {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.25rem;
+    gap: 4px;
+    margin: 0 0 0 26px;
+    padding: 0;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+
+  .model-card__where--extra {
+    color: var(--aifs-color-text-muted);
+  }
+
+  .model-card__k {
+    color: var(--aifs-color-text-muted);
   }
 
   .model-card__preview-tag {

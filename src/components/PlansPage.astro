@@ -90,7 +90,22 @@ const t = {
   thCreator: isDE ? 'Anbieter' : 'Creator',
   thModelName: isDE ? 'Modellname' : 'Model Name',
   thModel: isDE ? 'Modell' : 'Model',
-  thModelSub: isDE ? 'Anbieter · Tier' : 'Creator · Tier',
+  thModelSub: isDE ? 'Anbieter' : 'Creator',
+  priceCustom: isDE ? 'Individuell' : 'Custom',
+  premiumIncluded: isDE ? 'Premium-Modelle: enthalten' : 'Premium models: included',
+  premiumNotIncluded: isDE ? 'Premium-Modelle: nicht enthalten' : 'Premium models: not included',
+  blurbEssential: isDE
+    ? 'Shared LLM Serving mit dem Standard-Modellkatalog und Best-Effort-Rate-Limits. Bestellung über den T-Cloud Marketplace.'
+    : 'Shared LLM Serving for the standard model catalogue, with best-effort rate limits. Order it on the T-Cloud Marketplace.',
+  blurbProfessional: isDE
+    ? 'Shared LLM Serving mit Premium-Modellen und höheren Best-Effort-Rate-Limits als Essential.'
+    : 'Shared LLM Serving with Premium models included, and higher best-effort rate limits than Essential.',
+  blurbAgentic: isDE
+    ? 'Shared LLM Serving mit Premium-Modellen und den höchsten Best-Effort-Rate-Limits. Durchsatz und Latenz sind nicht Teil des SLA.'
+    : 'Shared LLM Serving with Premium models and the highest best-effort rate limits. Throughput and latency are not part of the SLA.',
+  blurbEnterprise: isDE
+    ? 'Individueller Mindestumsatz und individuelle Rate-Limits. Kontaktieren Sie uns für ein Angebot.'
+    : 'Custom commitment and rate limits. Contact us for an offer.',
   thHosting: 'Hosting',
   thHostingSub: isDE ? 'Host · Cloud · Standort' : 'Host · Cloud · Location',
   thInput: 'Input',
@@ -406,69 +421,96 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
       <section class="rate-plans-section">
         <h2>{t.ratePlansTitle}</h2>
         <p class="par-description">{t.subtitle}</p>
-        <div class="table-wrapper">
-          <table class="plans-table">
-            <thead>
-              <tr>
-                <th>{t.thPlan}</th>
-                <th>
-                  {t.thCommitment}
-                  <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
-                </th>
-                {showTokenPriceColumn && (
-                  <th>
-                    {t.thTokenPrice}
-                    <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
-                  </th>
-                )}
-                <th>
-                  {legacy ? t.thRPM : t.thRateLimits} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}
-                  {legacy && <div class="plans-table__small-text">{t.thRPMUnit}</div>}
-                </th>
-                <th>{t.thModelHost}</th>
-                {!legacy && <th>{t.thModelTier}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {planConfigs.map((plan) => (
+        {legacy ? (
+          <div class="table-wrapper">
+            <table class="plans-table">
+              <thead>
                 <tr>
-                  <td data-label={t.thPlan}>
-                    <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>
-                      {plan.label}
-                    </span>
-                  </td>
-                  <td data-label={t.thCommitment}>
-                    <span class="plans-table__main-text">{plan.basePrice}</span>
-                  </td>
-                  {showTokenPriceColumn && <td data-label={t.thTokenPrice}>{plan.tokenPrice} †</td>}
-                  <td data-label={legacy ? t.thRPM : t.thRateLimits}>{plan.rpm} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}</td>
-                  <td data-label={t.thModelHost}>
-                    {plan.modelHost.map((cloud, i) => (
-                      <>
-                        {i > 0 && ' '}
-                        <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
-                          <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud}</span>
-                        </Tooltip>
-                      </>
-                    ))}
-                  </td>
-                  {!legacy && (
-                    <td data-label={t.thModelTier}>
-                      {plan.modelTier.map((tier, i) => (
+                  <th>{t.thPlan}</th>
+                  <th>
+                    {t.thCommitment}
+                    <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
+                  </th>
+                  {showTokenPriceColumn && (
+                    <th>
+                      {t.thTokenPrice}
+                      <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
+                    </th>
+                  )}
+                  <th>
+                    {t.thRPM}
+                    <div class="plans-table__small-text">{t.thRPMUnit}</div>
+                  </th>
+                  <th>{t.thModelHost}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {planConfigs.map((plan) => (
+                  <tr>
+                    <td data-label={t.thPlan}>
+                      <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
+                    </td>
+                    <td data-label={t.thCommitment}>
+                      <span class="plans-table__main-text">{plan.basePrice}</span>
+                    </td>
+                    {showTokenPriceColumn && <td data-label={t.thTokenPrice}>{plan.tokenPrice} †</td>}
+                    <td data-label={t.thRPM}>{plan.rpm}</td>
+                    <td data-label={t.thModelHost}>
+                      {plan.modelHost.map((cloud, i) => (
                         <>
                           {i > 0 && ' '}
-                          <Tooltip text={tierTooltips[tier] || tier} maxWidth="24rem">
-                            <span class={`plans-tag ${tier === 'Premium' ? 'tag-premium' : 'tag-tier'}`}>{tier}</span>
+                          <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
+                            <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud}</span>
                           </Tooltip>
                         </>
                       ))}
                     </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <ul class="plan-tiles">
+            {planConfigs.map((plan) => {
+              const premium = plan.modelTier.includes('Premium');
+              const price = plan.basePrice === 'Custom' ? t.priceCustom : plan.basePrice;
+              const blurb =
+                plan.label === 'Essential'
+                  ? t.blurbEssential
+                  : plan.label === 'Professional'
+                    ? t.blurbProfessional
+                    : plan.label === 'Agentic'
+                      ? t.blurbAgentic
+                      : t.blurbEnterprise;
+              return (
+                <li class="plan-tile">
+                  <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
+                  <p class="plan-tile__price">
+                    {price}
+                    {plan.basePrice !== 'Custom' && <span class="plan-tile__unit"> / {isDE ? 'Monat' : 'month'}</span>}
+                  </p>
+                  <p class="plan-tile__line">
+                    <span class="plan-tile__k">{t.thRateLimits}</span>{' '}
+                    <sup>
+                      <a href={t.rpmTpmAnchor}>*</a>
+                    </sup>{' '}
+                    <strong>{plan.rpm}</strong>
+                  </p>
+                  <p class="plan-tile__hosts">
+                    {plan.modelHost.map((cloud) => (
+                      <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
+                        <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud}</span>
+                      </Tooltip>
+                    ))}
+                  </p>
+                  <p class="plan-tile__line">{premium ? t.premiumIncluded : t.premiumNotIncluded}</p>
+                  <p class="plan-tile__desc">{blurb}</p>
+                </li>
+              );
+            })}
+          </ul>
+        )}
         {!showTokenPriceColumn && (
           <p class="token-price-note">
             {t.thTokenPrice}: {planConfigs[0].tokenPrice} {t.thTokenPriceUnit} †
@@ -527,6 +569,74 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     margin-bottom: 8px;
     container-type: inline-size;
     container-name: rateplans;
+  }
+
+  .plan-tiles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .plan-tile {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    margin: 0;
+    padding: 10px 12px;
+    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    border-radius: var(--aifs-table-radius);
+    background: var(--aifs-color-surface-chrome);
+  }
+
+  .plan-tile__price {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .plan-tile__unit {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--aifs-color-text-muted);
+  }
+
+  .plan-tile__line,
+  .plan-tile__desc,
+  .plan-tile__hosts {
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+
+  .plan-tile__k {
+    color: var(--aifs-color-text-muted);
+  }
+
+  .plan-tile__hosts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .plan-tile__desc {
+    color: var(--aifs-color-text-body);
+  }
+
+  @container rateplans (min-width: 36rem) {
+    .plan-tiles {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @container rateplans (min-width: 52rem) {
+    .plan-tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
   }
 
   .content-panel .rate-plans-section > * + * {
