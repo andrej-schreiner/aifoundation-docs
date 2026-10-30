@@ -35,22 +35,20 @@ const links = isDE
 </footer>
 
 <style>
+  /* Sits in the content column, under the content, like the pagination
+     above it. A full-width band would have to break out of the column, and
+     the column no longer sits in the middle of the window. */
+  /* The line above runs the full width of the content sheet: the footer
+     reaches past the content padding on both sides and pads back in. */
   .site-footer {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
     box-sizing: border-box;
-    background: #ffffff;
-    color: #262626;
-    border-top: 1px solid #d8d8d8;
-    padding: 1.25rem 1.25rem 1.5rem;
+    margin-inline: calc(-1 * var(--sl-content-pad-x));
+    padding-inline: var(--sl-content-pad-x);
+    color: var(--aifs-color-text-body);
+    border-top: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    /* No padding below: the content panel's padding ends the sheet. */
+    padding-block: 1.25rem 0;
     font-size: 0.9rem;
-  }
-
-  :global(:root[data-theme='dark']) .site-footer {
-    background: var(--aifs-d-surface);
-    color: var(--aifs-d-text);
-    border-top-color: var(--aifs-d-border);
   }
 
   .site-footer-inner {
@@ -80,13 +78,13 @@ const links = isDE
 
   .site-footer-nav a:hover,
   .site-footer-nav a:focus-visible {
-    color: #e20074;
+    color: var(--aifs-color-brand-text);
     text-decoration: underline;
   }
 
   :global(:root[data-theme='dark']) .site-footer-nav a:hover,
   :global(:root[data-theme='dark']) .site-footer-nav a:focus-visible {
-    color: #ffffff;
+    color: var(--aifs-color-brand-text);
   }
 
   .site-footer-nav a:focus-visible {

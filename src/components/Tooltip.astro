@@ -42,12 +42,13 @@ const tipId = Math.random().toString(36).slice(2, 10);
     max-width: min(var(--ui-tooltip-max-width), calc(100vw - 2rem));
     padding: 0.75rem 1rem;
     border-radius: 0.75rem;
-    background: #232326;
-    color: white;
+    background: var(--aifs-color-tooltip-background);
+    color: var(--aifs-color-tooltip-text);
     font-size: 0.95rem;
     line-height: 1.35;
     white-space: normal;
     text-align: left;
+    /* TODO(token-gap): Telekom shadow tokens are not converted yet. */
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
     /* Hidden via display:none (not visibility) so the max-content box doesn't
        contribute invisible horizontal overflow to the page. allow-discrete +
@@ -69,7 +70,7 @@ const tipId = Math.random().toString(36).slice(2, 10);
     bottom: -0.45rem;
     width: 0.9rem;
     height: 0.9rem;
-    background: #232326;
+    background: var(--aifs-color-tooltip-background);
     transform: translateX(-50%) rotate(45deg);
     border-radius: 0.1rem;
   }

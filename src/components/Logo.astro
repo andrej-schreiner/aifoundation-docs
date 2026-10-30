@@ -1,0 +1,49 @@
+---
+// A model creator's logo (src/shared/lib/logos.ts).
+import { getLogo } from '../shared/lib/logos';
+
+interface Props {
+  name: string;
+  size?: number;
+  title?: string;
+  /**
+   * When the creator's name is already announced next to the logo (the typical case),
+   * pass `decorative=true` so it isn't announced twice. The image is
+   * exposed to AT as decorative (`alt=""`, `role="presentation"`).
+   */
+  decorative?: boolean;
+}
+
+const { name, size = 18, title = name, decorative = false } = Astro.props;
+const src = getLogo(name);
+---
+
+<img
+  class="logo"
+  src={src}
+  alt={decorative ? '' : name}
+  role={decorative ? 'presentation' : undefined}
+  aria-hidden={decorative ? 'true' : undefined}
+  title={title}
+  width={size}
+  height={size}
+  loading="lazy"
+  decoding="async"
+/>
+
+<style>
+  /* The size prop sets width and height; object-fit keeps logos that are not
+     square (NVIDIA) inside that box without stretching. */
+  .logo {
+    display: inline-block;
+    max-width: 100%;
+    object-fit: contain;
+    vertical-align: middle;
+    /* A white, rounded tile with a hairline inside its edge: logos are drawn
+       for white, and the outline keeps the tile's edge on a white page. */
+    background: var(--aifs-color-logo-background);
+    border-radius: var(--aifs-radius-media);
+    outline: 1px solid var(--aifs-color-media-outline);
+    outline-offset: -1px;
+  }
+</style>

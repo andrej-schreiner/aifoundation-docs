@@ -1,0 +1,98 @@
+---
+// Every Telekom icon from Scale, by category, for the design-system page.
+// The icons are CSS masks over the text colour, so 349 of them stay light on
+// the page and follow light and dark mode; in content, use the Icon component.
+import { iconCategories, iconUrls } from '../../shared/lib/icons';
+
+interface Props {
+	/** Show the filled `selected` variant instead of the outline. */
+	selected?: boolean;
+}
+
+const { selected = false } = Astro.props;
+const variant = selected ? 'selected' : 'default';
+const categories = Object.entries(iconCategories).sort(([a], [b]) => a.localeCompare(b));
+---
+
+<div class="icon-gallery not-content">
+	{
+		categories.map(([category, icons]) => (
+			<section class="icon-gallery__category">
+				<p class="icon-gallery__heading">
+					{category} <span class="icon-gallery__count">{icons.length}</span>
+				</p>
+				<ul class="icon-gallery__grid">
+					{icons.sort().map((name) => {
+						const url = iconUrls[`${name}/${variant}`] ?? iconUrls[`${name}/default`];
+						return (
+							<li class="icon-gallery__item" title={name}>
+								<span class="icon-gallery__icon" style={`--icon: url("${url}")`} aria-hidden="true" />
+								<code class="icon-gallery__name">{name.slice(category.length + 1)}</code>
+							</li>
+						);
+					})}
+				</ul>
+			</section>
+		))
+	}
+</div>
+
+<style>
+	.icon-gallery__category + .icon-gallery__category {
+		margin-top: var(--aifs-design-system-row-gap);
+	}
+
+	.icon-gallery__heading {
+		margin: 0 0 var(--aifs-design-system-label-gap);
+		color: var(--aifs-color-text-muted);
+		font-size: var(--aifs-text-small-font-size);
+		text-transform: capitalize;
+	}
+
+	.icon-gallery__count {
+		margin-inline-start: 0.25em;
+		font-variant-numeric: tabular-nums;
+	}
+
+	.icon-gallery__grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+		gap: var(--aifs-design-system-label-gap);
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.icon-gallery__item {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--aifs-design-system-label-gap);
+		padding: var(--aifs-design-system-example-gap) var(--aifs-design-system-label-gap);
+		border-radius: var(--aifs-radius-card);
+		color: var(--aifs-color-text-body);
+	}
+
+	.icon-gallery__item:hover {
+		background: var(--aifs-color-nav-hover-background);
+	}
+
+	.icon-gallery__icon {
+		width: 24px;
+		height: 24px;
+		background: currentColor;
+		mask: var(--icon) center / contain no-repeat;
+	}
+
+	.icon-gallery__name {
+		max-width: 100%;
+		overflow: hidden;
+		color: var(--aifs-color-text-muted);
+		font-size: var(--aifs-text-small-font-size);
+		text-align: center;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		background: none;
+		padding: 0;
+	}
+</style>

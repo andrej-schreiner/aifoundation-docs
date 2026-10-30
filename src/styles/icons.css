@@ -1,0 +1,115 @@
+/* Telekom icons (from Scale, src/assets/icons/scale/) in place of the icons
+   Starlight and its plugins draw. Their <svg> stays where it is, with its
+   size, rotation (open/closed carets) and colour; only its drawing is
+   swapped: the paths are hidden and the Telekom icon is painted in the
+   current text colour as a mask over the same box. Our own components use
+   the Icon component directly. */
+
+:is(
+		.sl-anchor-icon svg,
+		site-search button > svg,
+		header label > svg.label-icon,
+		header label > svg:is(.caret, .caret-icon),
+		.sidebar-content summary > svg.caret,
+		#starlight__mobile-toc .toggle svg.caret,
+		starlight-menu-button svg,
+		.pagination-links > a > svg,
+		.sl-link-card > svg.icon
+	) {
+	background: currentColor;
+	mask: var(--aifs-icon) center / contain no-repeat;
+	fill: none;
+}
+
+:is(
+		.sl-anchor-icon svg,
+		site-search button > svg,
+		header label > svg.label-icon,
+		header label > svg:is(.caret, .caret-icon),
+		.sidebar-content summary > svg.caret,
+		#starlight__mobile-toc .toggle svg.caret,
+		starlight-menu-button svg,
+		.pagination-links > a > svg,
+		.sl-link-card > svg.icon
+	)
+	> * {
+	visibility: hidden;
+}
+
+.sl-anchor-icon svg {
+	--aifs-icon: url('../assets/icons/scale/action/link/default.svg');
+}
+
+site-search button > svg {
+	--aifs-icon: url('../assets/icons/scale/action/search/default.svg');
+}
+
+starlight-version-select svg.label-icon {
+	--aifs-icon: url('../assets/icons/scale/action/changelog/default.svg');
+}
+
+starlight-theme-select svg.label-icon {
+	--aifs-icon: url('../assets/icons/scale/action/light-dark-mode/default.svg');
+}
+
+starlight-lang-select svg.label-icon {
+	--aifs-icon: url('../assets/icons/scale/content/language/default.svg');
+}
+
+header label > svg:is(.caret, .caret-icon) {
+	--aifs-icon: url('../assets/icons/scale/navigation/collapse-down/default.svg');
+}
+
+/* Starlight's caret points right and turns down when the group is open. */
+#starlight__mobile-toc .toggle svg.caret {
+	--aifs-icon: url('../assets/icons/scale/navigation/right/default.svg');
+}
+
+/* Sidebar groups use Scale's chevron, which points down and turns up when
+   the group is open (sidebar-nav.css). */
+.sidebar-content summary > svg.caret {
+	--aifs-icon: url('../assets/icons/scale/navigation/collapse-down/default.svg');
+}
+
+starlight-menu-button svg.open-menu {
+	--aifs-icon: url('../assets/icons/scale/action/menu/default.svg');
+}
+
+starlight-menu-button svg.close-menu {
+	--aifs-icon: url('../assets/icons/scale/action/close/default.svg');
+}
+
+.pagination-links > a[rel='prev'] > svg {
+	--aifs-icon: url('../assets/icons/scale/action/arrow-left/default.svg');
+}
+
+.pagination-links > a[rel='next'] > svg,
+.sl-link-card > svg.icon {
+	--aifs-icon: url('../assets/icons/scale/action/arrow-right/default.svg');
+}
+
+/* Links in the sidebar that open another site get Telekom's external-link
+   icon. Their aria-label already says "(opens in new tab)", so the icon is
+   decoration. */
+.sidebar-content a[target='_blank']::after {
+	content: '';
+	display: inline-block;
+	flex: none;
+	width: 1em;
+	height: 1em;
+	margin-inline-start: 0.375em;
+	vertical-align: -0.125em;
+	background: currentColor;
+	mask: url('../assets/icons/scale/navigation/external-link/default.svg') center / contain no-repeat;
+}
+
+/* The Terms of Use and Data Protection links in the model table, whose rows
+   are built as HTML strings. */
+.model-links__icon {
+	display: inline-block;
+	flex: none;
+	width: 0.875rem;
+	height: 0.875rem;
+	background: currentColor;
+	mask: url('../assets/icons/scale/navigation/external-link/default.svg') center / contain no-repeat;
+}

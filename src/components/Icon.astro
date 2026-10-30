@@ -1,0 +1,41 @@
+---
+// A Telekom icon from Scale (src/assets/icons/scale/), drawn inline in
+// currentColor, so it takes the text colour in light and dark mode.
+// Names follow Scale's: `scale-icon-alert-information` is `alert-information`.
+import { iconSvgs } from '../shared/lib/icons';
+
+interface Props {
+	/** Category and name, as in Scale: `action-success`, `alert-information`, `user-file-pdf-file`. */
+	name: string;
+	/** Scale's `selected` state: the filled icon, for an active or chosen item. */
+	selected?: boolean;
+	/** Size in px. Scale's icons are drawn on a 24px grid. */
+	size?: number;
+	/**
+	 * Accessible name. Leave it out when the icon sits next to text that says
+	 * the same, and the icon is hidden from screen readers.
+	 */
+	label?: string;
+	class?: string;
+}
+
+const { name, selected = false, size = 24, label, class: className } = Astro.props;
+const svg = iconSvgs[`${name}/${selected ? 'selected' : 'default'}`] ?? iconSvgs[`${name}/default`];
+if (!svg) throw new Error(`Unknown icon "${name}". See src/assets/icons/scale/.`);
+
+const a11y = label ? `role="img" aria-label="${label.replace(/"/g, '&quot;')}"` : 'aria-hidden="true"';
+const html = svg.replace(
+	'<svg ',
+	`<svg width="${size}" height="${size}" fill="currentColor" focusable="false" ${a11y} class="icon${className ? ` ${className}` : ''}" `,
+);
+---
+
+<Fragment set:html={html} />
+
+<style>
+	:global(svg.icon) {
+		display: inline-block;
+		flex: none;
+		vertical-align: middle;
+	}
+</style>
