@@ -4,7 +4,8 @@ description: "Control chain-of-thought depth with the `reasoning_effort` paramet
 ---
 
 
-import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { TabItem, Tabs, LinkCard } from '@astrojs/starlight/components';
+import ReasoningTable from '../../../components/ReasoningTable.astro';
 
 For models that support reasoning (chain-of-thought), you can control the depth of reasoning with the `reasoning_effort` parameter.
 
@@ -20,20 +21,13 @@ For models that support reasoning (chain-of-thought), you can control the depth 
 - How to disable reasoning for Qwen 3.6 models
 
 
-## Examples of Reasoning Control
+## Accepted values
 
-:::note[These are examples, not a complete list]
-The table below shows a few common models and how reasoning is controlled on each. It is **not** an exhaustive list — other models on the platform support reasoning control too, and the catalogue changes over time. For the current list, see [Chat & Reasoning models](/models/llms) or query the [models endpoint](/reference/api-endpoints).
-:::
+The table is the platform datasheet (`reasoning_effort` values and the datasheet default). Models that retire on 2026-10-31 or 2026-11-30 are omitted. A model with an empty value list in the datasheet is omitted too.
 
-| Model (example) | Reasoning Control |
-|---|---|
-| GPT-5, GPT-5 mini, GPT-5 nano | `reasoning_effort` parameter |
-| Gemini 3 | `reasoning_effort` parameter |
-| Claude 4.6, Claude Opus 5 | `reasoning_effort` parameter |
-| Qwen 3.6 | `/no_think` prompt keyword |
+<ReasoningTable />
 
-Most reasoning models follow one of these two patterns: an OpenAI-compatible `reasoning_effort` parameter, or a prompt keyword. `reasoning_effort` is accepted far more widely than the table suggests — GLM, Mistral, Gemma, Nemotron and the T-Cloud-hosted open-source models take it too.
+Qwen 3.6 also documents a prompt keyword, `/no_think`, in the section below. That keyword is not a column in the datasheet.
 
 A few models are exceptions worth knowing about:
 
@@ -67,10 +61,7 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
   </TabItem>
 </Tabs>
 
-The `reasoning_effort` parameter accepts three values:
-- **`low`** — Fast responses, minimal reasoning
-- **`medium`** — Balanced reasoning depth
-- **`high`** — Deep reasoning for complex problems
+The sample uses `reasoning_effort="low"` on `claude-sonnet-4.6`. That model retires on 2026-10-31. The datasheet table above is the list of values per model still in the catalog. Do not assume every model accepts only `low`, `medium`, and `high`.
 
 
 ## Disabling Reasoning for Qwen 3.6
@@ -94,8 +85,20 @@ print(response.choices[0].message.content)
 ```
 
 
-## Next Steps
+## Limitations and troubleshooting
 
-- [Chat Completions](/guides/chat-completions) — Standard chat API usage
-- [Function Calling](/guides/function-calling) — Connect reasoning models to external tools
-- [Streaming](/guides/streaming) — Stream reasoning model responses
+These limits are already written on this page:
+
+- Mistral models accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
+- Some newer Anthropic models reject `reasoning_effort`. The error names the alternative.
+- Some code-specialised models reject the parameter with `The requested operation is unsupported.`
+
+<!-- TODO(andrej): confirm which current Anthropic model ids reject reasoning_effort. The note above is the existing sentence; it does not name the ids. -->
+
+## Next steps
+
+<div class="link-card-row">
+  <LinkCard title="Chat completions" href="/guides/chat-completions" description="The chat call this parameter is added to." />
+  <LinkCard title="Function calling" href="/guides/function-calling" description="Tools on the same client." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="GLM 5.2 and Qwen 3.6 35B on T-Cloud." />
+</div>

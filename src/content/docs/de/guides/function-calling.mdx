@@ -17,7 +17,7 @@ Function Calling ermöglicht es Modellen, strukturierte JSON-Argumente für von 
 **Was Sie lernen werden:**
 - Wie Sie Tools/Funktionen definieren, die das Modell aufrufen kann
 - Wie Sie Function Calling mit der Responses API verwenden
-- Wie Sie strukturierte Daten mithilfe von JSON Schema extrahieren
+- Wohin das JSON-Schema-Beispiel gezogen ist ([Strukturierte Ausgaben](/de/guides/structured-outputs))
 
 
 ## Einfaches Beispiel
@@ -125,60 +125,11 @@ print(response.output)
 ```
 
 
-## Strukturierte Ausgabe (JSON Schema)
+## Strukturierte Ausgabe
 
-Text in ein strukturiertes Schema parsen:
+JSON Schema auf der Responses API steht unter [Strukturierte Ausgaben](/de/guides/structured-outputs). Das Beispiel, das hier stand, einschließlich `gpt-5`, ist unverändert dorthin gezogen.
 
-```python showLineNumbers
-import json
-from openai import OpenAI
-
-client = OpenAI()
-
-description = """
-Our Premium Laptop Backpack features padded compartments that fit
-laptops up to 15.6 inches. Available in navy blue, black, and gray.
-Price: $79.99, on sale for $64.99.
-"""
-
-response = client.responses.create(
-    model="gpt-5",
-    input=f"Extract structured product information: {description}",
-    max_output_tokens=2000,
-    text={
-        "format": {
-            "type": "json_schema",
-            "name": "product_details",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "product_name": {"type": "string"},
-                    "features": {"type": "array", "items": {"type": "string"}},
-                    "colors": {"type": "array", "items": {"type": "string"}},
-                    "pricing": {
-                        "type": "object",
-                        "properties": {
-                            "regular_price": {"type": "number"},
-                            "sale_price": {"type": "number"},
-                            "currency": {"type": "string"},
-                        },
-                        "required": ["regular_price", "sale_price", "currency"],
-                        "additionalProperties": False,
-                    },
-                },
-                "required": ["product_name", "features", "colors", "pricing"],
-                "additionalProperties": False,
-            },
-            "strict": True,
-        }
-    },
-)
-
-print(json.dumps(json.loads(response.output_text), indent=2))
-```
-
-
-## Kompatibilität
+## Grenzen und Fehlersuche
 
 :::note
 Function Calling funktioniert mit einer breiten Auswahl an Modellen auf der Plattform — darunter Modelle von OpenAI, Google und Anthropic sowie viele Open-Source-Modelle. Die in diesem Guide verwendeten Modellnamen sind lediglich Beispiele und nicht die einzigen Modelle, die die Funktion unterstützen. Einige auf T-Cloud gehostete Open-Source-Modelle unterstützen Function Calling noch nicht; prüfen Sie den Eintrag des Modells unter [Verfügbare Modelle](/de/models), bevor Sie sich darauf verlassen.

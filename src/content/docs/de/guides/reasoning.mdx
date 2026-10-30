@@ -4,7 +4,8 @@ description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_
 ---
 
 
-import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { TabItem, Tabs, LinkCard } from '@astrojs/starlight/components';
+import ReasoningTable from '../../../../components/ReasoningTable.astro';
 
 Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Tiefe des Reasoning-Prozesses mit dem Parameter `reasoning_effort` steuern.
 
@@ -20,20 +21,13 @@ Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Ti
 - Wie Sie Reasoning für Qwen 3.6-Modelle deaktivieren
 
 
-## Beispiele für Reasoning-Steuerung
+## Zulässige Werte
 
-:::note[Beispiele, keine vollständige Liste]
-Die folgende Tabelle zeigt einige gängige Modelle und wie Reasoning dort gesteuert wird. Sie ist **keine** vollständige Aufzählung — weitere Modelle auf der Plattform unterstützen Reasoning-Steuerung ebenfalls, und der Katalog ändert sich laufend. Die aktuelle Liste finden Sie unter [Chat & Reasoning (LLMs)](/de/models/llms) oder über den [Models-Endpunkt](/de/reference/api-endpoints).
-:::
+Die Tabelle ist das Plattform-Datenblatt (Werte von `reasoning_effort` und der Default aus dem Datenblatt). Modelle mit Stilllegung am 31.10.2026 oder 30.11.2026 fehlen. Ein Modell mit leerer Werteliste im Datenblatt fehlt ebenfalls.
 
-| Modell (Beispiel) | Reasoning |
-|---|---|
-| GPT-5, GPT-5 mini, GPT-5 nano | Parameter `reasoning_effort` |
-| Gemini 3 | Parameter `reasoning_effort` |
-| Claude 4.6, Claude Opus 5 | Parameter `reasoning_effort` |
-| Qwen 3.6 | Prompt-Schlüsselwort `/no_think` |
+<ReasoningTable />
 
-Die meisten Reasoning-Modelle folgen einem dieser beiden Muster: dem OpenAI-kompatiblen Parameter `reasoning_effort` oder einem Prompt-Schlüsselwort. `reasoning_effort` wird deutlich breiter akzeptiert, als die Tabelle vermuten lässt — auch GLM, Mistral, Gemma, Nemotron und die T-Cloud-gehosteten Open-Source-Modelle nehmen ihn entgegen.
+Für Qwen 3.6 dokumentiert der Abschnitt unten zusätzlich das Prompt-Schlüsselwort `/no_think`. Dieses Schlüsselwort ist keine Spalte im Datenblatt.
 
 Einige Modelle bilden Ausnahmen:
 
@@ -67,10 +61,7 @@ Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat &
   </TabItem>
 </Tabs>
 
-Der Parameter `reasoning_effort` akzeptiert drei Werte:
-- **`low`** — Schnelle Antworten, minimales Reasoning
-- **`medium`** — Ausgewogene Reasoning-Tiefe
-- **`high`** — Tiefgehendes Reasoning für komplexe Probleme
+Das Beispiel setzt `reasoning_effort="low"` auf `claude-sonnet-4.6`. Dieses Modell wird am 31.10.2026 stillgelegt. Die Datenblatt-Tabelle oben ist die Werteliste je Modell, das noch im Katalog steht. Nicht davon ausgehen, dass jedes Modell nur `low`, `medium` und `high` akzeptiert.
 
 
 ## Reasoning für Qwen 3.6 deaktivieren
@@ -94,8 +85,20 @@ print(response.choices[0].message.content)
 ```
 
 
+## Grenzen und Fehlersuche
+
+Diese Grenzen stehen bereits auf dieser Seite:
+
+- Mistral-Modelle akzeptieren nur `none` und `high`. `low` oder `medium` führen zu HTTP 400 mit `reasoning_effort=... is not supported by Mistral models.`
+- Einzelne neuere Anthropic-Modelle lehnen `reasoning_effort` ab. Die Fehlermeldung nennt die Alternative.
+- Einige auf Code spezialisierte Modelle weisen den Parameter mit `The requested operation is unsupported.` zurück.
+
+<!-- TODO(andrej): bestätigen, welche aktuellen Anthropic-Modell-IDs reasoning_effort ablehnen. Der Satz oben ist der bestehende Hinweis; er nennt keine IDs. -->
+
 ## Nächste Schritte
 
-- [Chat Completions](/de/guides/chat-completions) — Standard-Chat-API-Nutzung
-- [Function Calling](/de/guides/function-calling) — Reasoning-Modelle mit externen Tools verbinden
-- [Streaming](/de/guides/streaming) — Antworten von Reasoning-Modellen streamen
+<div class="link-card-row">
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Der Chat-Aufruf, dem dieser Parameter hinzugefügt wird." />
+  <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools auf demselben Client." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="GLM 5.2 und Qwen 3.6 35B auf T-Cloud." />
+</div>

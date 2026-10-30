@@ -152,6 +152,10 @@ Die folgenden Modelle sind Beispiele aus diesem Guide. Auch andere Modelle auf d
 | `gemini-3-flash` | Google Cloud | Bild- + Videoverständnis |
 | `gpt-5` | Azure | Bildverständnis |
 
+## Grenzen und Fehlersuche
+
+Gescannte Seiten und Handschrift gehören zu [OCR](/de/guides/ocr), den Vorschau-Modellen. Diese Seite ist der Chat-Aufruf mit Bild.
+
 :::caution[Bildlimits pro Anfrage unterscheiden sich je Modell]
 T-Cloud-gehostete Modelle begrenzen, wie viele Bilder eine Anfrage enthalten darf — **das Limit ist nicht bei allen Modellen gleich**. Prüfen Sie es für das von Ihnen genutzte Modell, statt einen einheitlichen Wert anzunehmen. Gemessene Beispiele: `gemma-4-31B-it-FP8` und `Qwen3-VL-30B-A3B-Instruct-FP8` akzeptieren 10, `Qwen3.6-35B-A3B-FP8` dagegen nur 8.
 
