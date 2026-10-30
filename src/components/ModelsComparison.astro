@@ -1,7 +1,7 @@
 ---
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
-import { getLogo } from '../shared/lib/logos';
-import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
   CACHED_INPUT_PRICE_PERCENT,
@@ -119,39 +119,19 @@ function deriveCategories(primary: Category, caps: Capabilities, extra: Category
 
 // ---------------- Capabilities ----------------
 
-type Creator =
-  | 'Meta'
-  | 'OpenAI'
-  | 'Anthropic'
-  | 'Google'
-  | 'Google Gemma'
-  | 'Mistral'
-  | 'Alibaba Cloud'
-  | 'Zhipu AI'
-  | 'T-Systems'
-  | 'Other';
 type InputModality = 'Text' | 'Image' | 'Audio';
 type OutputModality = 'Text' | 'Image' | 'Audio' | 'Vector';
 
 interface Capabilities {
-  creator: Creator;
+  creator: string;
   inputModalities: InputModality[];
   outputModalities: OutputModality[];
   streaming: boolean;
   toolCalling: boolean;
 }
 
-function inferCreator(exactModelName: string): Creator {
-  const n = exactModelName;
-  if (/^Llama-/i.test(n)) return 'Meta';
-  if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
-  if (/^Qwen/i.test(n)) return 'Alibaba Cloud';
-  if (/^GLM-/i.test(n)) return 'Zhipu AI';
-  if (/^claude-/i.test(n)) return 'Anthropic';
-  if (/^(diffusion)?gemma-/i.test(n)) return 'Google Gemma';
-  if (/^gemini-/i.test(n)) return 'Google';
-  if (/^(gpt-|o1-|o3-|o4-|gpt-image)/i.test(n)) return 'OpenAI';
-  return 'Other';
+function inferCreator(exactModelName: string): string {
+  return creatorNameFor(exactModelName, exactModelName);
 }
 
 // Default capability shape per category (creator filled in per-model below).
@@ -469,8 +449,6 @@ const t = {
   reasoningTokensUnknown: '—',
 };
 
-const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
-
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
       Telekom: 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
@@ -695,7 +673,7 @@ const rowDataPayload = allModels.map((m) => ({
                 <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
               )}
               <td data-label={t.colProvider}>
-                <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
+                <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
                   <span class="creator-brand">
                     <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="20" height="20" />
                   </span>
@@ -1528,7 +1506,9 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--aifs-color-table-head-text);
   }
 
-  @container comparison (max-width: 64rem) {
+  /* Cards only when the column is about 40rem. At 1440 the column is ~950px,
+     so the wide table stays and scrolls inside .models-comparison__scroll. */
+  @container comparison (max-width: 40rem) {
     .models-comparison__scroll {
       overflow: visible;
       box-shadow: none;
