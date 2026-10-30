@@ -361,6 +361,16 @@ body {
 	font-size: 0.9375rem;
 }
 
+/* Search shortcut is a visible control, not a 12px caption. */
+button[data-open-modal] kbd,
+button[data-open-modal] kbd kbd {
+	font-size: 0.875rem;
+}
+
+:root[data-theme='dark'] .sl-markdown-content :not(pre) > code {
+	background-color: #1c1e26;
+}
+
 .right-sidebar a[aria-current='true'] {
 	color: var(--aifs-magenta);
 	font-family: var(--aifs-font-bold);
