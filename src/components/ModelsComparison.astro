@@ -1,6 +1,7 @@
 ---
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
@@ -33,17 +34,6 @@ const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
-
-// Models that are no longer offered through the regular plans (mirrors AvailableModels.astro)
-const OFFLINE_MODELS = new Set([
-  'gpt-4.1-nano',
-  'gpt-4o-mini',
-  'GPT-5-Codex',
-  'gpt-5-nano',
-  'Mistral-Large-2411',
-  'Mistral-Medium-3',
-  'o1',
-]);
 
 type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
 
@@ -343,7 +333,7 @@ for (const pkg of pricingData as Array<{
 }>) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const exactModelName = entry.exactModelName as string;
-    if (OFFLINE_MODELS.has(exactModelName)) continue;
+    if (isHiddenModel(exactModelName)) continue;
     const existing = byName.get(exactModelName);
     if (existing) {
       if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);

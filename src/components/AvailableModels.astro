@@ -5,6 +5,7 @@ import Icon from './Icon.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
@@ -28,16 +29,6 @@ const t = {
   copiedAriaTemplate: isDE ? 'Kopiert: {id}' : 'Copied {id}',
   modelsCountAriaTemplate: isDE ? '{count} Modelle insgesamt' : '{count} models total',
 };
-
-const OFFLINE_MODELS = new Set([
-  'gpt-4.1-nano',
-  'gpt-4o-mini',
-  'GPT-5-Codex',
-  'gpt-5-nano',
-  'Mistral-Large-2411',
-  'Mistral-Medium-3',
-  'o1',
-]);
 
 // Models not present in the pricing JSON but that should still appear on the
 // featured grid. Keep this list current: entries for retired models (see
@@ -122,7 +113,7 @@ interface ModelCard {
 
 // Build model cards from pricing data (filtering out offline models)
 const pricingModels: ModelCard[] = configs
-  .filter((c: { exactModelName: string }) => !OFFLINE_MODELS.has(c.exactModelName))
+  .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName))
   .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; isPreview: boolean }) => {
     const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
       c.deploymentRegion,
