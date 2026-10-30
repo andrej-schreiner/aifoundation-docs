@@ -1000,9 +1000,15 @@ const priceBuckets = [
   }
 
   :root[data-theme='dark'] .models-table-section {
-    --model-link-color: #7d87ff;
-    --model-link-icon-color: #7d87ff;
-    --models-sort-active-color: var(--sl-color-accent-high);
+    --model-link-color: var(--aifs-d-link);
+    --model-link-icon-color: var(--aifs-d-link);
+    --models-sort-active-color: var(--aifs-d-link);
+  }
+
+  :root[data-theme='dark'] .models-table-section .plans-table th {
+    background: var(--aifs-d-raised);
+    color: var(--aifs-d-btn-text);
+    border-bottom: 2px solid var(--aifs-d-magenta);
   }
 
   .models-controls {

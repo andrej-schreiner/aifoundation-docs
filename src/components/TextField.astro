@@ -96,10 +96,10 @@ const hasLabel = Boolean(label?.trim());
     }
 
     :global(:root:not([data-theme='light'])) .text-field__control {
-      background-color: rgb(28, 28, 31);
-      background-image: linear-gradient(180deg, rgba(38, 38, 41, 0.9), rgba(28, 28, 31, 0.94));
-      border-color: color-mix(in srgb, var(--sl-color-gray-4) 82%, white 18%);
-      color: var(--sl-color-white);
+      background-color: var(--aifs-d-code);
+      background-image: none;
+      border-color: var(--aifs-d-border);
+      color: var(--aifs-d-text);
     }
 
     :global(:root:not([data-theme='light'])) .text-field__control::placeholder {

@@ -1478,6 +1478,17 @@ const rowDataPayload = allModels.map((m) => ({
     box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
   }
 
+  :root[data-theme='dark'] .models-comparison {
+    --model-link-color: var(--aifs-d-link);
+    --model-link-icon-color: var(--aifs-d-link);
+  }
+
+  :root[data-theme='dark'] .models-comparison-table thead th {
+    background: var(--aifs-d-raised);
+    color: var(--aifs-d-btn-text);
+    border-bottom: 2px solid var(--aifs-d-magenta);
+  }
+
   :root[data-theme='dark'] .models-comparison .tag-plan-essential {
     color: #c7d2fe;
   }

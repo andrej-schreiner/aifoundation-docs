@@ -517,8 +517,28 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   :root[data-theme='dark'] .plans-page {
-    --model-link-color: #7d87ff;
-    --model-link-icon-color: #7d87ff;
+    --model-link-color: var(--aifs-d-link);
+    --model-link-icon-color: var(--aifs-d-link);
+  }
+
+  :root[data-theme='dark'] .plans-table th {
+    background: var(--aifs-d-raised);
+    color: var(--aifs-d-btn-text);
+    border-bottom: 2px solid var(--aifs-d-magenta);
+  }
+
+  :root[data-theme='dark'] .plans-table th a {
+    color: var(--aifs-d-btn-text);
+  }
+
+  :root[data-theme='dark'] .sort-icon.active {
+    color: var(--aifs-d-link);
+  }
+
+  :root[data-theme='dark'] .tag-premium {
+    background: var(--aifs-d-surface);
+    color: #7fd4ea;
+    box-shadow: inset 0 0 0 1px var(--aifs-d-border);
   }
 
   .rate-plans-section {
