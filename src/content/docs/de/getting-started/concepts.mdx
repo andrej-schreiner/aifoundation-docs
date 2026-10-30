@@ -1,0 +1,42 @@
+---
+title: "Begriffe"
+description: "Kurze Definitionen für Tokens, TPM, RPM, Kontextfenster, T-Cloud, Partnermodelle, die OpenAI-kompatible API, Reasoning Effort und Embeddings."
+---
+
+Begriffe aus diesen Dokumenten. Jeder verweist auf die Seite, die das Verhalten bereits beschreibt. Hier kommt keine Zahl dazu.
+
+## Tokens
+
+Ein Token ist die Einheit, die die API zählt. Chat-Anfragen setzen `max_tokens` für die Anzahl zu erzeugender Tokens, und Rate-Limits zählen Tokens pro Minute. Der Katalog nennt auf dieser Seite keinen Tokenizer.
+
+## TPM
+
+Tokens pro Minute. Ein Shared-Tarif veröffentlicht ein Input-TPM und ein Output-TPM je Modell. Die Zahlen und ihre Bedingungen stehen unter [Rate-Limits](/de/reference/rate-limits).
+
+## RPM
+
+Anfragen pro Minute. Ein Shared-Tarif veröffentlicht, wie viele Anfragen Sie je Modell senden können. Dieselbe Seite wie TPM: [Rate-Limits](/de/reference/rate-limits).
+
+## Kontextfenster
+
+Wie viel Text ein Modell in einer Anfrage akzeptiert, wie im Katalog gedruckt (`8K`, `128K`, `1M` und so weiter). Wenn das Katalogfeld leer ist, sagen diese Dokumente, dass das Kontextfenster nicht veröffentlicht ist. Siehe [Modell wählen](/de/getting-started/choosing-a-model).
+
+## T-Cloud
+
+Von der Telekom gehostete Modelle. Im Katalog ist ihre Region Deutschland. Prompts für diese Modelle werden verarbeitet, wie es [Enterprise Trust](/de/reference/enterprise-trust) beschreibt. Die Bezeichnung im Produkt ist T-Cloud.
+
+## Partnermodelle
+
+Modelle, die die API an einen anderen Anbieter weiterleitet. Im Katalog sind das Regionen auf Azure oder GCP, einschließlich einer genannten Region wie Sweden Central oder `europe-west1`, oder weltweit. Die Datenverarbeitung für diesen Weg steht ebenfalls unter [Enterprise Trust](/de/reference/enterprise-trust).
+
+## OpenAI-kompatibel
+
+Die HTTP-API nimmt denselben Client an wie das OpenAI SDK. Der [Quickstart](/de/) setzt `OPENAI_BASE_URL` und sendet `chat/completions`. Das bedeutet nicht, dass jeder OpenAI-Parameter auf jedem Modell existiert. Prüfen Sie die Anleitung für den Aufruf, den Sie machen.
+
+## Reasoning Effort
+
+Der Parameter `reasoning_effort` bei Modellen, deren Datenblatt zulässige Werte listet. Die Werteliste ist je Modell. Siehe [Reasoning](/de/guides/reasoning).
+
+## Embeddings
+
+Ein Vektor für einen Text, von `POST /embeddings`. Für semantische Suche und Retrieval. Siehe [Embeddings](/de/guides/embeddings).
