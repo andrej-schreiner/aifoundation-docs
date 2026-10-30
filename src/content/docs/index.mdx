@@ -113,12 +113,198 @@ Get a free trial key in the [API Key Portal](https://apikey.llmhub.t-systems.net
   </TabItem>
 </Tabs>
 
+## Try a capability
+
+The same client and base URL. Each tab is a short form of a sample that already lives in the guides. Model ids are the ones those pages already use.
+
+### Streaming
+
+<Tabs>
+  <TabItem value="curl" label="curl" default>
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "gpt-oss-120b",
+        "messages": [{"role": "user", "content": "Explain quantum computing"}],
+        "stream": true
+      }'
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    stream = client.chat.completions.create(
+        model="gpt-oss-120b",
+        messages=[{"role": "user", "content": "Write a short poem about AI."}],
+        stream=True,
+    )
+    for chunk in stream:
+        if chunk.choices and chunk.choices[0].delta.content:
+            print(chunk.choices[0].delta.content, end="", flush=True)
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const stream = await client.chat.completions.create({
+      model: "gpt-oss-120b",
+      messages: [{ role: "user", content: "Write a short poem about AI." }],
+      stream: true,
+    });
+    for await (const chunk of stream) {
+      const text = chunk.choices[0]?.delta?.content;
+      if (text) process.stdout.write(text);
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Full streaming notes: [Streaming](/guides/streaming).
+
+### Function calling
+
+The function-calling guide sends this shape with `gpt-5`. That model retires on 2026-10-31; the [deprecations page](/models/deprecations) names the replacement. The snippet is unchanged so the id matches the guide.
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+    ```python
+    response = client.chat.completions.create(
+        model="gpt-5",
+        messages=[{"role": "user", "content": "What's the weather like today in Hamburg?"}],
+        tools=[{
+            "type": "function",
+            "function": {
+                "name": "get_current_weather",
+                "description": "Get the current weather",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "location": {"type": "string"},
+                        "format": {"type": "string", "enum": ["celsius", "fahrenheit"]},
+                    },
+                    "required": ["location", "format"],
+                },
+            },
+        }],
+    )
+    print(response.choices[0].message)
+    ```
+  </TabItem>
+</Tabs>
+
+### Structured output
+
+Same source as the JSON Schema example on the function-calling guide, including `gpt-5` and the Responses API. See [Structured outputs](/guides/structured-outputs).
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+    ```python
+    response = client.responses.create(
+        model="gpt-5",
+        input="Extract structured product information: Premium Laptop Backpack, $79.99.",
+        text={
+            "format": {
+                "type": "json_schema",
+                "name": "product_details",
+                "schema": {
+                    "type": "object",
+                    "properties": {"product_name": {"type": "string"}},
+                    "required": ["product_name"],
+                    "additionalProperties": False,
+                },
+                "strict": True,
+            }
+        },
+    )
+    print(response.output_text)
+    ```
+  </TabItem>
+</Tabs>
+
+### Reasoning effort
+
+The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models publish a different list. See [Reasoning](/guides/reasoning).
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+    ```python
+    response = client.chat.completions.create(
+        model="gpt-oss-120b",
+        messages=[{"role": "user", "content": "What is the capital of France?"}],
+        reasoning_effort="low",
+    )
+    print(response.choices[0].message.content)
+    ```
+  </TabItem>
+</Tabs>
+
+### Vision
+
+<!-- TODO(andrej): this sample uses Qwen3.6-35B-A3B-FP8, the id already in the vision guide. The catalog id is Qwen-3.6-35B-FP8. Confirm which id to publish. -->
+
+<Tabs>
+  <TabItem value="curl" label="curl" default>
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "Qwen3.6-35B-A3B-FP8",
+        "messages": [{
+          "role": "user",
+          "content": [
+            {"type": "text", "text": "What is in this image?"},
+            {"type": "image_url", "image_url": {"url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"}}
+          ]
+        }],
+        "max_tokens": 1024
+      }'
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    response = client.chat.completions.create(
+        model="Qwen3.6-35B-A3B-FP8",
+        messages=[{
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "What's in this image?"},
+                {"type": "image_url", "image_url": {"url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"}},
+            ],
+        }],
+        max_tokens=1024,
+    )
+    print(response.choices[0].message.content)
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    const response = await client.chat.completions.create({
+      model: "Qwen3.6-35B-A3B-FP8",
+      messages: [{
+        role: "user",
+        content: [
+          { type: "text", text: "What's in this image?" },
+          { type: "image_url", image_url: { url: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" } },
+        ],
+      }],
+      max_tokens: 1024,
+    });
+    console.log(response.choices[0].message.content);
+    ```
+  </TabItem>
+</Tabs>
+
+Image limits differ by model. See [Vision](/guides/multimodal).
+
 ## Next steps
 
-- **[Authentication](/getting-started/authentication)** — API key management
-- **[Catalog](/models)** — Browse hosted models
-- **[Chat completions](/guides/chat-completions)** — Streaming, parameters, and more
-- **[Migrate to the New API](/api-transition)** — The endpoint change, in phases
+<div class="link-card-row">
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Draft picks from the catalog, T-Cloud first." />
+  <LinkCard title="Guides" href="/guides" description="Chat, streaming, vision, tools, and production." />
+  <LinkCard title="API reference" href="/reference/api-endpoints" description="Endpoints and error codes." />
+  <LinkCard title="Plans" href="/plans" description="Shared rate plans and Dedicated serving." />
+</div>
 
 <AvailableModels/>
 
