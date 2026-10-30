@@ -38,3 +38,37 @@ export const logos: Record<string, string> = {
 export function getLogo(name: string): string {
   return logos[name] || '';
 }
+
+/** Same creator names as PlansPage.parseModelCreator. Unknown labs return Other. */
+export function creatorNameFor(exactModelName: string | undefined, displayModelName: string): string {
+  const source = `${exactModelName || ''} ${displayModelName}`.toLowerCase();
+  const isOpenAIOSeries = /\bo\d+(?:[.-]|\b)/.test(source);
+  const isOpenAIAdaSeries = /\b(?:embedding\s+ada|text-embedding-ada|ada(?:[-\s]?\d+)?)\b/.test(source);
+
+  if (source.includes('claude')) return 'Anthropic';
+  if (source.includes('gemma')) return 'Google Gemma';
+  if (source.includes('gemini')) return 'Google Gemini';
+  if (
+    source.includes('gpt') ||
+    isOpenAIOSeries ||
+    isOpenAIAdaSeries ||
+    source.includes('codex') ||
+    source.includes('whisper')
+  )
+    return 'OpenAI';
+  if (source.includes('llama') || source.includes('meta')) return 'Meta';
+  if (source.includes('mistral')) return 'Mistral';
+  if (source.includes('qwen')) return 'Alibaba Cloud';
+  if (source.includes('nemotron') || source.includes('nvidia')) return 'NVIDIA';
+  if (source.includes('glm') || source.includes('zhipu') || source.includes('z.ai')) return 'Zhipu AI';
+  if (source.includes('jina')) return 'Jina AI';
+  if (source.includes('bge')) return 'BAAI';
+  if (source.includes('teuken') || source.includes('tsi') || source.includes('col qwen')) return 'T-Systems';
+
+  return 'Other';
+}
+
+/** A real image URL. Missing labs get the neutral mark, never an empty src. */
+export function creatorLogoFor(exactModelName: string | undefined, displayModelName: string): string {
+  return getLogo(creatorNameFor(exactModelName, displayModelName)) || logos.Other;
+}

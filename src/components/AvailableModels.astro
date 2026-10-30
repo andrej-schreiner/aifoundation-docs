@@ -4,6 +4,7 @@ import Button from './Button.astro';
 import Icon from './Icon.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
+import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
@@ -108,6 +109,8 @@ const configs = exposedPlans.flatMap((p) =>
 interface ModelCard {
   modelId: string;
   name: string;
+  creator: string;
+  logo: string;
   provider: string;
   hosted: string;
   countryCode: string;
@@ -123,9 +126,12 @@ const pricingModels: ModelCard[] = configs
     const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
       c.deploymentRegion,
     );
+    const creator = creatorNameFor(c.exactModelName, c.displayModelName);
     return {
       modelId: c.exactModelName,
       name: c.displayModelName,
+      creator,
+      logo: creatorLogoFor(c.exactModelName, c.displayModelName),
       provider: CLOUD_OVERRIDES[c.exactModelName] ?? provider,
       hosted,
       countryCode,
@@ -177,8 +183,17 @@ const INITIAL_COUNT = 6;
             <Icon name="action-checkmark" size={16} class="icon-check" />
           </Button>
           <h3 class="model-card__name">
-            {model.name}
-            {model.preview && <span class="status-badge status-badge--preview">Preview</span>}
+            <img
+              class="model-card__logo"
+              src={model.logo}
+              alt={model.creator === 'Other' ? '' : model.creator}
+              width="20"
+              height="20"
+            />
+            <span class="model-card__title">
+              {model.name}
+              {model.preview && <span class="status-badge status-badge--preview">Preview</span>}
+            </span>
           </h3>
           <dl class="model-card__dl">
             <div>
@@ -306,9 +321,27 @@ const INITIAL_COUNT = 6;
     color: var(--sl-color-white);
     padding-right: 1.75rem;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  /* 20px tile, border-box, centered on the title line so the card does not grow. */
+  .model-card__logo {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    box-sizing: border-box;
+    align-self: center;
+    object-fit: contain;
+    padding: 2px;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background);
+  }
+
+  .model-card__title {
+    min-width: 0;
   }
 
   .model-card__dl {
