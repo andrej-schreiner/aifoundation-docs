@@ -1,90 +1,41 @@
 ---
 title: "Guides"
-description: "Task-oriented guides for building with AI Foundation Services — chat completions, streaming, embeddings, multimodal, and more."
+description: "Task-oriented guides for building with AI Foundation Services — chat, modalities, features, and production."
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
 The Guides section answers "how do I…" questions. Each page focuses on a single capability: it shows the minimal working code, explains the key parameters, and points out any platform-specific behaviour you need to know about. All examples use the OpenAI-compatible API, so existing OpenAI SDK code usually works with a one-line base URL change.
 
-Pick a topic below to get started, or work through them in order if you are new to AI Foundation Services.
-
-## Core API
+## By modality
 
 <CardGrid>
-  <LinkCard
-    title="Chat Completions"
-    href="/guides/chat-completions/"
-    description="Send chat completion requests with system and user messages using the OpenAI-compatible Chat API on AI Foundation Services."
-  />
-  <LinkCard
-    title="Prefix Caching"
-    href="/guides/prefix-caching/"
-    description="Reuse repeated prompt prefixes to cut time-to-first-token, with save_cache and cache_salt for open-source models and cache_control for Claude."
-  />
-  <LinkCard
-    title="Streaming"
-    href="/guides/streaming/"
-    description="Stream LLM responses token-by-token via Server-Sent Events on AI Foundation Services for lower latency and better user experience."
-  />
-  <LinkCard
-    title="Embeddings"
-    href="/guides/embeddings/"
-    description="Generate text embeddings for semantic search, clustering, and RAG applications using the AI Foundation Services Embedding API."
-  />
-  <LinkCard
-    title="Function Calling"
-    href="/guides/function-calling/"
-    description="Define tools and let LLM Hub models return structured JSON arguments to integrate with external APIs and data sources."
-  />
+  <LinkCard title="Chat completions" href="/guides/chat-completions/" description="System and user messages on the OpenAI-compatible Chat API." />
+  <LinkCard title="Streaming" href="/guides/streaming/" description="Token-by-token responses via Server-Sent Events." />
+  <LinkCard title="Vision" href="/guides/multimodal/" description="Image input on the chat API." />
+  <LinkCard title="Multimodal" href="/guides/modalities/" description="Where image, audio, image output, and OCR are documented." />
+  <LinkCard title="Image generation" href="/guides/image-generation/" description="Text prompts to images." />
+  <LinkCard title="Audio" href="/guides/audio/" description="Whisper transcription and translation." />
+  <LinkCard title="Embeddings" href="/guides/embeddings/" description="Vectors for search and RAG." />
+  <LinkCard title="OCR" href="/guides/ocr/" description="Preview models that turn documents into Markdown." />
 </CardGrid>
 
-## Multimodal & Media
+## Features
 
 <CardGrid>
-  <LinkCard
-    title="Multimodal (Vision)"
-    href="/guides/multimodal/"
-    description="Analyze images alongside text using vision-capable models on AI Foundation Services with the standard Chat Completions API."
-  />
-  <LinkCard
-    title="Audio (Speech-to-Text)"
-    href="/guides/audio/"
-    description="Transcribe and translate audio files using Whisper-based models on AI Foundation Services, compatible with the OpenAI Audio API."
-  />
-  <LinkCard
-    title="Image Generation"
-    href="/guides/image-generation/"
-    description="Generate images from text prompts using the OpenAI-compatible Images API on AI Foundation Services with available image models."
-  />
+  <LinkCard title="Function calling" href="/guides/function-calling/" description="Tools and JSON arguments." />
+  <LinkCard title="Structured outputs" href="/guides/structured-outputs/" description="JSON Schema on the Responses API." />
+  <LinkCard title="Reasoning" href="/guides/reasoning/" description="The reasoning_effort parameter, per model." />
+  <LinkCard title="Decisions" href="/guides/decisions/" description="Typed answers for routing and checks." />
 </CardGrid>
 
-## Advanced
+## Production
 
 <CardGrid>
-  <LinkCard
-    title="OCR (Document Parsing)"
-    href="/guides/ocr/"
-    description="Turn scanned documents, PDFs and photos into Markdown, HTML tables and LaTeX with LightOnOCR-3-4B and PaddleOCR-VL-1.6."
-  />
-  <LinkCard
-    title="Decisions"
-    href="/guides/decisions/"
-    description="Get typed answers (a probability, a choice or a score) instead of text, from text or images, for fast agent steps such as tool routing, approval gates and grounding checks."
-  />
-  <LinkCard
-    title="Reasoning Control"
-    href="/guides/reasoning/"
-    description="Control chain-of-thought depth with the reasoning_effort parameter on reasoning-capable models such as GPT-5, Gemini 3, and Claude 4.6."
-  />
-  <LinkCard
-    title="Visual RAG"
-    href="/guides/visual-rag/"
-    description="Index documents with combined text and image retrieval on AI Foundation Services to extract data from charts, tables, and graphs."
-  />
-  <LinkCard
-    title="Queued Requests (Queue API)"
-    href="/guides/queued-requests/"
-    description="Wait up to two minutes for rate-limit budget instead of getting an immediate 429."
-  />
+  <LinkCard title="Prefix caching" href="/guides/prefix-caching/" description="Reuse a repeated prompt prefix." />
+  <LinkCard title="Queued requests" href="/guides/queued-requests/" description="Wait for rate-limit budget instead of an immediate 429." />
+  <LinkCard title="Reliability and retries" href="/guides/reliability/" description="What to retry, from the error-codes page." />
+  <LinkCard title="RAG" href="/guides/rag/" description="T-Cloud embeddings plus a T-Cloud chat model." />
+  <LinkCard title="Visual RAG" href="/guides/visual-rag/" description="Index documents that include charts and tables." />
+  <LinkCard title="Migrate from OpenAI" href="/guides/migrate-from-openai/" description="Point an OpenAI SDK at this API." />
 </CardGrid>

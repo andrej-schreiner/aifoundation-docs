@@ -1,0 +1,59 @@
+---
+title: "Umstieg von OpenAI"
+description: "Ein OpenAI-SDK auf AI Foundation Services zeigen, mit der Basis-URL aus dem Quickstart, und wo sich Modell-IDs unterscheiden."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+<!-- TODO(andrej): bestätigen, wie OpenAI und Azure OpenAI auf dieser Seite heißen sollen und welche Azure-OpenAI-Felder (Deployment-Name, api-version) sich tatsächlich unterscheiden. -->
+
+Diese Seite ist für eine Anwendung, die bereits OpenAI oder Azure OpenAI aufruft. Sie ist nicht der Wechsel vom heutigen AIFS-Endpunkt zur neuen API. Dieser Wechsel ist [Umstieg auf die neue API](/de/api-transition).
+
+:::note[Voraussetzungen]
+- Ein AIFS-API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- Das OpenAI SDK ist bereits installiert
+:::
+
+## Minimales Beispiel
+
+Der Quickstart setzt die Basis-URL und sendet eine Chat Completion. Das SDK bleibt. Basis-URL und Schlüssel ändern sich. Die Modell-ID in diesem Beispiel ist `gpt-oss-120b`.
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+export OPENAI_BASE_URL="https://llm-server.llmhub.t-systems.net/v2"
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[{"role": "user", "content": "Hello from AIFS"}],
+)
+print(response.choices[0].message.content)
+```
+
+Der Quickstart gibt `response.choices[0].message.content` aus.
+
+## Parameter
+
+`OPENAI_BASE_URL` und `OPENAI_API_KEY` sind die beiden Umgebungsvariablen im Quickstart. Der Chat-Körper nutzt `model` und `messages`.
+
+Modell-IDs auf AIFS sind nicht dieselben Zeichenketten wie jede OpenAI-Modell-ID. [Modell wählen](/de/getting-started/choosing-a-model) listet Katalog-IDs, und [Abkündigungen](/de/models/deprecations) nennt Ersatz für Modelle, die am 31.10.2026 oder 30.11.2026 stillgelegt werden.
+
+## Grenzen und Fehlersuche
+
+Die Dokumente nennen die API OpenAI-kompatibel. Sie sagen auch, dass nicht jeder Parameter auf jedem Modell existiert und dass einige Modelle die Responses API mit HTTP 400 ablehnen. Nutzen Sie die Anleitung für den Aufruf, den Sie verschieben.
+
+<!-- TODO(andrej): Azure-OpenAI-Deployment-Namen und api-version sind in den aktuellen Dokumenten nicht beschrieben. Lesern nicht sagen, sie zu streichen oder zu behalten, bevor das festgehalten ist. -->
+
+Authentifizierungsfehler sind HTTP 401 oder 403. Siehe [Fehlercodes](/de/reference/error-codes).
+
+## Nächste Schritte
+
+<div class="link-card-row">
+  <LinkCard title="Quickstart" href="/de/" description="Installation, Schlüssel und der erste Chat-Aufruf." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Welche Katalog-ID in model gehört." />
+  <LinkCard title="Umstieg auf die neue API" href="/de/api-transition" description="Ein anderer Umstieg: der AIFS-Endpunktwechsel." />
+</div>

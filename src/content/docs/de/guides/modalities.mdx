@@ -1,0 +1,22 @@
+---
+title: "Multimodal"
+description: "Wo Bildeingabe, Audio, Bildausgabe und OCR dokumentiert sind. Kein kombiniertes Anfrageformat über diese Anleitungen hinaus."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Der Katalog trennt Modalitäten. Jede hat bereits eine Anleitung. Diese Seite verweist nur darauf.
+
+- **Bildeingabe** neben Text ist [Vision](/de/guides/multimodal). Der Chat-Körper nutzt ein Content-Array mit `text` und `image_url`.
+- **Audio** (Sprache zu Text) ist [Audio](/de/guides/audio), auf `POST /audio/transcriptions` und `POST /audio/translations`.
+- **Bildausgabe** ist [Bildgenerierung](/de/guides/image-generation), auf `POST /images/generations`. Kein Bildmodell im Katalog läuft auf T-Cloud.
+- **Gescannte Dokumente** sind [OCR](/de/guides/ocr), Vorschau-Modelle auf T-Cloud.
+
+<!-- TODO(andrej): die Dokumente zeigen keine Anfrage, die Audio und Bild mischt. Keine kombinierte Nutzlast beschreiben, bevor eine existiert. -->
+
+<div class="link-card-row">
+  <LinkCard title="Vision" href="/de/guides/multimodal" description="Bild-URLs und Base64 auf Chat Completions." />
+  <LinkCard title="Audio" href="/de/guides/audio" description="Whisper-Transkription und Übersetzung." />
+  <LinkCard title="Bildgenerierung" href="/de/guides/image-generation" description="Textprompts zu Bildern." />
+  <LinkCard title="OCR" href="/de/guides/ocr" description="Dokumente zu Markdown." />
+</div>

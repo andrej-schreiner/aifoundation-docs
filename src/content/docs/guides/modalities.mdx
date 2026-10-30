@@ -1,0 +1,22 @@
+---
+title: "Multimodal"
+description: "Where image input, audio, image output, and OCR are documented. No combined request format beyond those guides."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+The catalog separates modalities. Each one already has a guide. This page only points at them.
+
+- **Image input** alongside text is [Vision](/guides/multimodal). The chat body uses a content array with `text` and `image_url`.
+- **Audio** (speech to text) is [Audio](/guides/audio), on `POST /audio/transcriptions` and `POST /audio/translations`.
+- **Image output** is [Image generation](/guides/image-generation), on `POST /images/generations`. No image model in the catalog runs on T-Cloud.
+- **Scanned documents** are [OCR](/guides/ocr), preview models on T-Cloud.
+
+<!-- TODO(andrej): the docs do not show one request that mixes audio and image. Do not describe a combined payload until one exists. -->
+
+<div class="link-card-row">
+  <LinkCard title="Vision" href="/guides/multimodal" description="Image URLs and base64 on chat completions." />
+  <LinkCard title="Audio" href="/guides/audio" description="Whisper transcription and translation." />
+  <LinkCard title="Image generation" href="/guides/image-generation" description="Text prompts to images." />
+  <LinkCard title="OCR" href="/guides/ocr" description="Documents to Markdown." />
+</div>

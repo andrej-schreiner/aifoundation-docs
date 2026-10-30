@@ -1,0 +1,90 @@
+---
+title: "Structured outputs"
+description: "Ask a model for JSON that matches a schema, using the Responses API example already published on the function-calling guide."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Parse text into JSON that follows a schema. This page is the JSON Schema example that used to sit on the function-calling guide. It does not add a second API.
+
+:::note[Prerequisites]
+- An API key ([get one here](https://apikey.llmhub.t-systems.net/))
+- OpenAI SDK installed ([Quickstart](/))
+- The Responses API, as described on [Chat completions](/guides/chat-completions)
+:::
+
+## Minimal example
+
+The model id is `gpt-5`, the id in the original example. That model retires on 2026-10-31. The [deprecations page](/models/deprecations) names GPT-6.1 Sol as a replacement. The snippet is unchanged.
+
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI()
+
+description = """
+Our Premium Laptop Backpack features padded compartments that fit
+laptops up to 15.6 inches. Available in navy blue, black, and gray.
+Price: $79.99, on sale for $64.99.
+"""
+
+response = client.responses.create(
+    model="gpt-5",
+    input=f"Extract structured product information: {description}",
+    max_output_tokens=2000,
+    text={
+        "format": {
+            "type": "json_schema",
+            "name": "product_details",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string"},
+                    "features": {"type": "array", "items": {"type": "string"}},
+                    "colors": {"type": "array", "items": {"type": "string"}},
+                    "pricing": {
+                        "type": "object",
+                        "properties": {
+                            "regular_price": {"type": "number"},
+                            "sale_price": {"type": "number"},
+                            "currency": {"type": "string"},
+                        },
+                        "required": ["regular_price", "sale_price", "currency"],
+                        "additionalProperties": False,
+                    },
+                },
+                "required": ["product_name", "features", "colors", "pricing"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        }
+    },
+)
+
+print(json.dumps(json.loads(response.output_text), indent=2))
+```
+
+<!-- TODO(andrej): no recorded output_text for this call is in the docs. Do not publish a sample JSON until one is captured. -->
+
+The call prints `response.output_text`. A captured response body is not in the current docs.
+
+## Parameters
+
+The fields in the example are `model`, `input`, `max_output_tokens`, and `text.format` with `type`, `name`, `schema`, and `strict`. The chat-completions guide documents `model`, `messages`, `temperature`, `max_tokens`, `stream`, and `top_p` for the chat API. It does not document `response_format` on chat completions.
+
+<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->
+
+## Limitations and troubleshooting
+
+The chat-completions guide says the Responses API is confirmed for text, tool calls, and streaming on `gpt-5`, `gemini-3-flash`, `claude-sonnet-4.6`, and `gpt-oss-120b`, and that some models still return HTTP 400. Those three partner ids are on the retirement list. If a model rejects the Responses API, the same note says to use Chat Completions.
+
+Function calling, which returns JSON arguments for a tool you defined, stays on [Function calling](/guides/function-calling).
+
+## Next steps
+
+<div class="link-card-row">
+  <LinkCard title="Function calling" href="/guides/function-calling" description="Tools and JSON arguments." />
+  <LinkCard title="Chat completions" href="/guides/chat-completions" description="The Responses API note and chat parameters." />
+  <LinkCard title="Deprecations" href="/models/deprecations" description="gpt-5 retires on 2026-10-31." />
+</div>

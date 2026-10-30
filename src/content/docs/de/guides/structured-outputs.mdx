@@ -1,0 +1,90 @@
+---
+title: "Strukturierte Ausgaben"
+description: "JSON nach einem Schema anfordern, mit dem Responses-API-Beispiel, das bisher in der Function-Calling-Anleitung stand."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Text in JSON überführen, das einem Schema folgt. Diese Seite ist das JSON-Schema-Beispiel, das bisher in der Function-Calling-Anleitung stand. Sie führt keine zweite API ein.
+
+:::note[Voraussetzungen]
+- Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- OpenAI SDK installiert ([Quickstart](/de/))
+- Die Responses API, wie unter [Chat Completions](/de/guides/chat-completions) beschrieben
+:::
+
+## Minimales Beispiel
+
+Die Modell-ID ist `gpt-5`, die ID aus dem ursprünglichen Beispiel. Dieses Modell wird am 31.10.2026 stillgelegt. Die [Abkündigungsseite](/de/models/deprecations) nennt GPT-6.1 Sol als Ersatz. Das Snippet bleibt unverändert.
+
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI()
+
+description = """
+Our Premium Laptop Backpack features padded compartments that fit
+laptops up to 15.6 inches. Available in navy blue, black, and gray.
+Price: $79.99, on sale for $64.99.
+"""
+
+response = client.responses.create(
+    model="gpt-5",
+    input=f"Extract structured product information: {description}",
+    max_output_tokens=2000,
+    text={
+        "format": {
+            "type": "json_schema",
+            "name": "product_details",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string"},
+                    "features": {"type": "array", "items": {"type": "string"}},
+                    "colors": {"type": "array", "items": {"type": "string"}},
+                    "pricing": {
+                        "type": "object",
+                        "properties": {
+                            "regular_price": {"type": "number"},
+                            "sale_price": {"type": "number"},
+                            "currency": {"type": "string"},
+                        },
+                        "required": ["regular_price", "sale_price", "currency"],
+                        "additionalProperties": False,
+                    },
+                },
+                "required": ["product_name", "features", "colors", "pricing"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        }
+    },
+)
+
+print(json.dumps(json.loads(response.output_text), indent=2))
+```
+
+<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text in den Dokumenten. Kein Beispiel-JSON veröffentlichen, bevor eines erfasst ist. -->
+
+Der Aufruf gibt `response.output_text` aus. Ein aufgezeichneter Antwortkörper steht in den aktuellen Dokumenten nicht.
+
+## Parameter
+
+Die Felder im Beispiel sind `model`, `input`, `max_output_tokens` und `text.format` mit `type`, `name`, `schema` und `strict`. Die Chat-Completions-Anleitung dokumentiert `model`, `messages`, `temperature`, `max_tokens`, `stream` und `top_p` für die Chat-API. Sie dokumentiert kein `response_format` auf Chat Completions.
+
+<!-- TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. -->
+
+## Grenzen und Fehlersuche
+
+Die Chat-Completions-Anleitung sagt, die Responses API sei für Text, Tool Calls und Streaming auf `gpt-5`, `gemini-3-flash`, `claude-sonnet-4.6` und `gpt-oss-120b` bestätigt, und dass einige Modelle weiterhin HTTP 400 liefern. Die drei Partner-IDs stehen auf der Stilllegungsliste. Wenn ein Modell die Responses API ablehnt, sagt dieselbe Notiz, Chat Completions zu verwenden.
+
+Function Calling, das JSON-Argumente für ein von Ihnen definiertes Tool liefert, bleibt unter [Function Calling](/de/guides/function-calling).
+
+## Nächste Schritte
+
+<div class="link-card-row">
+  <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools und JSON-Argumente." />
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Die Responses-API-Notiz und Chat-Parameter." />
+  <LinkCard title="Abkündigungen" href="/de/models/deprecations" description="gpt-5 wird am 31.10.2026 stillgelegt." />
+</div>
