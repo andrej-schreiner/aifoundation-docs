@@ -11,6 +11,7 @@ import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import { hostingUnconfirmed } from '../shared/lib/launchModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { catalogRank } from '../shared/lib/modelCatalogOrder';
 import {
   CACHED_INPUT_PRICE_PERCENT,
@@ -106,7 +107,7 @@ const t = {
   priceCustom: isDE ? 'Individuell' : 'Custom',
   premiumIncluded: isDE ? 'Premium-Modelle: enthalten' : 'Premium models: included',
   premiumNotIncluded: isDE ? 'Premium-Modelle: nicht enthalten' : 'Premium models: not included',
-  blurbEssential: isDE ? 'Für den Standard-Modellkatalog.' : 'For the standard model catalogue.',
+  blurbEssential: isDE ? 'Für den Standard-Modellkatalog.' : 'For the standard model catalog.',
   blurbProfessional: isDE ? 'Für höheren Durchsatz als Essential.' : 'For higher throughput than Essential.',
   blurbAgentic: isDE ? 'Für den höchsten Best-Effort-Durchsatz.' : 'For the highest best-effort throughput.',
   blurbEnterprise: isDE
@@ -126,8 +127,8 @@ const t = {
   labelExpandAll: isDE ? 'Alle Details öffnen' : 'Expand all details',
   labelCollapseAll: isDE ? 'Alle Details schließen' : 'Collapse all details',
   cachedShort: isDE ? 'Cache' : 'cached',
-  thInputPrice: 'Input Token Price',
-  thOutputPrice: 'Output Token Price',
+  thInputPrice: isDE ? 'Input-Token-Preis' : 'Input Token Price',
+  thOutputPrice: isDE ? 'Output-Token-Preis' : 'Output Token Price',
   thCachedInputPrice: isDE ? 'Cached-Input-Token-Preis' : 'Cached Input Token Price',
   cachedPriceNote: isDE
     ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
@@ -135,13 +136,16 @@ const t = {
   cachedPriceUnavailable: '—',
   priceTba: isDE ? 'Preis wird noch bekannt gegeben' : 'Pricing to be announced',
   worldwideLocationNote: isDE
-    ? 'Weltweit (Worldwide) bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
+    ? 'Weltweit bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
     : 'Worldwide means the third-party provider runs the model on its own infrastructure and may process data outside the EU/EEA.',
   enterpriseTrustLabel: isDE ? 'Enterprise Trust' : 'Enterprise Trust',
   enterpriseTrustHref: isDE ? '/de/reference/enterprise-trust/' : '/reference/enterprise-trust/',
+  adequacyNote: isDE
+    ? '* EU/EWR umfasst Länder mit einem Angemessenheitsbeschluss der EU-Kommission.'
+    : '* EU/EEA includes countries with an adequacy decision by the EU Commission.',
   thTPM: 'TPM',
   thTPMUnit: 'Tokens/Min',
-  thContextWindow: 'Context Window',
+  thContextWindow: isDE ? 'Kontextfenster' : 'Context Window',
   thContextWindowUnit: 'Tokens',
   thLinks: 'Links',
   linkTermsOfUse: isDE ? 'Nutzungsbedingungen' : 'Terms of Use',
@@ -320,6 +324,14 @@ function parseCloudProvider(deploymentRegion: string): string {
   return deploymentRegion;
 }
 
+function localizeSubName(label: string): string {
+  if (!isDE) return label;
+  return label
+    .replaceAll('Azure Sweden', 'Azure Schweden')
+    .replaceAll('Azure France', 'Azure Frankreich')
+    .replaceAll('Azure Worldwide', 'Azure Weltweit');
+}
+
 function parseModelCreator(exactModelName: string | undefined, displayModelName: string): string {
   return creatorNameFor(exactModelName, displayModelName);
 }
@@ -339,7 +351,7 @@ const REGION_DE: Record<string, string> = {
   sweden: 'Schweden',
   france: 'Frankreich',
   europe: 'Europa',
-  worldwide: 'weltweit',
+  worldwide: 'Weltweit',
   us: 'USA',
 };
 
@@ -378,7 +390,7 @@ function mapModelRow(
     cloudProviderFullName: cloudFullNameFor(exactModelName, ''),
     displayName,
     catalogRank: catalogRank(displayName),
-    subName: model.modelLabel || '',
+    subName: localizeSubName(model.modelLabel || ''),
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
     // Cached input tokens are a fixed fraction of the input price, and only
@@ -413,7 +425,7 @@ const plansData = allPricing
     if (!selectedPlanId && (!config || !config.isFilterAvailable)) return null;
     if (selectedPlanId && plan.packageName !== selectedPlanId) return null;
     const models = (plan.modelQuotaConfigs || [])
-      .filter((m: any) => !isRetiringModel(m.exactModelName))
+      .filter((m: any) => !isRetiringModel(m.exactModelName) && !isHiddenModel(m.exactModelName))
       .map((m: any) => {
         const unconfirmed = hostingUnconfirmed(m.exactModelName) || !m.deploymentRegion;
         const modelHost = unconfirmed ? '' : parseModelHost(m.deploymentRegion);

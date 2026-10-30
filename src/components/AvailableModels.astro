@@ -90,7 +90,7 @@ function parseRegion(region: string): {
     Sweden: 'Schweden',
     France: 'Frankreich',
     Europe: 'Europa',
-    Worldwide: 'weltweit',
+    Worldwide: 'Weltweit',
     Us: 'USA',
   };
   if (isDE && regionDe[country]) country = regionDe[country];
@@ -102,7 +102,7 @@ function parseRegion(region: string): {
   const dataProcessing = raw === 'otc'
     ? (isDE ? 'Deutschland' : 'Germany')
     : isWorldwide
-      ? (isDE ? 'weltweit' : 'Worldwide')
+      ? (isDE ? 'Weltweit' : 'Worldwide')
       : 'EU';
   // Only worldwide processing carries a glyph; Germany and EU stay text-only.
   const dataProcessingCode = isWorldwide ? 'globe' : '';

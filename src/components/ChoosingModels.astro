@@ -37,8 +37,8 @@ function place(hosting: string): string {
     .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
     .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
     .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
-    .replaceAll('Azure (worldwide)', 'Azure (weltweit)')
-    .replaceAll('GCP (worldwide)', 'GCP (weltweit)');
+    .replaceAll('Azure (worldwide)', 'Azure (Weltweit)')
+    .replaceAll('GCP (worldwide)', 'GCP (Weltweit)');
 }
 
 function contextLabel(value: string): string {
@@ -50,7 +50,8 @@ function richHtml(text: string): string {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
-    .replace(/`([^`]+)`/g, '<code>$1</code>');
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>');
 }
 
 function where(recommended: string, alternative: string): string {
@@ -180,6 +181,12 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   .choose-desktop table {
     width: 100%;
     max-width: none;
+  }
+
+  .choose-desktop td:first-child,
+  .choose-desktop td:last-child {
+    hyphens: auto;
+    -webkit-hyphens: auto;
   }
 
   .choose-cards {

@@ -85,7 +85,7 @@ function publishedContext(value: string | null | undefined): string {
   const text = (value ?? '').trim();
   if (!text || text === 'None' || text === 'null') return '';
   const compact = text.replace(/,/g, '');
-  if (compact === '102400') return '102K';
+  if (compact === '102400') return '102.4K';
   if (/^1050k$/i.test(compact)) return '1.05M';
   return text;
 }

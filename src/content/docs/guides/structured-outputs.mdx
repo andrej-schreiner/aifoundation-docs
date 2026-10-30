@@ -89,7 +89,7 @@ Set `model`, `input`, `max_output_tokens`, and `text.format`. Inside `text.forma
 
 <div set:html="<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->"></div>
 
-## Supported models
+## Model support
 
 The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
 
@@ -97,7 +97,7 @@ The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-1
 
 ## Limitations
 
-`strict: True` rejects extra properties. If the model cannot fill a required field from the input, the call can fail instead of guessing. For JSON arguments of a tool you defined, use [Function calling](/guides/function-calling).
+`strict: True` together with `additionalProperties: false` keeps the output to the fields in your schema. Validate the values in your code. For JSON arguments of a tool you defined, use [Function calling](/guides/function-calling).
 
 ## See also
 

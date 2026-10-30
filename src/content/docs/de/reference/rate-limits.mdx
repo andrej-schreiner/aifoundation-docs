@@ -16,11 +16,11 @@ Limits variieren sowohl nach Tarif als auch nach Modell. Die folgende Tabelle ze
 | Metrik | Essential | Professional | Agentic |
 |---|---|---|---|
 | **Verfügbare Modelle** | 30 | 33 | 33 |
-| **Beispiel-RPM** <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| **Embedding-Modelle (RPM)** <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 ### Beispiel: Limits pro Modell je Tarif
 
-Zur Veranschaulichung der Skalierung hier die Limits für zwei Modelle aus den Preisdaten.
+Zur Veranschaulichung der Skalierung hier die Limits für zwei Modelle.
 
 **GPT-OSS 120B** (T-Cloud, Deutschland):
 
@@ -176,7 +176,7 @@ def safe_completion(messages, max_retries=3):
 
 - **Nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels).** Das 99,5%-Verfügbarkeits-SLA deckt ausschließlich die Erreichbarkeit der API ab; es erstreckt sich nicht auf RPM, TPM, Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
 - **Für Open-Source-Modelle auf T-Cloud** kann der tatsächlich erreichte Durchsatz bei hoher gleichzeitiger Nachfrage deutlich unterhalb der veröffentlichten Obergrenzen liegen. End-to-End-Latenz und Time-to-First-Token variieren ebenfalls mit der Plattformlast.
-- **Der "Beispiel-RPM"-Wert** in der Tabelle "Limits nach Tarif" ist ein Richtwert für ein repräsentatives T-Cloud-Modell; präzise Limits variieren je Modell. Professional und Agentic umfassen Premium-Modelle (z. B. Claude Opus) zusätzlich zum Standard-Katalog des Essential-Tarifs.
+- **Der Wert "Embedding-Modelle (RPM)"** in der Tabelle "Limits nach Tarif" ist die Anzahl der Anfragen pro Minute für die Embedding-Modelle; präzise Limits variieren je Modell. Professional und Agentic umfassen Premium-Modelle (z. B. Claude Opus) zusätzlich zum Standard-Katalog des Essential-Tarifs.
 - **Für vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token** siehe [Dedicated LLM Serving](/de/plans/dedicated) — dort können solche Zusagen als Performance-SLAs auf reservierter Hardware verhandelt werden.
 
 

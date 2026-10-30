@@ -1,6 +1,6 @@
 ---
 title: "Strukturierte Ausgaben"
-description: "JSON zurückgeben, das einem Schema entspricht, über die Responses API."
+description: "JSON erzeugen, das einem Schema entspricht, über die Responses API."
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
@@ -89,7 +89,7 @@ Setzen Sie `model`, `input`, `max_output_tokens` und `text.format`. In `text.for
 
 <div set:html="<!-- TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. -->"></div>
 
-## Unterstützte Modelle
+## Modellunterstützung
 
 Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten auf `client.responses.create` mit HTTP 400. Für diese Modelle [Chat Completions](/de/guides/chat-completions) verwenden.
 
@@ -97,7 +97,7 @@ Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bes
 
 ## Grenzen
 
-`strict: True` lehnt zusätzliche Eigenschaften ab. Kann das Modell ein Pflichtfeld nicht aus der Eingabe füllen, kann der Aufruf fehlschlagen, statt zu raten. Für JSON-Argumente eines Tools, das Sie definiert haben, [Function Calling](/de/guides/function-calling) verwenden.
+`strict: True` zusammen mit `additionalProperties: false` beschränkt die Ausgabe auf die Felder Ihres Schemas. Prüfen Sie die Werte in Ihrem Code. Für JSON-Argumente eines selbst definierten Tools verwenden Sie [Function Calling](/de/guides/function-calling).
 
 ## Siehe auch
 
