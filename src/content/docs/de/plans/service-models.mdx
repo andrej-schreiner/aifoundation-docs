@@ -6,7 +6,7 @@ tableOfContents: false
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-LLM Serving wird in zwei Servicemodellen angeboten. **Shared LLM Serving Service** ist das Standardprodukt — Multi-Tenant, Pay-as-you-go, bestellbar über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) und das [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login). **Dedicated LLM Serving** reserviert GPU-Hardware exklusiv für Ihren Vertrag, der Durchsatz wird ausschließlich durch die Hardware selbst begrenzt.
+LLM Serving wird in zwei Servicemodellen angeboten. **Shared LLM Serving Service** ist das Standardprodukt — Multi-Tenant, Pay-as-you-go, mit API-Keys aus dem [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login). Zum Bestellen [kontaktieren Sie uns](mailto:ai@t-systems.com). **Dedicated LLM Serving** reserviert GPU-Hardware exklusiv für Ihren Vertrag, der Durchsatz wird ausschließlich durch die Hardware selbst begrenzt.
 
 Beide Modelle nutzen dieselbe OpenAI-kompatible API und denselben Katalog an Open-Source-Modellen. Der Unterschied liegt in der *Kapazitätsverteilung* und im *Abrechnungsmodell*.
 
@@ -21,7 +21,7 @@ Beide Modelle nutzen dieselbe OpenAI-kompatible API und denselben Katalog an Ope
 | **Modelle** | Voller Katalog laut [Tarife & Preise](/de/plans) | Jedes Modell, das auf die reservierte Hardware passt (inkl. privater Fine-Tuning-Modelle) |
 | **Performance (Latenz, Durchsatz)** | Best-Effort, variiert mit Plattformlast; nicht Teil des SLA | Vorhersagbar auf der reservierten Hardware; Performance-SLAs verhandelbar |
 | **Verfügbarkeits-SLA** | 99,5% API-Verfügbarkeit im Standardprodukt (Betriebszeit); deckt nur Erreichbarkeit ab | Individuelle Verfügbarkeits- und Performance-SLAs verhandelbar |
-| **Bestellung** | Self-Service über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) und das [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login) | Angebotsanfrage beim AIFS-Team |
+| **Bestellung** | [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login). [Kontaktieren Sie uns](mailto:ai@t-systems.com) zum Bestellen | Angebotsanfrage beim AIFS-Team |
 | **Geeignet für** | Stetigen Produktionsverkehr, Exploration, Prototyping | Strikte Latenz-SLAs, bursty Workloads, hohen Dauerdurchsatz, private Modelle |
 
 <div class="link-card-row">
@@ -52,7 +52,7 @@ In **Dedicated LLM Serving** gibt es keine Pro-Minute-Obergrenzen. Sie verbrauch
 - Sie **gelegentliche Latenzschwankungen** zu Stoßzeiten tolerieren können (Latenz ist nicht Teil des Shared-SLA)
 - Sie **keine vertragliche Latenz- oder Time-to-First-Token-Zusage** gegenüber Ihren Endnutzern haben
 - Sie **prototypisieren, evaluieren oder im frühen Produktionsbetrieb** sind und Pay-as-you-go bevorzugen
-- Sie **Self-Service-Bestellung** über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) oder das [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login) wollen
+- Sie über das [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login) bestellen oder [uns kontaktieren](mailto:ai@t-systems.com) wollen
 
 Das Shared-Modell deckt die große Mehrheit der Produktions-Workloads ab. Viele Kunden bleiben dauerhaft darauf.
 

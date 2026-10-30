@@ -29,10 +29,10 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const t = {
   ratePlansTitle: isDE ? 'Tarife' : 'Our Rate Plans',
   subtitle: isDE
-    ? 'Wählen Sie den Tarif, der zu Ihren Anforderungen passt. Ein höherer monatlicher Mindestumsatz bedeutet höhere Anfragelimits und Zugriff auf leistungsstärkere Modelle. Sie benötigen eine individuelle Lösung oder ein On-Premises-Hosting? Schreiben Sie uns gerne!'
-    : 'Choose the plan that matches your workload. A higher monthly minimum commitment unlocks higher rate limits and more powerful models. Need a custom setup or on-premises hosting? Contact us!',
+    ? 'Der monatliche Mindestumsatz ist ein Token-Umsatz: Sie verpflichten sich zu diesem Token-Verbrauch pro Monat. Die Nutzung darüber hinaus wird zu den ausgewiesenen Token-Preisen abgerechnet. Die Tarife unterscheiden sich durch den Durchsatz, also die <a href="/de/reference/rate-limits/">RPM- und TPM-Rate-Limits</a>. Für eine individuelle Lösung oder On-Premises-Hosting <a href="mailto:ai@t-systems.com">kontaktieren Sie uns</a>.'
+    : 'The monthly minimum is a token-spend commitment: you commit to that much token spend per month. Usage above it is billed at the listed token prices. Plans differ by throughput — the <a href="/reference/rate-limits/">TPM and RPM rate limits</a>. For a custom setup or on-premises hosting, <a href="mailto:ai@t-systems.com">contact us</a>.',
   thPlan: isDE ? 'Tarif' : 'Rate Plan',
-  thCommitment: isDE ? 'Monatlicher Mindestumsatz' : 'Minimum Monthly Commitment',
+  thCommitment: isDE ? 'Mindest-Tokenumsatz' : 'Minimum token commitment',
   thCommitmentUnit: isDE ? '€ / Monat' : '€ / month',
   thModelHost: isDE ? 'Modell-Hosting' : 'Model Host',
   thModelTier: isDE ? 'Modell-Tier' : 'Model Tier',
@@ -48,10 +48,14 @@ const t = {
   footnote: isDE
     ? '† Beispielpreise für T-Cloud-gehostete Large Language Models'
     : '† Example pricing for T-Cloud-hosted Large Language Models',
-  commitmentNoteLead: isDE ? 'Monatlicher Mindestumsatz' : 'Minimum Monthly Commitment',
+  commitmentNoteLead: isDE ? 'Mindest-Tokenumsatz.' : 'Minimum token commitment.',
   commitmentNoteBody: isDE
-    ? 'ist die Untergrenze Ihrer monatlichen Abrechnung — keine zusätzliche Gebühr neben den Token-Kosten.'
-    : 'is the floor of your monthly billing — not a fee on top of token usage.',
+    ? 'Der Mindestumsatz ist der monatliche Token-Verbrauch, keine zusätzliche Gebühr. Die Nutzung darüber hinaus wird zu den ausgewiesenen Token-Preisen abgerechnet.'
+    : 'The minimum commitment is monthly token spend, not an extra fee. Usage above it is billed at the listed token prices.',
+  commitmentLabel: isDE ? 'Mindest-Tokenumsatz' : 'Minimum token commitment',
+  throughputNoun: isDE ? 'Durchsatz' : 'throughput',
+  rateLimitsHref: isDE ? '/de/reference/rate-limits/' : '/reference/rate-limits/',
+  contactHref: 'mailto:ai@t-systems.com',
   modelsTitle: isDE ? 'Unsere Modelle' : 'Our Models',
   modelsSubtitle: isDE
     ? 'Standard-Modelle sind leistungsfähig und auf Geschwindigkeit ausgelegt – zuverlässig für die meisten Anwendungsfälle, ohne Kompromisse bei der Qualität. Premium-Modelle gehen darüber hinaus: für komplexes Reasoning, lange Kontexte und Aufgaben, bei denen die Ausgabequalität im Vordergrund steht.'
@@ -95,17 +99,17 @@ const t = {
   premiumIncluded: isDE ? 'Premium-Modelle: enthalten' : 'Premium models: included',
   premiumNotIncluded: isDE ? 'Premium-Modelle: nicht enthalten' : 'Premium models: not included',
   blurbEssential: isDE
-    ? 'Shared LLM Serving mit dem Standard-Modellkatalog und Best-Effort-Rate-Limits. Bestellung über den T-Cloud Marketplace.'
-    : 'Shared LLM Serving for the standard model catalogue, with best-effort rate limits. Order it on the T-Cloud Marketplace.',
+    ? 'Shared LLM Serving mit dem Standard-Modellkatalog.'
+    : 'Shared LLM Serving for the standard model catalogue.',
   blurbProfessional: isDE
-    ? 'Shared LLM Serving mit Premium-Modellen und höheren Best-Effort-Rate-Limits als Essential.'
-    : 'Shared LLM Serving with Premium models included, and higher best-effort rate limits than Essential.',
+    ? 'Shared LLM Serving. Premium-Modelle sind enthalten.'
+    : 'Shared LLM Serving. Premium models are included.',
   blurbAgentic: isDE
-    ? 'Shared LLM Serving mit Premium-Modellen und den höchsten Best-Effort-Rate-Limits. Durchsatz und Latenz sind nicht Teil des SLA.'
-    : 'Shared LLM Serving with Premium models and the highest best-effort rate limits. Throughput and latency are not part of the SLA.',
+    ? 'Shared LLM Serving. Premium-Modelle sind enthalten, mit den höchsten Best-Effort-Rate-Limits.'
+    : 'Shared LLM Serving. Premium models are included, with the highest best-effort rate limits.',
   blurbEnterprise: isDE
-    ? 'Individueller Mindestumsatz und individuelle Rate-Limits. Kontaktieren Sie uns für ein Angebot.'
-    : 'Custom commitment and rate limits. Contact us for an offer.',
+    ? 'Individueller Token-Umsatz und individuelle Rate-Limits.'
+    : 'Custom token commitment and rate limits.',
   thHosting: isDE ? 'Hosting' : 'Hosting',
   thHostingSub: isDE ? 'Host · Cloud · Standort' : 'Host · Cloud · Location',
   thInput: 'Input',
@@ -167,8 +171,8 @@ const t = {
 // Legacy (v1.0.0) overrides — different copy for the archived plans page.
 if (legacy) {
   t.subtitle = isDE
-    ? 'Die AI Foundation Services bieten nutzungsbasierte Preise. Preise variieren je nach Modell, Vereinbarung und Tarif. Kontaktieren Sie uns gerne für weitere Informationen zu dedizierten und On-Premises-Hosting-Optionen.'
-    : 'AI Foundation Services offers pay-as-you-go pricing. Prices vary by model, agreement, and rate plan. Please contact us for more information on the dedicated and on-premises hosting options.';
+    ? 'Der monatliche Mindestumsatz ist ein Token-Umsatz: Sie verpflichten sich zu diesem Token-Verbrauch pro Monat. Die Nutzung darüber hinaus wird zu den ausgewiesenen Token-Preisen abgerechnet. Die Tarife unterscheiden sich durch den Durchsatz, also die <a href="/de/reference/rate-limits/">RPM- und TPM-Rate-Limits</a>. Für dediziertes oder On-Premises-Hosting <a href="mailto:ai@t-systems.com">kontaktieren Sie uns</a>.'
+    : 'The monthly minimum is a token-spend commitment: you commit to that much token spend per month. Usage above it is billed at the listed token prices. Plans differ by throughput — the <a href="/reference/rate-limits/">TPM and RPM rate limits</a>. For dedicated or on-premises hosting, <a href="mailto:ai@t-systems.com">contact us</a>.';
   t.modelsSubtitle = isDE
     ? 'Wählen Sie das richtige Modell für Ihren Anwendungsfall – von schnellen Antworten bis zu tiefgehender Analyse.'
     : 'Choose the right model for your use case - from fast responses to deep analysis';
@@ -425,7 +429,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     showRatePlans && (
       <section class="rate-plans-section">
         <h2>{t.ratePlansTitle}</h2>
-        <p class="par-description">{t.subtitle}</p>
+        <p class="par-description" set:html={t.subtitle} />
         {legacy ? (
           <div class="table-wrapper">
             <table class="plans-table">
@@ -480,6 +484,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             {planConfigs.map((plan) => {
               const premium = plan.modelTier.includes('Premium');
               const price = plan.basePrice === 'Custom' ? t.priceCustom : plan.basePrice;
+              const throughputHref = t.rateLimitsHref;
               const blurb =
                 plan.label === 'Essential'
                   ? t.blurbEssential
@@ -492,15 +497,14 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                 <li class="plan-tile">
                   <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
                   <p class="plan-tile__price">
-                    {price}
-                    {plan.basePrice !== 'Custom' && <span class="plan-tile__unit"> / {isDE ? 'Monat' : 'month'}</span>}
-                  </p>
-                  <p class="plan-tile__line">
-                    <span class="plan-tile__k">{t.thRateLimits}</span>{' '}
+                    <a href={throughputHref}>{plan.rpm} {t.throughputNoun}</a>
                     <sup>
                       <a href={t.rpmTpmAnchor}>*</a>
-                    </sup>{' '}
-                    <strong>{plan.rpm}</strong>
+                    </sup>
+                  </p>
+                  <p class="plan-tile__line">
+                    <span class="plan-tile__k">{t.commitmentLabel}:</span> {price}
+                    {plan.basePrice !== 'Custom' && <span class="plan-tile__unit"> / {isDE ? 'Monat' : 'month'}</span>}
                   </p>
                   <p class="plan-tile__hosts">
                     {plan.modelHost.map((cloud) => (
@@ -511,6 +515,11 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   </p>
                   <p class="plan-tile__line">{premium ? t.premiumIncluded : t.premiumNotIncluded}</p>
                   <p class="plan-tile__desc">{blurb}</p>
+                  {plan.basePrice === 'Custom' && (
+                    <p class="plan-tile__line">
+                      <a href={t.contactHref}>{isDE ? 'Kontaktieren Sie uns' : 'Contact us'}</a>
+                    </p>
+                  )}
                 </li>
               );
             })}
@@ -602,6 +611,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     font-size: 1.05rem;
     font-weight: 700;
     line-height: 1.2;
+  }
+
+  .plan-tile__price a {
+    color: inherit;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
   }
 
   .plan-tile__unit {
