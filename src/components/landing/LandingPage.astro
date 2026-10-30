@@ -1,0 +1,544 @@
+---
+import pricingData from '../PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { availableModelCount, lifecycleFor } from '../../data/catalog.mjs';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const p = isDE ? '/de' : '';
+
+const copy = isDE
+	? {
+			title: 'Die souveräne europäische KI-Plattform von T-Systems.',
+			lead: `Nutzen Sie ${availableModelCount} Open-Source- und proprietäre LLMs über eine OpenAI-kompatible API, mit souveränem EU-Hosting für Open-Source-Modelle.`,
+			primary: 'API-Key holen',
+			primaryAria: 'API-Key generieren (öffnet in neuem Tab)',
+			secondary: 'Quickstart',
+			tilesTitle: 'Was die Dokumentation abdeckt',
+			modelsTitle: 'Modelle im Katalog',
+			modelsLink: 'Alle Modelle',
+			stepsTitle: 'In drei Schritten starten',
+			stepsLead: 'Die Quickstart-Anleitung führt durch Installation, Authentifizierung und den ersten API-Aufruf.',
+			ctaTitle: 'Test-Schlüssel anfordern',
+			ctaBody: 'Fordern Sie einen Test-API-Schlüssel an, um mit der Entwicklung zu beginnen.',
+			ctaButton: 'Zum API-Key-Portal',
+			active: 'Aktiv',
+			preview: 'Vorschau',
+			deprecated: 'Veraltet',
+		}
+	: {
+			title: 'The sovereign European AI platform by T-Systems.',
+			lead: `Run ${availableModelCount} open-source and proprietary LLMs through an OpenAI-compatible API, with sovereign EU hosting for open-source models.`,
+			primary: 'Get API key',
+			primaryAria: 'Get API key (opens in a new tab)',
+			secondary: 'Quickstart',
+			tilesTitle: 'What the docs cover',
+			modelsTitle: 'Models in the catalog',
+			modelsLink: 'All models',
+			stepsTitle: 'Get started in three steps',
+			stepsLead: 'The quickstart walks through installing the SDK, setting up authentication, and making your first API call.',
+			ctaTitle: 'Request a trial key',
+			ctaBody: 'Request a trial API key to start building.',
+			ctaButton: 'Open the API key portal',
+			active: 'Active',
+			preview: 'Preview',
+			deprecated: 'Deprecated',
+		};
+
+const tiles = isDE
+	? [
+			{ href: `${p}/reference/enterprise-trust`, title: 'T-Cloud in Deutschland', body: 'Open-Source-Modelle mit souveränem EU-Hosting. Das Datenmodell steht unter Enterprise Trust.' },
+			{ href: `${p}/getting-started/quickstart`, title: 'OpenAI-kompatibel', body: 'Wechseln Sie von OpenAI mit einer Zeile Code. Dieselbe Chat-Completions-Form.' },
+			{ href: `${p}/models`, title: `${availableModelCount} Modelle`, body: 'Der Katalog zählt die Modelle aus den Tarifdaten, ohne die am 31.10.2026 veraltete Gruppe.' },
+			{ href: `${p}/reference/enterprise-trust`, title: 'Enterprise Trust', body: 'Zwei Modellkategorien. Die verbindliche Quelle ist die Leistungsbeschreibung.' },
+		]
+	: [
+			{ href: `${p}/reference/enterprise-trust`, title: 'T-Cloud in Germany', body: 'Open-source models with sovereign EU hosting. The data-handling model is on Enterprise Trust.' },
+			{ href: `${p}/getting-started/quickstart`, title: 'OpenAI-compatible', body: 'Switch from OpenAI with one line of code. Same chat-completions shape.' },
+			{ href: `${p}/models`, title: `${availableModelCount} models`, body: 'The catalog count comes from the plan data, excluding the cohort deprecated on 2026-10-31.' },
+			{ href: `${p}/reference/enterprise-trust`, title: 'Enterprise Trust', body: 'Two model categories. The Service Description is the binding source.' },
+		];
+
+const steps = isDE
+	? [
+			{ n: '1', title: 'OpenAI-Paket installieren', href: `${p}/getting-started/quickstart` },
+			{ n: '2', title: 'API-Schlüssel erhalten', href: `${p}/getting-started/quickstart` },
+			{ n: '3', title: 'Ersten API-Aufruf senden', href: `${p}/getting-started/quickstart` },
+		]
+	: [
+			{ n: '1', title: 'Install the OpenAI package', href: `${p}/getting-started/quickstart` },
+			{ n: '2', title: 'Get an API key', href: `${p}/getting-started/quickstart` },
+			{ n: '3', title: 'Send your first API call', href: `${p}/getting-started/quickstart` },
+		];
+
+const HIGHLIGHTS = ['GPT-OSS 120B', 'Mistral Small 4', 'Qwen 3.6 35B FP8', 'Claude Sonnet 5.5'];
+const plans = pricingData as Array<{ packageName: string; modelQuotaConfigs: Array<Record<string, string>> }>;
+const agentic = plans.find((plan) => plan.packageName === 'Agentic');
+const test = plans.find((plan) => plan.packageName === 'Test');
+const byName = new Map<string, { name: string; region: string; preview: boolean }>();
+for (const config of agentic?.modelQuotaConfigs ?? []) {
+	if (!byName.has(config.displayModelName)) {
+		byName.set(config.displayModelName, { name: config.displayModelName, region: config.deploymentRegion, preview: false });
+	}
+}
+for (const config of test?.modelQuotaConfigs ?? []) {
+	if (!byName.has(config.displayModelName)) {
+		byName.set(config.displayModelName, { name: config.displayModelName, region: config.deploymentRegion, preview: true });
+	}
+}
+
+function cloudOf(region: string) {
+	const raw = (region || '').split('-')[0]?.toLowerCase();
+	if (raw === 'otc') return 'T-Cloud';
+	if (raw === 'azure') return 'Azure';
+	if (raw === 'gcp') return 'GCP';
+	return raw ? raw : '';
+}
+
+const highlights = HIGHLIGHTS.flatMap((name) => {
+	const model = byName.get(name);
+	if (!model) return [];
+	const life = lifecycleFor(name);
+	const kind = life?.status === 'deprecated' ? 'deprecated' : model.preview ? 'preview' : 'active';
+	const label = kind === 'deprecated' ? copy.deprecated : kind === 'preview' ? copy.preview : copy.active;
+	return [{ ...model, kind, label, cloud: cloudOf(model.region) }];
+});
+
+const samples = {
+	curl: `curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \\
+  -H "Authorization: Bearer $OPENAI_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "model": "gpt-oss-120b",
+    "messages": [{"role": "user", "content": "Hello from AIFS"}]
+  }'`,
+	python: `from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://llm-server.llmhub.t-systems.net/v2"
+)
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[{"role": "user", "content": "Hello from AIFS"}],
+)
+print(response.choices[0].message.content)`,
+	node: `import OpenAI from "openai";
+
+const client = new OpenAI({
+  baseURL: "https://llm-server.llmhub.t-systems.net/v2",
+});
+const response = await client.chat.completions.create({
+  model: "gpt-oss-120b",
+  messages: [{ role: "user", content: "Hello from AIFS" }],
+});
+console.log(response.choices[0].message.content);`,
+};
+---
+
+<section class="hero">
+	<div>
+		<h1>{copy.title}</h1>
+		<p class="lead">{copy.lead}</p>
+		<div class="actions">
+			<a class="btn btn-primary" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer" aria-label={copy.primaryAria}>{copy.primary}</a>
+			<a class="btn btn-outline" href={`${p}/getting-started/quickstart`}>{copy.secondary}</a>
+		</div>
+	</div>
+	<div class="code-card" data-code-tabs>
+		<div class="tabs" role="tablist" aria-label={isDE ? 'Codebeispiel' : 'Code sample'}>
+			<button type="button" role="tab" id="tab-curl" aria-selected="true" aria-controls="panel-curl" data-tab="curl">curl</button>
+			<button type="button" role="tab" id="tab-python" aria-selected="false" aria-controls="panel-python" tabindex="-1" data-tab="python">Python</button>
+			<button type="button" role="tab" id="tab-node" aria-selected="false" aria-controls="panel-node" tabindex="-1" data-tab="node">Node.js</button>
+		</div>
+		<pre id="panel-curl" role="tabpanel" aria-labelledby="tab-curl" data-panel="curl"><code>{samples.curl}</code></pre>
+		<pre id="panel-python" role="tabpanel" aria-labelledby="tab-python" data-panel="python" hidden><code>{samples.python}</code></pre>
+		<pre id="panel-node" role="tabpanel" aria-labelledby="tab-node" data-panel="node" hidden><code>{samples.node}</code></pre>
+	</div>
+</section>
+
+<section class="band">
+	<h2>{copy.tilesTitle}</h2>
+	<ul class="tiles">
+		{tiles.map((tile) => (
+			<li>
+				<a href={tile.href}>
+					<strong>{tile.title}</strong>
+					<span>{tile.body}</span>
+				</a>
+			</li>
+		))}
+	</ul>
+</section>
+
+<section class="block">
+	<div class="section-head">
+		<h2>{copy.modelsTitle}</h2>
+		<a href={`${p}/models`}>{copy.modelsLink}</a>
+	</div>
+	<ul class="models">
+		{highlights.map((model) => (
+			<li>
+				<a href={`${p}/models`}>
+					<span class={`status-badge status-badge--${model.kind}`}>{model.label}</span>
+					<strong>{model.name}</strong>
+					<span>{model.cloud}</span>
+				</a>
+			</li>
+		))}
+	</ul>
+</section>
+
+<section class="band">
+	<h2>{copy.stepsTitle}</h2>
+	<p class="section-lead">{copy.stepsLead}</p>
+	<ol class="steps">
+		{steps.map((step) => (
+			<li>
+				<a href={step.href}>
+					<span>{step.n}</span>
+					<strong>{step.title}</strong>
+				</a>
+			</li>
+		))}
+	</ol>
+</section>
+
+<section class="cta">
+	<div>
+		<h2>{copy.ctaTitle}</h2>
+		<p>{copy.ctaBody}</p>
+	</div>
+	<a class="btn btn-on-magenta" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer">{copy.ctaButton}</a>
+</section>
+
+<script>
+	function initCodeTabs(root: HTMLElement) {
+		const tabs = [...root.querySelectorAll<HTMLButtonElement>('[data-tab]')];
+		const panels = [...root.querySelectorAll<HTMLElement>('[data-panel]')];
+		function select(id: string) {
+			for (const tab of tabs) {
+				const on = tab.dataset.tab === id;
+				tab.setAttribute('aria-selected', on ? 'true' : 'false');
+				tab.tabIndex = on ? 0 : -1;
+			}
+			for (const panel of panels) {
+				panel.hidden = panel.dataset.panel !== id;
+			}
+		}
+		root.addEventListener('click', (event) => {
+			const tab = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-tab]');
+			if (tab?.dataset.tab) select(tab.dataset.tab);
+		});
+		root.addEventListener('keydown', (event) => {
+			const tab = (event.target as HTMLElement | null)?.closest<HTMLButtonElement>('[data-tab]');
+			if (!tab) return;
+			const index = tabs.indexOf(tab);
+			if (event.key !== 'ArrowRight' && event.key !== 'ArrowLeft') return;
+			event.preventDefault();
+			const next = event.key === 'ArrowRight' ? (index + 1) % tabs.length : (index - 1 + tabs.length) % tabs.length;
+			tabs[next]?.focus();
+			if (tabs[next]?.dataset.tab) select(tabs[next].dataset.tab!);
+		});
+	}
+
+	for (const root of document.querySelectorAll<HTMLElement>('[data-code-tabs]')) {
+		initCodeTabs(root);
+	}
+	document.addEventListener('astro:page-load', () => {
+		for (const root of document.querySelectorAll<HTMLElement>('[data-code-tabs]')) {
+			if (root.dataset.ready === '1') continue;
+			root.dataset.ready = '1';
+			initCodeTabs(root);
+		}
+	});
+</script>
+
+<style>
+	.hero {
+		display: grid;
+		gap: 2rem;
+		align-items: center;
+		padding: 1.5rem 0 3rem;
+	}
+
+	h1 {
+		margin: 0 0 0.8rem;
+		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+		font-weight: 500;
+		font-size: 2.25rem;
+		line-height: 1.1;
+		color: var(--sl-color-white);
+	}
+
+	.lead {
+		margin: 0 0 1.4rem;
+		font-size: 1.125rem;
+		line-height: 1.45;
+		max-width: 38rem;
+	}
+
+	.actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.75rem;
+	}
+
+	.btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-height: 2.9rem;
+		padding: 0.4rem 1.3rem;
+		border-radius: 24px;
+		border: 1px solid #e20074;
+		font-size: 1.05rem;
+		text-decoration: none;
+		transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+	}
+
+	.btn-primary {
+		background: #e20074;
+		color: #ffffff;
+	}
+
+	.btn-primary:hover {
+		background: #ffffff;
+		color: #e20074;
+	}
+
+	.btn-outline {
+		background: transparent;
+		color: #e20074;
+	}
+
+	:global(:root[data-theme='dark']) .btn-outline {
+		color: #ff70b8;
+		border-color: #ff70b8;
+	}
+
+	.btn-on-magenta {
+		background: #ffffff;
+		color: #e20074;
+	}
+
+	.btn-on-magenta:hover {
+		background: #e20074;
+		color: #ffffff;
+		border-color: #ffffff;
+	}
+
+	.code-card {
+		background: var(--sl-color-gray-7, #f5f5f5);
+		border: 1px solid var(--sl-color-gray-5);
+		border-radius: 16px;
+		overflow: hidden;
+	}
+
+	:global(:root[data-theme='dark']) .code-card {
+		background: #2e2e2e;
+	}
+
+	.tabs {
+		display: flex;
+		gap: 0.25rem;
+		padding: 0.55rem 0.7rem 0;
+	}
+
+	.tabs button {
+		border: 0;
+		background: transparent;
+		color: var(--sl-color-gray-3);
+		font: inherit;
+		padding: 0.35rem 0.7rem;
+		border-bottom: 2px solid transparent;
+		cursor: pointer;
+	}
+
+	.tabs button[aria-selected='true'] {
+		color: #e20074;
+		border-bottom-color: #e20074;
+		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+	}
+
+	:global(:root[data-theme='dark']) .tabs button[aria-selected='true'] {
+		color: #ff70b8;
+		border-bottom-color: #ff70b8;
+	}
+
+	pre {
+		margin: 0;
+		padding: 1rem 1.1rem 1.2rem;
+		overflow: auto;
+		font-size: 0.86rem;
+		line-height: 1.5;
+	}
+
+	code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	}
+
+	.band,
+	.cta {
+		margin-inline: calc(50% - 50vw);
+		padding: 2.5rem max(1.25rem, calc(50vw - 36rem));
+	}
+
+	.band {
+		background: #ededed;
+		color: #262626;
+	}
+
+	:global(:root[data-theme='dark']) .band {
+		background: #2e2e2e;
+		color: #ffffff;
+	}
+
+	.band h2,
+	.block h2,
+	.cta h2 {
+		margin: 0 0 1rem;
+		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+		font-weight: 500;
+		font-size: 1.75rem;
+	}
+
+	.tiles,
+	.models,
+	.steps {
+		display: grid;
+		gap: 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.tiles a,
+	.models a,
+	.steps a {
+		display: flex;
+		flex-direction: column;
+		gap: 0.4rem;
+		height: 100%;
+		padding: 1.4rem 1.2rem;
+		border-radius: 16px;
+		background: #ffffff;
+		color: #262626;
+		text-decoration: none;
+	}
+
+	:global(:root[data-theme='dark']) .tiles a,
+	:global(:root[data-theme='dark']) .models a,
+	:global(:root[data-theme='dark']) .steps a {
+		background: #202020;
+		color: #ffffff;
+	}
+
+	.tiles strong,
+	.models strong,
+	.steps strong {
+		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+		font-weight: 500;
+		font-size: 1.2rem;
+	}
+
+	.block {
+		padding: 2.75rem 0;
+	}
+
+	.section-head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 1rem;
+	}
+
+	.section-head a {
+		color: #e20074;
+		text-decoration: none;
+		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+	}
+
+	:global(:root[data-theme='dark']) .section-head a {
+		color: #ff70b8;
+	}
+
+	.section-lead {
+		margin: -0.4rem 0 1rem;
+		max-width: 40rem;
+	}
+
+	.steps a {
+		flex-direction: row;
+		align-items: center;
+		gap: 0.9rem;
+	}
+
+	.steps span {
+		display: grid;
+		place-items: center;
+		width: 2rem;
+		height: 2rem;
+		border-radius: 4px;
+		background: #e20074;
+		color: #ffffff;
+		font-family: 'TeleNeoWeb-Bold', Arial, Helvetica, sans-serif;
+	}
+
+	.cta {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: space-between;
+		gap: 1.25rem;
+		margin-top: 0.5rem;
+		margin-bottom: 0;
+		background: #e20074;
+		color: #ffffff;
+		border-radius: 0;
+	}
+
+	.cta h2,
+	.cta p {
+		color: #ffffff;
+	}
+
+	.cta p {
+		margin: 0;
+		max-width: 36rem;
+	}
+
+	@media (min-width: 960px) {
+		.hero {
+			grid-template-columns: 1.05fr 0.95fr;
+			gap: 2.5rem;
+			padding-top: 2.5rem;
+		}
+		h1 {
+			font-size: 3rem;
+		}
+		.tiles,
+		.models {
+			grid-template-columns: repeat(4, 1fr);
+		}
+		.steps {
+			grid-template-columns: repeat(3, 1fr);
+		}
+		.tiles a,
+		.models a {
+			border-radius: 32px;
+			padding: 1.8rem 1.4rem;
+		}
+	}
+
+	@media (max-width: 959px) {
+		.tiles,
+		.models,
+		.steps {
+			grid-template-columns: 1fr;
+		}
+		.btn {
+			width: 100%;
+		}
+		.actions {
+			flex-direction: column;
+		}
+	}
+</style>

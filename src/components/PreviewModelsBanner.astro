@@ -29,45 +29,21 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const prefix = isDE ? '/de' : '';
 const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
 
-const bars = isDE
-  ? [
-      {
-        key: 'apiTransitionBannerDismissed',
-        badge: 'Hinweis',
-        msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
-        cta: 'Zur API-Umstellung',
-        href: `${prefix}/api-transition`,
-      },
-      {
-        key: 'ocrPreviewBannerDismissed',
-        badge: 'Neu',
-        msg: 'Neu in der Preview: <b>LightOnOCR-3-4B</b> (Made in Europe) und <b>PaddleOCR-VL-1.6</b> — verwandeln Sie Dokumente, PDFs und Handschrift in bearbeitbares Markdown und Tabellen. Kostenlos testbar.',
-        cta: 'OCR ausprobieren',
-        href: `${prefix}/guides/ocr`,
-      },
-    ]
-  : [
-      {
-        key: 'apiTransitionBannerDismissed',
-        badge: 'Notice',
-        msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
-        cta: 'View API changes',
-        href: `${prefix}/api-transition`,
-      },
-      {
-        key: 'ocrPreviewBannerDismissed',
-        badge: 'New',
-        msg: 'New in preview: <b>LightOnOCR-3-4B</b> (made in Europe) and <b>PaddleOCR-VL-1.6</b> — turn documents, PDFs and handwriting into editable Markdown and tables. Free to try.',
-        cta: 'Try OCR',
-        href: `${prefix}/guides/ocr`,
-      },
-    ];
+const bars = [
+	{
+		key: 'apiTransitionBannerDismissed',
+		msg: isDE
+			? 'Wir nehmen einige Änderungen an der API vor. Prüfen Sie, was sich ändert und was Sie tun müssen.'
+			: 'We are making a few API changes. See what changes and what you need to do.',
+		cta: isDE ? 'Zur API-Umstellung' : 'View API changes',
+		href: `${prefix}/api-transition`,
+	},
+];
 ---
 
 {bars.map((b) => (
   <div class="qp-bar" data-key={b.key} role="region" aria-label={close} hidden>
-    <span class="qp-badge">{b.badge}</span>
-    <p class="qp-msg" set:html={b.msg}></p>
+    <p class="qp-msg">{b.msg}</p>
     <a class="qp-cta" href={b.href}>{b.cta}</a>
     <button type="button" class="qp-close" aria-label={close}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
@@ -89,14 +65,15 @@ const bars = isDE
     /* Left-aligned like the rest of the content column (margin:auto centering
        was a relic of the old fixed centered pill). */
     width: min(46rem, 100%);
-    margin: 0 0 0.25rem;
-    padding: 0.5rem 0.75rem;
+    margin: 0 0 0.75rem;
+    padding: 0.45rem 0.75rem;
 
-    background: var(--sl-color-accent-low);
-    color: var(--sl-color-white);
-    border: 1px solid var(--sl-color-accent);
-    border-radius: 10px;
-    box-shadow: 0 8px 24px -12px rgba(0, 0, 0, 0.5);
+    background: #ededed;
+    color: #262626;
+    border: 0;
+    border-inline-start: 3px solid #e20074;
+    border-radius: 4px;
+    box-shadow: none;
     font-size: var(--sl-text-xs);
     line-height: 1.35;
 
@@ -132,19 +109,15 @@ const bars = isDE
 
   .qp-cta {
     flex-shrink: 0;
-    padding: 0.3125rem 0.75rem;
-    border-radius: 7px;
-    background: var(--sl-color-accent);
-    color: #ffffff;
+    color: #b5005d;
     font-weight: 600;
-    text-decoration: none;
+    text-decoration: underline;
+    text-underline-offset: 2px;
     white-space: nowrap;
-    transition: background 0.15s;
   }
   .qp-cta:hover,
   .qp-cta:focus-visible {
-    background: #9e0050;
-    color: #ffffff;
+    color: #e20074;
   }
 
   .qp-close {

@@ -37,10 +37,18 @@ const links = isDE
 
 <style>
   .site-footer {
-    border-top: 1px solid var(--sl-color-gray-5);
-    padding: 1.5rem var(--sl-content-pad-x);
-    font-size: 0.85rem;
-    color: var(--sl-color-gray-3);
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    box-sizing: border-box;
+    background: #262626;
+    color: #ffffff;
+    padding: 1.9rem 1.25rem 2rem;
+    font-size: 0.9rem;
+  }
+
+  :global(:root[data-theme='dark']) .site-footer {
+    background: #000000;
   }
 
   .site-footer-inner {
@@ -64,13 +72,12 @@ const links = isDE
   }
 
   .site-footer-nav a {
-    color: var(--sl-color-gray-3);
+    color: #ffffff;
     text-decoration: none;
   }
 
   .site-footer-nav a:hover,
   .site-footer-nav a:focus-visible {
-    color: var(--sl-color-accent);
     text-decoration: underline;
   }
 

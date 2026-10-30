@@ -285,8 +285,14 @@ const INITIAL_COUNT = 6;
           </button>
           <h3 class="model-card__name">
             {model.name}
-            {model.preview && <span class="model-card__preview-tag"> – Preview</span>}
           </h3>
+          <span class:list={['status-badge', model.lifecycle?.status === 'deprecated' ? 'status-badge--deprecated' : model.preview ? 'status-badge--preview' : 'status-badge--active']}>
+            {model.lifecycle?.status === 'deprecated'
+              ? (isDE ? 'Veraltet' : 'Deprecated')
+              : model.preview
+                ? (isDE ? 'Vorschau' : 'Preview')
+                : (isDE ? 'Aktiv' : 'Active')}
+          </span>
           {model.lifecycleLabel && (
             <a class={`model-card__lifecycle model-card__lifecycle--${model.lifecycle?.status ?? 'retiring'}`} href={retirementHref}>
               {model.lifecycleLabel}

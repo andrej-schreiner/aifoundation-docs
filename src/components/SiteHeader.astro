@@ -1,0 +1,128 @@
+---
+import config from 'virtual:starlight/user-config';
+import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
+import Search from 'virtual:starlight/components/Search';
+import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const home = isDE ? '/de/' : '/';
+const cta = isDE ? 'API-Key' : 'Get API key';
+const ctaAria = isDE
+	? 'API-Key generieren (öffnet in neuem Tab)'
+	: 'Get API key (opens in a new tab)';
+const showSearch =
+	config.pagefind || config.components?.Search !== '@astrojs/starlight/components/Search.astro';
+---
+
+<div class="ts-header">
+	<a class="ts-brand" href={home}>
+		<span class="ts-mark">
+			<img src="/img/favicon_180x180.png" width="28" height="28" alt="" />
+		</span>
+		<span class="ts-word">AI Foundation Services</span>
+	</a>
+	<div class="ts-search">{showSearch && <Search />}</div>
+	<div class="ts-tools">
+		<ThemeSelect />
+		<LanguageSelect />
+		<a class="ts-cta" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer" aria-label={ctaAria}>
+			{cta}
+		</a>
+	</div>
+</div>
+
+<style>
+	.ts-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		height: 100%;
+		min-width: 0;
+	}
+
+	.ts-brand {
+		display: flex;
+		align-items: center;
+		gap: 0.7rem;
+		min-width: 0;
+		color: #262626;
+		text-decoration: none;
+		font-family: 'TeleNeoWeb-Medium', Arial, Helvetica, sans-serif;
+		font-weight: 500;
+	}
+
+	:global(:root[data-theme='dark']) .ts-brand {
+		color: #ffffff;
+	}
+
+	.ts-mark {
+		display: grid;
+		place-items: center;
+		width: 2.5rem;
+		height: 2.5rem;
+		flex: 0 0 auto;
+		background: #e20074;
+		border-radius: 2px;
+	}
+
+	.ts-mark img {
+		width: 1.7rem;
+		height: 1.7rem;
+		object-fit: contain;
+	}
+
+	.ts-word {
+		font-size: 1.05rem;
+		line-height: 1.1;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.ts-search {
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+
+	.ts-tools {
+		display: flex;
+		align-items: center;
+		gap: 0.65rem;
+		flex: 0 0 auto;
+	}
+
+	@media (max-width: 49.99rem) {
+		.ts-tools > :global(*:not(.ts-cta)) {
+			display: none !important;
+		}
+	}
+
+	.ts-cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 2.5rem;
+		padding: 0 1.1rem;
+		border-radius: 999px;
+		border: 1px solid #e20074;
+		background: #e20074;
+		color: #ffffff;
+		font-family: 'TeleNeoWeb-Regular', Arial, Helvetica, sans-serif;
+		font-size: 0.95rem;
+		text-decoration: none;
+		white-space: nowrap;
+		transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+	}
+
+	.ts-cta:hover {
+		background: #ffffff;
+		color: #e20074;
+	}
+
+	@media (max-width: 40rem) {
+		.ts-word {
+			font-size: 0.82rem;
+			max-width: 7.5rem;
+		}
+	}
+</style>
