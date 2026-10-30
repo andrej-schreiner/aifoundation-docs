@@ -3,6 +3,7 @@ import 'flag-icons/css/flag-icons.min.css';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
@@ -55,67 +56,6 @@ const EXTRA_MODELS: Array<{
 // Empty is fine — every model in the catalog currently reads correctly from its
 // deployment region.
 const CLOUD_OVERRIDES: Record<string, string> = {};
-
-const SORT_ORDER = [
-  'LightOnOCR-3-4B',
-  'PaddleOCR-VL-1.6',
-  'd3',
-  'DiffusionGemma 26B A4B',
-  'GLM 5.3 Flash',
-  'GLM 5.2',
-  'NVIDIA Nemotron 3 Super 120B FP8',
-  'Gemma 4',
-  'Mistral Small 4',
-  'GPT-OSS 120B',
-  'Qwen 3.8 27B FP8',
-  'Qwen 3.6 35B FP8',
-  'Qwen3-Next 80B',
-  'Qwen3-VL 30B',
-  'Qwen3 Coder 30B',
-  'Qwen 3 Coder 30B',
-  'Llama 3.3 70B',
-  'Mistral Small 3',
-  'Mistral Medium 3',
-  'GPT-5.2',
-  'GPT 5.2',
-  'GPT-5',
-  'GPT-5 mini',
-  'GPT-5 nano',
-  'GPT-5 Codex',
-  'o4 mini',
-  'o3',
-  'o3 mini',
-  'o1 mini',
-  'Claude 4.6 Opus',
-  'Claude 4.6 Sonnet',
-  'Claude 4.5 Opus',
-  'Claude 4.5 Sonnet (>200k)',
-  'Claude 4.5 Sonnet (≤200k)',
-  'Claude 4.5 Haiku',
-  'Claude 4 Sonnet',
-  'Claude 3.7 Sonnet',
-  'Gemini 3 Pro (>200k)',
-  'Gemini 3 Pro (≤200k)',
-  'Gemini 3 Flash',
-  'Gemini 2.5 Pro (>200k)',
-  'Gemini 2.5 Pro (≤200k)',
-  'Gemini 2.5 Flash',
-  'Gemini 3 Pro Image',
-  'Gemini 2.5 Flash Image',
-  'GPT-4.1',
-  'GPT-4.1 mini',
-  'GPT-4.1 nano',
-  'GPT-4o',
-  'GPT-4o mini',
-  'GPT-Image-1 (Text→Image)',
-  'GPT-Image-1 (Image→Image)',
-  'BGE-M3',
-  'Ada Text Embedding',
-  'Qwen3 Embedding 8B',
-  'Jina Embeddings v2 Base DE',
-  'Whisper Large v3',
-  'Whisper Large v3 Turbo',
-];
 
 // Map country names to ISO 3166-1 alpha-2 codes for flag icons
 const COUNTRY_TO_CODE: Record<string, string> = {
@@ -204,16 +144,8 @@ for (const m of allModels) {
   modelMap.set(m.name, m);
 }
 
-// Sort: preview (newest) first, then by priority list, then alphabetical for unlisted
-const sortedModels = [...modelMap.values()].sort((a, b) => {
-  if (a.preview !== b.preview) return a.preview ? -1 : 1;
-  const ai = SORT_ORDER.indexOf(a.name);
-  const bi = SORT_ORDER.indexOf(b.name);
-  if (ai !== -1 && bi !== -1) return ai - bi;
-  if (ai !== -1) return -1;
-  if (bi !== -1) return 1;
-  return a.name.localeCompare(b.name);
-});
+// Same order as the plans table default. See modelCatalogOrder.ts.
+const sortedModels = [...modelMap.values()].sort((a, b) => compareCatalogName(a.name, b.name));
 
 const INITIAL_COUNT = 6;
 ---
@@ -296,11 +228,12 @@ const INITIAL_COUNT = 6;
 
 <style>
   .available-models {
-    margin: 1.5rem 0;
+    margin-block: 8px;
   }
 
   .models-heading {
-    margin-bottom: 1rem;
+    margin: 0 0 8px;
+    line-height: 1.2;
   }
 
   .models-count {
@@ -316,7 +249,7 @@ const INITIAL_COUNT = 6;
 
   .models-grid {
     display: grid;
-    gap: 1rem;
+    gap: 8px;
     grid-template-columns: 1fr;
     align-items: stretch;
   }
@@ -338,12 +271,13 @@ const INITIAL_COUNT = 6;
     background: var(--sl-color-black);
     color: var(--sl-color-white);
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 8px;
-    padding: 1rem 2rem;
+    border-radius: var(--aifs-table-radius, 8px);
+    padding: 8px 12px;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 4px;
     text-align: start;
+    line-height: 1.2;
   }
 
   :global(:root[data-theme='dark']) .model-card {
@@ -368,26 +302,27 @@ const INITIAL_COUNT = 6;
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
+    line-height: 1.2;
     color: var(--sl-color-white);
-    min-height: 2.5em;
-    padding-right: 2.25rem;
+    padding-right: 1.75rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.35rem;
+    gap: 4px;
   }
 
   .model-card__dl {
     display: grid;
-    gap: 0.25rem;
+    gap: 2px;
     margin: 0;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
   }
 
   .model-card__dl div {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: 0.35rem 0.5rem;
+    gap: 2px 8px;
     align-items: baseline;
   }
 
@@ -414,8 +349,8 @@ const INITIAL_COUNT = 6;
      belongs to Button.astro, not to this component's scope. */
   .model-card :global(.model-card__copy) {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+    top: 4px;
+    right: 4px;
   }
 
   .model-card :global(.model-card__copy .icon-check) {
@@ -459,7 +394,7 @@ const INITIAL_COUNT = 6;
   /* Drawn by the Button component (secondary); centred under the grid here. */
   :global(.models-toggle) {
     display: flex;
-    margin: 1.25rem auto 0;
+    margin: 8px auto 0;
   }
 </style>
 

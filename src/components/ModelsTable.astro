@@ -221,6 +221,7 @@ const priceBuckets = [
         <label class="mt-sort">
           <span>{translations.labelSortBy || 'Sort by'}</span>
           <select data-sort-by>
+            <option value="catalog">{translations.labelSortCatalog || 'Recommended'}</option>
             {sortOptions.map((header) => (
               <option value={header.key}>{header.label}</option>
             ))}
@@ -293,6 +294,7 @@ const priceBuckets = [
 <script>
   import { isPriceInRange } from '../shared/lib/priceRangeHelper';
   import { emptyMark, formatEuro } from '../shared/lib/displayFormat';
+  import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 
   type FilterState = Map<string, Set<string>>;
 
@@ -322,10 +324,9 @@ const priceBuckets = [
     const totalCountEl = section.querySelector<HTMLElement>('[data-total-count]');
     const maxHeightRowThreshold = 12;
 
-    // Default sort: cloudProvider with custom rank (Telekom > Azure > GCP),
-    // ascending — i.e. Telekom rows at the top. Replaces the old
-    // Telekom-only filter default.
-    let sortKey = 'cloudProvider';
+    // Default sort is the shared catalog order (T-Cloud first, then
+    // hyperscalers). A column click or the sort menu replaces it.
+    let sortKey = 'catalog';
     let sortAsc = true;
     let searchTerm = '';
 
@@ -409,9 +410,8 @@ const priceBuckets = [
       // Decide which values should be checked:
       //  - If we previously had no constraint (all checked), keep no constraint.
       //  - If we have a narrowed prev state with overlap, preserve it.
-      //  - Otherwise: default to all-checked (no constraint). Telekom-first
-      //    positioning is achieved via the default sort (sortKey =
-      //    'cloudProvider') rather than a filter.
+      //  - Otherwise: default to all-checked (no constraint). T-Cloud-first
+      //    positioning is the catalog sort, not a filter.
       const prev = filterStatePrev.get(filterId);
       let checkedFn: (v: string) => boolean;
       if (prev?.wasAllChecked) {
@@ -630,6 +630,12 @@ const priceBuckets = [
 
       if (sortKey) {
         models.sort((left, right) => {
+          if (sortKey === 'catalog') {
+            const byName = compareCatalogName(left.displayName || '', right.displayName || '');
+            if (byName !== 0) return byName;
+            if (left.isSubRow !== right.isSubRow) return left.isSubRow ? 1 : -1;
+            return 0;
+          }
           // Cloud column uses a fixed priority order (Telekom > Azure > GCP >
           // others) instead of alphabetical, so "sort by cloud" produces the
           // product's flagship ordering rather than A → Z. Secondary sort by
