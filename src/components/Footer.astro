@@ -36,21 +36,28 @@ const links = isDE
 
 <style>
   .site-footer {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    /* The footer sits in the content column. A 100vw breakout from there
+       overshoots the viewport (the column is not centered) and creates a
+       horizontal scrollbar. Paint the bar with a clipped shadow instead. */
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
     box-sizing: border-box;
     background: #ffffff;
     color: #262626;
     border-top: 1px solid #d8d8d8;
     padding: 1.25rem 1.25rem 1.5rem;
     font-size: 0.9rem;
+    box-shadow: 0 0 0 100vw #ffffff;
+    clip-path: inset(0 -100vw);
   }
 
   :global(:root[data-theme='dark']) .site-footer {
-    background: var(--aifs-d-surface);
+    background: var(--aifs-d-bg);
     color: var(--aifs-d-text);
     border-top-color: var(--aifs-d-border);
+    box-shadow: 0 0 0 100vw var(--aifs-d-bg);
   }
 
   .site-footer-inner {

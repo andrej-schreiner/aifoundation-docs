@@ -10,7 +10,6 @@ import ZhipuIcon from '../../assets/icons/model-brand/zhipu.svg?url';
 // import BAAIIcon from '../../assets/icons/model-brand/other.svg?url';
 import TSystemsIcon from '../../assets/icons/model-brand/t-systems.png?url';
 import GemmaIcon from '../../assets/icons/model-brand/gemma.png?url';
-import OtherIcon from '../../assets/icons/model-brand/other.svg?url';
 
 export const modelBrandIcons: Record<string, string> = {
   Anthropic: AnthropicIcon,
@@ -26,7 +25,6 @@ export const modelBrandIcons: Record<string, string> = {
   // 'Jina AI': JinaAIIcon,
   // BAAI: BAAIIcon,
   'T-Systems': TSystemsIcon,
-  Other: OtherIcon,
 };
 
 export function getModelBrandIcon(name: string): string {

@@ -88,6 +88,20 @@ const t = {
   thCloudProvider: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
   thCreator: isDE ? 'Anbieter' : 'Creator',
   thModelName: isDE ? 'Modellname' : 'Model Name',
+  thModel: isDE ? 'Modell' : 'Model',
+  thModelSub: isDE ? 'Anbieter · Tier' : 'Creator · Tier',
+  thHosting: 'Hosting',
+  thHostingSub: isDE ? 'Host · Cloud · Standort' : 'Host · Cloud · Location',
+  thInput: 'Input',
+  thOutput: 'Output',
+  thLimits: 'Limits',
+  thLimitsSub: 'RPM · TPM',
+  thContext: isDE ? 'Kontext' : 'Context',
+  thDetails: 'Details',
+  labelSortBy: isDE ? 'Sortieren nach' : 'Sort by',
+  labelExpandAll: isDE ? 'Alle Details öffnen' : 'Expand all details',
+  labelCollapseAll: isDE ? 'Alle Details schließen' : 'Collapse all details',
+  cachedShort: isDE ? 'Cache' : 'cached',
   thInputPrice: 'Input Token Price',
   thOutputPrice: 'Output Token Price',
   thCachedInputPrice: isDE ? 'Cached-Input-Token-Preis' : 'Cached Input Token Price',
@@ -449,17 +463,17 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             <tbody>
               {planConfigs.map((plan) => (
                 <tr>
-                  <td>
+                  <td data-label={t.thPlan}>
                     <span class="plans-tag" style={`background:${plan.color};color:#000`}>
                       {plan.label}
                     </span>
                   </td>
-                  <td>
+                  <td data-label={t.thCommitment}>
                     <span class="plans-table__main-text">{plan.basePrice}</span>
                   </td>
-                  {showTokenPriceColumn && <td>{plan.tokenPrice} †</td>}
-                  <td>{plan.rpm} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}</td>
-                  <td>
+                  {showTokenPriceColumn && <td data-label={t.thTokenPrice}>{plan.tokenPrice} †</td>}
+                  <td data-label={legacy ? t.thRPM : t.thRateLimits}>{plan.rpm} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}</td>
+                  <td data-label={t.thModelHost}>
                     {plan.modelHost.map((cloud, i) => (
                       <>
                         {i > 0 && ' '}
@@ -470,7 +484,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                     ))}
                   </td>
                   {!legacy && (
-                    <td>
+                    <td data-label={t.thModelTier}>
                       {plan.modelTier.map((tier, i) => (
                         <>
                           {i > 0 && ' '}
@@ -523,8 +537,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 <style is:global>
   .plans-page {
     width: 100%;
-    --model-link-color: #4f5cff;
-    --model-link-icon-color: #000000;
+    --model-link-color: var(--sl-color-text-accent);
+    --model-link-icon-color: var(--sl-color-text-accent);
   }
 
   :root[data-theme='dark'] .plans-page {
@@ -554,6 +568,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .rate-plans-section {
     margin-bottom: 2rem;
+    container-type: inline-size;
+    container-name: rateplans;
   }
 
   /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
@@ -680,9 +696,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     cursor: pointer;
   }
 
-  .tag-tcloud {
-    background: #e20074 !important;
-    color: white !important;
+  .tag-tcloud,
+  .tag-cloud,
+  .tag-external-cloud {
+    background: transparent !important;
+    color: var(--sl-color-text) !important;
+    box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
   }
 
   .tag-cloud {
@@ -697,7 +716,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .tag-premium {
     background: rgba(78, 201, 223, 0.28);
-    color: #238fa5;
+    color: #0c5c70;
     box-shadow: inset 0 0 0 1px rgba(78, 201, 223, 0.22);
   }
 
@@ -710,6 +729,73 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .sort-icon.active {
     color: #e20074;
     opacity: 1;
+  }
+
+  @container rateplans (max-width: 50rem) {
+    .rate-plans-section .table-wrapper {
+      overflow: visible;
+      padding-top: 0;
+      margin-top: 0;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table,
+    .rate-plans-section .plans-table tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table tr {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0.45rem 0.75rem;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1px solid var(--sl-color-gray-5);
+      border-radius: 8px;
+      margin: 0 0 0.75rem;
+      padding: 0.85rem;
+    }
+
+    .rate-plans-section .plans-table td {
+      display: block;
+      min-width: 0;
+      width: auto;
+      padding: 0;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table td:nth-child(1),
+    .rate-plans-section .plans-table td:nth-child(n + 4) {
+      grid-column: 1 / -1;
+    }
+
+    .rate-plans-section .plans-table td::before {
+      content: attr(data-label);
+      display: block;
+      margin-bottom: 0.15rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--sl-color-gray-3);
+    }
+
+    .rate-plans-section .plans-table td :global(.plans-tag) {
+      margin: 0 0.35rem 0.35rem 0;
+    }
   }
 
   @media (max-width: 1200px) {

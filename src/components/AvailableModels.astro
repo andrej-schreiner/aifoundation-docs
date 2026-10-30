@@ -3,6 +3,10 @@ import 'flag-icons/css/flag-icons.min.css';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 
 // Locale detection (mirrors PlansPage.astro pattern)
+interface Props {
+  showHeading?: boolean;
+}
+const { showHeading = true } = Astro.props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
 const t = {
@@ -213,12 +217,14 @@ const INITIAL_COUNT = 6;
 ---
 
 <div class="available-models">
-  <h2 class="models-heading">
-    {t.sectionHeading}{' '}
-    <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(sortedModels.length))}>
-      ({sortedModels.length})
-    </span>
-  </h2>
+  {showHeading && (
+    <h2 class="models-heading">
+      {t.sectionHeading}{' '}
+      <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(sortedModels.length))}>
+        ({sortedModels.length})
+      </span>
+    </h2>
+  )}
   <span id="copy-status" class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="models-grid" id="models-grid">
     {
@@ -267,35 +273,32 @@ const INITIAL_COUNT = 6;
           </button>
           <h3 class="model-card__name">
             {model.name}
-            {model.preview && <span class="model-card__preview-tag"> – Preview</span>}
+            {model.preview && <span class="status-badge status-badge--preview">Preview</span>}
           </h3>
-          <div class="model-card__details">
-            <span>
-              {t.cloud}: <strong>{model.provider}</strong>
-            </span>
-            <span>
-              {t.serverLocation}: <strong>{model.hosted}</strong>{' '}
-              {model.countryCode && (
-                <span
-                  class={`fi fi-${model.countryCode}`}
-                  style="margin-left: 4px;"
-                  role="presentation"
-                  aria-hidden="true"
-                />
-              )}
-            </span>
-            <span>
-              {t.dataProcessing}: <strong>{model.dataProcessing}</strong>{' '}
-              {model.dataProcessingCode && (
-                <span
-                  class={`fi fi-${model.dataProcessingCode}`}
-                  style="margin-left: 4px;"
-                  role="presentation"
-                  aria-hidden="true"
-                />
-              )}
-            </span>
-          </div>
+          <dl class="model-card__dl">
+            <div>
+              <dt>{t.cloud}</dt>
+              <dd>{model.provider}</dd>
+            </div>
+            <div>
+              <dt>{t.serverLocation}</dt>
+              <dd>
+                {model.hosted}
+                {model.countryCode && (
+                  <span class={`fi fi-${model.countryCode}`} role="presentation" aria-hidden="true" />
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>{t.dataProcessing}</dt>
+              <dd>
+                {model.dataProcessing}
+                {model.dataProcessingCode && (
+                  <span class={`fi fi-${model.dataProcessingCode}`} role="presentation" aria-hidden="true" />
+                )}
+              </dd>
+            </div>
+          </dl>
         </div>
       ))
     }
@@ -367,7 +370,7 @@ const INITIAL_COUNT = 6;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    text-align: center;
+    text-align: start;
   }
 
   :global(:root[data-theme='dark']) .model-card {
@@ -381,7 +384,7 @@ const INITIAL_COUNT = 6;
 
   :global(:root[data-theme='dark']) .model-card:hover {
     background: var(--aifs-d-raised);
-    border-color: var(--aifs-d-border);
+    border-color: var(--aifs-d-border-strong);
   }
 
   .model-card--hidden {
@@ -394,6 +397,38 @@ const INITIAL_COUNT = 6;
     font-weight: 600;
     color: var(--sl-color-white);
     min-height: 2.5em;
+    padding-right: 2.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .model-card__dl {
+    display: grid;
+    gap: 0.25rem;
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .model-card__dl div {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.35rem 0.5rem;
+    align-items: baseline;
+  }
+
+  .model-card__dl dt {
+    margin: 0;
+    color: var(--sl-color-gray-3);
+  }
+
+  .model-card__dl dd {
+    margin: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .model-card__preview-tag {
