@@ -4,6 +4,7 @@ import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/
 import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
 import Icon from './Icon.astro';
+import Button from './Button.astro';
 import { creatorNameFor, logos } from '../shared/lib/logos';
 import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
@@ -499,7 +500,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               ];
               return (
                 <li class="plan-tile">
-                  <p class="plan-tile__name">{plan.label}</p>
+                  <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
                   <p class="plan-tile__price">{price}</p>
                   {plan.basePrice !== 'Custom' && <p class="plan-tile__unit">{t.perMonth}</p>}
                   <p class="plan-tile__for">{blurb}</p>
@@ -530,7 +531,9 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                     ))}
                   </ul>
                   {plan.basePrice === 'Custom' && (
-                    <a class="plan-tile__cta" href={t.contactHref}>{t.contactCta}</a>
+                    <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
+                      {t.contactCta}
+                    </Button>
                   )}
                 </li>
               );
@@ -611,48 +614,44 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     background: var(--aifs-color-surface-chrome);
   }
 
-  .plan-tile__name {
-    margin: 0;
-    color: var(--aifs-color-text-muted);
-    font-size: 0.75rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    line-height: 1.2;
-    text-transform: uppercase;
-  }
-
   .plan-tile__price {
     margin: 0;
     color: var(--aifs-color-text-body);
-    font-size: 1.5rem;
-    font-weight: 700;
-    line-height: 1.1;
+    font-family: var(--aifs-text-h2-font-family);
+    font-size: var(--aifs-text-h2-font-size);
+    font-weight: var(--aifs-text-h2-font-weight);
+    line-height: var(--aifs-text-h2-line-height);
   }
 
   .plan-tile__unit {
     margin: -4px 0 0;
     color: var(--aifs-color-text-muted);
-    font-size: 0.75rem;
+    font-size: var(--aifs-text-small-font-size);
     font-weight: 500;
-    line-height: 1.3;
+    line-height: var(--aifs-text-small-line-height);
   }
 
-  .plan-meter {
+  .sl-markdown-content a.plan-meter {
     display: flex;
     flex-direction: column;
     gap: 6px;
     margin-top: 4px;
-    color: var(--aifs-color-text-body);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    line-height: 1.3;
+    color: inherit;
+    font-size: var(--aifs-text-small-font-size);
+    font-weight: var(--aifs-button-font-weight);
+    line-height: var(--aifs-text-small-line-height);
     text-decoration: none;
   }
 
-  .plan-meter:hover .plan-meter__label,
-  .plan-meter:focus-visible .plan-meter__label {
+  .sl-markdown-content a.plan-meter .plan-meter__label {
+    color: var(--aifs-color-link-standard);
     text-decoration: underline;
     text-underline-offset: 2px;
+  }
+
+  .sl-markdown-content a.plan-meter:hover .plan-meter__label,
+  .sl-markdown-content a.plan-meter:focus-visible .plan-meter__label {
+    color: var(--aifs-color-link-hovered);
   }
 
   .plan-meter__track {
@@ -670,7 +669,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .plan-meter__seg {
-    border-radius: 999px;
+    border-radius: var(--aifs-radius-control);
     background: var(--aifs-color-scale-6);
   }
 
@@ -682,8 +681,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-meter__custom {
     flex: 0 0 auto;
     color: var(--aifs-color-brand-text);
-    font-size: 0.75rem;
-    font-weight: 700;
+    font-size: var(--aifs-tag-font-size-small);
+    font-weight: var(--aifs-tag-font-weight);
   }
 
   .plan-tile__list {
@@ -693,8 +692,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     margin: 4px 0 0;
     padding: 0;
     list-style: none;
-    font-size: 0.8125rem;
-    line-height: 1.3;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
   }
 
   .plan-tile__list li {
@@ -720,34 +719,14 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tile__for {
     margin: 0;
     color: var(--aifs-color-text-body);
-    font-size: 0.8125rem;
-    line-height: 1.35;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
   }
 
-  .plan-tile a.plan-tile__cta,
-  .plan-tile a.plan-tile__cta:hover,
-  .plan-tile a.plan-tile__cta:focus-visible,
-  .plan-tile a.plan-tile__cta:active,
-  .plan-tile a.plan-tile__cta:visited {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 36px;
-    padding: 6px 12px;
-    border-radius: var(--aifs-radius-control);
-    background: var(--aifs-color-action-background);
-    color: #ffffff;
-    font-size: 0.875rem;
-    font-weight: 700;
-    line-height: 1.2;
-    text-align: center;
-    text-decoration: none;
-  }
-
-  .plan-tile a.plan-tile__cta:hover,
-  .plan-tile a.plan-tile__cta:focus-visible {
-    background: var(--aifs-color-action-background-hovered);
-    color: #ffffff;
+  /* Full width of the card. Colour, height, radius and states come from
+     .aifs-button--secondary (button.css). */
+  .plan-tile__cta {
+    width: 100%;
   }
 
   .plan-spend {
