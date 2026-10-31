@@ -1,0 +1,309 @@
+---
+// Model card grid (overview "Models" section and the featured cards on /models/).
+// Every price, host and badge comes from the pricing data via modelCards.ts.
+import { formatEuro } from '../shared/lib/displayFormat';
+import { OVERVIEW_CARDS, localPlace, modelCard, type CardCategory } from '../shared/lib/modelCards';
+
+interface Props {
+  cards?: { id: string; category: CardCategory }[];
+}
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const locale = isDE ? 'de' : 'en';
+const { cards = OVERVIEW_CARDS } = Astro.props;
+const models = cards.map((c) => modelCard(c.id, c.category, isDE));
+
+const t = {
+  cached: isDE ? 'Cached/1M' : 'Cached/1M',
+  input: isDE ? 'Input/1M' : 'Input/1M',
+  output: isDE ? 'Output/1M' : 'Output/1M',
+  free: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
+  isNew: isDE ? 'Neu' : 'New',
+  preview: isDE ? 'Vorschau' : 'Preview',
+  premium: 'Premium',
+};
+
+function price(value: number | null, digits = 2): string {
+  return formatEuro(value, digits, locale);
+}
+---
+
+<div class="mcards-wrap not-content">
+<ul class="mcards">
+  {
+    models.map((m) => (
+      <li class="mcard">
+        <div class="mcard__top">
+          {m.creator.startsWith('Google') ? (
+            <span class="mcard__logo mcard__logo--zoom" style={`background-image:url("${m.logo}")`} role="img" aria-label={m.creator} title={m.creator} />
+          ) : (
+            <span class="mcard__logo">
+              <img src={m.logo} alt={m.creator === 'Other' ? '' : m.creator} title={m.creator === 'Other' ? undefined : m.creator} width="24" height="24" loading="lazy" />
+            </span>
+          )}
+          <span class="mcard__badges">
+            {m.isNew && <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.isNew}</span>}
+            {m.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
+            {m.premium && <span class="aifs-tag aifs-tag--small">{t.premium}</span>}
+          </span>
+        </div>
+        <p class="mcard__cat">{m.categoryLabel}</p>
+        <a class="mcard__name" href={m.href}>{m.name}</a>
+        {m.preview ? (
+          <p class="mcard__free">{t.free}</p>
+        ) : (
+          <dl class="mcard__prices">
+            {m.cached != null && (
+              <div>
+                <dt>{t.cached}</dt>
+                <dd>{price(m.cached, 4)}</dd>
+              </div>
+            )}
+            <div>
+              <dt>{t.input}</dt>
+              <dd>{price(m.input)}</dd>
+            </div>
+            {m.output != null && (
+              <div>
+                <dt>{t.output}</dt>
+                <dd>{price(m.output)}</dd>
+              </div>
+            )}
+          </dl>
+        )}
+        <p class="mcard__host">
+          {m.tcloud ? (
+            <>
+              <span class="plans-tag tag-tcloud">T-Cloud</span>
+              <span>{isDE ? 'Deutschland' : 'Germany'}</span>
+            </>
+          ) : (
+            <span>{localPlace(m.hosting, isDE)}</span>
+          )}
+        </p>
+      </li>
+    ))
+  }
+</ul>
+</div>
+
+<style>
+  .mcards-wrap {
+    container-type: inline-size;
+    margin-top: 12px;
+  }
+
+  .mcards {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Phones: a compact row card, logo on the left, so twelve cards stay short. */
+  .mcard {
+    position: relative;
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    grid-template-areas:
+      'logo cat badges'
+      'logo name name'
+      'logo prices prices'
+      'logo host host';
+    align-content: start;
+    column-gap: 10px;
+    row-gap: 0;
+    min-width: 0;
+    margin: 0;
+    padding: 10px 12px;
+    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    border-radius: var(--aifs-radius-card);
+    background: var(--aifs-color-surface-chrome);
+    color: var(--aifs-color-text-standard, var(--sl-color-white));
+  }
+
+  .mcard:hover,
+  .mcard:focus-within {
+    border-color: var(--aifs-color-brand-text);
+  }
+
+  .mcard__top {
+    display: contents;
+  }
+
+  .mcard__logo {
+    grid-area: logo;
+    align-self: start;
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: 32px;
+    height: 32px;
+    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background);
+    overflow: hidden;
+  }
+
+  .mcard__logo img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+  }
+
+  .mcard__logo--zoom {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 44px 44px;
+  }
+
+  .mcard__badges {
+    grid-area: badges;
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 4px;
+  }
+
+  .mcard__cat {
+    grid-area: cat;
+    align-self: center;
+    margin: 0;
+    font-size: var(--aifs-table-head-font-size);
+    font-weight: var(--aifs-table-head-font-weight);
+    line-height: var(--aifs-table-head-line-height);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  .mcard__name {
+    grid-area: name;
+    margin: 0 0 4px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    color: inherit;
+    text-decoration: none;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: manual;
+  }
+
+  /* The whole card is the link target; the name carries the accessible name. */
+  .mcard__name::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .mcard__name:hover {
+    text-decoration: underline;
+  }
+
+  .mcard__name:focus-visible {
+    outline: none;
+  }
+
+  .mcard:has(.mcard__name:focus-visible) {
+    outline: 2px solid var(--sl-color-text-accent);
+    outline-offset: 2px;
+  }
+
+  .mcard__prices {
+    grid-area: prices;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    margin: 0;
+  }
+
+  .mcard__prices > div {
+    display: grid;
+    margin: 0;
+  }
+
+  .mcard__prices dt {
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 400;
+    color: var(--sl-color-gray-3);
+    white-space: nowrap;
+  }
+
+  .mcard__prices dd {
+    margin: 0;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .mcard__free {
+    grid-area: prices;
+    margin: 0;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+  }
+
+  .mcard__host {
+    grid-area: host;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    margin: 6px 0 0;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Wider: Fireworks-style stacked cards, logo tile on top. 2 columns beside
+     the TOC, 3 when the column is wide enough for the price row on one line,
+     4 when there is room for four such cards. */
+  @container (min-width: 440px) {
+    .mcards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mcard {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas:
+        'logo . badges'
+        'cat cat cat'
+        'name name name'
+        'prices prices prices'
+        'host host host';
+      padding: 12px;
+    }
+
+    .mcard__logo {
+      margin-bottom: 8px;
+    }
+
+    .mcard__host {
+      margin-top: 8px;
+    }
+  }
+
+  @container (min-width: 760px) {
+    .mcards {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @container (min-width: 1040px) {
+    .mcards {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
