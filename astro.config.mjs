@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wri
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
+import { ecWrapPoints } from './src/plugins/ec-wrap-points.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
@@ -320,6 +321,9 @@ export default defineConfig({
 					preserveIndent: true,
 					hangingIndent: 2,
 				},
+				// Wrapped lines break only at spaces or at punctuation boundaries,
+				// never between two letters or digits (adds <wbr>).
+				plugins: [ecWrapPoints()],
 			},
 			plugins: [
 				starlightVersions({

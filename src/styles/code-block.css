@@ -123,12 +123,39 @@ html:root[data-theme] .expressive-code {
 	width: 100%;
 }
 
+/* Wrapped lines break only at spaces or at punctuation boundaries (the <wbr>
+   added by src/plugins/ec-wrap-points.mjs), never between two letters or
+   digits. break-word still splits a token with no break point as a last
+   resort: the frames above have min-width: 0 and max-width: 100%, so the line
+   box is capped at the column and such a token wraps instead of scrolling
+   sideways. */
 .expressive-code .ec-line,
 .expressive-code code,
 .expressive-code pre {
 	white-space: pre-wrap !important;
-	overflow-wrap: anywhere !important;
-	word-break: normal;
+	overflow-wrap: break-word !important;
+	word-break: normal !important;
+}
+
+/* Expressive Code indents a wrapped line's continuation to the line's own
+   indent (--ecIndent, up to 30ch here). On a phone that leaves room for only
+   a few characters, so words split anyway. Under 48rem the continuation
+   indent follows the half-width indentation below (half of --ecIndent plus
+   1ch) and is capped at 10ch; the formula is otherwise Expressive Code's own.
+   `html` makes this one step more specific than its
+   `.expressive-code .ec-line .code` rule. */
+@media (max-width: 48rem) {
+	html .expressive-code .ec-line .code {
+		padding-inline-start: calc(min(var(--ecIndent, 0ch) * 0.5 + 1ch, 10ch) + var(--ec-codePadInl) - var(--ecGtrBrdWd));
+		text-indent: calc(min(var(--ecIndent, 0ch) * 0.5 + 1ch, 10ch) * -1);
+	}
+
+	/* Deep indentation (up to 28 spaces in the JSON-schema samples) leaves no
+	   room for the code itself on a phone, so each leading space is drawn at
+	   half width. Nesting stays visible; the text and copies are unchanged. */
+	.expressive-code .ec-line .ec-lead {
+		letter-spacing: -0.5ch;
+	}
 }
 
 .expressive-code .frame pre,
