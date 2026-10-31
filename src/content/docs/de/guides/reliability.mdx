@@ -30,13 +30,14 @@ def call_with_retry(messages, max_retries=3):
                 messages=messages,
             )
         except RateLimitError:
+            if attempt == max_retries - 1:
+                raise
             wait = 2 ** attempt
             print(f"Rate limited. Retrying in {wait}s...")
             time.sleep(wait)
-    raise Exception("Max retries exceeded")
 ```
 
-Bei 429 wartet die Funktion und versucht es erneut. Nach 3 Fehlschlägen wirft sie `Max retries exceeded`.
+Bei 429 wartet die Funktion und versucht es erneut. Beim dritten Fehlschlag wirft sie den RateLimitError erneut.
 
 ## Parameter
 

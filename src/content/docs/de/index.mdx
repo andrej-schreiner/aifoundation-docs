@@ -115,7 +115,7 @@ Einen kostenlosen Test-Schlüssel gibt es im [API-Schlüssel-Portal](https://api
 
 ## Eine Fähigkeit ausprobieren
 
-Derselbe Client und dieselbe Basis-URL. Streaming, Tools, strukturierte Ausgabe, Reasoning und Vision.
+Derselbe Client und dieselbe Basis-URL. Streaming, Tools, strukturierte Ausgabe, Reasoning und Bildeingabe.
 
 ### Streaming
 
@@ -194,7 +194,7 @@ Rufen Sie ein Tool mit `GLM-5.3` auf.
 
 ### Strukturierte Ausgabe
 
-JSON, das einem Schema entspricht, über die Responses API. Die Responses API ist für `gpt-oss-120b` bestätigt. Siehe [Strukturierte Ausgaben](/de/guides/structured-outputs).
+JSON, das einem Schema entspricht, über die Responses API. Prüfen Sie, ob Ihr Modell `text.format` mit `json_schema` unterstützt, bevor Sie sich darauf verlassen. Siehe [Strukturierte Ausgaben](/de/guides/structured-outputs).
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -238,7 +238,7 @@ Das Datenblatt listet für `gpt-oss-120b` die Werte `low`, `medium` und `high`. 
   </TabItem>
 </Tabs>
 
-### Vision
+### Bildeingabe
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -293,13 +293,13 @@ Das Datenblatt listet für `gpt-oss-120b` die Werte `low`, `medium` und `high`. 
   </TabItem>
 </Tabs>
 
-Bildlimits unterscheiden sich je Modell. Siehe [Vision](/de/guides/multimodal).
+Bildlimits unterscheiden sich je Modell. Siehe [Bildeingabe](/de/guides/multimodal).
 
 ## Nächste Schritte
 
 <div class="link-card-row">
   <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Empfehlungen zum 2. November 2026. T-Cloud zuerst." />
-  <LinkCard title="Anleitungen" href="/de/guides" description="Chat, Streaming, Vision, Tools und Produktion." />
+  <LinkCard title="Anleitungen" href="/de/guides" description="Chat, Streaming, Bildeingabe, Tools und Produktion." />
   <LinkCard title="API-Referenz" href="/de/reference/api-endpoints" description="Endpunkte und Fehlercodes." />
   <LinkCard title="Tarife" href="/de/plans" description="Shared-Tarife und Dedicated Serving." />
 </div>

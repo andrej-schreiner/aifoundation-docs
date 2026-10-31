@@ -7,7 +7,7 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 Structured outputs ask a model to return JSON that follows a schema you define. Use them when the next step in your application needs fields, not a paragraph: a product record, a label, or a score.
 
-The call uses the Responses API. That API is confirmed on `gpt-oss-120b`.
+The call uses the Responses API. Check that your model supports `text.format` with `json_schema` before relying on it.
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
@@ -68,7 +68,7 @@ print(json.dumps(json.loads(response.output_text), indent=2))
 
 <div set:html="<!-- TODO(andrej): no recorded output_text for this call is in the docs. The JSON below is the shape the schema and the prompt imply. -->"></div>
 
-`response.output_text` is a JSON string. For the prompt above, a matching object has this shape:
+`response.output_text` is a JSON string. Example output (illustrative):
 
 ```json
 {

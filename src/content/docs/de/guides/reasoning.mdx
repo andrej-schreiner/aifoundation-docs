@@ -11,7 +11,7 @@ Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Ti
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK installiert ([Quickstart](/de/))
 - Ein Reasoning-fähiges Modell (siehe [Chat & Reasoning (LLMs)](/de/models/llms))
 :::
 
@@ -55,7 +55,7 @@ Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat &
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
         ],
-        reasoning_effort="high",  # "low", "medium", or "high"
+        reasoning_effort="high",  # GLM-5.3 akzeptiert "none", "high" oder "max"
     )
 
     print(response.choices[0].message.content)

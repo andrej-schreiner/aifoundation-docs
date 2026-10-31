@@ -7,7 +7,7 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 Strukturierte Ausgaben fordern JSON an, das einem Schema folgt. Nutzen Sie sie, wenn der nächste Schritt Felder braucht und keinen Absatz: einen Produktdatensatz, ein Label oder einen Score.
 
-Der Aufruf nutzt die Responses API. Diese API ist für `gpt-oss-120b` bestätigt.
+Der Aufruf nutzt die Responses API. Prüfen Sie, ob Ihr Modell `text.format` mit `json_schema` unterstützt, bevor Sie sich darauf verlassen.
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
@@ -68,7 +68,7 @@ print(json.dumps(json.loads(response.output_text), indent=2))
 
 <div set:html="<!-- TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text vor. Das JSON unten ist die Form, die Schema und Prompt nahelegen. -->"></div>
 
-`response.output_text` ist ein JSON-String. Für den Prompt oben hat ein passendes Objekt diese Form:
+`response.output_text` ist ein JSON-String. Beispielausgabe (illustrativ):
 
 ```json
 {

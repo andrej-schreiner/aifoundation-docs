@@ -1,6 +1,6 @@
 ---
 title: "Available Models"
-description: "Browse available LLMs, vision, embedding, and audio models on AI Foundation Services and retrieve the live model list via API."
+description: "Browse available LLMs (text and image input), embedding, and audio models on AI Foundation Services and retrieve the live model list via API."
 ---
 
 
@@ -8,7 +8,7 @@ import { TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../../components/AvailableModels.astro';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 
-AI Foundation Services provides access to a wide range of open-source and proprietary LLMs, embedding models, vision models, and audio models — all through a single OpenAI-compatible API.
+AI Foundation Services provides access to a wide range of open-source and proprietary LLMs, embedding models, and audio models — all through a single OpenAI-compatible API.
 
 Browse the categories in the sidebar, or use the catalog below for context, pricing, and plan availability.
 
@@ -27,7 +27,6 @@ For plan prices and rate limits, see [Plans & Pricing](/plans).
 
 - **Chat & reasoning** — General-purpose text generation, conversational agents, and reasoning.
 - **Coding** — Code-tuned models for completion, refactoring, and review.
-- **Vision** — Models that accept image input alongside text.
 - **Embeddings** — Convert text to vectors for semantic search, clustering, and RAG.
 - **Audio** — Speech-to-text models for transcription and translation.
 - **Images** — Generate images from text prompts.
@@ -87,8 +86,8 @@ print(models.data[0].meta_data)
   "max_output_length": 0,
   "deployment_region": "otc-germany",
   "location": "otc-germany",
-  "license": "https://www.llama.com/llama3_3/license/",
-  "display_name": "Meta LLama 3.3 70B",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+  "display_name": "GPT-OSS 120B",
   "deployment_country": "Germany, EU",
   "input_modalities": ["text"],
   "output_modalities": ["text"],
@@ -109,9 +108,8 @@ print(models.data[0].meta_data)
 
 | Category | Examples | Use Case |
 |---|---|---|
-| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning |
+| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning, image input (Text, Image) |
 | **Embedding** | jina-embeddings-v2-base-de, text-embedding-bge-m3 | Semantic search, RAG |
-| **Vision** | Qwen 3.6 35B, Gemma 4 | Image analysis, multimodal chat |
 | **Audio/STT** | whisper-large-v3, whisper-large-v3-turbo | Speech-to-text, translation |
 | **Image Generation** | gpt-image-2 | Image creation from text prompts |
 

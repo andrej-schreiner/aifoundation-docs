@@ -47,10 +47,10 @@ Für die vollständige Aufschlüsselung pro Modell für Ihren Tarif besuchen Sie
 
 ## Wie Rate-Limits funktionieren
 
-- **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Eingabe-Token pro Minute; kein SLA-gestützter Durchsatzwert
+- **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Token pro Minute (Eingabe und Ausgabe haben getrennte Limits); kein SLA-gestützter Durchsatzwert
 - **RPM (Anfragen pro Minute)** — Best-Effort-*Obergrenze* für API-Anfragen pro Minute; kein SLA-gestützter Anfragerate-Wert
 - Limits gelten je Projekt — alle in einem Projekt erzeugten API-Schlüssel teilen sich das Kontingent
-- Sowohl Eingabe- als auch Ausgabe-Token zählen zu den TPM-Limits
+- Eingabe-Token zählen zum Eingabe-TPM; Ausgabe-Token zählen zum Ausgabe-TPM
 
 Anders gesagt: RPM/TPM zeigen, ab wann die Plattform Ihren Traffic *drosselt*. Sie sagen **nichts** darüber aus, mit welcher Rate die Plattform Ihren Traffic *bedient*. Im Shared Service hängt die tatsächlich erreichte Rate von der Plattformlast und der Nutzung desselben Modells durch andere Tenants ab.
 
@@ -102,7 +102,7 @@ response = httpx.post(
     "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-6.1-sol",
+        "model": "gpt-oss-120b",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -121,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-6.1-sol",
+    "model": "gpt-oss-120b",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'

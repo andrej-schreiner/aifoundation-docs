@@ -13,7 +13,7 @@
 
 ## Models
 
-- [Catalog](https://docs.llmhub.t-systems.net/models): Hosted LLMs, embeddings, vision, audio, and image models.
+- [Catalog](https://docs.llmhub.t-systems.net/models): Hosted LLMs, embeddings, audio, and image models.
 - GLM 5.3 (`GLM-5.3`) on T-Cloud, in the shared rate plans, from 2 November 2026. Input €1.40 / output €4.40 per 1M tokens.
 - DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash`) is in the preview catalog from 2 November 2026, with pricing to be announced.
 - [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR and decision models are free on any active plan; DeepSeek 4.1 Flash pricing is to be announced.
@@ -23,7 +23,7 @@
 
 - [Chat completions](https://docs.llmhub.t-systems.net/guides/chat-completions): OpenAI-compatible chat API.
 - [Streaming](https://docs.llmhub.t-systems.net/guides/streaming): Token-by-token responses via Server-Sent Events.
-- [Vision](https://docs.llmhub.t-systems.net/guides/multimodal): Image input on the chat API.
+- [Image input](https://docs.llmhub.t-systems.net/guides/multimodal): Image input on the chat API.
 - [Multimodal](https://docs.llmhub.t-systems.net/guides/modalities): Where image, audio, image output, and OCR are documented.
 - [Embeddings](https://docs.llmhub.t-systems.net/guides/embeddings): Text embeddings for semantic search and RAG.
 - [OCR](https://docs.llmhub.t-systems.net/guides/ocr): Document parsing with the preview OCR models.

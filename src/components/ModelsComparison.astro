@@ -22,7 +22,7 @@ import reasoningEffortData from '../data/reasoning-effort.json';
 // Where each model reports its reasoning token count in `usage` (engine-dependent).
 import reasoningTokensUsageData from '../data/reasoning-tokens-usage.json';
 
-type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
 // X" beats curating a category list. Vision is the motivating case: an LLM
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
@@ -38,7 +38,7 @@ const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
 
-type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+type Category = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 
 // PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
 // models whose primary purpose is NOT general-purpose LLM appear here.
@@ -65,13 +65,13 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
-  // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
-  'LightOnOCR-3-4B-Preview': 'vision',
-  'PaddleOCR-VL-1.6-Preview': 'vision',
+  // OCR (document parsing): Image -> Text, served on chat completions.
+  'LightOnOCR-3-4B-Preview': 'llms',
+  'PaddleOCR-VL-1.6-Preview': 'llms',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
-  // /models/llms. They still surface on /models/vision via image-input derivation.
+  // /models/llms.
   'gemini-3-pro-image': 'image-generation',
   'gpt-image-2': 'image-generation',
 };
@@ -81,7 +81,7 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 }
 
 // Multi-category derivation. A model's `categories` array is its primary
-// plus any modality-driven additions: image input → 'vision', any audio
+// plus any modality-driven additions: any audio
 // → 'audio', image output → 'image-generation', vector output → 'embeddings'.
 // Returned in stable display order so the Category column renders consistently.
 // Extra category memberships that cannot be inferred from modalities.
@@ -104,11 +104,10 @@ const EXTRA_CATEGORIES: Record<string, Category[]> = {
 
 function deriveCategories(primary: Category, caps: Capabilities, extra: Category[] = []): Category[] {
   const cats = new Set<Category>([primary, ...extra]);
-  if (caps.inputModalities.includes('Image')) cats.add('vision');
   if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
   if (caps.outputModalities.includes('Image')) cats.add('image-generation');
   if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
-  const ORDER: Category[] = ['llms', 'coding', 'vision', 'image-generation', 'audio', 'embeddings'];
+  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings'];
   return ORDER.filter((c) => cats.has(c));
 }
 
@@ -144,7 +143,6 @@ function inferCreator(exactModelName: string): string {
 const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
   llms:               { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   coding:             { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
-  vision:             { inputModalities: ['Text', 'Image'], outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
   audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
   'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
@@ -477,7 +475,6 @@ const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
 const CATEGORY_LABELS: Record<Category, string> = {
   llms: 'LLM',
   coding: 'Coding',
-  vision: 'Vision',
   embeddings: 'Embedding',
   audio: 'Audio',
   'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image Generation',

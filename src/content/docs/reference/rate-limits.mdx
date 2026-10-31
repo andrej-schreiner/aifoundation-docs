@@ -47,10 +47,10 @@ For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans
 
 ## How Rate Limits Work
 
-- **TPM (Tokens per Minute)** — best-effort *ceiling* on input tokens processed per minute; not an SLA-backed throughput target
+- **TPM (Tokens per Minute)** — best-effort *ceiling* on tokens processed per minute (input and output have separate limits); not an SLA-backed throughput target
 - **RPM (Requests per Minute)** — best-effort *ceiling* on API requests per minute; not an SLA-backed request-rate target
 - Limits apply at the project level — all API keys you generate in a project share the same quota
-- Both input and output tokens count toward TPM limits
+- Input tokens count toward input TPM; output tokens count toward output TPM
 
 In other words, RPM/TPM tell you when the platform will start *throttling* your traffic. They do **not** tell you the rate at which the platform will *serve* your traffic. On the shared service, the realized rate depends on platform load and other tenants' usage of the same model.
 
@@ -102,7 +102,7 @@ response = httpx.post(
     "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-6.1-sol",
+        "model": "gpt-oss-120b",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -121,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-6.1-sol",
+    "model": "gpt-oss-120b",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'

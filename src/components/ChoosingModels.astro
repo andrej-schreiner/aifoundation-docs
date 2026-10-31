@@ -1,5 +1,5 @@
 ---
-import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
+import { CHOICE_ROWS, modelFact, reviewedLabel } from '../shared/lib/choosingModels';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
@@ -71,6 +71,8 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   return { src: getLogo(creator) || getLogo('Other'), zoom: creator.startsWith('Google') };
 }
 ---
+
+<p>{isDE ? `Empfehlungen zum ${reviewedLabel(true)}.` : `Recommendations as of ${reviewedLabel(false)}.`}</p>
 
 <div class="choose-desktop">
   <div class="aifs-table-scroll">

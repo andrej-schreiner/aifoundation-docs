@@ -115,7 +115,7 @@ Get a free trial key in the [API Key Portal](https://apikey.llmhub.t-systems.net
 
 ## Try a capability
 
-The same client and base URL. Try streaming, tools, structured output, reasoning, and vision.
+The same client and base URL. Try streaming, tools, structured output, reasoning, and image input.
 
 ### Streaming
 
@@ -194,7 +194,7 @@ Call a tool with `GLM-5.3`.
 
 ### Structured output
 
-JSON that matches a schema, on the Responses API. The Responses API is confirmed on `gpt-oss-120b`. See [Structured outputs](/guides/structured-outputs).
+JSON that matches a schema, on the Responses API. Check that your model supports `text.format` with `json_schema` before relying on it. See [Structured outputs](/guides/structured-outputs).
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -238,7 +238,7 @@ The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models
   </TabItem>
 </Tabs>
 
-### Vision
+### Image input
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -293,13 +293,13 @@ The datasheet lists `low`, `medium`, and `high` for `gpt-oss-120b`. Other models
   </TabItem>
 </Tabs>
 
-Image limits differ by model. See [Vision](/guides/multimodal).
+Image limits differ by model. See [Image input](/guides/multimodal).
 
 ## Next steps
 
 <div class="link-card-row">
   <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Recommendations as of 2 November 2026. T-Cloud first." />
-  <LinkCard title="Guides" href="/guides" description="Chat, streaming, vision, tools, and production." />
+  <LinkCard title="Guides" href="/guides" description="Chat, streaming, image input, tools, and production." />
   <LinkCard title="API reference" href="/reference/api-endpoints" description="Endpoints and error codes." />
   <LinkCard title="Plans" href="/plans" description="Shared rate plans and Dedicated serving." />
 </div>

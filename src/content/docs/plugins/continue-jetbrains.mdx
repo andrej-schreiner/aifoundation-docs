@@ -40,8 +40,10 @@ apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
 3. Generate an API key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard):
 
 ```yaml
-apiKey: gen-************************************************
+apiKey: ${{ secrets.OPENAI_API_KEY }}
 ```
+
+Store the key in ~/.continue/.env as OPENAI_API_KEY=… .
 
 4. Assign one or more roles to the model, such as `chat`, `edit`, `apply`, `autocomplete`, or `embed`:
 
@@ -55,7 +57,7 @@ If you use IntelliJ or PyCharm on Windows, add your proxy settings to the config
 
 ```yaml
 requestOptions:
-  proxy: YourProxyHost:Port
+  proxy: http://proxy.example.com:8080
 ```
 :::
 
@@ -66,26 +68,28 @@ name: Local Config
 version: 1.0.0
 schema: v1
 models:
-  - name: GLM-5.3
-    model: GLM-5.3
+  - name: gpt-oss-120b
+    model: gpt-oss-120b
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
-    roles:
-      - chat
-    requestOptions:
-      proxy: YourProxyHost:Port
-  - name: Qwen-3.6-35B-FP8
-    model: Qwen-3.6-35B-FP8
-    provider: openai
-    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
       - edit
       - apply
     requestOptions:
-      proxy: YourProxyHost:Port
+      proxy: http://proxy.example.com:8080
+  - name: GLM-5.3-Flash
+    model: GLM-5.3-Flash
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    requestOptions:
+      proxy: http://proxy.example.com:8080
 ```
 
 Once the config is saved, you can start a chat and use Continue in your JetBrains IDE.

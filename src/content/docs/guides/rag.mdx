@@ -22,17 +22,25 @@ from openai import OpenAI
 
 client = OpenAI()
 
-passage = "T-Cloud models in this catalog run in Germany."
+passages = ["T-Cloud models in this catalog run in Germany."]
 query = "Where do T-Cloud models run?"
 
-embedded = client.embeddings.create(input=[passage, query], model="text-embedding-bge-m3")
+embedded = client.embeddings.create(input=passages + [query], model="text-embedding-bge-m3")
+passage_vecs = [item.embedding for item in embedded.data[:-1]]
+query_vec = embedded.data[-1].embedding
+
+import math
+def cos(a, b):
+    return sum(x*y for x, y in zip(a, b)) / (math.sqrt(sum(x*x for x in a)) * math.sqrt(sum(y*y for y in b)))
+best = max(range(len(passages)), key=lambda i: cos(query_vec, passage_vecs[i]))
+context = passages[best]
 print("vectors:", len(embedded.data))
 
 response = client.chat.completions.create(
     model="gpt-oss-120b",
     messages=[
         {"role": "system", "content": "Answer only from the passage."},
-        {"role": "user", "content": f"Passage:\n{passage}\n\nQuestion: {query}"},
+        {"role": "user", "content": f"Passage:\n{context}\n\nQuestion: {query}"},
     ],
 )
 print(response.choices[0].message.content)

@@ -3,7 +3,16 @@ import { cloudLabelFor } from './cloudLabelOverrides';
 import { isHiddenModel } from './hiddenModels';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
-export const LAST_REVIEWED = '2026-10-30';
+export const LAST_REVIEWED = '2026-11-02';
+
+const REVIEWED_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const REVIEWED_MONTHS_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+export function reviewedLabel(isDE: boolean): string {
+  const [year, month, day] = LAST_REVIEWED.split('-').map(Number);
+  const name = (isDE ? REVIEWED_MONTHS_DE : REVIEWED_MONTHS_EN)[month - 1];
+  return isDE ? `${day}. ${name} ${year}` : `${day} ${name} ${year}`;
+}
 
 /**
  * exact ids whose display names are on /models/deprecations for 2026-10-31
@@ -24,7 +33,7 @@ export const RETIRING_MODEL_IDS = new Set(
     'claude-opus-4.8',
     'gemini-3-pro',
     'gemini-3-pro-long-context',
-    'gemini-3-flash',
+    // gemini-3-flash retires 2026-11-30; remove then.
   ].map((id) => id.toLowerCase()),
 );
 
@@ -165,7 +174,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   },
   {
     id: 'vision',
-    useCase: { en: 'Vision and document understanding', de: 'Vision und Dokumentverständnis' },
+    useCase: { en: 'Image and document understanding', de: 'Bild- und Dokumentverständnis' },
     recommended: 'Qwen-3.6-35B-FP8',
     alternative: 'gemma-4-31B-it-FP8',
     also: 'Mistral-Small-4-119B-2603',

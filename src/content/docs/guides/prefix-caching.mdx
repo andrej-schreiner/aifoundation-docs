@@ -14,7 +14,7 @@ Prefix caching lets the model reuse the work it already did for the beginning of
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK or HTTP client installed ([Quickstart](/getting-started/quickstart))
+- OpenAI SDK or HTTP client installed ([Quickstart](/))
 - A workload with a repeated prompt prefix (system prompt, RAG context, few-shot examples, tool definitions)
 :::
 
@@ -61,7 +61,7 @@ Prefix caching never changes the content of a response: the model sees the same 
 
 ## T-Cloud Hosted Open-Source Models
 
-For T-Cloud-hosted open-source models (for example `gpt-oss-120b`, `Qwen3.6-35B-A3B-FP8`), prefix caching is **on by default** and controlled per request. Two extra fields on the chat completion request govern it:
+For T-Cloud-hosted open-source models (for example `gpt-oss-120b`, `Qwen-3.6-35B-FP8`), prefix caching is **on by default** and controlled per request. Two extra fields on the chat completion request govern it:
 
 | Field | Type | Default | Purpose |
 |---|---|---|---|

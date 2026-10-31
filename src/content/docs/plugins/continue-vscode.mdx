@@ -14,7 +14,7 @@ Continue for AI Engineer is a custom version of the Continue extension for Visua
 
 ## Installation
 
-1. Download the VSIX from [Continue for VS Code](https://plugins.dev.aie.ai.t-systems.net/v1/registry/434192/packages/latest/download?package_name=continue-vscode).
+1. Download the *Continue* VSIX from [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins).
 2. In VS Code, open **Extensions**, open the three-dot menu, and choose **Install from VSIX**.
 3. Select the downloaded plugin file and reload VS Code.
 
@@ -56,15 +56,17 @@ name: Local Config
 version: 1.0.0
 schema: v1
 models:
-  - name: GLM-5.3
-    model: GLM-5.3
+  - name: gpt-oss-120b
+    model: gpt-oss-120b
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
     apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
-  - name: Qwen-3.6-35B-FP8
-    model: Qwen-3.6-35B-FP8
+      - edit
+      - apply
+  - name: GLM-5.3-Flash
+    model: GLM-5.3-Flash
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
     apiKey: ${{ secrets.OPENAI_API_KEY }}
@@ -86,7 +88,7 @@ The `${{ secrets.OPENAI_API_KEY }}` reference resolves the value at runtime inst
 4. The process environment
 
 :::caution[VS Code may not see your shell environment]
-On macOS and Windows, VS Code typically does **not** inherit shell environment variables. Even if you exported `OPENAI_API_KEY` in your terminal during the [Quickstart](/getting-started/quickstart), Continue running inside VS Code may not see it. The reliable path is a `.env` file.
+On macOS and Windows, VS Code typically does **not** inherit shell environment variables. Even if you exported `OPENAI_API_KEY` in your terminal during the [Quickstart](/), Continue running inside VS Code may not see it. The reliable path is a `.env` file.
 :::
 
 Create `~/.continue/.env` with your key:

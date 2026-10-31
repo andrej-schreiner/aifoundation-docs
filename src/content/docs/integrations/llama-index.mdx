@@ -9,7 +9,7 @@ Use AI Foundation Services with LlamaIndex for building RAG applications, indexi
 ## Setup
 
 ```bash
-pip install llama-index llama-index-llms-azure-openai llama-index-embeddings-openai
+pip install llama-index llama-index-llms-openai-like llama-index-embeddings-openai
 ```
 
 
@@ -18,13 +18,14 @@ pip install llama-index llama-index-llms-azure-openai llama-index-embeddings-ope
 ```python showLineNumbers
 import os
 
-from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.openai_like import OpenAILike
 
-llm = AzureOpenAI(
-    deployment_name="gpt-6.1-sol",
+llm = OpenAILike(
+    model="gpt-oss-120b",
+    api_base=os.getenv("OPENAI_BASE_URL"),
     api_key=os.getenv("OPENAI_API_KEY"),
-    azure_endpoint=os.getenv("OPENAI_BASE_URL"),
-    api_version="2023-07-01-preview",
+    is_chat_model=True,
+    context_window=128000,
 )
 
 # Test

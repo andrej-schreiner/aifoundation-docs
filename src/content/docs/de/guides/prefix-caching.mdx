@@ -14,7 +14,7 @@ Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anf
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 - Ein Anwendungsfall mit wiederholtem Prompt-Präfix (System-Prompt, RAG-Kontext, Few-Shot-Beispiele, Werkzeugdefinitionen)
 :::
 
@@ -61,7 +61,7 @@ Prefix Caching verändert niemals den Inhalt einer Antwort: Das Modell sieht in 
 
 ## T-Cloud-gehostete Open-Source-Modelle
 
-Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen3.6-35B-A3B-FP8`) ist Prefix Caching **standardmäßig eingeschaltet** und wird pro Anfrage gesteuert. Zwei zusätzliche Felder der Chat-Completion-Anfrage regeln es:
+Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen-3.6-35B-FP8`) ist Prefix Caching **standardmäßig eingeschaltet** und wird pro Anfrage gesteuert. Zwei zusätzliche Felder der Chat-Completion-Anfrage regeln es:
 
 | Feld | Typ | Standard | Zweck |
 |---|---|---|---|

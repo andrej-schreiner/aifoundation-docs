@@ -5,7 +5,7 @@ description: "Antworten auf häufige Fragen zu AI Foundation Services: verfügba
 
 ### Was sind die AI Foundation Services?
 
-Die AI Foundation Services von <span class="nowrap">T-Systems</span> bieten Unternehmen eine sichere, DSGVO-konforme Plattform für die Entwicklung und Skalierung von KI-Lösungen mit LLMs. Sie ermöglichen die Nutzung von über 40 Sprachmodellen — darunter Open-Source-Modelle wie Mistral, Qwen und Gemma — sowie fertige Dienste für RAG. Betrieben auf der T-Cloud in Deutschland, erfüllen sie höchste Anforderungen an Datenschutz und Datensouveränität.
+Die AI Foundation Services von <span class="nowrap">T-Systems</span> bieten Unternehmen eine sichere, DSGVO-konforme Plattform für die Entwicklung und Skalierung von KI-Lösungen mit LLMs. Sie ermöglichen die Nutzung von mehr als 30 Sprachmodellen — darunter Open-Source-Modelle wie Mistral, Qwen und Gemma — sowie fertige Dienste für RAG. Betrieben auf der T-Cloud in Deutschland, erfüllen sie höchste Anforderungen an Datenschutz und Datensouveränität.
 
 ### Welche LLMs sind verfügbar?
 
@@ -21,11 +21,11 @@ Ja! Holen Sie sich einen kostenlosen Test-Schlüssel unter: [API-Schlüssel-Port
 
 ### Wie ist die Preisstruktur aufgebaut?
 
-Es gibt Komponenten für LLM und RAG. Die LLM-Komponente bietet verschiedene Tarife mit nutzungsbasierter Abrechnung der verbrauchten Tokens. Für RAG (SmartChat) wird eine monatliche Flatrate basierend auf Nutzern und Speicher vereinbart. Siehe die Seite [Tarife & Preise](/de/plans) für Details.
+Es gibt Komponenten für LLM und RAG. Die LLM-Komponente bietet Tarife mit einer monatlichen Mindestabnahme an Token-Umsatz; Nutzung darüber wird zu den gelisteten Token-Preisen abgerechnet. Die Tarife unterscheiden sich vor allem in den Rate Limits (TPM/RPM). Für RAG (SmartChat) wird eine monatliche Flatrate basierend auf Nutzern und Speicher vereinbart. Siehe die Seite [Tarife & Preise](/de/plans) für Details.
 
 ### Was sind die Rate Limits?
 
-Rate Limits (TPM und RPM) hängen vom gewählten Tarif und Modell ab. Beispielsweise sind für GPT-OSS 120B (T-Cloud, Deutschland) auf dem Essential-Tarif 300 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 300.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM ausgewiesen, skalierbar bis 1.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 2.000.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM auf Agentic. Premium-Modelle wie Claude Opus sind in den Tarifen Professional und Agentic verfügbar.
+Rate Limits (TPM und RPM) hängen vom gewählten Tarif und Modell ab. Beispielsweise sind für GPT-OSS 120B (T-Cloud, Deutschland) auf dem Essential-Tarif 100 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 400.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM ausgewiesen, skalierbar bis 300 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 2.000.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM auf Agentic. Premium-Modelle wie Claude Opus sind in den Tarifen Professional und Agentic verfügbar.
 
 **Die veröffentlichten RPM/TPM-Werte sind Best-Effort-Obergrenzen im Shared Service — nicht Teil des SLA.** Für Open-Source-Modelle auf T-Cloud kann der effektive Durchsatz bei Lastspitzen niedriger ausfallen. Das Verfügbarkeits-SLA deckt ausschließlich die API-Erreichbarkeit ab, nicht Durchsatz oder Latenz. Für vertragliche Performance-Zusagen siehe [Dedicated LLM Serving](/de/plans/dedicated).
 

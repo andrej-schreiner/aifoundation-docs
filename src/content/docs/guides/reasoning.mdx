@@ -11,7 +11,7 @@ For models that support reasoning (chain-of-thought), you can control the depth 
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
+- OpenAI SDK installed ([Quickstart](/))
 - A reasoning-capable model (see [Chat & Reasoning models](/models/llms))
 :::
 
@@ -55,7 +55,7 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
         ],
-        reasoning_effort="high",  # "low", "medium", or "high"
+        reasoning_effort="high",  # GLM-5.3 accepts "none", "high", or "max"
     )
 
     print(response.choices[0].message.content)
