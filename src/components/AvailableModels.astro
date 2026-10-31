@@ -20,11 +20,11 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 
 const t = {
   cloud: isDE ? 'Cloud' : 'Cloud',
-  serverLocation: isDE ? 'Serverstandort' : 'Server Location',
-  dataProcessing: isDE ? 'Datenverarbeitung' : 'Data Processing',
+  serverLocation: isDE ? 'Serverstandort' : 'Server location',
+  dataProcessing: isDE ? 'Datenverarbeitung' : 'Data processing',
   showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show more ({count} more)',
   showLess: isDE ? 'Weniger anzeigen' : 'Show less',
-  sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
+  sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available models',
   preview: isDE ? 'Vorschau' : 'Preview',
   newTag: isDE ? 'Neu' : 'New',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
@@ -455,7 +455,7 @@ const cardModels = featured ? sortedModels.slice(0, INITIAL_COUNT) : sortedModel
 
     const total = Number(toggle.dataset.total);
     const initial = Number(toggle.dataset.initial);
-    const showMoreTemplate = toggle.dataset.showMoreTemplate ?? 'Show More ({count} more)';
+    const showMoreTemplate = toggle.dataset.showMoreTemplate ?? 'Show more ({count} more)';
     const showLess = toggle.dataset.showLess ?? 'Show less';
     let expanded = false;
 

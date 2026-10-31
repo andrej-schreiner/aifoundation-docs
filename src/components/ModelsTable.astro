@@ -223,7 +223,7 @@ const priceBuckets = [
 
   <p class="models-empty-note" hidden>
     {translations.emptyCatalogNote || 'This plan has no models in the current catalog.'}{' '}
-    <a href={translations.emptyCatalogHref || '/plans/'}>{translations.emptyCatalogLink || 'See Plans & Pricing'}</a>
+    <a href={translations.emptyCatalogHref || '/plans/'}>{translations.emptyCatalogLink || 'See plans & pricing'}</a>
   </p>
 
   <div class:list={['table-wrapper', { 'mt-compact-wrap': !legacy }]}>
@@ -831,8 +831,8 @@ const priceBuckets = [
       const creatorIcon = logos[creatorName] || logos.Other || '';
       const loc = `${flagHtml(model.locationCode)}${escapeHtml(model.serverLocation || '')}`;
       const contextText = formatContext(model.contextWindow);
-      const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of Use');
-      const privacy = linkItem(model.dataProtectionUrl, translations.linkDataProtection || 'Data Protection');
+      const terms = linkItem(model.termsOfUseUrl, translations.linkTermsOfUse || 'Terms of use');
+      const privacy = linkItem(model.dataProtectionUrl, translations.linkDataProtection || 'Data protection');
       const links = terms || privacy ? `${terms}${privacy}` : `<span class="model-links__empty">${emptyMark()}</span>`;
       const limitsDetail = isDynamicQuota(model)
         ? escapeHtml(translations.dynamicQuota || 'Dynamic Shared Quota')
@@ -882,13 +882,13 @@ const priceBuckets = [
         <tr class="mt-details-row" id="${id}" data-key="${escapeHtml(key)}" ${open ? '' : 'hidden="until-found"'}>
           <td colspan="7">
             <dl class="mt-details">
-              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
-              <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
-              <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
-              <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
-              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached Input Token Price')}${cachedDagger(model)}</dt><dd>${formatCachedPrice(model)}${model.cachedPricingPublished || !translations.cachedDaggerPricedOnly ? ' <span class="mt-muted">€ / M Tokens</span>' : ''}</dd></div>
-              <div><dt>${escapeHtml(translations.thRPMLimit || 'RPM Limit')} · ${escapeHtml(translations.thTPM || 'TPM')}</dt><dd>${limitsDetail}</dd></div>
-              <div><dt>${escapeHtml(translations.thContextWindow || 'Context Window')}</dt><dd>${contextText} ${escapeHtml(translations.thContextWindowUnit || 'Tokens')}</dd></div>
+              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model tier')}</dt><dd><span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
+              <div><dt>${escapeHtml(translations.thModelHost || 'Model host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
+              <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
+              <div><dt>${escapeHtml(translations.thServerLocation || 'Server location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
+              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached input token price')}${cachedDagger(model)}</dt><dd>${formatCachedPrice(model)}${model.cachedPricingPublished || !translations.cachedDaggerPricedOnly ? ' <span class="mt-muted">€ / M Tokens</span>' : ''}</dd></div>
+              <div><dt>${escapeHtml(translations.thRPMLimit || 'RPM limit')} · ${escapeHtml(translations.thTPM || 'TPM')}</dt><dd>${limitsDetail}</dd></div>
+              <div><dt>${escapeHtml(translations.thContextWindow || 'Context window')}</dt><dd>${contextText} ${escapeHtml(translations.thContextWindowUnit || 'Tokens')}</dd></div>
               <div><dt>${escapeHtml(translations.thLinks || 'Links')}</dt><dd><span class="model-links">${links}</span></dd></div>
             </dl>
           </td>
@@ -952,8 +952,8 @@ const priceBuckets = [
           ${legacy ? '' : `<td class="mt-num">${escapeHtml(formatContext(model.contextWindow))}</td>`}
           ${legacy ? '' : `<td>
             <span class="model-links">
-              ${model.termsOfUseUrl ? `<a href="${escapeHtml(model.termsOfUseUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkTermsOfUse || 'Terms of Use'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}
-              ${model.dataProtectionUrl ? `<a href="${escapeHtml(model.dataProtectionUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkDataProtection || 'Data Protection'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}
+              ${model.termsOfUseUrl ? `<a href="${escapeHtml(model.termsOfUseUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkTermsOfUse || 'Terms of use'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}
+              ${model.dataProtectionUrl ? `<a href="${escapeHtml(model.dataProtectionUrl)}" class="model-links__item" target="_blank" rel="noreferrer noopener">${translations.linkDataProtection || 'Data protection'}<span class="model-links__icon" aria-hidden="true"></span></a>` : ''}
               ${!model.termsOfUseUrl && !model.dataProtectionUrl ? '<span class="model-links__empty">—</span>' : ''}
             </span>
           </td>`}

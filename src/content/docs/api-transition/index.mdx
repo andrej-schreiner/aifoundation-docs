@@ -1,5 +1,5 @@
 ---
-title: "API Transition"
+title: "API transition"
 description: "The LLM Serving Service is moving to the New API: transition phases and endpoints, what you need to do, API keys, model identifiers and model discovery."
 ---
 
@@ -129,7 +129,7 @@ If your application retrieves models dynamically, check whether it depends on:
 
 Applications using strict response validation should account for these differences.
 
-For available models, supported capabilities, and configuration details, see [Models](/models) and the [Model Comparison](/models).
+For available models, supported capabilities, and configuration details, see [Models](/models) and the [Model comparison](/models).
 
 
 ### Model datasheets
@@ -242,7 +242,7 @@ Request validation depends on the model provider and API parameter handling. Som
 A successful HTTP response does not guarantee that every request parameter was applied as provided.
 :::
 
-For detailed model capabilities and supported parameters, see [Models](/models) and the [Model Comparison](/models).
+For detailed model capabilities and supported parameters, see [Models](/models) and the [Model comparison](/models).
 
 <a id="responses"></a>
 
@@ -435,7 +435,7 @@ A stream that terminates without `[DONE]` should be treated as incomplete.
 
 ## Error handling
 
-The New API (`https://llm-server.ai.t-systems.net/v1`) introduces structured error responses, making it easier for applications to identify errors and handle them consistently. Standard HTTP status codes continue to indicate request outcomes, while certain error scenarios now have more specific status codes. For the general error reference, see [Error Codes](/reference/error-codes).
+The New API (`https://llm-server.ai.t-systems.net/v1`) introduces structured error responses, making it easier for applications to identify errors and handle them consistently. Standard HTTP status codes continue to indicate request outcomes, while certain error scenarios now have more specific status codes. For the general error reference, see [Error codes](/reference/error-codes).
 
 
 ### What changes in error handling
@@ -510,7 +510,7 @@ The New API distinguishes between provider rate limits, service-level rate limit
 | Service-level rate limit | 429 | No `Retry-After` header; reset information may appear in the error message |
 | Budget exceeded | 402 | No `Retry-After` header; budget information may appear in the error message |
 
-When a provider supplies a `Retry-After` header and it is forwarded in the response, applications should respect it. For service-level rate limits, implement your own backoff strategy; see [Rate Limits](/reference/rate-limits).
+When a provider supplies a `Retry-After` header and it is forwarded in the response, applications should respect it. For service-level rate limits, implement your own backoff strategy; see [Rate limits](/reference/rate-limits).
 
 Budget-related errors should be handled separately and should not trigger automatic retries.
 

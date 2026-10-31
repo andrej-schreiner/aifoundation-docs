@@ -1,5 +1,5 @@
 ---
-title: "Function Calling"
+title: "Function calling"
 description: "Define tools and let AI Foundation Services models return structured JSON arguments for external APIs and data sources."
 ---
 
@@ -9,7 +9,7 @@ Function calling lets models generate structured JSON arguments for functions yo
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
 - OpenAI SDK installed ([Quickstart](/))
-- A model that supports function calling (most hosted models do — see [Available Models](/models))
+- A model that supports function calling (most hosted models do — see [Available models](/models))
 :::
 
 **What you'll learn:**
@@ -126,7 +126,7 @@ JSON Schema on the Responses API is documented on [Structured outputs](/guides/s
 ## Limitations and troubleshooting
 
 :::note
-Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available Models](/models) before relying on it.
+Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available models](/models) before relying on it.
 
 The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
 :::
@@ -135,5 +135,5 @@ The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-1
 ## Next steps
 
 - [Streaming](/guides/streaming) — Stream function calling responses in real-time
-- [Chat Completions](/guides/chat-completions) — Basic chat API usage
-- [API Endpoints](/reference/api-endpoints) — Full endpoint reference
+- [Chat completions](/guides/chat-completions) — Basic chat API usage
+- [API endpoints](/reference/api-endpoints) — Full endpoint reference

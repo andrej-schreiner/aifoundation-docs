@@ -3,10 +3,10 @@ import Default from '@astrojs/starlight/components/SiteTitle.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
-const label = isDE ? 'API-Key' : 'API Key';
+const label = isDE ? 'API-Key' : 'API key';
 const ariaLabel = isDE
   ? 'API-Key generieren (öffnet in neuem Tab)'
-  : 'Get API Key (opens in new tab)';
+  : 'Get API key (opens in new tab)';
 ---
 
 <Default {...Astro.props}><slot /></Default>
@@ -67,7 +67,7 @@ const ariaLabel = isDE
   }
 
   /* Below 22.5rem (~360px) the title needs every pixel — collapse the CTA
-     to icon-only. The aria-label still announces "Get API Key" so screen
+     to icon-only. The aria-label still announces "Get API key" so screen
      reader users aren't affected. */
   @media (max-width: 22.5rem) {
     .mobile-cta-label {
