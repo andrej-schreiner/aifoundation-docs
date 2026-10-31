@@ -25,7 +25,7 @@ Prefix caching lets the model reuse the work it already did for the beginning of
 - How to read cache usage from the response
 
 
-## How It Works
+## How it works
 
 The model processes a prompt token by token and builds an internal key/value (KV) cache as it goes. That cache depends only on the tokens seen so far, so the entry for a given prefix is valid for **any** request that starts with exactly those tokens. Prefix caching stores those entries and reuses them on the next matching request.
 
@@ -59,7 +59,7 @@ Two details matter here:
 Prefix caching never changes the content of a response: the model sees the same tokens either way. It only affects latency and token accounting.
 
 
-## T-Cloud Hosted Open-Source Models
+## T-Cloud hosted open-source models
 
 For T-Cloud-hosted open-source models (for example `gpt-oss-120b`, `Qwen-3.6-35B-FP8`), prefix caching is **on by default** and controlled per request. Two extra fields on the chat completion request govern it:
 
@@ -74,7 +74,7 @@ Both are extensions to the OpenAI schema, so with the OpenAI SDKs you pass them 
 Caching keeps already-processed requests for a limited time so that similar or repeated requests can be answered faster. If a prompt should not be retained for reuse at all — a one-off, or content you do not want held even briefly — send `save_cache: false` on that request and nothing from it is stored. The default sharing scope is your own API key, so a cached prefix is never reused by another customer unless you widen the scope yourself with `cache_salt`.
 :::
 
-### Cache Scope
+### Cache scope
 
 `save_cache` decides *whether* the prefix is cacheable, `cache_salt` decides *how widely* it is shared. Requests only reuse each other's prefix when they resolve to the same scope:
 
@@ -176,7 +176,7 @@ The system prompt and the document below are identical on every call, so only th
   </TabItem>
 </Tabs>
 
-### Choosing a Salt
+### Choosing a salt
 
 - **Omit it** when one API key does all the work — the default per-key scope already covers a single service.
 - **Use a custom salt** to group requests that legitimately share a prefix: a session ID, a document ID, a batch job name. Different salts are isolated from each other even for identical prompts.
@@ -189,7 +189,7 @@ Caching is **best-effort**: cache entries are evicted as other traffic arrives, 
 :::
 
 
-## Cache Control for Anthropic Models
+## Cache control for Anthropic models
 
 Claude models do not cache implicitly. You mark the end of the cacheable region yourself by attaching `cache_control` to a content block; everything up to and including that block becomes the cached prefix.
 
@@ -263,7 +263,7 @@ Points to keep in mind:
 :::
 
 
-## Reading Cache Usage
+## Reading cache usage
 
 The `usage` object of the response reports how much of the prompt came from cache. Check it before and after a change to confirm your prefix is actually being reused:
 
@@ -301,7 +301,7 @@ Cache counters are diagnostics, not a billing statement. Use them to confirm tha
 :::
 
 
-## Pricing for Cached Tokens
+## Pricing for cached tokens
 
 Prompt tokens served from the prefix cache are billed at **15% of the model's normal input token price** — the cached part of the prompt costs 85% less than processing it again. The discount applies to the cached tokens only:
 
@@ -320,7 +320,7 @@ The 15% cached-token price applies to **T-Cloud-hosted models** — the models t
 The per-model cached price is listed in the **Cached Input Token Price** column on each [rate plan page](/plans) and in the **Cached €/M** column of the [models comparison](/models).
 
 
-## Best Practices
+## Best practices
 
 - **Order by stability.** System prompt → tool definitions → documents → few-shot examples → conversation → current question.
 - **Set the scope once, in one place.** Derive `cache_salt` from the thing the prefix belongs to (session, document, tenant) in a single helper, so every call site produces the same value.

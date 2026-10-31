@@ -20,7 +20,7 @@ AI Foundation Services provides vision models that can analyze images alongside 
 - How to find out which models accept images
 
 
-## Analyze an Image from URL
+## Analyze an image from URL
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -102,7 +102,7 @@ AI Foundation Services provides vision models that can analyze images alongside 
 </Tabs>
 
 
-## Analyze a Local Image (Base64)
+## Analyze a local image (Base64)
 
 You can also pass a local image as a base64-encoded string:
 
@@ -153,7 +153,7 @@ The models below are examples used in this guide. Other models on the platform a
 
 ## Limitations and troubleshooting
 
-Scanned pages and handwriting belong on [OCR](/guides/ocr), which uses the preview models. This page is the chat image call.
+For scanned pages and handwriting, use [OCR](/guides/ocr), which runs on the preview models.
 
 :::caution[Per-request image limits differ by model]
 T-Cloud-hosted models cap how many images one request may contain, and **the cap is not the same for every model**. `gemma-4-31B-it-FP8` accepts 10. `Qwen-3.6-35B-FP8` accepts 8.

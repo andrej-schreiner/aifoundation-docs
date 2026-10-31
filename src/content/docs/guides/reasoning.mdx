@@ -27,7 +27,7 @@ Accepted `reasoning_effort` values and the datasheet default:
 
 <ReasoningTable />
 
-<div set:html="<!-- TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) supports a vendor thinking mode. Confirm the reasoning_effort values on AIFS before adding them to the table. -->"></div>
+{/* TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) supports a vendor thinking mode. Confirm the reasoning_effort values on AIFS before adding them to the table. */}
 
 Qwen 3.6 also accepts the prompt keyword `/no_think`, in the section below.
 
@@ -66,7 +66,7 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
 The sample uses `reasoning_effort="high"` on `GLM-5.3`. The datasheet lists `none`, `high`, and `max` for that model. Do not assume every model accepts the same values.
 
 
-## Disabling Reasoning for Qwen 3.6
+## Disabling reasoning for Qwen 3.6
 
 For Qwen 3.6 models, prepend `/no_think` to your prompt to disable reasoning:
 
@@ -89,13 +89,13 @@ print(response.choices[0].message.content)
 
 ## Limitations and troubleshooting
 
-These limits are already written on this page:
+Known limits:
 
 - Mistral models accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
 - Some newer Anthropic models reject `reasoning_effort`. The error names the alternative.
 - Some code-specialised models reject the parameter with `The requested operation is unsupported.`
 
-<div set:html="<!-- TODO(andrej): confirm which current Anthropic model ids reject reasoning_effort. The note above is the existing sentence; it does not name the ids. -->"></div>
+{/* TODO(andrej): confirm which current Anthropic model ids reject reasoning_effort. The note above is the existing sentence; it does not name the ids. */}
 
 ## Next steps
 

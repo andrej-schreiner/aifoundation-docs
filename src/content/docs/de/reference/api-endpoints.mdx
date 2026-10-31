@@ -36,7 +36,7 @@ Die Pfade oben sind relativ zu `https://llm-server.ai.t-systems.net/v1`, der Cha
 
 ### Queue-Endpunkte
 
-Die Migrationsseiten nennen kein Gegenstück auf dem neuen Endpunkt für den Queue-Host. Diese Pfade bleiben auf `https://llm-server.llmhub.t-systems.net`. Sie warten bis zu zwei Minuten, wenn das Rate-Limit überschritten ist, statt sofort `429` zu liefern. Siehe [Queued Requests](/de/guides/reliability#queued-requests).
+Queue-Endpunkte laufen auf dem bisherigen Host, `https://llm-server.llmhub.t-systems.net`. Sie warten bis zu zwei Minuten, wenn das Rate-Limit überschritten ist, statt sofort `429` zu liefern. Siehe [Queued Requests](/de/guides/reliability#queued-requests).
 
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
@@ -52,12 +52,12 @@ Die Migrationsseiten nennen kein Gegenstück auf dem neuen Endpunkt für den Que
 
 ## Hosts
 
-Die Basis der neuen API ist `https://llm-server.ai.t-systems.net/v1`. Standardaufrufe nutzen `/v1/...` auf diesem Host. Für einige Pfade in dieser Doku gibt es noch kein Gegenstück auf dem neuen Endpunkt, sie bleiben auf dem bisherigen Host:
+Die Basis der neuen API ist `https://llm-server.ai.t-systems.net/v1`. Standardaufrufe nutzen `/v1/...` auf diesem Host. Einige Pfade sind noch nicht auf dem neuen Host und bleiben auf dem bisherigen Host:
 
-| Host | Wofür die Doku ihn verwendet |
+| Host | Verwendet für |
 |---|---|
 | `https://llm-server.ai.t-systems.net/v1` | Chat, Completions, Responses, Embeddings, Audio, Bilder, Decisions, Dateien, Modelle |
-| `https://llm-server.llmhub.t-systems.net/v2/coding` | Cline, Continue und OpenCode. Die Migrationsseiten definieren keinen Coding-Pfad unter `/v1`. |
+| `https://llm-server.llmhub.t-systems.net/v2/coding` | Cline, Continue und OpenCode |
 | `https://llm-server.llmhub.t-systems.net/queue` | Queue-Varianten wie `/queue/chat/completions` und `/queue/images/edits` |
 | `https://llm-server.llmhub.t-systems.net/v1` | Visual-RAG-Vektorspeicher (`/v1/vector_stores`) auf dem bisherigen Host |
 

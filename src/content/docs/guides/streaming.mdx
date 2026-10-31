@@ -20,7 +20,7 @@ Stream responses token-by-token using Server-Sent Events (SSE) for faster time-t
 - Error handling patterns for streams
 
 
-## Why Streaming?
+## Why streaming?
 
 Without streaming, the API waits until the entire response is generated before sending it back. With streaming:
 
@@ -30,7 +30,7 @@ Without streaming, the API waits until the entire response is generated before s
 - **Early termination** — Stop generation mid-stream if the output isn't what you need
 
 
-## Basic Streaming
+## Basic streaming
 
 Enable streaming by setting `stream: true` in your request:
 
@@ -112,7 +112,7 @@ console.log(); // newline at end
 </Tabs>
 
 
-## Collecting the Full Response
+## Collecting the full response
 
 If you need both streaming output and the complete text:
 
@@ -174,7 +174,7 @@ console.log(`\n\nTotal length: ${completeText.length} characters`);
 </Tabs>
 
 
-## Streaming with Function Calling
+## Streaming with function calling
 
 When streaming with tools/functions, tool call arguments arrive incrementally across chunks:
 
@@ -231,7 +231,7 @@ for tc in tool_calls.values():
 ```
 
 
-## Error Handling
+## Error handling
 
 Handle connection drops and errors gracefully during streaming:
 
@@ -268,7 +268,7 @@ def stream_with_retry(messages, max_retries=3):
 ```
 
 
-## Stream Options
+## Stream options
 
 Request usage statistics in the final chunk with `stream_options`:
 

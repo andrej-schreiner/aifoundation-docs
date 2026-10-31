@@ -27,7 +27,7 @@ Zulässige Werte für `reasoning_effort` und der Default aus dem Datenblatt:
 
 <ReasoningTable />
 
-<div set:html="<!-- TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) unterstützt laut Anbieter einen Thinking-Modus. Die reasoning_effort-Werte auf AIFS bestätigen, bevor sie in die Tabelle kommen. -->"></div>
+{/* TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) unterstützt laut Anbieter einen Thinking-Modus. Die reasoning_effort-Werte auf AIFS bestätigen, bevor sie in die Tabelle kommen. */}
 
 Qwen 3.6 akzeptiert zusätzlich das Prompt-Schlüsselwort `/no_think`, im Abschnitt unten.
 
@@ -89,13 +89,13 @@ print(response.choices[0].message.content)
 
 ## Grenzen und Fehlersuche
 
-Diese Grenzen stehen bereits auf dieser Seite:
+Bekannte Grenzen:
 
 - Mistral-Modelle akzeptieren nur `none` und `high`. `low` oder `medium` führen zu HTTP 400 mit `reasoning_effort=... is not supported by Mistral models.`
 - Einzelne neuere Anthropic-Modelle lehnen `reasoning_effort` ab. Die Fehlermeldung nennt die Alternative.
 - Einige auf Code spezialisierte Modelle weisen den Parameter mit `The requested operation is unsupported.` zurück.
 
-<div set:html="<!-- TODO(andrej): bestätigen, welche aktuellen Anthropic-Modell-IDs reasoning_effort ablehnen. Der Satz oben ist der bestehende Hinweis; er nennt keine IDs. -->"></div>
+{/* TODO(andrej): bestätigen, welche aktuellen Anthropic-Modell-IDs reasoning_effort ablehnen. Der Satz oben ist der bestehende Hinweis; er nennt keine IDs. */}
 
 ## Nächste Schritte
 

@@ -36,7 +36,7 @@ Paths above are relative to `https://llm-server.ai.t-systems.net/v1`, so the cha
 
 ### Queue endpoints
 
-The migration pages do not define a new-endpoint equivalent for the queue host. These paths stay on `https://llm-server.llmhub.t-systems.net`. They wait up to two minutes when you are over your rate limit instead of returning `429` immediately. See [Queued requests](/guides/reliability#queued-requests).
+Queue endpoints are served on the previous host, `https://llm-server.llmhub.t-systems.net`. They wait up to two minutes when you are over your rate limit instead of returning `429` immediately. See [Queued requests](/guides/reliability#queued-requests).
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -52,12 +52,12 @@ The migration pages do not define a new-endpoint equivalent for the queue host. 
 
 ## Hosts
 
-The New API base is `https://llm-server.ai.t-systems.net/v1`. Standard calls use `/v1/...` on that host. A few paths in these docs have no new-endpoint equivalent yet, so they stay on the previous host:
+The New API base is `https://llm-server.ai.t-systems.net/v1`. Standard calls use `/v1/...` on that host. A few paths are not on the new host yet and stay on the previous host:
 
-| Host | What the docs use it for |
+| Host | Used for |
 |---|---|
 | `https://llm-server.ai.t-systems.net/v1` | Chat, completions, responses, embeddings, audio, images, decisions, files, models |
-| `https://llm-server.llmhub.t-systems.net/v2/coding` | Cline, Continue, and OpenCode. The migration pages do not define a `/v1` coding path. |
+| `https://llm-server.llmhub.t-systems.net/v2/coding` | Cline, Continue, and OpenCode |
 | `https://llm-server.llmhub.t-systems.net/queue` | Queue variants such as `/queue/chat/completions` and `/queue/images/edits` |
 | `https://llm-server.llmhub.t-systems.net/v1` | Visual RAG vector stores (`/v1/vector_stores`) on the previous host |
 
@@ -75,7 +75,7 @@ Authorization: Bearer YOUR_API_KEY
 See [Authentication](/getting-started/authentication) for setup details.
 
 
-## Request Format
+## Request format
 
 All POST requests use JSON:
 
@@ -87,7 +87,7 @@ curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
 ```
 
 
-## Response Format
+## Response format
 
 Responses follow the OpenAI response format. For chat completions:
 

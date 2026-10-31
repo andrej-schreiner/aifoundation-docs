@@ -35,7 +35,7 @@ for response in response_iter:
 ```
 
 
-## Initialize Embeddings
+## Initialize embeddings
 
 ```python showLineNumbers
 import os
@@ -53,9 +53,9 @@ print(f"Embedding dimension: {len(query_embedding)}")
 ```
 
 
-## Simple RAG Example
+## Simple RAG example
 
-### 1. Prepare Documents
+### 1. Prepare documents
 
 ```bash
 mkdir example_data
@@ -63,7 +63,7 @@ mkdir example_data
 cp /path/to/your-documents.pdf example_data/
 ```
 
-### 2. Index Documents
+### 2. Index documents
 
 ```python showLineNumbers
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
@@ -80,7 +80,7 @@ index = VectorStoreIndex.from_documents(
 )
 ```
 
-### 3. Create Chat Engine
+### 3. Create chat engine
 
 ```python showLineNumbers
 from llama_index.core.postprocessor import LongContextReorder
@@ -107,7 +107,7 @@ chat_engine = index.as_chat_engine(
 )
 ```
 
-### 4. Ask Questions
+### 4. Ask questions
 
 ```python showLineNumbers
 response = chat_engine.stream_chat("How much revenue did Alphabet generate?")

@@ -66,7 +66,7 @@ response = client.responses.create(
 print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
-<div set:html="<!-- TODO(andrej): no recorded output_text for this call is in the docs. The JSON below is the shape the schema and the prompt imply. -->"></div>
+{/* TODO(andrej): no recorded output_text for this call is in the docs. The JSON below is the shape the schema and the prompt imply. */}
 
 `response.output_text` is a JSON string. Example output (illustrative):
 
@@ -87,13 +87,13 @@ print(json.dumps(json.loads(response.output_text), indent=2))
 
 Set `model`, `input`, `max_output_tokens`, and `text.format`. Inside `text.format`, set `type` to `json_schema`, plus `name`, `schema`, and `strict`.
 
-<div set:html="<!-- TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. -->"></div>
+{/* TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. */}
 
 ## Model support
 
 The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
 
-<div set:html="<!-- TODO(andrej): confirm that gpt-oss-120b accepts this text.format json_schema payload. -->"></div>
+{/* TODO(andrej): confirm that gpt-oss-120b accepts this text.format json_schema payload. */}
 
 ## Limitations
 

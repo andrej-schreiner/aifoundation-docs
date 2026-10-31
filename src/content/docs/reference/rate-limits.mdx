@@ -9,7 +9,7 @@ import { TabItem, Tabs } from '@astrojs/starlight/components';
 Rate limits protect the service and ensure fair usage. Limits are defined per plan and vary by model. Every RPM and TPM value below is marked with an asterisk <sup><a href="#about-these-rpm-and-tpm-values">&ast;</a></sup> — click it for the full conditions under which these values are provided.
 
 
-## Limits by Plan
+## Limits by plan
 
 Limits vary by both plan and model. The table below shows representative figures across the three plans:
 
@@ -18,7 +18,7 @@ Limits vary by both plan and model. The table below shows representative figures
 | **Models available** | 30 | 33 | 33 |
 | **T-Cloud embedding models (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
-### Example: Per-model limits across plans
+### Example: per-model limits across plans
 
 To illustrate how limits scale, here are the limits for two models.
 
@@ -45,7 +45,7 @@ To illustrate how limits scale, here are the limits for two models.
 For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans) page or download the [Service Description PDF](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf).
 
 
-## How Rate Limits Work
+## How rate limits work
 
 - **TPM (Tokens per Minute)** — best-effort *ceiling* on tokens processed per minute (input and output have separate limits); not an SLA-backed throughput target
 - **RPM (Requests per Minute)** — best-effort *ceiling* on API requests per minute; not an SLA-backed request-rate target
@@ -69,14 +69,14 @@ Because the window is aligned to the clock, the counters reset at the top of eac
 Some `429` responses are caused by this: requests spaced 60 seconds apart by a client-side timer can still fall into the same calendar minute on the gateway. The `429` body states the seconds left in the current window.
 
 
-## Rate Limit Response Headers
+## Rate limit response headers
 
 Responses from Azure-hosted GPT models include headers that help you track usage against limits:
 
 :::note
 Rate limit headers are currently returned by Azure-hosted models. Open-source models hosted on T-Cloud (for example `gpt-oss-120b`) do not return these headers.
 
-<div set:html="<!-- TODO(andrej): the published examples of these headers used gpt-5 and gpt-5-mini. Confirm the same headers on gpt-6.1-sol, which this sample now calls. -->"></div>
+{/* TODO(andrej): the published examples of these headers used gpt-5 and gpt-5-mini. Confirm the same headers on gpt-6.1-sol, which this sample now calls. */}
 :::
 
 | Header | Description |
@@ -88,7 +88,7 @@ Rate limit headers are currently returned by Azure-hosted models. Open-source mo
 | `x-ratelimit-reset-requests` | Time until the request limit resets |
 | `x-ratelimit-reset-tokens` | Time until the token limit resets |
 
-### Reading Headers
+### Reading headers
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -136,7 +136,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
 </Tabs>
 
 
-## Handling Rate Limits
+## Handling rate limits
 
 When you exceed a rate limit, the API returns a `429 Too Many Requests` error. Best practices:
 
@@ -180,7 +180,7 @@ def safe_completion(messages, max_retries=3):
 - **For contractual guarantees on throughput, end-to-end latency, or time-to-first-token**, see [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 
 
-## Need Higher Limits?
+## Need higher limits?
 
 - **Upgrade your plan** — Higher tiers have significantly higher TPM and RPM limits
 - **Move to Dedicated LLM Serving** — On [Dedicated LLM Serving](/plans/dedicated), there are no RPM/TPM ceilings. You reserve GPU hardware and consume as many tokens as it can produce — useful for bursty traffic or tight latency SLAs that the shared service cannot guarantee
