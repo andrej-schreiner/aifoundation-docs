@@ -26,7 +26,9 @@
 	width: 100%;
 	max-width: 100%;
 	overflow-x: visible;
-	table-layout: fixed;
+	/* Auto layout: each column is at least as wide as its longest word, so
+	   German compounds do not split mid-word. */
+	table-layout: auto;
 	border: 0;
 	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
 }
@@ -63,9 +65,11 @@
 	overflow-wrap: anywhere;
 }
 
+/* A column is at least as wide as its longest word; a word only breaks
+   when it cannot fit at all. */
 .sl-markdown-content .aifs-table-scroll :is(th, td) {
 	position: relative;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
 }
 
 .sl-markdown-content :is(td, th) code {
@@ -246,19 +250,10 @@
 	font-weight: var(--aifs-table-head-font-weight);
 }
 
-/* Stacked rows read as a compact key/value list: the label sits left of its
-   value. Method and endpoint share one line ("GET /models"). */
+/* Stacked rows: method and endpoint share one line ("GET /models"). */
 @container mdtable (max-width: 36rem) {
 	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td {
-		display: grid;
-		grid-template-columns: minmax(5.5rem, 32%) minmax(0, 1fr);
-		column-gap: 8px;
 		margin: 0;
-		align-items: baseline;
-	}
-
-	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td::before {
-		display: block;
 	}
 
 	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td:is([data-label='Method'], [data-label='Methode']),

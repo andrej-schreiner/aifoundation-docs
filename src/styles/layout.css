@@ -386,3 +386,17 @@ footer.sl-flex .meta:not(:has(*)) {
 		margin-top: 0;
 	}
 }
+
+/* Small phones: one step down for the title, so long words such as
+   "(Dokumentenerkennung)" fit on a line. */
+@media (max-width: 26rem) {
+	.sl-container > h1 {
+		font-size: 1.75rem;
+	}
+}
+
+/* Previous/next titles: long German words fit in half the column. */
+.pagination-links .link-title {
+	font-size: 1.25rem;
+	overflow-wrap: break-word;
+}
