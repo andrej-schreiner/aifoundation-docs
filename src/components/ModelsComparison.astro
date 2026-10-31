@@ -819,7 +819,7 @@ const rowDataPayload = allModels.map((m) => ({
                   </div>
                   <div class="mc-m__meta">
                     {!hostingUnconfirmed(m.exactModelName) && <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>}
-                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small aifs-tag--yellow">Premium</span>}
+                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small">Premium</span>}
                     {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
                     {priceLine && <span class:list={['mc-m__price', { 'mc-m__price--wrap': priceLine === t.priceTba }]}>{priceLine}</span>}
                   </div>

@@ -844,7 +844,7 @@ const priceBuckets = [
             <div class="mt-model__main">
               <span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" /></span>
               <strong>${escapeHtml(model.displayName)}</strong>
-              ${modelTier.toLowerCase() === 'premium' ? `<span class="aifs-tag aifs-tag--small aifs-tag--yellow">${escapeHtml(modelTier)}</span>` : ''}
+              ${modelTier.toLowerCase() === 'premium' ? `<span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>` : ''}
             </div>
           </td>
           <td class="mt-hosting">
@@ -881,7 +881,7 @@ const priceBuckets = [
         <tr class="mt-details-row" id="${id}" data-key="${escapeHtml(key)}" ${open ? '' : 'hidden="until-found"'}>
           <td colspan="7">
             <dl class="mt-details">
-              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="aifs-tag aifs-tag--small aifs-tag--yellow">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
+              ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model Tier')}</dt><dd><span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
               <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
               <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
