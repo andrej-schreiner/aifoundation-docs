@@ -402,7 +402,7 @@ export default defineConfig({
 					collapsed: false,
 					items: [
 						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
-						{ label: 'Dedicated serving', translations: { de: 'Dediziertes Serving' }, slug: 'plans/dedicated' },
+						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
 						{ label: 'Rate limits', translations: { de: 'Rate-Limits' }, slug: 'reference/rate-limits' },
 					],
 				},

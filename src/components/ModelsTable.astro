@@ -267,18 +267,18 @@ const priceBuckets = [
       </tbody>
     </table>
   </div>
-  <small>{translations.adequacyNote || '* EU/EEA includes countries with an adequacy decision by the EU Commission.'}</small>
   {
     !legacy && translations.worldwideLocationNote && (
-      <small id="worldwide-location-notes">
+      <small id="worldwide-location-notes" class="mt-footnote">
         {translations.worldwideLocationNote}{' '}
         <a href={translations.enterpriseTrustHref}>{translations.enterpriseTrustLabel}</a>
       </small>
     )
   }
+  <small class="mt-footnote">{translations.adequacyNote || '‡ EU/EEA includes countries with an adequacy decision by the EU Commission.'}</small>
   {
     !legacy && translations.cachedPriceNote && (
-      <small id="cached-token-notes">&dagger; {translations.cachedPriceNote}</small>
+      <small id="cached-token-notes" class="mt-footnote">&dagger; {translations.cachedPriceNote}</small>
     )
   }
 </section>
@@ -2018,6 +2018,12 @@ const priceBuckets = [
 
   /* Same cut as the rate plans: a 900px viewport with the sidebar still
      open has about 37rem of content, and the compact table fits there. */
+  /* Each footnote on its own line. */
+  .mt-footnote {
+    display: block;
+    margin-top: 4px;
+  }
+
   @container models (max-width: 52rem) {
     .models-table-section .mt-compact,
     .models-table-section .mt-compact tbody {
