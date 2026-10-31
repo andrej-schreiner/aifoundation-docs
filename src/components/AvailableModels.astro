@@ -12,16 +12,18 @@ import { hostingUnconfirmed } from '../shared/lib/launchModels';
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
   showHeading?: boolean;
+  /** Only the first few cards, no "Show more": the full catalog follows on the page. */
+  featured?: boolean;
 }
-const { showHeading = true } = Astro.props;
+const { showHeading = true, featured = false } = Astro.props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
 const t = {
   cloud: isDE ? 'Cloud' : 'Cloud',
   serverLocation: isDE ? 'Serverstandort' : 'Server Location',
   dataProcessing: isDE ? 'Datenverarbeitung' : 'Data Processing',
-  showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show More ({count} more)',
-  showLess: isDE ? 'Weniger anzeigen' : 'Show Less',
+  showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show more ({count} more)',
+  showLess: isDE ? 'Weniger anzeigen' : 'Show less',
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
   preview: isDE ? 'Vorschau' : 'Preview',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
@@ -166,6 +168,7 @@ for (const m of allModels) {
 const sortedModels = [...modelMap.values()].sort((a, b) => compareCatalogName(a.name, b.name));
 
 const INITIAL_COUNT = 6;
+const cardModels = featured ? sortedModels.slice(0, INITIAL_COUNT) : sortedModels;
 ---
 
 <div class="available-models">
@@ -180,7 +183,7 @@ const INITIAL_COUNT = 6;
   <span id="copy-status" class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="models-grid" id="models-grid">
     {
-      sortedModels.map((model, index) => (
+      cardModels.map((model, index) => (
         <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
           <Button
             variant="ghost"
@@ -230,7 +233,7 @@ const INITIAL_COUNT = 6;
     }
   </div>
   {
-    sortedModels.length > INITIAL_COUNT && (
+    cardModels.length > INITIAL_COUNT && (
       <Button
         variant="secondary"
         class="models-toggle"
@@ -284,10 +287,10 @@ const INITIAL_COUNT = 6;
     color: var(--sl-color-white);
     border: 1px solid var(--sl-color-gray-5);
     border-radius: var(--aifs-table-radius, 8px);
-    padding: 16px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
     text-align: start;
     line-height: 1.2;
   }
@@ -439,12 +442,12 @@ const INITIAL_COUNT = 6;
 <script>
   function setup() {
     const toggle = document.getElementById('models-toggle') as HTMLButtonElement | null;
-    if (!toggle) return;
+    if (toggle) {
 
     const total = Number(toggle.dataset.total);
     const initial = Number(toggle.dataset.initial);
     const showMoreTemplate = toggle.dataset.showMoreTemplate ?? 'Show More ({count} more)';
-    const showLess = toggle.dataset.showLess ?? 'Show Less';
+    const showLess = toggle.dataset.showLess ?? 'Show less';
     let expanded = false;
 
     toggle.addEventListener('click', () => {
@@ -459,6 +462,7 @@ const INITIAL_COUNT = 6;
       toggle.textContent = expanded ? showLess : showMoreTemplate.replace('{count}', String(total - initial));
       toggle.setAttribute('aria-expanded', String(expanded));
     });
+    }
 
     // Copy model ID to clipboard with visual + accessible feedback.
     // The button's `data-copied-label` carries the localized "Copied: <id>"

@@ -231,12 +231,6 @@ html.qp-off-glm53DeepseekLaunchDismissed .qp-bar[data-key='glm53DeepseekLaunchDi
 		padding-bottom: 5rem;
 	}
 
-	/* Catalog copy buttons stay clear of the launcher. The model list uses
-	   the same inset on both sides, the page padding only. */
-	.available-models {
-		padding-inline-end: 3.25rem;
-	}
-
 	#tsystems-chat-widget,
 	.widget-container.bottom-right {
 		display: none !important;
