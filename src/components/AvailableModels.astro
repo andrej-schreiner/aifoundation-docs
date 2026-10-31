@@ -371,7 +371,13 @@ const cardModels = featured ? featuredModels : sortedModels;
     object-fit: contain;
   }
 
+  /* Badges drop under the name when the card is narrow, instead of running
+     under the copy button. */
   .model-card__title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 2px 6px;
     min-width: 0;
   }
 
