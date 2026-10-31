@@ -79,7 +79,7 @@ Token usage: Usage(prompt_tokens=41, total_tokens=41)
 ```
 
 
-## Example Embedding Models
+## Example embedding models
 
 :::note[These are examples, not a complete list]
 The two models below are examples used in this guide. Other embedding models are available — see [Embedding models](/models/embeddings) for the current list.
@@ -91,16 +91,10 @@ The two models below are examples used in this guide. Other embedding models are
 | `text-embedding-bge-m3` | 1024 | Multilingual | Cross-language search |
 
 
-## Limitations and troubleshooting
+Each model returns vectors with the dimensions listed in [Example embedding models](#example-embedding-models).
 
-The dimension table above is what this guide publishes for Jina and BGE-M3.
+{/* TODO(andrej): max input length for each embedding model is not on this page. */}
 
-<div set:html="<!-- TODO(andrej): max input length for each embedding model is not on this page. -->"></div>
-
-## Next steps
-
-- **[LangChain Integration](/integrations/langchain)** — Use embeddings with LangChain for RAG
-- **[LlamaIndex Integration](/integrations/llama-index)** — Use embeddings with LlamaIndex for RAG
 
 <a id="rag"></a>
 
@@ -114,11 +108,13 @@ Embed a passage, then send that passage to a chat model with the question. Both 
 - An embedding model and a chat model from [Choosing a model](/getting-started/choosing-a-model)
 :::
 
-## Minimal example
+### Minimal example
 
 `text-embedding-bge-m3` and `gpt-oss-120b` both run on T-Cloud. BGE-M3 has an 8K context window.
 
 ```python
+import math
+
 from openai import OpenAI
 
 client = OpenAI()
@@ -148,25 +144,18 @@ print(response.choices[0].message.content)
 
 BGE-M3 returns 1024-dimensional vectors. Jina Embeddings v2 Base DE returns 768. The chat answer is in `choices[0].message.content`.
 
-## Parameters
+### Parameters
 
 Embeddings take `model` and `input`. Chat takes `model` and `messages`.
 
-## Limitations and troubleshooting
+### Limitations and troubleshooting
 
 Qwen3 Embedding 8B also runs on T-Cloud, with a 32K context window.
 
-<div set:html="<!-- TODO(andrej): no vector database, chunk size, or index API is documented for this pattern. Visual RAG is a separate guide. Do not name a database until one is supported. -->"></div>
+{/* TODO(andrej): no vector database, chunk size, or index API is documented for this pattern. Visual RAG is a separate guide. Do not name a database until one is supported. */}
 
 For charts and scanned pages, use [Visual RAG](/guides/embeddings#visual-rag) and [OCR](/guides/ocr).
 
-## Next steps
-
-<div class="link-card-row">
-  <LinkCard title="Embeddings" href="/guides/embeddings" description="The embeddings call and the dimension table." />
-  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="BGE-M3, Jina DE, and Qwen3 Embedding 8B." />
-  <LinkCard title="Visual RAG" href="/guides/embeddings#visual-rag" description="Index documents that include charts and tables." />
-</div>
 
 <a id="visual-rag"></a>
 
@@ -188,12 +177,12 @@ Visual RAG indexes your files in both text and image, combining the stability of
 **Supported formats:** PDF, PPTX, DOCX, HTML, PNG
 
 
-## Workflow
+### Workflow
 
 ![Visual RAG Workflow](/img/vision-rag-workflow.svg)
 
 
-## Setup
+### Setup
 
 ```python
 
@@ -206,9 +195,9 @@ client = OpenAI(
 ```
 
 
-## File Operations
+### File operations
 
-### Upload a File
+#### Upload a file
 
 ```python
 uploaded = client.files.create(
@@ -218,7 +207,7 @@ uploaded = client.files.create(
 print(f"File ID: {uploaded.id}")
 ```
 
-### List Files
+#### List files
 
 ```python
 file_list = client.files.list(purpose="visual-rag")
@@ -226,23 +215,23 @@ for f in file_list.data:
     print(f"ID: {f.id}, Name: {f.filename}")
 ```
 
-### Get File Info
+#### Get file info
 
 ```python
 file_info = client.files.retrieve("file-abc123")
 print(file_info)
 ```
 
-### Delete a File
+#### Delete a file
 
 ```python
 client.files.delete("file-abc123")
 ```
 
 
-## Vector Store Operations
+### Vector store operations
 
-### Create a Vector Store
+#### Create a vector store
 
 ```python
 vs = client.vector_stores.create(
@@ -255,14 +244,14 @@ vs = client.vector_stores.create(
 print(f"Vector Store ID: {vs.id}")
 ```
 
-### List Vector Stores
+#### List vector stores
 
 ```python
 for vs in client.vector_stores.list():
     print(f"{vs.name} ({vs.id}) - {vs.file_counts}")
 ```
 
-### Ingest a File
+#### Ingest a file
 
 ```python
 client.vector_stores.files.create(
@@ -275,7 +264,7 @@ client.vector_stores.files.create(
 )
 ```
 
-### List Ingested Files
+#### List ingested files
 
 ```python
 files = client.vector_stores.files.list(vector_store_id="xyz-456")
@@ -283,7 +272,7 @@ for f in files.data:
     print(f"{f.id} - {f.created_at}")
 ```
 
-### Delete an Ingested File
+#### Delete an ingested file
 
 ```python
 client.vector_stores.files.delete(
@@ -292,14 +281,14 @@ client.vector_stores.files.delete(
 )
 ```
 
-### Delete a Vector Store
+#### Delete a vector store
 
 ```python
 client.vector_stores.delete(vector_store_id="xyz-456")
 ```
 
 
-## Retrieval
+### Retrieval
 
 Search your vector store with both text and image results:
 
@@ -321,7 +310,7 @@ for result in results:
 ```
 
 
-## End-to-End RAG Example
+### End-to-end RAG example
 
 Combine retrieval with LLM inference for a complete Visual RAG pipeline:
 
@@ -366,6 +355,9 @@ print(response.choices[0].message.content)
 
 ## Next steps
 
-- [Embeddings](/guides/embeddings) — Text-only embeddings for simpler RAG
-- [Multimodal](/guides/multimodal) — Analyze images with vision models
-- [LangChain Integration](/integrations/langchain) — Use RAG with LangChain
+<div class="link-card-row">
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="BGE-M3, Jina DE, and Qwen3 Embedding 8B." />
+  <LinkCard title="LangChain" href="/integrations/langchain" description="Use embeddings and RAG with LangChain." />
+  <LinkCard title="LlamaIndex" href="/integrations/llama-index" description="Use embeddings with LlamaIndex for RAG." />
+  <LinkCard title="Multimodal" href="/guides/multimodal" description="Analyze images with vision models." />
+</div>

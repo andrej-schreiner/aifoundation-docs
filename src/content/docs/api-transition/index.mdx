@@ -14,7 +14,7 @@ To ensure a smooth transition, the Legacy API remains available during the migra
 This section explains the transition timeline, required changes, and compatibility considerations for applications moving from the Legacy API to the New API.
 
 
-## Transition Overview
+## Transition overview
 
 The transition takes place in three phases. Exact dates will be communicated separately.
 
@@ -25,7 +25,7 @@ The transition takes place in three phases. Exact dates will be communicated sep
 | **New** `llm-server.ai.t-systems.net` | Not available yet | New API format | New API format |
 
 
-### How the Transition Works
+### How the transition works
 
 **Phase 1 — Preparation.** The existing endpoint continues to use the Legacy API format. Applications that depend on the current response or error structure can switch to the dedicated Legacy endpoint, `https://llm-server.legacy.ai.t-systems.net/v2`. This endpoint is already available and preserves the existing API behavior until the end of Phase 2.
 
@@ -34,7 +34,7 @@ The transition takes place in three phases. Exact dates will be communicated sep
 **Phase 3 — New API.** The existing and Legacy endpoints are discontinued. All applications should use the permanent New API endpoint, `https://llm-server.ai.t-systems.net/v1`.
 
 
-### What You Need to Do
+### What you need to do
 
 1. **In Phase 1, if needed:** Does your application depend on the current response or error format? Then switch your base URL to `https://llm-server.legacy.ai.t-systems.net/v2`. Your application keeps working as it does today until the end of Phase 2. The Legacy endpoint is already available, so you can make this switch before Phase 1 begins.
 2. **By the end of Phase 2, all customers:** Move to the New API endpoint `https://llm-server.ai.t-systems.net/v1` and the New API format.
@@ -42,12 +42,12 @@ The transition takes place in three phases. Exact dates will be communicated sep
 The New API uses `/v1` paths, for example `/v1/chat/completions` instead of `/v2/chat/completions`. When moving to the New API, change the base URL to `https://llm-server.ai.t-systems.net/v1` and review your model identifiers and response handling.
 
 
-## Getting Started
+## Getting started
 
 Most applications can migrate by updating their endpoint while keeping their existing authentication mechanism and standard request structure.
 
 
-### Connection Settings
+### Connection settings
 
 | Setting | Legacy API | New API |
 |---|---|---|
@@ -58,7 +58,7 @@ Most applications can migrate by updating their endpoint while keeping their exi
 | Standard API paths | `/v2/...` | `/v1/...` |
 
 
-### API Key Compatibility
+### API key compatibility
 
 Existing API keys remain supported during the transition.
 
@@ -75,7 +75,7 @@ Existing API keys will be deprecated in favor of newly issued keys. **Deprecatio
 Applications using existing keys do not need to replace them solely to access the New API.
 
 
-### Model Identifiers
+### Model identifiers
 
 The New API supports both unprefixed and provider-prefixed model identifiers. For example, the following model name can be used:
 
@@ -102,7 +102,7 @@ When an unprefixed model name is used, the New API automatically resolves it to 
 :::
 
 
-### Model Discovery
+### Model discovery
 
 If your application retrieves model information dynamically, review the model-list response structure: the Legacy API serves it at `GET /v2/models`, the New API at `GET /v1/models`. The New API can expose additional model capabilities and pricing information, while some fields from the Legacy API are no longer available in the same format.
 
@@ -118,7 +118,7 @@ If your application retrieves model information dynamically, review the model-li
 | Additional information | Deployment and provider metadata | May include `alias`, `max_input_tokens`, and `pricing` |
 
 
-### What You Need to Check
+### What to check for models
 
 If your application retrieves models dynamically, check whether it depends on:
 
@@ -132,7 +132,7 @@ Applications using strict response validation should account for these differenc
 For available models, supported capabilities, and configuration details, see [Models](/models) and the [Model Comparison](/models).
 
 
-### Model Datasheets
+### Model datasheets
 
 New datasheet endpoints under `/v1/datasheet` will soon be available. They describe each model's capabilities and parameter specifications: which endpoints a model supports, which parameters it accepts, and their allowed values and defaults.
 
@@ -167,11 +167,6 @@ The example is illustrative and simplified. The parameters, ranges and defaults 
 :::
 
 
-## Summary
-
-The New API provides a more scalable and standardized foundation for LLM integrations while maintaining compatibility with commonly used chat completion features. Before migrating, review your model identifiers, request parameters, response parsing, token usage handling, streaming behavior, and error handling.
-
-**All applications should move to the permanent New API endpoint by the end of Phase 2.** For questions or migration support, contact [AI@t-systems.com](mailto:AI@t-systems.com).
 
 <a id="requests"></a>
 
@@ -182,7 +177,7 @@ The New API (`https://llm-server.ai.t-systems.net/v1`) supports standard chat co
 Most applications can continue using their existing request structure with only minor adjustments.
 
 
-## Example: Chat Completion Request
+### Example: chat completion request
 
 <Tabs>
   <TabItem label="Legacy API">
@@ -220,7 +215,7 @@ curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
 The New API example uses an explicit provider prefix (`azure/`) for predictable routing; the prefix for each model is listed in `/v1/models`. An unprefixed model name such as `gpt-6.1-sol` can also be used when the model is available through automatic provider resolution.
 
 
-## What Changes?
+### What changes in requests
 
 | Aspect | Legacy API | New API |
 |---|---|---|
@@ -233,7 +228,7 @@ The New API example uses an explicit provider prefix (`azure/`) for predictable 
 | Request validation | Gateway and provider validation | Primarily provider-dependent; some parameters may be adjusted or ignored |
 
 
-## What You Need to Check
+### What to check for requests
 
 **For standard integrations:** Update the endpoint. Existing request structures and unprefixed model names can continue to work, provided the model is available.
 
@@ -256,7 +251,7 @@ For detailed model capabilities and supported parameters, see [Models](/models) 
 The New API (`https://llm-server.ai.t-systems.net/v1`) introduces a standardized response structure across different model providers. This improves consistency while preserving the core fields used by standard chat completion integrations: `choices`, `message`, `finish_reason`, and `usage` remain available.
 
 
-## Example: Successful Response
+### Example: successful response
 
 <Tabs>
   <TabItem label="Legacy API">
@@ -321,7 +316,7 @@ These examples are simplified to illustrate the common response format. Actual r
 The value of `response.model` may also differ from the requested model identifier for some providers.
 
 
-## What Changes?
+### What changes in responses
 
 | Aspect | Legacy API | New API |
 |---|---|---|
@@ -334,7 +329,7 @@ The value of `response.model` may also differ from the requested model identifie
 | Additional information | Provider-specific fields | Optional diagnostic metadata, including latency information |
 
 
-## Token Usage Details
+### Token usage details
 
 Standard token usage fields remain available, but additional usage details depend on the selected model and provider. For example, some providers return detailed completion token breakdowns, while others expose different usage fields or omit optional details entirely.
 
@@ -343,7 +338,7 @@ Fields such as `completion_tokens_details`, `reasoning_tokens`, or provider-spec
 Applications that track token consumption should account for these differences when processing usage information.
 
 
-## Additional Response Metadata
+### Additional response metadata
 
 The New API may include additional diagnostic information through the `extra_fields` object. Depending on the request and model, this may include:
 
@@ -354,7 +349,7 @@ The New API may include additional diagnostic information through the `extra_fie
 These fields are optional and should not be treated as part of the required standard response structure.
 
 
-## What You Need to Check
+### What to check for responses
 
 **For standard integrations:** Applications that primarily use `choices`, `message`, `finish_reason`, and the common token usage fields generally require minimal changes to response parsing.
 
@@ -373,7 +368,7 @@ These fields are optional and should not be treated as part of the required stan
 The New API (`https://llm-server.ai.t-systems.net/v1`) continues to support Server-Sent Events (SSE). Most streaming behavior remains compatible, but token usage information is returned differently. For streaming basics, see [Streaming](/guides/streaming).
 
 
-## What Changes?
+### What changes in streaming
 
 | Behavior | Legacy API | New API |
 |---|---|---|
@@ -384,7 +379,7 @@ The New API (`https://llm-server.ai.t-systems.net/v1`) continues to support Serv
 | Errors during streaming | Stream may terminate without an explicit error event | Structured errors may be included in the stream |
 
 
-## Token Usage in the Stream
+### Token usage in the stream
 
 <Tabs>
   <TabItem label="Legacy usage">
@@ -426,7 +421,7 @@ The examples show only the relevant fields.
 Both APIs include token usage in successful streaming responses by default, even when `stream_options.include_usage` is not explicitly requested. The main difference is where this information appears in the stream.
 
 
-## What You Need to Check
+### What to check for streaming
 
 Applications that process SSE responses directly should read token usage from whichever chunk contains the `usage` field, rather than relying on a separate chunk with an empty `choices` array.
 
@@ -443,7 +438,7 @@ A stream that terminates without `[DONE]` should be treated as incomplete.
 The New API (`https://llm-server.ai.t-systems.net/v1`) introduces structured error responses, making it easier for applications to identify errors and handle them consistently. Standard HTTP status codes continue to indicate request outcomes, while certain error scenarios now have more specific status codes. For the general error reference, see [Error Codes](/reference/error-codes).
 
 
-## What Changes?
+### What changes in error handling
 
 | Scenario | Legacy API | New API |
 |---|---|---|
@@ -459,7 +454,7 @@ The New API (`https://llm-server.ai.t-systems.net/v1`) introduces structured err
 | Provider timeout | 500 | 504 |
 
 
-## Example: Error Response
+### Example: error response
 
 The Legacy API typically returns provider error information as a string inside `detail`. The New API returns structured error information.
 
@@ -496,7 +491,7 @@ These examples are simplified to illustrate the difference in error structure.
 Structured error fields allow applications to access error details without parsing an embedded provider error message.
 
 
-## What You Need to Check
+### What to check for error handling
 
 **For standard HTTP error handling:** Applications can continue relying on HTTP response status codes.
 
@@ -505,7 +500,7 @@ Structured error fields allow applications to access error details without parsi
 Use the actual HTTP response status as the primary indicator, and treat error fields such as `type`, `code`, and `param` as optional.
 
 
-## Rate Limiting and Retries
+### Rate limiting and retries
 
 The New API distinguishes between provider rate limits, service-level rate limits, and budget restrictions.
 
@@ -520,15 +515,20 @@ When a provider supplies a `Retry-After` header and it is forwarded in the respo
 Budget-related errors should be handled separately and should not trigger automatic retries.
 
 
-## Response Validation
+### Response validation
 
 Validate the response `Content-Type` before attempting to parse the response body. Some unsupported API routes or methods may return HTML rather than JSON.
 
 A successful HTTP status alone does not guarantee that the response contains the expected API structure.
 
 
-## Troubleshooting
+### Troubleshooting
 
 When reporting an issue, include the request timestamp, endpoint, HTTP status, and any available request or trace identifier. This helps support investigate requests more efficiently.
 
-For questions or migration support, contact [AI@t-systems.com](mailto:AI@t-systems.com).
+
+## Summary
+
+The New API provides a more scalable and standardized foundation for LLM integrations while maintaining compatibility with commonly used chat completion features. Before migrating, review your model identifiers, request parameters, response parsing, token usage handling, streaming behavior, and error handling.
+
+**All applications should move to the permanent New API endpoint by the end of Phase 2.** For questions or migration support, contact [AI@t-systems.com](mailto:AI@t-systems.com).

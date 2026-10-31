@@ -118,7 +118,7 @@ Wenn Ihre Anwendung Modellinformationen dynamisch abruft, prüfen Sie die Strukt
 | Zusätzliche Informationen | Metadaten zu Deployment und Provider | Kann `alias`, `max_input_tokens` und `pricing` enthalten |
 
 
-### Was Sie prüfen sollten
+### Was Sie bei den Modellen prüfen sollten
 
 Wenn Ihre Anwendung Modelle dynamisch abruft, prüfen Sie, ob sie von Folgendem abhängt:
 
@@ -167,11 +167,6 @@ Das Beispiel dient zur Veranschaulichung und ist vereinfacht. Parameter, Wertebe
 :::
 
 
-## Zusammenfassung
-
-Die neue API bietet eine besser skalierbare und einheitlichere Grundlage für LLM-Integrationen und bleibt mit den üblichen Funktionen von Chat Completions kompatibel. Prüfen Sie vor der Migration Ihre Modellbezeichner, Anfrageparameter, die Verarbeitung der Antworten, die Auswertung der Token-Nutzung, das Streaming-Verhalten und die Fehlerbehandlung.
-
-**Alle Anwendungen sollten bis Ende Phase 2 auf den dauerhaften Endpunkt der neuen API umgestellt sein.** Bei Fragen oder für Unterstützung bei der Migration erreichen Sie uns unter [AI@t-systems.com](mailto:AI@t-systems.com).
 
 <a id="anfragen"></a>
 
@@ -182,7 +177,7 @@ Die neue API (`https://llm-server.ai.t-systems.net/v1`) unterstützt Standardanf
 Die meisten Anwendungen können ihre bisherige Anfragestruktur mit nur kleinen Anpassungen weiterverwenden.
 
 
-## Beispiel: Chat-Completion-Anfrage
+### Beispiel: Chat-Completion-Anfrage
 
 <Tabs>
   <TabItem label="Legacy-API">
@@ -220,7 +215,7 @@ curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
 Das Beispiel für die neue API verwendet ein explizites Provider-Präfix (`azure/`) für ein vorhersehbares Routing; das Präfix jedes Modells ist in `/v1/models` angegeben. Ein Modellname ohne Präfix wie `gpt-6.1-sol` kann ebenfalls verwendet werden, wenn das Modell über die automatische Provider-Auflösung verfügbar ist.
 
 
-## Was ändert sich?
+### Was sich bei Anfragen ändert
 
 | Aspekt | Legacy-API | Neue API |
 |---|---|---|
@@ -233,7 +228,7 @@ Das Beispiel für die neue API verwendet ein explizites Provider-Präfix (`azure
 | Anfragevalidierung | Validierung durch Gateway und Provider | Überwiegend abhängig vom Provider; einige Parameter können angepasst oder ignoriert werden |
 
 
-## Was Sie prüfen sollten
+### Was Sie bei Anfragen prüfen sollten
 
 **Für Standardintegrationen:** Ändern Sie den Endpunkt. Bisherige Anfragestrukturen und Modellnamen ohne Präfix können weiter funktionieren, sofern das Modell verfügbar ist.
 
@@ -256,7 +251,7 @@ Details zu Modellfähigkeiten und unterstützten Parametern finden Sie unter [Mo
 Die neue API (`https://llm-server.ai.t-systems.net/v1`) führt eine einheitliche Antwortstruktur über verschiedene Modell-Provider hinweg ein. Das verbessert die Konsistenz und erhält die zentralen Felder, die Standardintegrationen für Chat Completions nutzen: `choices`, `message`, `finish_reason` und `usage` bleiben verfügbar.
 
 
-## Beispiel: Erfolgreiche Antwort
+### Beispiel: Erfolgreiche Antwort
 
 <Tabs>
   <TabItem label="Legacy-API">
@@ -321,7 +316,7 @@ Diese Beispiele sind vereinfacht und zeigen das gemeinsame Antwortformat. Tatsä
 Der Wert von `response.model` kann bei einigen Providern außerdem vom angefragten Modellbezeichner abweichen.
 
 
-## Was ändert sich?
+### Was sich bei Antworten ändert
 
 | Aspekt | Legacy-API | Neue API |
 |---|---|---|
@@ -334,7 +329,7 @@ Der Wert von `response.model` kann bei einigen Providern außerdem vom angefragt
 | Zusätzliche Informationen | Provider-spezifische Felder | Optionale Diagnose-Metadaten, einschließlich Latenzinformationen |
 
 
-## Details zur Token-Nutzung
+### Details zur Token-Nutzung
 
 Die Standardfelder zur Token-Nutzung bleiben verfügbar, weitere Details hängen jedoch vom gewählten Modell und Provider ab. Einige Provider liefern zum Beispiel eine detaillierte Aufschlüsselung der Completion-Tokens, andere liefern andere Nutzungsfelder oder lassen optionale Details ganz weg.
 
@@ -343,7 +338,7 @@ Felder wie `completion_tokens_details`, `reasoning_tokens` oder Provider-spezifi
 Anwendungen, die den Token-Verbrauch erfassen, sollten diese Unterschiede bei der Verarbeitung der Nutzungsinformationen berücksichtigen.
 
 
-## Zusätzliche Metadaten der Antwort
+### Zusätzliche Metadaten der Antwort
 
 Die neue API kann zusätzliche Diagnoseinformationen im Objekt `extra_fields` liefern. Je nach Anfrage und Modell kann dies Folgendes enthalten:
 
@@ -354,7 +349,7 @@ Die neue API kann zusätzliche Diagnoseinformationen im Objekt `extra_fields` li
 Diese Felder sind optional und sollten nicht als Teil der erforderlichen Standard-Antwortstruktur behandelt werden.
 
 
-## Was Sie prüfen sollten
+### Was Sie bei Antworten prüfen sollten
 
 **Für Standardintegrationen:** Anwendungen, die vor allem `choices`, `message`, `finish_reason` und die üblichen Felder zur Token-Nutzung verwenden, benötigen in der Regel nur minimale Änderungen bei der Verarbeitung der Antwort.
 
@@ -373,7 +368,7 @@ Diese Felder sind optional und sollten nicht als Teil der erforderlichen Standar
 Die neue API (`https://llm-server.ai.t-systems.net/v1`) unterstützt weiterhin Server-Sent Events (SSE). Das meiste Streaming-Verhalten bleibt kompatibel, die Token-Nutzung wird jedoch anders zurückgegeben. Grundlagen zum Streaming finden Sie unter [Streaming](/de/guides/streaming).
 
 
-## Was ändert sich?
+### Was sich beim Streaming ändert
 
 | Verhalten | Legacy-API | Neue API |
 |---|---|---|
@@ -384,7 +379,7 @@ Die neue API (`https://llm-server.ai.t-systems.net/v1`) unterstützt weiterhin S
 | Fehler während des Streamings | Stream kann ohne ausdrückliches Fehlerereignis enden | Strukturierte Fehler können im Stream enthalten sein |
 
 
-## Token-Nutzung im Stream
+### Token-Nutzung im Stream
 
 <Tabs>
   <TabItem label="Legacy-Chunk">
@@ -426,7 +421,7 @@ Die Beispiele zeigen nur die relevanten Felder.
 Beide APIs liefern die Token-Nutzung bei erfolgreichen Streaming-Antworten standardmäßig mit, auch wenn `stream_options.include_usage` nicht ausdrücklich angefordert wird. Der wesentliche Unterschied ist, wo diese Information im Stream steht.
 
 
-## Was Sie prüfen sollten
+### Was Sie beim Streaming prüfen sollten
 
 Anwendungen, die SSE-Antworten direkt verarbeiten, sollten die Token-Nutzung aus dem Chunk lesen, der das Feld `usage` enthält, und sich nicht auf einen separaten Chunk mit leerem `choices`-Array verlassen.
 
@@ -443,7 +438,7 @@ Ein Stream, der ohne `[DONE]` endet, sollte als unvollständig behandelt werden.
 Die neue API (`https://llm-server.ai.t-systems.net/v1`) führt strukturierte Fehlerantworten ein. Damit können Anwendungen Fehler leichter erkennen und einheitlich behandeln. Standard-HTTP-Statuscodes zeigen weiterhin das Ergebnis einer Anfrage an, für bestimmte Fehlerfälle gibt es nun genauere Statuscodes. Die allgemeine Fehlerreferenz finden Sie unter [Fehlercodes](/de/reference/error-codes).
 
 
-## Was ändert sich?
+### Was sich bei der Fehlerbehandlung ändert
 
 | Szenario | Legacy-API | Neue API |
 |---|---|---|
@@ -459,7 +454,7 @@ Die neue API (`https://llm-server.ai.t-systems.net/v1`) führt strukturierte Feh
 | Timeout beim Provider | 500 | 504 |
 
 
-## Beispiel: Fehlerantwort
+### Beispiel: Fehlerantwort
 
 Die Legacy-API liefert Fehlerinformationen des Providers in der Regel als String in `detail`. Die neue API liefert strukturierte Fehlerinformationen.
 
@@ -496,7 +491,7 @@ Diese Beispiele sind vereinfacht und zeigen den Unterschied in der Fehlerstruktu
 Mit strukturierten Fehlerfeldern greifen Anwendungen auf Fehlerdetails zu, ohne eine eingebettete Fehlermeldung des Providers auswerten zu müssen.
 
 
-## Was Sie prüfen sollten
+### Was Sie bei der Fehlerbehandlung prüfen sollten
 
 **Für die übliche Behandlung von HTTP-Fehlern:** Anwendungen können sich weiterhin auf die HTTP-Statuscodes der Antwort verlassen.
 
@@ -505,7 +500,7 @@ Mit strukturierten Fehlerfeldern greifen Anwendungen auf Fehlerdetails zu, ohne 
 Verwenden Sie den tatsächlichen HTTP-Status der Antwort als wichtigsten Hinweis und behandeln Sie Fehlerfelder wie `type`, `code` und `param` als optional.
 
 
-## Rate-Limits und Wiederholungen
+### Rate-Limits und Wiederholungen
 
 Die neue API unterscheidet zwischen Rate-Limits des Providers, Rate-Limits des Service und Budgetbeschränkungen.
 
@@ -520,15 +515,20 @@ Wenn ein Provider einen `Retry-After`-Header liefert und dieser in der Antwort w
 Fehler zum Budget sollten gesondert behandelt werden und keine automatischen Wiederholungen auslösen.
 
 
-## Antwortvalidierung
+### Antwortvalidierung
 
 Prüfen Sie den `Content-Type` der Antwort, bevor Sie den Body auswerten. Einige nicht unterstützte API-Pfade oder Methoden können HTML statt JSON zurückgeben.
 
 Ein erfolgreicher HTTP-Status allein garantiert nicht, dass die Antwort die erwartete API-Struktur enthält.
 
 
-## Fehlersuche
+### Fehlersuche
 
 Wenn Sie ein Problem melden, geben Sie den Zeitpunkt der Anfrage, den Endpunkt, den HTTP-Status und eine verfügbare Request- oder Trace-ID an. So kann der Support Anfragen schneller untersuchen.
 
-Bei Fragen oder für Unterstützung bei der Migration erreichen Sie uns unter [AI@t-systems.com](mailto:AI@t-systems.com).
+
+## Zusammenfassung
+
+Die neue API bietet eine besser skalierbare und einheitlichere Grundlage für LLM-Integrationen und bleibt mit den üblichen Funktionen von Chat Completions kompatibel. Prüfen Sie vor der Migration Ihre Modellbezeichner, Anfrageparameter, die Verarbeitung der Antworten, die Auswertung der Token-Nutzung, das Streaming-Verhalten und die Fehlerbehandlung.
+
+**Alle Anwendungen sollten bis Ende Phase 2 auf den dauerhaften Endpunkt der neuen API umgestellt sein.** Bei Fragen oder für Unterstützung bei der Migration erreichen Sie uns unter [AI@t-systems.com](mailto:AI@t-systems.com).

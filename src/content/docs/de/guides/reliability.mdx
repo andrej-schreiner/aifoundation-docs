@@ -12,7 +12,9 @@ Wiederholen Sie einen fehlgeschlagenen Aufruf, wenn der Status vorübergehend is
 - Der Client aus dem [Quickstart](/de/)
 :::
 
-## Minimales Beispiel
+## Wiederholungen
+
+### Minimales Beispiel
 
 Bei HTTP 429 warten Sie `2 ** attempt` Sekunden und versuchen es erneut. Nach 3 Versuchen bricht die Schleife ab. Die Modell-ID ist `gpt-oss-120b`.
 
@@ -39,26 +41,19 @@ def call_with_retry(messages, max_retries=3):
 
 Bei 429 wartet die Funktion und versucht es erneut. Beim dritten Fehlschlag wirft sie den RateLimitError erneut.
 
-## Parameter
+### Parameter
 
 `max_retries` ist 3. Die Wartezeit ist `2 ** attempt` Sekunden (1 s, dann 2 s, dann 4 s).
 
-## Grenzen und Fehlersuche
+### Grenzen und Fehlersuche
 
 - `429` bedeutet, das Rate-Limit ist erreicht. Warten und mit exponentiellem Backoff wiederholen, oder [Queued Requests](#queued-requests) nutzen.
 - `500` ist ein serverseitiger Fehler. Nach kurzer Pause erneut versuchen.
 - `503` bedeutet, das Modell ist vorübergehend nicht verfügbar. [Modellstatus](https://uptime.llmhub.t-systems.net/status/health) prüfen und erneut versuchen.
 - `400`, `401`, `403` und `404` sind Fehler der Anfrage oder der Zugangsdaten. Dieselbe Anfrage erneut zu senden hilft nicht. Siehe [Fehlercodes](/de/reference/error-codes).
 
-Die Obergrenze der Queue-Wartezeit ist die Stelle, an der diese Doku `Retry-After` festlegt. Siehe [Queued Requests](#queued-requests).
+Ist eine Queue-Anfrage nach zwei Minuten noch über dem Limit, enthält die `429`-Antwort einen `Retry-After`-Header. Siehe [Queued Requests](#queued-requests).
 
-## Nächste Schritte
-
-<div class="link-card-row">
-  <LinkCard title="Fehlercodes" href="/de/reference/error-codes" description="Statuscodes, Ursachen und was Sie ändern." />
-  <LinkCard title="Queued Requests" href="/de/guides/reliability#queued-requests" description="Auf Rate-Limit-Budget warten statt sofort 429 zu erhalten." />
-  <LinkCard title="Rate-Limits" href="/de/reference/rate-limits" description="RPM und TPM je Tarif." />
-</div>
 
 <a id="queued-requests"></a>
 
@@ -70,13 +65,9 @@ Die `/queue`-Endpunkte funktionieren wie die `/v2`-Endpunkte, mit einem Untersch
 `/queue` ist nicht asynchron. Es gibt keine Job-ID und nichts abzufragen: Sie erhalten die Antwort auf derselben Verbindung wie bei `/v2`. Anfragen werden dadurch weder schneller noch verlängern sich ihre Timeouts.
 :::
 
-:::note[Voraussetzungen]
-- Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
-:::
 
 
-## So funktioniert es
+### So funktioniert es
 
 - **Innerhalb Ihres Limits:** Die Anfrage wird sofort ausgeführt.
 - **Über Ihrem Limit:** Die Anfrage wartet. Limits werden jede Minute zurückgesetzt, daher wird sie zu Beginn jeder Minute erneut geprüft.
@@ -89,13 +80,13 @@ Stellen Sie das Client-Timeout auf mindestens zwei Minuten plus die erwartete An
 Ein `429` von `/queue` bedeutet, dass Sie dauerhaft mehr senden, als Ihr Limit erlaubt, nicht nur eine kurze Spitze. Eine einzelne Anfrage mit mehr Input-Tokens als Ihr Token-Limit pro Minute passt nie und läuft daher immer nach zwei Minuten in den Timeout. Senden Sie langsamer oder [beantragen Sie ein höheres Limit](/de/reference/rate-limits).
 
 
-## Wann die Queue API verwenden
+### Wann die Queue API verwenden
 
 - **Verwenden Sie `/queue`** für Batch-Jobs, die gelegentlich über dem Limit liegen, damit kurze Spitzen warten statt fehlzuschlagen.
 - **Verwenden Sie `/v2`** für interaktive Anwendungen, bei denen ein sofortiger `429` besser ist als Warten, und für lang laufende Anfragen (nutzen Sie [Streaming](/de/guides/streaming)).
 
 
-## Endpunkt-Zuordnung
+### Endpunkt-Zuordnung
 
 Jeder Standard-Endpunkt hat ein `/queue`-Aequivalent:
 
@@ -113,7 +104,7 @@ Jeder Standard-Endpunkt hat ein `/queue`-Aequivalent:
 Der Request-Body fuer jeden Queue-Endpunkt ist **identisch** mit seinem Standard-Gegenstueck — aendern Sie einfach den Basispfad von `/v2` zu `/queue`.
 
 
-## Grundlegende Verwendung
+### Grundlegende Verwendung
 
 Senden Sie eine Chat Completion an die Warteschlange:
 
@@ -181,7 +172,7 @@ console.log(response.choices[0].message.content);
 </Tabs>
 
 
-## Beispiel fuer Batch-Verarbeitung
+### Beispiel für Batch-Verarbeitung
 
 Verarbeiten Sie mehrere Prompts effizient ueber die Warteschlange:
 
@@ -255,9 +246,9 @@ results.forEach((result, i) => {
 </Tabs>
 
 
-## Queue-Endpunkte fuer andere APIs
+### Queue-Endpunkte für andere APIs
 
-### Embeddings
+#### Embeddings
 
 ```python
 from openai import OpenAI
@@ -274,7 +265,7 @@ response = client.embeddings.create(
 print(f"Embedding dimension: {len(response.data[0].embedding)}")
 ```
 
-### Audio Transcription
+#### Audio-Transkription
 
 ```python
 from openai import OpenAI
@@ -292,7 +283,7 @@ with open("meeting_recording.mp3", "rb") as audio_file:
 print(transcript.text)
 ```
 
-### Image Generation
+#### Bildgenerierung
 
 ```python
 from openai import OpenAI
@@ -310,9 +301,11 @@ print(result.data[0].b64_json[:50] + "...")
 ```
 
 
-## Naechste Schritte
+## Nächste Schritte
 
-- [Chat Completions](/de/guides/chat-completions) — Standard-synchrone Chat-API
-- [Streaming](/de/guides/streaming) — Echtzeit-Token-fuer-Token-Antworten
-- [Rate Limits](/de/reference/rate-limits) — TPM/RPM-Limits und Header verstehen
-- [API-Endpunkte](/de/reference/api-endpoints) — Vollstaendige Endpunkt-Referenz
+<div class="link-card-row">
+  <LinkCard title="Fehlercodes" href="/de/reference/error-codes" description="Statuscodes, Ursachen und was Sie ändern." />
+  <LinkCard title="Rate-Limits" href="/de/reference/rate-limits" description="RPM und TPM je Tarif und die Rate-Limit-Header." />
+  <LinkCard title="API-Endpunkte" href="/de/reference/api-endpoints" description="Alle Endpunkte, auch die Queue-Varianten." />
+  <LinkCard title="Streaming" href="/de/guides/streaming" description="Antworten Token für Token in Echtzeit." />
+</div>

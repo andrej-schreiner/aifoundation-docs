@@ -91,16 +91,10 @@ Die beiden folgenden Modelle sind Beispiele aus diesem Guide. Es stehen weitere 
 | `text-embedding-bge-m3` | 1024 | Mehrsprachig | Sprachübergreifende Suche |
 
 
-## Grenzen und Fehlersuche
+Jedes Modell liefert Vektoren mit den Dimensionen aus der Tabelle [Beispiele für Embedding-Modelle](#beispiele-für-embedding-modelle).
 
-Die Dimensionstabelle oben ist, was diese Anleitung für Jina und BGE-M3 veröffentlicht.
+{/* TODO(andrej): die maximale Eingabelänge je Embedding-Modell steht auf dieser Seite nicht. */}
 
-<div set:html="<!-- TODO(andrej): die maximale Eingabelänge je Embedding-Modell steht auf dieser Seite nicht. -->"></div>
-
-## Nächste Schritte
-
-- **[LangChain](/de/integrations/langchain)** — Embeddings mit LangChain für RAG verwenden
-- **[Llama Index](/de/integrations/llama-index)** — Embeddings mit LlamaIndex für RAG verwenden
 
 <a id="rag"></a>
 
@@ -114,11 +108,13 @@ Vektorisieren Sie eine Textstelle und senden Sie sie zusammen mit der Frage an e
 - Ein Embedding-Modell und ein Chat-Modell aus [Modell wählen](/de/getting-started/choosing-a-model)
 :::
 
-## Minimales Beispiel
+### Minimales Beispiel
 
 `text-embedding-bge-m3` und `gpt-oss-120b` laufen beide auf T-Cloud. BGE-M3 hat ein Kontextfenster von 8K.
 
 ```python
+import math
+
 from openai import OpenAI
 
 client = OpenAI()
@@ -148,25 +144,18 @@ print(response.choices[0].message.content)
 
 BGE-M3 liefert 1024-dimensionale Vektoren. Jina Embeddings v2 Base DE liefert 768. Die Chat-Antwort steht in `choices[0].message.content`.
 
-## Parameter
+### Parameter
 
 Embeddings nehmen `model` und `input`. Chat nimmt `model` und `messages`.
 
-## Grenzen und Fehlersuche
+### Grenzen und Fehlersuche
 
 Qwen3 Embedding 8B läuft ebenfalls auf T-Cloud, mit einem Kontextfenster von 32K.
 
-<div set:html="<!-- TODO(andrej): für dieses Muster ist keine Vektordatenbank, keine Chunk-Größe und keine Index-API dokumentiert. Visual RAG ist eine eigene Anleitung. Keine Datenbank nennen, bevor eine unterstützt wird. -->"></div>
+{/* TODO(andrej): für dieses Muster ist keine Vektordatenbank, keine Chunk-Größe und keine Index-API dokumentiert. Visual RAG ist eine eigene Anleitung. Keine Datenbank nennen, bevor eine unterstützt wird. */}
 
 Für Diagramme und Scans [Visual RAG](/de/guides/embeddings#visual-rag) und [OCR](/de/guides/ocr) verwenden.
 
-## Nächste Schritte
-
-<div class="link-card-row">
-  <LinkCard title="Embeddings" href="/de/guides/embeddings" description="Der Embedding-Aufruf und die Dimensionstabelle." />
-  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="BGE-M3, Jina DE und Qwen3 Embedding 8B." />
-  <LinkCard title="Visual RAG" href="/de/guides/embeddings#visual-rag" description="Dokumente mit Diagrammen und Tabellen indizieren." />
-</div>
 
 <a id="visual-rag"></a>
 
@@ -188,12 +177,12 @@ Visual RAG indiziert Ihre Dateien sowohl als Text als auch als Bild und kombinie
 **Unterstützte Formate:** PDF, PPTX, DOCX, HTML, PNG
 
 
-## Arbeitsablauf
+### Arbeitsablauf
 
 ![Visual RAG Workflow](/img/vision-rag-workflow.svg)
 
 
-## Einrichtung
+### Einrichtung
 
 ```python
 
@@ -206,9 +195,9 @@ client = OpenAI(
 ```
 
 
-## Dateioperationen
+### Dateioperationen
 
-### Datei hochladen
+#### Datei hochladen
 
 ```python
 uploaded = client.files.create(
@@ -218,7 +207,7 @@ uploaded = client.files.create(
 print(f"File ID: {uploaded.id}")
 ```
 
-### Dateien auflisten
+#### Dateien auflisten
 
 ```python
 file_list = client.files.list(purpose="visual-rag")
@@ -226,23 +215,23 @@ for f in file_list.data:
     print(f"ID: {f.id}, Name: {f.filename}")
 ```
 
-### Dateiinformationen abrufen
+#### Dateiinformationen abrufen
 
 ```python
 file_info = client.files.retrieve("file-abc123")
 print(file_info)
 ```
 
-### Datei löschen
+#### Datei löschen
 
 ```python
 client.files.delete("file-abc123")
 ```
 
 
-## Vektorspeicher-Operationen
+### Vektorspeicher-Operationen
 
-### Vektorspeicher erstellen
+#### Vektorspeicher erstellen
 
 ```python
 vs = client.vector_stores.create(
@@ -255,14 +244,14 @@ vs = client.vector_stores.create(
 print(f"Vector Store ID: {vs.id}")
 ```
 
-### Vektorspeicher auflisten
+#### Vektorspeicher auflisten
 
 ```python
 for vs in client.vector_stores.list():
     print(f"{vs.name} ({vs.id}) - {vs.file_counts}")
 ```
 
-### Datei aufnehmen
+#### Datei aufnehmen
 
 ```python
 client.vector_stores.files.create(
@@ -275,7 +264,7 @@ client.vector_stores.files.create(
 )
 ```
 
-### Aufgenommene Dateien auflisten
+#### Aufgenommene Dateien auflisten
 
 ```python
 files = client.vector_stores.files.list(vector_store_id="xyz-456")
@@ -283,7 +272,7 @@ for f in files.data:
     print(f"{f.id} - {f.created_at}")
 ```
 
-### Aufgenommene Datei löschen
+#### Aufgenommene Datei löschen
 
 ```python
 client.vector_stores.files.delete(
@@ -292,14 +281,14 @@ client.vector_stores.files.delete(
 )
 ```
 
-### Vektorspeicher löschen
+#### Vektorspeicher löschen
 
 ```python
 client.vector_stores.delete(vector_store_id="xyz-456")
 ```
 
 
-## Abruf
+### Abruf
 
 Durchsuchen Sie Ihren Vektorspeicher mit Text- und Bildergebnissen:
 
@@ -321,7 +310,7 @@ for result in results:
 ```
 
 
-## End-to-End RAG-Beispiel
+### End-to-End RAG-Beispiel
 
 Kombinieren Sie den Abruf mit LLM-Inferenz für eine vollständige Visual RAG-Pipeline:
 
@@ -366,6 +355,9 @@ print(response.choices[0].message.content)
 
 ## Nächste Schritte
 
-- [Embeddings](/de/guides/embeddings) — Reine Text-Embeddings für einfacheres RAG
-- [Multimodal](/de/guides/multimodal) — Bilder mit Vision-Modellen analysieren
-- [LangChain](/de/integrations/langchain) — RAG mit LangChain verwenden
+<div class="link-card-row">
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="BGE-M3, Jina DE und Qwen3 Embedding 8B." />
+  <LinkCard title="LangChain" href="/de/integrations/langchain" description="Embeddings und RAG mit LangChain nutzen." />
+  <LinkCard title="LlamaIndex" href="/de/integrations/llama-index" description="Embeddings mit LlamaIndex für RAG nutzen." />
+  <LinkCard title="Multimodal" href="/de/guides/multimodal" description="Bilder mit Vision-Modellen analysieren." />
+</div>
