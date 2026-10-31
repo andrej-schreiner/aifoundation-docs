@@ -87,8 +87,8 @@ const links = isDE
      reaches past the content padding on both sides and pads back in. */
   .site-footer {
     position: relative;
-    width: 100%;
-    max-width: 100%;
+    width: calc(100% + 2 * var(--sl-content-pad-x));
+    max-width: none;
     margin: 0;
     box-sizing: border-box;
     margin-inline: calc(-1 * var(--sl-content-pad-x));
