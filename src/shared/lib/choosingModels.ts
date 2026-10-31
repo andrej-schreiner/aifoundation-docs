@@ -140,13 +140,16 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'chat',
     useCase: { en: 'General chat and assistants', de: 'Allgemeiner Chat und Assistenten' },
-    recommended: 'gpt-oss-120b',
-    alternative: 'Mistral-Small-4-119B-2603',
-    also: 'GLM-5.3-Flash',
+    // GLM 5.3 leads (Andrej, 2026-10-31); GPT-OSS 120B is never first.
+    recommended: 'GLM-5.3',
+    alternative: 'gpt-oss-120b',
+    also: 'Mistral-Small-4-119B-2603',
     notes: {
-      en: 'GPT-OSS 120B and Mistral Small 4 run on T-Cloud. Mistral Small 4 also accepts images. GLM 5.3 Flash is a smaller chat model on the same cloud.',
-      de: 'GPT-OSS 120B und Mistral Small 4 laufen auf T-Cloud. Mistral Small 4 akzeptiert zusätzlich Bilder. GLM 5.3 Flash ist ein kleineres Chat-Modell auf derselben Cloud.',
+      en: 'GLM 5.3, GPT-OSS 120B and Mistral Small 4 run on T-Cloud. GLM 5.3 has a 1M context window. Mistral Small 4 also accepts images.',
+      de: 'GLM 5.3, GPT-OSS 120B und Mistral Small 4 laufen auf T-Cloud. GLM 5.3 hat ein Kontextfenster von 1M. Mistral Small 4 akzeptiert zusätzlich Bilder.',
     },
+    // Code samples keep the model they already use.
+    snippetModel: 'gpt-oss-120b',
     guide: '/guides/chat-completions',
   },
   {

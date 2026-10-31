@@ -35,6 +35,8 @@ const CATEGORY_HREF: Record<CardCategory, string> = {
  * The overview's model cards, in order: new models, then the top pick per
  * category (CHOICE_ROWS in choosingModels), then frontier partner models.
  * Ids only; every price, host and badge comes from the pricing data.
+ * The order is explicit (Andrej, 2026-10-31): GLM 5.3 first, DeepSeek 4.1
+ * Flash second; GPT-OSS 120B is never first. Nothing here is sorted.
  */
 export const OVERVIEW_CARDS: { id: string; category: CardCategory }[] = [
   { id: GLM_53_ID, category: 'chat' },
@@ -136,3 +138,6 @@ export function localPlace(hosting: string, isDE: boolean): string {
     .replaceAll('Azure (worldwide)', 'Azure (Weltweit)')
     .replaceAll('GCP (worldwide)', 'GCP (Weltweit)');
 }
+
+/** The featured cards on /models/: the first six overview cards, same order. */
+export const FEATURED_MODEL_IDS: readonly string[] = OVERVIEW_CARDS.slice(0, 6).map((c) => c.id);

@@ -8,6 +8,7 @@ import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
 import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
+import { FEATURED_MODEL_IDS } from '../shared/lib/modelCards';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
@@ -169,7 +170,11 @@ for (const m of allModels) {
 const sortedModels = [...modelMap.values()].sort((a, b) => compareCatalogName(a.name, b.name));
 
 const INITIAL_COUNT = 6;
-const cardModels = featured ? sortedModels.slice(0, INITIAL_COUNT) : sortedModels;
+// Featured: the explicit order from modelCards.ts (same as the overview), not the catalog sort.
+const featuredModels = FEATURED_MODEL_IDS.map((id) => sortedModels.find((m) => m.modelId === id)).filter(
+  (m): m is ModelCard => Boolean(m),
+);
+const cardModels = featured ? featuredModels : sortedModels;
 ---
 
 <div class="available-models">
