@@ -386,6 +386,7 @@ const t = {
   colOutput: isDE ? 'Ausgabe' : 'Output',
   colStreaming: 'Streaming',
   colTools: 'Tools',
+  colFeatures: isDE ? 'Funktionen' : 'Features',
   colContext: isDE ? 'Kontext' : 'Context',
   colReasoningEffort: 'Reasoning',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
@@ -825,28 +826,31 @@ const rowDataPayload = allModels.map((m) => ({
                   </div>
                   <div class="mc-m__panel" id={detailsId} hidden="until-found">
                     <dl class="mc-m__dl">
+                      {(m.capabilities.streaming === true || m.capabilities.toolCalling === true) && (
+                        <div class="mc-m__checks">
+                          <dt class="sr-only">{t.colFeatures}</dt>
+                          <dd>
+                            {m.capabilities.streaming === true && <span class="mc-m__check">{t.colStreaming} <span class="mc-cap--yes" aria-hidden="true">✓</span><span class="sr-only">: {isDE ? 'ja' : 'yes'}</span></span>}
+                            {m.capabilities.toolCalling === true && <span class="mc-m__check">{t.colTools} <span class="mc-cap--yes" aria-hidden="true">✓</span><span class="sr-only">: {isDE ? 'ja' : 'yes'}</span></span>}
+                          </dd>
+                        </div>
+                      )}
                       {m.capabilities.outputModalities.length > 0 && (
                         <div>
                           <dt>{t.colOutput}</dt>
                           <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
                         </div>
                       )}
-                      {m.capabilities.streaming === true && (
-                        <div>
-                          <dt>{t.colStreaming}</dt>
-                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
-                        </div>
-                      )}
-                      {m.capabilities.toolCalling === true && (
-                        <div>
-                          <dt>{t.colTools}</dt>
-                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
-                        </div>
-                      )}
                       {cached && (
                         <div>
                           <dt>{t.colCachedPrice}</dt>
                           <dd>{cached}</dd>
+                        </div>
+                      )}
+                      {!categoryFilter && (
+                        <div>
+                          <dt>{t.colCategory}</dt>
+                          <dd>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</dd>
                         </div>
                       )}
                       {m.reasoningEffort.length > 0 && (
@@ -859,12 +863,6 @@ const rowDataPayload = allModels.map((m) => ({
                         <div>
                           <dt>{t.colReasoningTokensUsage}</dt>
                           <dd><code set:html={withWrapPoints(reasoningTokens)} /></dd>
-                        </div>
-                      )}
-                      {!categoryFilter && (
-                        <div>
-                          <dt>{t.colCategory}</dt>
-                          <dd>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</dd>
                         </div>
                       )}
                       <div>
@@ -1415,7 +1413,7 @@ const rowDataPayload = allModels.map((m) => ({
   .mc-filter > summary {
     cursor: pointer;
     list-style: none;
-    padding: 0.4rem 0.8rem;
+    padding: 0.25rem 0.75rem;
     margin: 0;
     display: inline-flex;
     align-items: center;
@@ -1519,12 +1517,14 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison__status {
-    margin-bottom: 0.5rem;
+    margin-top: 8px;
+    margin-bottom: 4px;
     font-size: 0.875rem;
     color: var(--sl-color-gray-3);
   }
 
   .models-comparison__scroll {
+    margin-top: 0;
     max-width: 100%;
     overflow-x: visible;
     margin-bottom: 8px;
@@ -1938,7 +1938,7 @@ const rowDataPayload = allModels.map((m) => ({
     }
 
     .models-comparison__chips {
-      display: flex;
+      display: contents;
       flex-wrap: wrap;
       align-items: center;
       gap: 8px;
@@ -1953,7 +1953,7 @@ const rowDataPayload = allModels.map((m) => ({
     }
 
     .models-comparison__filterbar .mc-reset {
-      flex: 1 0 100%;
+      flex: 0 0 auto;
     }
 
     .mc-reset__full {
@@ -1982,6 +1982,10 @@ const rowDataPayload = allModels.map((m) => ({
       display: none;
     }
 
+    .models-comparison-table tbody {
+      margin-top: 0;
+    }
+
     .models-comparison-table tr[hidden] {
       display: none !important;
     }
@@ -1996,7 +2000,7 @@ const rowDataPayload = allModels.map((m) => ({
       width: 100%;
       box-sizing: border-box;
       margin: 0;
-      padding: 4px 0;
+      padding: 6px 0;
       border: 0;
       border-bottom: 1px solid var(--aifs-color-border-subtle);
       border-radius: 0;
@@ -2015,6 +2019,7 @@ const rowDataPayload = allModels.map((m) => ({
       display: block;
       min-width: 0 !important;
       width: 100%;
+      margin: 0;
       padding: 0 !important;
       border: 0;
       position: static;
@@ -2036,16 +2041,27 @@ const rowDataPayload = allModels.map((m) => ({
     }
   }
 
-  .mc-m__top {
-    display: flex;
+  /* One row: logo, name over a meta line, and the toggle on the right spanning both lines. */
+  .mc-m {
+    position: relative;
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
+    column-gap: 6px;
     align-items: center;
-    gap: 6px;
-    min-width: 0;
-    min-height: 32px;
+  }
+
+  .mc-m__top {
+    display: contents;
+  }
+
+  .mc-m__top > .creator-brand {
+    grid-column: 1;
+    grid-row: 1;
   }
 
   .mc-m__name {
-    flex: 1 1 auto;
+    grid-column: 2;
+    grid-row: 1;
     min-width: 0;
     font-size: 16px;
     font-weight: 700;
@@ -2053,9 +2069,22 @@ const rowDataPayload = allModels.map((m) => ({
     overflow-wrap: break-word;
   }
 
-  .mc-m__details {
-    flex: 0 0 auto;
-    align-self: flex-start;
+  /* A small chevron; its hit area covers the whole row (name and meta line). */
+  .models-comparison .mc-m__details {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: center;
+    position: static;
+    inline-size: 24px;
+    block-size: 24px;
+    min-inline-size: 24px;
+    min-block-size: 24px;
+  }
+
+  .models-comparison .mc-m__details::before {
+    content: '';
+    position: absolute;
+    inset: 0;
   }
 
   .mc-m__chevron {
@@ -2073,11 +2102,13 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .mc-m__meta {
+    grid-column: 2 / -1;
+    grid-row: 2;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 4px 8px;
-    margin: 2px 0 0 26px;
+    margin: 2px 0 0;
     min-width: 0;
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
@@ -2096,15 +2127,21 @@ const rowDataPayload = allModels.map((m) => ({
     white-space: normal;
   }
 
+  /* Details: a dense label-value grid, no panel fill. */
   .mc-m__panel:not([hidden]) {
-    margin: 8px 0 0 22px;
-    padding: 8px 10px;
-    border-radius: var(--aifs-radius-control, 8px);
-    background: var(--aifs-color-surface-subtle);
+    position: relative;
+    z-index: 1;
+    grid-column: 2 / -1;
+    grid-row: 3;
+    margin: 6px 0 4px;
+    padding: 6px 0 0;
+    border-top: 1px solid var(--aifs-color-border-subtle);
   }
 
   /* until-found keeps the panel searchable, but its box must not paint a bar. */
   .models-comparison .mc-m__panel[hidden] {
+    grid-column: 2 / -1;
+    grid-row: 3;
     height: 0;
     min-height: 0;
     margin: 0;
@@ -2117,26 +2154,50 @@ const rowDataPayload = allModels.map((m) => ({
 
   .mc-m__dl {
     display: grid;
-    gap: 8px 16px;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: 4px 24px;
     margin: 0;
   }
 
-  .mc-m__dl div {
+  .mc-m__dl > div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
     min-width: 0;
+    margin: 0;
   }
 
   .mc-m__dl dt {
-    margin: 0 0 2px;
+    flex: 0 0 auto;
+    margin: 0;
     color: var(--aifs-color-text-muted);
     font-size: 12px;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.5;
   }
 
-  .mc-m__dl dd {
+  .models-comparison .mc-m__dl dd {
+    flex: 0 1 auto;
+    min-width: 0;
     margin: 0;
+    padding: 0;
     font-size: var(--aifs-text-small-font-size);
-    line-height: 1.3;
+    line-height: 1.4;
+  }
+
+  .models-comparison .mc-m__dl code {
+    font-size: 12px;
+  }
+
+  .mc-m__checks dd {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 12px;
+  }
+
+  .mc-m__check {
+    white-space: nowrap;
   }
 
 </style>
