@@ -71,7 +71,7 @@ const t = {
     : 'Standard models are capable and built for speed - reliable across most use cases, without cutting corners. Premium models go further: complex reasoning, long contexts, and tasks where output quality is the priority.',
   modelsSubtitleList: isDE
     ? [
-        'Probieren Sie die neuesten KI-Modelle aus: kostenlos testen, sofort erkunden. Unser Preview-Katalog ist Ihre Testumgebung, in der Sie Funktionen bewerten, die Leistung vergleichen und Ideen prototypisieren können, bevor Sie sie in Produktionsumgebungen einsetzen. Sie benötigen lediglich einen aktiven Tarif (Essential, Professional oder Agentic), um loszulegen.',
+        'Probieren Sie die neuesten KI-Modelle aus: kostenlos testen, sofort erkunden. Unser Vorschau-Katalog ist Ihre Testumgebung, in der Sie Funktionen bewerten, die Leistung vergleichen und Ideen prototypisieren können, bevor Sie sie in Produktionsumgebungen einsetzen. Sie benötigen lediglich einen aktiven Tarif (Essential, Professional oder Agentic), um loszulegen.',
         'Wähle ein Modell aus, probiere es in deinem Arbeitsablauf aus und finde heraus, was am besten passt.',
         '\nHinweis',
         'Die Nutzung der Testmodelle ist kostenfrei, setzt jedoch das Abschließen eines Tarifes (Essential / Professional / Agentic) voraus. Die Telekom ist berechtigt, die Nutzung der Testmodelle jederzeit zu limitieren, insbesondere hinsichtlich der verfügbaren Tokens, Rate-Limits (TPM/RPM) und der Nutzungsdauer. Die Telekom ist berechtigt, die Testmodelle jederzeit und ohne vorherige Ankündigung abzuschalten oder den Zugang des Kunden zu diesen einzuschränken. Der Kunde hat keinen Rechtsanspruch auf die fortlaufende Bereitstellung der Testmodelle.',
@@ -493,7 +493,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                     <td data-label={t.thCommitment}>
                       <span class="plans-table__main-text">{plan.basePrice}</span>
                     </td>
-                    {showTokenPriceColumn && <td data-label={t.thTokenPrice}>{plan.tokenPrice} †</td>}
+                    {showTokenPriceColumn && <td data-label={t.thTokenPrice}><span class="nowrap">{plan.tokenPrice}{'\u00A0'}†</span></td>}
                     <td data-label={t.thRPM}>{plan.rpm}</td>
                     <td data-label={t.thModelHost}>
                       {plan.modelHost.map((cloud, i) => (
@@ -575,7 +575,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
         )}
         {!showTokenPriceColumn && (
           <p class="token-price-note">
-            {t.thTokenPrice}: {planConfigs[0].tokenPrice} {t.thTokenPriceUnit} †
+            {t.thTokenPrice}: {planConfigs[0].tokenPrice} <span class="nowrap">{t.thTokenPriceUnit}{'\u00A0'}†</span>
           </p>
         )}
         <p class="plan-spend">{t.spendNote}</p>

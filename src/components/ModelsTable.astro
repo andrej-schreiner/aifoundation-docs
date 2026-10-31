@@ -851,7 +851,7 @@ const priceBuckets = [
           <td class="mt-num mt-input">
             <span class="mt-card-label">${escapeHtml(translations.thInput || 'Input')}</span>
             <strong>${formatPrice(model.inputPrice)}</strong>
-            <div class="mt-muted">${escapeHtml(translations.cachedShort || 'cached')} ${formatCachedPrice(model)} ${dagger}</div>
+            <div class="mt-muted">${escapeHtml(translations.cachedShort || 'cached')} <span class="nowrap">${formatCachedPrice(model)}&nbsp;${dagger}</span></div>
           </td>
           <td class="mt-num">
             <span class="mt-card-label">${escapeHtml(translations.thOutput || 'Output')}</span>
@@ -878,7 +878,7 @@ const priceBuckets = [
               <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
               <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
-              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached Input Token Price')} ${dagger}</dt><dd>${formatCachedPrice(model)} <span class="mt-muted">€ / M Tokens</span></dd></div>
+              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached Input Token Price')}&nbsp;${dagger}</dt><dd>${formatCachedPrice(model)} <span class="mt-muted">€ / M Tokens</span></dd></div>
               <div><dt>${escapeHtml(translations.thRPMLimit || 'RPM Limit')} · ${escapeHtml(translations.thTPM || 'TPM')}</dt><dd>${limitsDetail}</dd></div>
               <div><dt>${escapeHtml(translations.thContextWindow || 'Context Window')}</dt><dd>${contextText} ${escapeHtml(translations.thContextWindowUnit || 'Tokens')}</dd></div>
               <div><dt>${escapeHtml(translations.thLinks || 'Links')}</dt><dd><span class="model-links">${links}</span></dd></div>

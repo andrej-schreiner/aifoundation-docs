@@ -37,6 +37,14 @@ const t = isDE
       unpublished: 'Context not published',
     };
 
+function notesHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>');
+}
+
 function place(hosting: string): string {
   if (!isDE) return hosting;
   return hosting
@@ -73,7 +81,7 @@ function place(hosting: string): string {
       );
     })}
   </ul>
-  <p class="model-pick__notes">{isDE ? row.notes.de : row.notes.en}</p>
+  <p class="model-pick__notes" set:html={notesHtml(isDE ? row.notes.de : row.notes.en)} />
   <p class="model-pick__guide"><a href={`${prefix}${row.guide}`}>{guideTitle}</a></p>
 </section>
 

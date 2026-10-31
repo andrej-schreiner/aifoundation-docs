@@ -425,7 +425,7 @@ const t = {
   colCachedPrice: isDE ? 'Cached €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
   details: 'Details',
-  freeInPreview: isDE ? 'Kostenlos in der Preview' : 'Free in preview',
+  freeInPreview: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
   priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
   free: isDE ? 'Kostenlos' : 'Free',
   perMillion: isDE ? 'pro 1M' : 'per 1M',
@@ -454,9 +454,9 @@ const t = {
   reasoningEffortNone: '—',
   colReasoningTokensUsage: isDE ? 'Reasoning-Tokens' : 'Reasoning tokens',
   tooltipReasoningTokensUsage: isDE
-    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder not reported (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
+    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder nicht gemeldet (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
     : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
-  reasoningTokensNotReported: 'not reported',
+  reasoningTokensNotReported: isDE ? 'nicht gemeldet' : 'not reported',
   reasoningTokensUnknown: '—',
 };
 
@@ -1559,6 +1559,12 @@ const rowDataPayload = allModels.map((m) => ({
     min-width: 80rem;
   }
 
+  @container comparison (min-width: 52rem) {
+    .models-comparison-table:not(:has(th[data-sort='category'])) {
+      min-width: 0;
+    }
+  }
+
   .models-comparison-table .mc-sort-icon {
     flex: 0 0 16px;
     width: 16px;
@@ -1598,8 +1604,11 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1.15;
     font-size: 11px;
     vertical-align: bottom;
-    hyphens: auto;
-    -webkit-hyphens: auto;
+    hyphens: manual;
+    -webkit-hyphens: manual;
+    /* table.css pads headers 8px. At the sheet width that leaves Streaming
+       and Reasoning wider than the cell. */
+    padding-inline: 2px;
   }
 
   /* 13 columns in the sheet beside the sidebar (~850px at 1280).
@@ -1610,15 +1619,15 @@ const rowDataPayload = allModels.map((m) => ({
     min-width: 0;
   }
   .models-comparison-table th[data-sort='provider'] { width: 7%; }
-  .models-comparison-table th[data-sort='cloud'] { width: 8.5%; }
-  .models-comparison-table th[data-sort='input'] { width: 8%; }
+  .models-comparison-table th[data-sort='cloud'] { width: 8%; }
+  .models-comparison-table th[data-sort='input'] { width: 7%; }
   .models-comparison-table th[data-sort='streaming'] { width: 7.5%; }
-  .models-comparison-table th[data-sort='tools'] { width: 5%; }
+  .models-comparison-table th[data-sort='tools'] { width: 4.5%; }
   .models-comparison-table th[data-sort='context'] { width: 6.5%; }
   .models-comparison-table th[data-sort='reasoningEffort'] { width: 8.5%; }
   .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
-  .models-comparison-table th[data-sort='inputPrice'] { width: 5.5%; }
-  .models-comparison-table th[data-sort='outputPrice'] { width: 6%; }
+  .models-comparison-table th[data-sort='inputPrice'] { width: 6.5%; }
+  .models-comparison-table th[data-sort='outputPrice'] { width: 7%; }
   .models-comparison-table th[data-sort='cachedInputPrice'] { width: 5.5%; }
   .models-comparison-table th[data-sort='plans'] { width: 10%; }
   .models-comparison-table th[data-sort='category'] { width: 8%; }
@@ -1675,8 +1684,8 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison-table td[data-label='Category'],
   .models-comparison-table td[data-label='Kategorie'] {
-    hyphens: auto;
-    -webkit-hyphens: auto;
+    hyphens: manual;
+    -webkit-hyphens: manual;
   }
 
   .models-comparison-table td[data-label='Model'] strong,
@@ -1693,6 +1702,10 @@ const rowDataPayload = allModels.map((m) => ({
     white-space: nowrap;
     padding-inline: 1px;
     font-size: 12px;
+  }
+
+  .models-comparison-table thead th.num {
+    white-space: normal;
   }
 
   /* Each modality is one unbreakable item. The comma stays on that item, so the

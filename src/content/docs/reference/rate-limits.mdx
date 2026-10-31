@@ -16,7 +16,7 @@ Limits vary by both plan and model. The table below shows representative figures
 | Metric | Essential | Professional | Agentic |
 |---|---|---|---|
 | **Models available** | 30 | 33 | 33 |
-| **Embedding models (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| **T-Cloud embedding models (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
 ### Example: Per-model limits across plans
 
@@ -176,7 +176,7 @@ def safe_completion(messages, max_retries=3):
 
 - **Not part of the [Service Level Agreement (SLA)](/reference/service-levels).** The 99.5% availability SLA covers API reachability only; it does not extend to RPM, TPM, throughput, end-to-end latency, or time-to-first-token.
 - **For open-source models hosted on T-Cloud**, realised throughput may fall substantially below the published ceilings during periods of peak concurrent demand. End-to-end latency and time-to-first-token also vary with platform load.
-- **The "Embedding models (RPM)" figure** in the Limits-by-Plan table is the requests-per-minute value for the embedding models; precise limits vary by model. Professional and Agentic include Premium-tier models (e.g. Claude Opus) in addition to the Standard catalog available on Essential.
+- **The "T-Cloud embedding models (RPM)" figure** in the Limits-by-Plan table is the requests-per-minute value for BGE-M3, Jina Embeddings v2 Base DE, and Qwen3 Embedding 8B. Professional and Agentic include Premium-tier models (e.g. Claude Opus) in addition to the Standard catalog available on Essential.
 - **For contractual guarantees on throughput, end-to-end latency, or time-to-first-token**, see [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 
 

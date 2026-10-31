@@ -180,13 +180,31 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   .choose-desktop :global(.aifs-table-scroll),
   .choose-desktop table {
     width: 100%;
-    max-width: none;
+    max-width: 100%;
   }
 
-  .choose-desktop td:first-child,
-  .choose-desktop td:last-child {
+  .choose-desktop table {
+    table-layout: fixed;
+  }
+
+  .choose-desktop th:nth-child(1),
+  .choose-desktop td:nth-child(1) { width: 18%; }
+  .choose-desktop th:nth-child(2),
+  .choose-desktop td:nth-child(2) { width: 20%; }
+  .choose-desktop th:nth-child(3),
+  .choose-desktop td:nth-child(3) { width: 20%; }
+  .choose-desktop th:nth-child(4),
+  .choose-desktop td:nth-child(4) { width: 14%; }
+  .choose-desktop th:nth-child(5),
+  .choose-desktop td:nth-child(5) { width: 10%; }
+  .choose-desktop th:nth-child(6),
+  .choose-desktop td:nth-child(6) { width: 18%; }
+
+  :global(:lang(de)) .choose-desktop td:first-child,
+  :global(:lang(de)) .choose-desktop td:last-child {
     hyphens: auto;
     -webkit-hyphens: auto;
+    overflow-wrap: break-word;
   }
 
   .choose-cards {
@@ -198,15 +216,15 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   }
 
   .choose-name {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    display: inline;
   }
 
   .choose-mark {
     width: 20px;
     height: 20px;
     flex: 0 0 20px;
+    margin-inline-end: 6px;
+    vertical-align: middle;
     display: inline-flex;
     align-items: center;
     justify-content: center;
