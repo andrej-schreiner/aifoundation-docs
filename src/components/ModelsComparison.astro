@@ -510,9 +510,14 @@ function previewCatalog(m: CompiledModel): boolean {
 }
 
 /** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
+function isEmbeddingOnly(m: CompiledModel): boolean {
+  return m.categories.length === 1 && m.categories[0] === 'embeddings';
+}
+
 function mobilePriceLine(m: CompiledModel): string | null {
   const input = m.inputPricePerMillionTokens;
-  const output = m.outputPricePerMillionTokens;
+  // Embedding models return vectors, not tokens: input price only, as on the plans page.
+  const output = isEmbeddingOnly(m) ? null : m.outputPricePerMillionTokens;
   if (input == null && output == null) return t.priceTba;
   const inputFree = input == null || input === 0;
   const outputFree = output == null || output === 0;
@@ -790,7 +795,7 @@ const rowDataPayload = allModels.map((m) => ({
                 )}
               </td>
               <td class="num" data-label={t.colInputPrice} title={m.inputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.inputPricePerMillionTokens == null ? '—' : formatPrice(m.inputPricePerMillionTokens)}</td>
-              <td class="num" data-label={t.colOutputPrice} title={m.outputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.outputPricePerMillionTokens == null ? '—' : formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colOutputPrice} title={m.outputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.outputPricePerMillionTokens == null || isEmbeddingOnly(m) ? '—' : formatPrice(m.outputPricePerMillionTokens)}</td>
               <td class="num" data-label={t.colCachedPrice}>{formatCachedPrice(m)}</td>
               <td data-label={t.colPlans}>
                 <span class="mc-plans">

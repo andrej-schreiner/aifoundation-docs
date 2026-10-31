@@ -862,7 +862,7 @@ const priceBuckets = [
           </td>
           <td class="mt-num">
             <span class="mt-card-label">${escapeHtml(translations.thOutput || 'Output')}</span>
-            <strong>${formatPrice(model.outputPrice)}</strong>
+            ${model.noOutputTokens ? `<span class="mt-muted">${emptyMark()}</span>` : `<strong>${formatPrice(model.outputPrice)}</strong>`}
           </td>
           <td class="mt-limits">
             <span class="mt-card-label">${escapeHtml(translations.thLimits || 'Limits')}</span>

@@ -419,6 +419,8 @@ function mapModelRow(
     subName: localizeSubName(model.modelLabel || ''),
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
+    // Embedding models return vectors, not tokens: they show an input price only.
+    noOutputTokens: modelCategory === 'embeddings',
     // Cached input tokens are a fixed fraction of the input price, and only
     // priced for T-Cloud-hosted language models — see shared/lib/cachedTokenPricing.
     cachedInputPrice: cachedInputPrice(
