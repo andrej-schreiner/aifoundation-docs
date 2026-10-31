@@ -764,6 +764,7 @@ const priceBuckets = [
     function limitText(value: unknown) {
       if (value == null || value === '') return emptyMark();
       if (typeof value === 'number') return formatNumber(value);
+      if (typeof value === 'string' && value.toLowerCase() === 'dynamic') return escapeHtml(translations.dynamicLimit || 'dynamic');
       if (typeof value === 'string' && value !== 'Dynamic Shared Quota' && value.trim() !== '' && !Number.isNaN(Number(value))) {
         return formatNumber(Number(value));
       }
@@ -828,7 +829,7 @@ const priceBuckets = [
       const privacy = linkItem(model.dataProtectionUrl, translations.linkDataProtection || 'Data Protection');
       const links = terms || privacy ? `${terms}${privacy}` : `<span class="model-links__empty">${emptyMark()}</span>`;
       const limitsDetail = isDynamicQuota(model)
-        ? escapeHtml('Dynamic Shared Quota')
+        ? escapeHtml(translations.dynamicQuota || 'Dynamic Shared Quota')
         : `${limitText(model.rpm)} ${escapeHtml(translations.thRPMUnitShort || 'Requests/Min')} ${star} · ${limitText(model.tpm)} ${escapeHtml(translations.thTPMUnit || 'Tokens/Min')} ${star}`;
       tbody.insertAdjacentHTML(
         'beforeend',

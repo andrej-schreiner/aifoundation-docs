@@ -121,7 +121,8 @@ const t = {
   thLimitsSub: 'RPM · TPM',
   thContext: isDE ? 'Kontext' : 'Context',
   thDetails: 'Details',
-  dynamicQuota: isDE ? 'Dynamisches Kontingent' : 'Dynamic Shared Quota',
+  dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
+  dynamicQuota: isDE ? 'Dynamisches Shared-Kontingent' : 'Dynamic Shared Quota',
   labelSortBy: isDE ? 'Sortieren nach' : 'Sort by',
   labelSortCatalog: isDE ? 'Empfohlen' : 'Recommended',
   labelExpandAll: isDE ? 'Alle Details öffnen' : 'Expand all details',
@@ -134,7 +135,7 @@ const t = {
     ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
     : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only; cached token pricing for models on external providers will be added later.`,
   cachedPriceUnavailable: '—',
-  priceTba: isDE ? 'Preis wird noch bekannt gegeben' : 'Pricing to be announced',
+  priceTba: isDE ? 'Preis folgt' : 'Pricing to be announced',
   worldwideLocationNote: isDE
     ? 'Weltweit bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
     : 'Worldwide means the third-party provider runs the model on its own infrastructure and may process data outside the EU/EEA.',

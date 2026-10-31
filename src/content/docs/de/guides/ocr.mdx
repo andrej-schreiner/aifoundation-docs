@@ -1,6 +1,6 @@
 ---
 title: "OCR (Dokumentenerkennung)"
-description: "Gescannte Dokumente, PDFs und Fotos mit den Preview-Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
+description: "Gescannte Dokumente, PDFs und Fotos mit den Vorschau-Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
@@ -335,11 +335,11 @@ Tabellen kommen als **OTSL**: `<nl>` beendet eine Zeile, `<fcel>` beginnt eine Z
 - **Senden Sie Bilder als Base64-Data-URLs.** `https://`-Bildlinks werden mit `422` abgelehnt: Die Modelle laden keine Bilder herunter.
 - **Bilder zählen als Input-Tokens.** Etwa 3.000 pro Seite bei LightOnOCR mit 2048 px und bis zu etwa 1.260 pro Bild bei PaddleOCR-VL (weniger bei kleinen Ausschnitten). Prüfen Sie `usage.prompt_tokens`.
 - **Streaming funktioniert** bei beiden Modellen (`stream=True`), wenn Sie Text schon während des Lesens anzeigen möchten.
-- **Preview-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/models/preview): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
+- **Vorschau-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/models/preview): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
 
 
 ## Nächste Schritte
 
 - [Multimodal (Vision)](/de/guides/multimodal) — Fragen zu Bildern mit Vision-Chat-Modellen stellen
 - [Visual RAG](/de/guides/visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
-- [Test / Vorschau Modelle](/de/models/preview) — Limits und Bedingungen für Preview-Modelle
+- [Test-/Vorschau-Modelle](/de/models/preview) — Limits und Bedingungen für Vorschau-Modelle

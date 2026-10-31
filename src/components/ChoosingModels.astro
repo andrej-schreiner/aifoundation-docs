@@ -98,8 +98,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
                   <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
                     <img src={logo.src} alt="" width="20" height="20" />
                   </span>
-                  {recommended.name}
-                  {recommended.preview ? ` (${t.preview})` : ''}
+                  <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
                 </span>
               </td>
               <td>
@@ -177,28 +176,30 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
     max-width: none;
   }
 
-  .choose-desktop :global(.aifs-table-scroll),
-  .choose-desktop table {
+  .choose-desktop :global(.aifs-table-scroll) {
     width: 100%;
     max-width: 100%;
+    overflow-x: auto;
   }
 
   .choose-desktop table {
+    width: 100%;
     table-layout: fixed;
+    min-width: 48rem;
   }
 
   .choose-desktop th:nth-child(1),
-  .choose-desktop td:nth-child(1) { width: 18%; }
+  .choose-desktop td:nth-child(1) { width: 16%; }
   .choose-desktop th:nth-child(2),
-  .choose-desktop td:nth-child(2) { width: 20%; }
+  .choose-desktop td:nth-child(2) { width: 18%; }
   .choose-desktop th:nth-child(3),
-  .choose-desktop td:nth-child(3) { width: 20%; }
+  .choose-desktop td:nth-child(3) { width: 18%; }
   .choose-desktop th:nth-child(4),
   .choose-desktop td:nth-child(4) { width: 14%; }
   .choose-desktop th:nth-child(5),
   .choose-desktop td:nth-child(5) { width: 10%; }
   .choose-desktop th:nth-child(6),
-  .choose-desktop td:nth-child(6) { width: 18%; }
+  .choose-desktop td:nth-child(6) { width: 24%; }
 
   :global(:lang(de)) .choose-desktop td:first-child,
   :global(:lang(de)) .choose-desktop td:last-child {
@@ -216,7 +217,20 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   }
 
   .choose-name {
-    display: inline;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .choose-name > span:last-child {
+    min-width: 0;
+  }
+
+  .choose-name .choose-mark {
+    margin-inline-end: 0;
+    box-sizing: border-box;
   }
 
   .choose-mark {
