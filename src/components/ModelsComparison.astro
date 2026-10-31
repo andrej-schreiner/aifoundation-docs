@@ -12,7 +12,7 @@ import {
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
-import { formatEuro } from '../shared/lib/displayFormat';
+import { formatDecimalText, formatEuro, type NumberLocale } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
@@ -37,6 +37,10 @@ const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
+// Display-only: German pages write 1,40 €. Row data for sort/filter keeps the raw numbers.
+// Archived versions (/v1…/) keep their original number format.
+const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
+const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
 
 type Category = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 
@@ -491,7 +495,7 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 // newly announced models); `0` means the model is genuinely free of charge.
 function formatPrice(n: number | null | undefined): string {
   if (n == null) return t.priceTba;
-  return formatEuro(n, 2);
+  return formatEuro(n, 2, numberLocale);
 }
 
 function formatCachedPrice(m: CompiledModel): string {
@@ -501,7 +505,7 @@ function formatCachedPrice(m: CompiledModel): string {
   // A cached price is 15% of the input price, so two decimals would round most
   // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
   // four decimals and drop trailing zeros.
-  return formatEuro(value, 4);
+  return formatEuro(value, 4, numberLocale);
 }
 
 function planHref(plan: string): string {
@@ -523,8 +527,8 @@ function formatContextLabel(raw: string | null | undefined): string {
   if (blankContext(raw)) return '—';
   const text = (raw ?? '').trim();
   const compact = text.replace(/,/g, '');
-  if (compact === '102400') return '102.4K';
-  if (/^1050k$/i.test(compact)) return '1.05M';
+  if (compact === '102400') return formatDecimalText('102.4K', numberLocale);
+  if (/^1050k$/i.test(compact)) return formatDecimalText('1.05M', numberLocale);
   return text;
 }
 
@@ -547,8 +551,8 @@ function mobilePriceLine(m: CompiledModel): string | null {
   const outputFree = output == null || output === 0;
   if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
   const bits: string[] = [];
-  if (input != null && input !== 0) bits.push(formatEuro(input, 2));
-  if (output != null && output !== 0) bits.push(formatEuro(output, 2));
+  if (input != null && input !== 0) bits.push(formatEuro(input, 2, numberLocale));
+  if (output != null && output !== 0) bits.push(formatEuro(output, 2, numberLocale));
   if (bits.length === 0) return null;
   return `${bits.join(' / ')} ${t.perMillion}`;
 }
@@ -557,7 +561,7 @@ function cachedDetail(m: CompiledModel): string | null {
   if (!m.cachedPricingPublished) return null;
   const value = m.cachedInputPricePerMillionTokens;
   if (value == null || value === 0) return null;
-  return formatEuro(value, 4);
+  return formatEuro(value, 4, numberLocale);
 }
 
 function reasoningTokensDetail(m: CompiledModel): string | null {

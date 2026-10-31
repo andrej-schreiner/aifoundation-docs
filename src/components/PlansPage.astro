@@ -18,6 +18,7 @@ import {
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
+import { EURO_SUFFIX_DE, formatDecimalText, formatInteger, type NumberLocale } from '../shared/lib/displayFormat';
 
 interface Props {
   selectedPlanId?: string;
@@ -31,6 +32,19 @@ const allPricing = legacy ? legacyPricing : currentPricing;
 
 // Detect locale from URL path
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+// Archived versions (/v1…/) keep their original number format.
+const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
+const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
+
+/** Monthly plan price: "1,000 €" on English pages, "1.000 €" (no-break space) on German pages. */
+function planPrice(amount: number): string {
+  return numberLocale === 'de' ? `${formatInteger(amount, 'de')}${EURO_SUFFIX_DE}` : `${formatInteger(amount, 'en')} €`;
+}
+
+/** Token prices as written in English ("0.20 / 0.65"); German pages get decimal commas ("0,20 / 0,65"). */
+function priceText(text: string): string {
+  return formatDecimalText(text, numberLocale);
+}
 
 const t = {
   ratePlansTitle: isDE ? 'Tarife' : 'Our Rate Plans',
@@ -178,6 +192,10 @@ const t = {
     : 'Powerful, high-capability models for complex and quality-critical work.',
 } as Record<string, any>;
 
+// ModelsTable formats prices and limits client-side; pass it the page locale.
+// Only set on German pages so the English data-t payload stays unchanged.
+if (numberLocale === 'de') t.numberLocale = numberLocale;
+
 // Legacy (v1.0.0) overrides — different copy for the archived plans page.
 if (legacy) {
   t.subtitle = isDE
@@ -205,8 +223,8 @@ const currentPlanConfigs = [
   {
     packageName: 'Essential',
     label: 'Essential',
-    basePrice: '1,000 \u20AC',
-    tokenPrice: '0.20 / 0.65',
+    basePrice: planPrice(1000),
+    tokenPrice: priceText('0.20 / 0.65'),
     rpm: isDE ? 'Niedriger' : 'Lower',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard'],
@@ -215,8 +233,8 @@ const currentPlanConfigs = [
   {
     packageName: 'Professional',
     label: 'Professional',
-    basePrice: '3,000 \u20AC',
-    tokenPrice: '0.20 / 0.65',
+    basePrice: planPrice(3000),
+    tokenPrice: priceText('0.20 / 0.65'),
     rpm: isDE ? 'Mittel' : 'Medium',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard', 'Premium'],
@@ -225,8 +243,8 @@ const currentPlanConfigs = [
   {
     packageName: 'Agentic',
     label: 'Agentic',
-    basePrice: '5,000 \u20AC',
-    tokenPrice: '0.20 / 0.65',
+    basePrice: planPrice(5000),
+    tokenPrice: priceText('0.20 / 0.65'),
     rpm: isDE ? 'Höchster' : 'Highest',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard', 'Premium'],
@@ -236,7 +254,7 @@ const currentPlanConfigs = [
     packageName: 'Tarif Standard3000 Template',
     label: 'Enterprise',
     basePrice: 'Custom',
-    tokenPrice: '0.20 / 0.65',
+    tokenPrice: priceText('0.20 / 0.65'),
     rpm: isDE ? 'Individuell' : 'Custom',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard', 'Premium'],
@@ -250,7 +268,7 @@ const legacyPlanConfigs = [
     packageName: 'Tarif Basic Template',
     label: 'Basic',
     basePrice: '–',
-    tokenPrice: '3.53',
+    tokenPrice: priceText('3.53'),
     rpm: '20',
     modelHost: ['T-Cloud'],
     modelTier: ['Standard'],
@@ -259,8 +277,8 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard1000 Template',
     label: 'Standard 1000',
-    basePrice: '1,000 €',
-    tokenPrice: '3.53',
+    basePrice: planPrice(1000),
+    tokenPrice: priceText('3.53'),
     rpm: '150',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard'],
@@ -269,8 +287,8 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard2000 Template',
     label: 'Standard 2000',
-    basePrice: '2,000 €',
-    tokenPrice: '2.89',
+    basePrice: planPrice(2000),
+    tokenPrice: priceText('2.89'),
     rpm: '300',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard'],
@@ -279,8 +297,8 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard3000 Template',
     label: 'Standard 3000',
-    basePrice: '3,000 €',
-    tokenPrice: '2.23',
+    basePrice: planPrice(3000),
+    tokenPrice: priceText('2.23'),
     rpm: '450',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard'],
@@ -289,8 +307,8 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard4000 Template',
     label: 'Standard 4000',
-    basePrice: '4,000 €',
-    tokenPrice: '1.75',
+    basePrice: planPrice(4000),
+    tokenPrice: priceText('1.75'),
     rpm: '600',
     modelHost: ['T-Cloud', 'External'],
     modelTier: ['Standard'],

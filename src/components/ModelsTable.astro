@@ -285,7 +285,7 @@ const priceBuckets = [
 
 <script>
   import { isPriceInRange } from '../shared/lib/priceRangeHelper';
-  import { emptyMark, formatEuro } from '../shared/lib/displayFormat';
+  import { EURO_SUFFIX_DE, emptyMark, formatDecimalText, formatEuro, formatInteger, type NumberLocale } from '../shared/lib/displayFormat';
   import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
   import { getFlag } from '../shared/lib/flags';
 
@@ -305,6 +305,8 @@ const priceBuckets = [
     const tierTooltips = JSON.parse(section.dataset.tierTooltips || '{}');
     const creatorTooltips = JSON.parse(section.dataset.creatorTooltips || '{}');
     const translations = JSON.parse(section.dataset.t || '{}');
+    // Display-only: German pages write 1,40 € and 400.000. Sorting and filtering use the raw numbers.
+    const numberLocale: NumberLocale = translations.numberLocale === 'de' ? 'de' : 'en';
     let currentIndex = parseInt(section.dataset.initialIndex || '0', 10);
     const locked = section.dataset.locked === 'true';
     const legacy = section.dataset.legacy === 'true';
@@ -688,13 +690,13 @@ const priceBuckets = [
       if (value == null || value === '' || value === 'None' || value === 'null') return emptyMark();
       const text = String(value).trim();
       const compact = text.replace(/,/g, '');
-      if (compact === '102400') return '102.4K';
-      if (/^1050k$/i.test(compact)) return '1.05M';
+      if (compact === '102400') return formatDecimalText('102.4K', numberLocale);
+      if (/^1050k$/i.test(compact)) return formatDecimalText('1.05M', numberLocale);
       return text;
     }
 
     function formatNumber(value: number | null | undefined) {
-      return value != null ? value.toLocaleString('en-US') : emptyMark();
+      return value != null ? formatInteger(value, numberLocale) : emptyMark();
     }
 
     function formatPrice(value: number | null | undefined) {
@@ -702,7 +704,7 @@ const priceBuckets = [
       if (value == null) {
         return `<span class="mt-price-tba">${escapeHtml(translations.priceTba || 'Pricing to be announced')}</span>`;
       }
-      return formatEuro(value, 2);
+      return formatEuro(value, 2, numberLocale);
     }
 
     // Cached input tokens are only priced for T-Cloud-hosted models; external
@@ -710,11 +712,11 @@ const priceBuckets = [
     function formatCachedPrice(model: any) {
       if (!model.cachedPricingPublished) return translations.cachedPriceUnavailable || 'n/a';
       const value = model.cachedInputPrice;
-      if (value == null) return '€xx';
+      if (value == null) return numberLocale === 'de' ? `xx${EURO_SUFFIX_DE}` : '€xx';
       // A cached price is 15% of the input price, so two decimals would round
       // most of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01).
       // Keep up to four decimals and drop trailing zeros.
-      return formatEuro(value, 4);
+      return formatEuro(value, 4, numberLocale);
     }
 
     function capitalize(value: string = '') {
