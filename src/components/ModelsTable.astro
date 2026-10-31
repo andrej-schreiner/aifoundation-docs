@@ -842,7 +842,7 @@ const priceBuckets = [
         `<tr class="mt-row${model.isSubRow ? ' sub-row' : ''}${open ? ' is-open' : ''}" data-key="${escapeHtml(key)}">
           <td class="mt-model">
             <div class="mt-model__main">
-              <span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" /></span>
+              ${creatorName.startsWith('Google') ? `<span class="creator-brand creator-brand--icon creator-brand--zoom" role="img" aria-label="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" style="background-image:url(&quot;${escapeHtml(creatorIcon)}&quot;)"></span>` : `<span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" /></span>`}
               <strong>${escapeHtml(model.displayName)}</strong>
               ${modelTier.toLowerCase() === 'premium' ? `<span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>` : ''}
             </div>
@@ -1717,6 +1717,13 @@ const priceBuckets = [
     line-height: 0;
   }
 
+  /* Google's mark is mostly margin: scale it inside the tile, as in the catalog. */
+  .creator-brand--zoom {
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 175%;
+  }
+
   .creator-brand--text {
     width: auto;
     height: auto;
@@ -2098,16 +2105,33 @@ const priceBuckets = [
       flex: none;
     }
 
+    /* Fields flow as label-value pairs, two or three per line when the
+       column has room, one per line on phones. Values stay on the label's line. */
     .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) {
-      display: grid;
-      grid-template-columns: 4.75rem minmax(0, 1fr);
-      column-gap: 8px;
+      display: flex;
+      flex-wrap: wrap;
       align-items: baseline;
-      flex: 1 1 100%;
+      gap: 0 6px;
+      flex: 1 1 14rem;
+    }
+
+    .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) > .mt-card-label {
+      flex: 0 0 4rem;
     }
 
     .models-table-section .mt-compact tr.mt-row > td:not(.mt-model):not(.mt-details-cell) > :not(.mt-card-label) {
-      grid-column: 2;
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+
+    .models-table-section .mt-compact .mt-hosting__main,
+    .models-table-section .mt-compact .loc-wrapper {
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .models-table-section .mt-compact tr.mt-row > td.mt-hosting {
+      align-items: center;
     }
 
     .models-table-section .mt-compact tr.mt-row::after {

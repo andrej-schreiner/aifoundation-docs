@@ -198,16 +198,20 @@ const cardModels = featured ? sortedModels.slice(0, INITIAL_COUNT) : sortedModel
             <Icon name="action-checkmark" size={16} class="icon-check" />
           </Button>
           <h3 class="model-card__name">
-            <span class:list={['model-card__mark', { 'model-card__mark--zoom': model.creator.startsWith('Google') }]}>
-              <img
-                class="model-card__logo"
-                src={model.logo}
-                alt={model.creator === 'Other' ? '' : model.creator}
-                title={model.creator === 'Other' ? undefined : model.creator}
-                width="20"
-                height="20"
-              />
-            </span>
+            {model.creator.startsWith('Google') ? (
+              <span class="model-card__mark model-card__mark--zoom" style={`background-image:url("${model.logo}")`} role="img" aria-label={model.creator} title={model.creator} />
+            ) : (
+              <span class="model-card__mark">
+                <img
+                  class="model-card__logo"
+                  src={model.logo}
+                  alt={model.creator === 'Other' ? '' : model.creator}
+                  title={model.creator === 'Other' ? undefined : model.creator}
+                  width="20"
+                  height="20"
+                />
+              </span>
+            )}
             <span class="model-card__title">
               {model.name}
               {model.preview && <span class="status-badge status-badge--preview">{t.preview}</span>}
@@ -338,9 +342,12 @@ const cardModels = featured ? sortedModels.slice(0, INITIAL_COUNT) : sortedModel
     background: var(--aifs-color-logo-background);
   }
 
+  /* Google's mark is mostly margin: scale it inside the tile, as in the catalog. */
   .model-card__mark--zoom {
-    padding: 2px;
-    overflow: visible;
+    padding: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 175%;
   }
 
   .model-card__logo {
