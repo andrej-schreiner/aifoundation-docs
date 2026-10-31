@@ -1,4 +1,6 @@
 ---
+import PreviewModelsBanner from './PreviewModelsBanner.astro';
+
 const { banner } = Astro.locals.starlightRoute.entry.data;
 const path = Astro.url.pathname;
 const archived = path.includes('/v1-2-0');
@@ -23,6 +25,7 @@ const home = isDE ? '/de/' : '/';
 		</div>
 	)
 }
+<PreviewModelsBanner />
 {banner && <div class="sl-banner" data-pagefind-ignore set:html={banner.content} />}
 
 <style>

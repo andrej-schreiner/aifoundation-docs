@@ -346,7 +346,8 @@ const INITIAL_COUNT = 6;
   }
 
   .model-card__mark--zoom {
-    padding: 0;
+    padding: 2px;
+    overflow: visible;
   }
 
   .model-card__logo {
@@ -357,9 +358,10 @@ const INITIAL_COUNT = 6;
   }
 
   .model-card__mark--zoom .model-card__logo {
-    width: 175%;
-    height: 175%;
-    max-width: none;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
   }
 
   .model-card__title {

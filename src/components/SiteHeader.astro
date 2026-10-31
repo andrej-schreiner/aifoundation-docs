@@ -141,6 +141,13 @@ const showSearch =
 	}
 </style>
 
+<script is:inline>
+	document.querySelectorAll('site-search button[data-open-modal]').forEach((btn) => {
+		const text = (btn.innerText || btn.textContent || '').replace(/\s+/g, ' ').trim();
+		if (text) btn.setAttribute('aria-label', text);
+	});
+</script>
+
 <script>
 	// starlight-versions labels the current docs "Latest" in every locale.
 	function localizeVersionLabel() {

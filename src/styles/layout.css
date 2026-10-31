@@ -161,6 +161,11 @@ mobile-starlight-toc nav {
 	}
 }
 
+html.qp-off-apiTransitionBannerDismissed .qp-bar[data-key='apiTransitionBannerDismissed'],
+html.qp-off-glm53DeepseekLaunchDismissed .qp-bar[data-key='glm53DeepseekLaunchDismissed'] {
+	display: none;
+}
+
 .qp-stack {
 	display: flex;
 	flex-direction: column;

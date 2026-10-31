@@ -70,7 +70,25 @@
 }
 
 .sl-markdown-content .aifs-table-scroll :is(th, td) {
+	position: relative;
 	overflow-wrap: anywhere;
+}
+
+.sl-markdown-content :is(td, th) code {
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+.sl-markdown-content .sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 @container mdtable (max-width: 36rem) {

@@ -135,7 +135,8 @@ function place(hosting: string): string {
   }
 
   .model-pick__mark--zoom {
-    padding: 0;
+    padding: 2px;
+    overflow: visible;
   }
 
   .model-pick__mark img {
@@ -146,10 +147,10 @@ function place(hosting: string): string {
   }
 
   .model-pick__mark--zoom img {
-    width: 175%;
-    height: 175%;
-    max-width: none;
-    flex: 0 0 auto;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
   }
 
   .model-pick__meta {

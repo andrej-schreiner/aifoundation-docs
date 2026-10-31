@@ -91,7 +91,8 @@ function place(hosting: string): string {
   }
 
   .model-highlights__mark--zoom {
-    padding: 0;
+    padding: 2px;
+    overflow: visible;
   }
 
   .model-highlights__mark img {
@@ -101,8 +102,9 @@ function place(hosting: string): string {
   }
 
   .model-highlights__mark--zoom img {
-    width: 175%;
-    height: 175%;
-    max-width: none;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
   }
 </style>

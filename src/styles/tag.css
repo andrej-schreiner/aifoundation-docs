@@ -52,6 +52,16 @@ a.hero-badge:hover {
 	font-size: var(--aifs-tag-font-size-small);
 }
 
+a.plans-tag,
+button.plans-tag {
+	display: inline-flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-height: 24px;
+	height: auto;
+	padding-block: 2px;
+}
+
 /* Colours, as in Scale's standard type: a subtle background with its
    matching text colour. */
 

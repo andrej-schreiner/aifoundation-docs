@@ -278,6 +278,12 @@ export default defineConfig({
 					content: `(function(){function fix(){var file=document.documentElement.lang==='de'?'Leistungsbeschreibung-LLM-Serving-Service.pdf':'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"],a[href*="Leistungsbeschreibung_LLM_Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 				{
+					// Hide a dismissed notice before first paint so the bars
+					// do not pop in and push the page down.
+					tag: 'script',
+					content: `(function(){try{var keys=['apiTransitionBannerDismissed','glm53DeepseekLaunchDismissed'];var nav=performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='reload'){keys.forEach(function(k){sessionStorage.removeItem(k);});}keys.forEach(function(k){if(sessionStorage.getItem(k)==='1')document.documentElement.classList.add('qp-off-'+k);});}catch(e){}})();`,
+				},
+				{
 					// Theme switches happen at once. Without this, every element with a colour
 					// transition (buttons, links in components) fades over 200ms while the page
 					// background flips, so labels briefly vanish, e.g. black text on the new

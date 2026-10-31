@@ -1481,6 +1481,8 @@ const priceBuckets = [
 
   .plans-filter[open] {
     flex: 1 0 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .plans-filter__menu {
@@ -1489,8 +1491,8 @@ const priceBuckets = [
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
+    overflow-x: hidden;
     z-index: 40;
-    min-width: 11rem;
     max-height: 22rem;
     overflow-y: auto;
     padding: 0.4rem 0.5rem;

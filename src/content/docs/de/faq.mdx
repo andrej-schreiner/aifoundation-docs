@@ -3,27 +3,27 @@ title: "FAQ"
 description: "Antworten auf häufige Fragen zu AI Foundation Services: verfügbare Modelle, DSGVO-Konformität, Preise, Rate-Limits und Bestellung."
 ---
 
-### Was sind die AI Foundation Services?
+## Was sind die AI Foundation Services?
 
 Die AI Foundation Services von <span class="nowrap">T-Systems</span> bieten Unternehmen eine sichere Plattform für die Entwicklung und Skalierung von KI-Lösungen mit LLMs. Sie ermöglichen die Nutzung von mehr als 30 Sprachmodellen — darunter Open-Source-Modelle wie Mistral, Qwen und Gemma — sowie fertige Dienste für RAG. Die Open-Source-Modelle laufen auf der DSGVO-konformen T-Cloud in Deutschland; proprietäre Modelle werden an Microsoft Azure oder Google Cloud weitergeleitet. Siehe [Enterprise Trust](/de/reference/enterprise-trust).
 
-### Welche LLMs sind verfügbar?
+## Welche LLMs sind verfügbar?
 
 Die Auswahl wird kontinuierlich mit Open- und Closed-Source-Modellen aktualisiert, darunter Mistral, Qwen, OpenAI GPT und Claude Sonnet. <span class="nowrap">T-Systems</span> bietet unimodale und multimodale Modelle, die Text, Bild und Audio verarbeiten können. Siehe [Verfügbare Modelle](/de/models) für die aktuelle Liste.
 
-### Auf welcher Cloud-Plattform wird das Hosting bereitgestellt?
+## Auf welcher Cloud-Plattform wird das Hosting bereitgestellt?
 
 Open-Source-Modelle werden von <span class="nowrap">T-Systems</span> auf der DSGVO-konformen T-Cloud in Deutschland betrieben. Closed-Source-Modelle werden an den jeweiligen Upstream-Anbieter auf Microsoft Azure oder Google Cloud weitergeleitet — siehe [Enterprise Trust](/de/reference/enterprise-trust) für das vollständige Datenverarbeitungs-Modell.
 
-### Kann ich die AI Foundation Services kostenlos testen?
+## Kann ich die AI Foundation Services kostenlos testen?
 
 Ja. Ein kostenloser Test-Schlüssel im [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/) schaltet alle Modelle frei, einschließlich Premium-Modelle.
 
-### Wie ist die Preisstruktur aufgebaut?
+## Wie ist die Preisstruktur aufgebaut?
 
 Es gibt Komponenten für LLM und RAG. Shared-Tarife haben einen monatlichen Token-Umsatz; darüber wird zu den Listenpreisen abgerechnet. Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude sind in Professional und Agentic enthalten, nicht in Essential. Enterprise ist ein individueller Umsatz; der Preiskatalog führt keine eigene Enterprise-Modellliste. Für RAG (SmartChat) wird eine monatliche Flatrate nach Nutzern und Speicher vereinbart. Siehe [Tarife](/de/plans).
 
-### Was sind die Rate Limits?
+## Was sind die Rate Limits?
 
 Rate Limits (TPM und RPM) hängen vom gewählten Tarif und Modell ab. Beispielsweise sind für GPT-OSS 120B (T-Cloud, Deutschland) auf dem Essential-Tarif 100 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 400.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM ausgewiesen, skalierbar bis 300 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 2.000.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM auf Agentic. Premium-Modelle wie Claude Opus sind in den Tarifen Professional und Agentic verfügbar.
 
@@ -31,18 +31,18 @@ Veröffentlichte RPM- und TPM-Werte sind Best-Effort-Obergrenzen und nicht Teil 
 
 Siehe [Rate Limits](/de/reference/rate-limits) für die vollständige Aufschlüsselung.
 
-### Können zusätzliche LLMs bereitgestellt werden?
+## Können zusätzliche LLMs bereitgestellt werden?
 
 Ja, auf Anfrage können zusätzliche Modelle auf dedizierten GPU-Ressourcen gehostet werden. In diesem Fall erfolgt die Abrechnung auf Basis der benötigten GPU-Ressourcen statt nutzungsbasiert. Kontaktieren Sie das AIFS-Team für Details.
 
-### Wie bestelle ich LLM-Serving?
+## Wie bestelle ich LLM-Serving?
 
 Für einen Essential-, Professional-, Agentic- oder Enterprise-Tarif [kontaktieren Sie uns](mailto:ai@t-systems.com).
 
-### Wie bestelle ich SmartChat?
+## Wie bestelle ich SmartChat?
 
 [Kontaktieren Sie uns](mailto:ai@t-systems.com) für ein Angebot.
 
-### Kann SmartChat in bestehende Anwendungen integriert werden?
+## Kann SmartChat in bestehende Anwendungen integriert werden?
 
 Ja, SmartChat kann über die [SmartChat-API](https://docs.smartchat.ai.t-systems.net) in bestehende Prozesse oder Anwendungen integriert werden. Verbinden Sie Datenbanken oder Systeme sicher für maximale Effizienz.

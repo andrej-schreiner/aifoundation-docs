@@ -1505,6 +1505,8 @@ const rowDataPayload = allModels.map((m) => ({
 
   .mc-filter[open] {
     flex: 1 0 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .mc-filter__menu {
@@ -1513,6 +1515,7 @@ const rowDataPayload = allModels.map((m) => ({
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
+    overflow-x: hidden;
     z-index: 40;
     max-height: 16rem;
     overflow-y: auto;
@@ -1681,7 +1684,7 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison-table .plans-tag {
     height: auto;
-    min-height: 18px;
+    min-height: 24px;
     max-width: 100%;
     padding-inline: 4px;
     font-size: 11px;
