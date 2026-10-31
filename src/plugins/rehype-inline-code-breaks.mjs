@@ -23,7 +23,9 @@ function textNodes(node, out = []) {
 // between two child nodes counts like any other.
 function addWrapPoints(code) {
 	const nodes = textNodes(code);
-	const sorted = wrapOffsets(nodes.map((n) => n.node.value).join(''));
+	const text = nodes.map((n) => n.node.value).join('');
+	// An ellipsis (`/v1/...`) stays whole: no break between two dots.
+	const sorted = wrapOffsets(text).filter((o) => !(text[o - 1] === '.' && text[o] === '.'));
 	if (sorted.length === 0) return;
 	let base = 0;
 	for (const { parent, node } of nodes) {

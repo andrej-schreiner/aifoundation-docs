@@ -6,10 +6,12 @@
 const TERMS = /T-Cloud|DS-1221076\/1/g;
 const SKIP = new Set(['code', 'pre', 'script', 'style', 'kbd', 'samp']);
 
-function isNowrap(node) {
+// Aside titles are flex rows: an extra span would split the title text into
+// separate flex items, which then wrap mid-word. Leave them alone.
+function isSkippedClass(node) {
 	const className = node.properties?.className;
 	const list = Array.isArray(className) ? className : className ? [className] : [];
-	return list.includes('nowrap');
+	return list.includes('nowrap') || list.includes('starlight-aside__title');
 }
 
 function split(value) {
@@ -43,7 +45,7 @@ export default function rehypeNowrapTerms() {
 					i += parts.length - 1;
 				}
 			} else if (child.type === 'element') {
-				if (SKIP.has(child.tagName) || isNowrap(child)) continue;
+				if (SKIP.has(child.tagName) || isSkippedClass(child)) continue;
 				walk(child);
 			} else if (child.children) {
 				walk(child);
