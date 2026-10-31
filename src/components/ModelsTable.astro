@@ -752,6 +752,10 @@ const priceBuckets = [
     const chevron = `<svg class="mt-chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
     const star = `<sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>`;
     const dagger = `<sup><a href="#cached-token-notes" onclick="event.stopPropagation()">†</a></sup>`;
+    // No † after "—" (no published cached price), except on archived pages.
+    function cachedDagger(model: any) {
+      return model.cachedPricingPublished || !translations.cachedDaggerPricedOnly ? `&nbsp;${dagger}` : '';
+    }
     const openDetails = new Set<string>();
     let detailsExpandedAll = false;
 
@@ -854,7 +858,7 @@ const priceBuckets = [
           <td class="mt-num mt-input">
             <span class="mt-card-label">${escapeHtml(translations.thInput || 'Input')}</span>
             <strong>${formatPrice(model.inputPrice)}</strong>
-            <div class="mt-muted">${escapeHtml(translations.cachedShort || 'cached')} <span class="nowrap">${formatCachedPrice(model)}&nbsp;${dagger}</span></div>
+            <div class="mt-muted">${escapeHtml(translations.cachedShort || 'cached')} <span class="nowrap">${formatCachedPrice(model)}${cachedDagger(model)}</span></div>
           </td>
           <td class="mt-num">
             <span class="mt-card-label">${escapeHtml(translations.thOutput || 'Output')}</span>
@@ -881,7 +885,7 @@ const priceBuckets = [
               <div><dt>${escapeHtml(translations.thModelHost || 'Model Host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud Provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
               <div><dt>${escapeHtml(translations.thServerLocation || 'Server Location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
-              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached Input Token Price')}&nbsp;${dagger}</dt><dd>${formatCachedPrice(model)} <span class="mt-muted">€ / M Tokens</span></dd></div>
+              <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached Input Token Price')}${cachedDagger(model)}</dt><dd>${formatCachedPrice(model)}${model.cachedPricingPublished || !translations.cachedDaggerPricedOnly ? ' <span class="mt-muted">€ / M Tokens</span>' : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thRPMLimit || 'RPM Limit')} · ${escapeHtml(translations.thTPM || 'TPM')}</dt><dd>${limitsDetail}</dd></div>
               <div><dt>${escapeHtml(translations.thContextWindow || 'Context Window')}</dt><dd>${contextText} ${escapeHtml(translations.thContextWindowUnit || 'Tokens')}</dd></div>
               <div><dt>${escapeHtml(translations.thLinks || 'Links')}</dt><dd><span class="model-links">${links}</span></dd></div>

@@ -118,6 +118,14 @@ button.plans-tag {
 	color: var(--aifs-tag-magenta-text);
 }
 
+/* Cloud tags never split at a hyphen ("T-Cloud"), even when a table builds
+   them without the shared tag class. */
+.tag-tcloud,
+.tag-cloud,
+.tag-external-cloud {
+	white-space: nowrap;
+}
+
 /* Plan tags: one fixed colour per plan. Test and the retired plans keep the
    standard colour. */
 

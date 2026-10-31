@@ -174,7 +174,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   },
   {
     id: 'vision',
-    useCase: { en: 'Image and document understanding', de: 'Bild- und Dokumentverständnis' },
+    useCase: { en: 'Image and document understanding', de: 'Bilder und Dokumente verstehen' },
     recommended: 'Qwen-3.6-35B-FP8',
     alternative: 'gemma-4-31B-it-FP8',
     also: 'Mistral-Small-4-119B-2603',
@@ -236,7 +236,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     alternative: 'gemini-3-pro-image',
     notes: {
       en: 'GPT Image 2 runs on Azure Sweden. Gemini 3 Pro Image runs on Google Cloud worldwide. No image-generation model runs on T-Cloud.',
-      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Bildgenerierungsmodell läuft auf T-Cloud.',
+      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
     },
     guide: '/guides/image-generation',
   },

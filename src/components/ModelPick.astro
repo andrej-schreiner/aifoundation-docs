@@ -24,6 +24,10 @@ const GUIDE_TITLES: Record<string, { en: string; de: string }> = {
   '/guides/decisions': { en: 'Decisions', de: 'Decisions' },
   '/guides/image-generation': { en: 'Image generation', de: 'Bildgenerierung' },
 };
+// No link to the guide when this card is already on the guide's page.
+const guideHref = `${prefix}${row.guide}`;
+const trimSlash = (path: string) => path.replace(/\/+$/, '') || '/';
+const onGuide = trimSlash(guideHref) === trimSlash(Astro.url.pathname);
 const guideTitle = (isDE ? GUIDE_TITLES[row.guide]?.de : GUIDE_TITLES[row.guide]?.en) ?? (isDE ? 'Zur Anleitung' : 'Guide');
 
 const t = isDE
@@ -74,7 +78,7 @@ function place(hosting: string): string {
           </div>
           <p class="model-pick__meta">
             <code set:html={withWrapPoints(model.id)} />
-            <a class="aifs-tag aifs-tag--small" href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
+            <a class:list={['aifs-tag aifs-tag--small', { 'tag-tcloud': model.hosting.startsWith('T-Cloud') }]} href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
             {model.context && <span>{model.context}</span>}
           </p>
         </li>
@@ -82,7 +86,7 @@ function place(hosting: string): string {
     })}
   </ul>
   <p class="model-pick__notes" set:html={notesHtml(isDE ? row.notes.de : row.notes.en)} />
-  <p class="model-pick__guide"><a href={`${prefix}${row.guide}`}>{guideTitle}</a></p>
+  {!onGuide && <p class="model-pick__guide"><a href={guideHref}>{guideTitle}</a></p>}
 </section>
 
 <style>

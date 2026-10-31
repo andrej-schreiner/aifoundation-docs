@@ -5,8 +5,8 @@
 //   - after  / . _ - , : ; = > ) ] }  and after the escapes \n and \t
 //   - before < ( [ {
 // Not inside operators such as => -> == >=, not before closing punctuation or
-// a separator (so `}},` never leaves a lone `,`), and not inside an escape like \( .
-export const BREAK_AFTER = /(?:[/._,:;=>)\]}-]|\\[nt])(?=[^\s=>,;:)\]}])/g;
+// a separator or a dot (so `}},` never leaves a lone `,` and `...` stays whole), and not inside an escape like \( .
+export const BREAK_AFTER = /(?:[/._,:;=>)\]}-]|\\[nt])(?=[^\s=>,;:.)\]}])/g;
 export const BREAK_BEFORE = /(?<=[^\s\\])[<([{]/g;
 
 // Sorted offsets in `text` where a <wbr> goes.

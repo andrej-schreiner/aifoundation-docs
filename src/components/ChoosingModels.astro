@@ -1,6 +1,7 @@
 ---
 import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
@@ -45,13 +46,20 @@ function contextLabel(value: string): string {
   return value || '—';
 }
 
+// `code` wraps only at its wrap points (withWrapPoints), never mid-word.
 function richHtml(text: string): string {
   return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>');
+    .split(/(`[^`]+`)/)
+    .map((part) =>
+      part.length > 1 && part.startsWith('`') && part.endsWith('`')
+        ? `<code>${withWrapPoints(part.slice(1, -1))}</code>`
+        : part
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>'),
+    )
+    .join('');
 }
 
 function where(recommended: string, alternative: string): string {
@@ -188,36 +196,24 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean; label:
     overflow-x: visible;
   }
 
+  /* Auto layout: each column is at least as wide as its longest word, so
+     words wrap only at spaces; the notes column takes the remaining width. */
   .choose-desktop table {
     width: 100%;
-    table-layout: fixed;
+    table-layout: auto;
     min-width: 0;
   }
 
   .choose-desktop :global(th),
   .choose-desktop :global(td) {
-    overflow-wrap: anywhere;
-  }
-
-  .choose-desktop th:nth-child(1),
-  .choose-desktop td:nth-child(1) { width: 16%; }
-  .choose-desktop th:nth-child(2),
-  .choose-desktop td:nth-child(2) { width: 18%; }
-  .choose-desktop th:nth-child(3),
-  .choose-desktop td:nth-child(3) { width: 18%; }
-  .choose-desktop th:nth-child(4),
-  .choose-desktop td:nth-child(4) { width: 14%; }
-  .choose-desktop th:nth-child(5),
-  .choose-desktop td:nth-child(5) { width: 10%; }
-  .choose-desktop th:nth-child(6),
-  .choose-desktop td:nth-child(6) { width: 24%; }
-
-  :global(:lang(de)) .choose-desktop :global(td),
-  :global(:lang(de)) .choose-desktop :global(th) {
+    overflow-wrap: break-word;
+    word-break: normal;
     hyphens: manual;
     -webkit-hyphens: manual;
-    overflow-wrap: break-word;
   }
+
+  .choose-desktop th:nth-child(6),
+  .choose-desktop td:nth-child(6) { width: 36%; }
 
   .choose-cards {
     display: none;
@@ -310,7 +306,9 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean; label:
     container-name: choose;
   }
 
-  @container choose (max-width: 52rem) {
+  /* Cards below 46rem of content width: the table's narrowest layout (longest
+     word per column, EN and DE) needs about 45rem. Wide desktops show the table. */
+  @container choose (max-width: 46rem) {
     .choose-desktop {
       display: none;
     }

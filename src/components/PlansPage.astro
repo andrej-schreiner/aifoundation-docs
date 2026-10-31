@@ -196,6 +196,9 @@ const t = {
 // ModelsTable formats prices and limits client-side; pass it the page locale.
 // Only set on German pages so the English data-t payload stays unchanged.
 if (numberLocale === 'de') t.numberLocale = numberLocale;
+// The † (cached-token note) follows real cached prices only, not "—".
+// Archived pages keep the marker on every row, as published.
+if (!isArchive) t.cachedDaggerPricedOnly = true;
 
 // Legacy (v1.0.0) overrides — different copy for the archived plans page.
 if (legacy) {
