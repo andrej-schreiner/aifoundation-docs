@@ -286,3 +286,31 @@
 		display: none;
 	}
 }
+
+/* Stacked cards stay compact: no gap above the first card, each label runs in
+   on its value's line, and a row-title column ("Aspect") needs no label. */
+@container mdtable (max-width: 36rem) {
+	.sl-markdown-content .aifs-table-scroll > table:is(:has(th:nth-child(3)), :has(td[data-label='Host'])) > tbody {
+		margin-top: 0;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:is(:has(th:nth-child(3)), :has(td[data-label='Host'])) tr {
+		margin: 0;
+		padding: 6px 0;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:is(:has(th:nth-child(3)), :has(td[data-label='Host'])) td:not(:has(pre, ul, ol, p))::before {
+		display: inline;
+		margin-inline-end: 0.5em;
+		color: var(--aifs-color-text-muted);
+		line-height: inherit;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:is(:has(th:nth-child(3)), :has(td[data-label='Host'])) td:is([data-label='Aspect'], [data-label='Aspekt'], [data-label=''])::before {
+		display: none;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:is(:has(th:nth-child(3)), :has(td[data-label='Host'])) td:is([data-label='Aspect'], [data-label='Aspekt']) {
+		font-weight: 700;
+	}
+}

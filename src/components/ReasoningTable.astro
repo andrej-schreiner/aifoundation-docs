@@ -63,10 +63,10 @@ const t = isDE
     <tbody>
       {rows.map((row) => (
         <tr>
-          <td>{row.name}</td>
-          <td><code set:html={withWrapPoints(row.id)} /></td>
-          <td><code>{row.values}</code></td>
-          <td>{row.fallback || t.none}</td>
+          <td data-label={t.model}>{row.name}</td>
+          <td data-label={t.id}><code set:html={withWrapPoints(row.id)} /></td>
+          <td data-label={t.values}><code>{row.values}</code></td>
+          <td data-label={t.fallback}>{row.fallback || t.none}</td>
         </tr>
       ))}
     </tbody>
