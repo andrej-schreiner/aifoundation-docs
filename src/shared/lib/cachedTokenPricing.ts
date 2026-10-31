@@ -2,9 +2,9 @@
 // at a fraction of the model's normal input token price. See the Prefix Caching
 // guide (/guides/prefix-caching) for how caching is enabled per request.
 //
-// The discount applies to T-Cloud-hosted models only. Cached-token pricing for
-// models served from external providers (Azure, GCP) has not been published yet,
-// so those rows deliberately render as "not available" rather than as a price.
+// The discount applies to T-Cloud-hosted models only. Rows for models served
+// from external providers (Azure, GCP) deliberately render as "not available"
+// rather than as a price.
 export const CACHED_INPUT_PRICE_FACTOR = 0.15;
 
 /** Percentage form for user-facing copy — "15%". */
