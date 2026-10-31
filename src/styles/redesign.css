@@ -274,17 +274,6 @@ textarea {
 	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
 }
 
-/* Page-QA rules Patrick's layout does not set. */
-:root[data-theme]:has(.models-table-section),
-:root[data-theme]:has(.models-comparison) {
-	--sl-content-width: 85rem;
-}
-
-:root:has(.models-table-section) .right-sidebar-container,
-:root:has(.models-comparison) .right-sidebar-container {
-	display: none;
-}
-
 .sl-markdown-content:has(.plans-page) :is(.link-card-row, .card-grid) {
 	max-width: 46rem !important;
 	width: min(100%, 46rem);

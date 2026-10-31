@@ -845,7 +845,7 @@ const priceBuckets = [
             <span class="mt-card-label">${escapeHtml(translations.thHosting || 'Hosting')}</span>
               <div class="mt-hosting__main">
               ${model.modelHost ? `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>` : `<span class="mt-muted">${emptyMark()}</span>`}
-              ${cloudProvider ? `<span class="mt-cloud">${escapeHtml(cloudProvider)}</span>` : ''}
+              ${cloudProvider && cloudProvider.toLowerCase() !== String(model.modelHost || '').toLowerCase() ? `<span class="mt-cloud">${escapeHtml(cloudProvider)}</span>` : ''}
             </div>
             <div class="mt-muted loc-wrapper">${loc}</div>
           </td>
@@ -2044,6 +2044,7 @@ const priceBuckets = [
       width: auto;
       border: 0;
       padding: 0;
+      margin: 0;
       min-width: 0;
     }
 
@@ -2078,6 +2079,9 @@ const priceBuckets = [
       margin: 0;
       overflow: visible;
       clip: auto;
+      clip-path: none;
+      white-space: normal;
+      border: 0;
       display: block;
       flex: 1 1 100%;
       font-size: 0.75rem;
