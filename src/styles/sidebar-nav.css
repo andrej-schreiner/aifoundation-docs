@@ -48,10 +48,11 @@
 
 .sidebar-content summary {
 	justify-content: space-between;
+	gap: 8px;
 	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
-	pointer-events: none;
-	cursor: default;
+	cursor: pointer;
 	list-style: none;
+	user-select: none;
 }
 
 .sidebar-content summary::-webkit-details-marker,
@@ -60,8 +61,9 @@
 	content: '';
 }
 
-.sidebar-content summary :is(svg, .caret) {
-	display: none;
+/* Group headings toggle their group; the chevron sits at the right. */
+.sidebar-content summary > svg.caret {
+	flex: 0 0 auto;
 }
 
 .sidebar-content .large {
@@ -253,4 +255,12 @@
 		inset-inline-start: calc(-1 * var(--aifs-border-width-standard));
 		border-inline-start: var(--aifs-sidebar-nav-indicator-width) solid currentColor;
 	}
+}
+
+/* Links with a badge (Preview, New): the badge follows the label, and the row
+   keeps the same end padding as the group headings so short labels and their
+   badge stay on one 32px line. */
+.sidebar-content a {
+	gap: 6px;
+	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
 }

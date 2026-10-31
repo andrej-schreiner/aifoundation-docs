@@ -94,9 +94,7 @@ export default defineConfig({
 	base: '/',
 	redirects: {
 		...archivedVersions,
-		'/Quickstart': '/',
-		'/getting-started/quickstart': '/',
-		'/de/getting-started/quickstart': '/de/',
+		'/Quickstart': '/getting-started/quickstart',
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
@@ -295,10 +293,11 @@ export default defineConfig({
 					content: `(function(){var r=document.documentElement;new MutationObserver(function(){r.setAttribute('data-theme-switching','');requestAnimationFrame(function(){requestAnimationFrame(function(){r.removeAttribute('data-theme-switching');});});}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();`,
 				},
 				{
-					// Sidebar groups stay open. Starlight renders each group as a
-					// collapsible <details>; this keeps them open and ignores toggles.
+					// Sidebar groups are collapsible (Starlight's <details>, state kept in
+					// sessionStorage). The group holding the current page is always open,
+					// even if it was closed earlier in the session.
 					tag: 'script',
-					content: `(function(){function lock(){document.querySelectorAll('.sidebar-content details').forEach(function(d){d.open=true;if(d.dataset.aifsLock)return;d.dataset.aifsLock='1';d.addEventListener('toggle',function(){d.open=true;});});}document.addEventListener('astro:page-load',lock);if(document.readyState!=='loading')lock();else document.addEventListener('DOMContentLoaded',lock);})();`,
+					content: `(function(){function openCurrent(){document.querySelectorAll('.sidebar-content details').forEach(function(d){if(d.querySelector('a[aria-current="page"]'))d.open=true;});}document.addEventListener('astro:page-load',openCurrent);if(document.readyState!=='loading')openCurrent();else document.addEventListener('DOMContentLoaded',openCurrent);})();`,
 				},
 			],
 			components: {
@@ -338,14 +337,25 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
-				{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
+				{
+					label: 'Get started',
+					translations: { de: 'Erste Schritte' },
+					collapsed: false,
+					items: [
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
+						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
+						{ label: 'Coding agent setup', translations: { de: 'Coding-Agenten einrichten' }, slug: 'getting-started/coding-agents' },
+						{ label: 'Recommended models', translations: { de: 'Empfohlene Modelle' }, slug: 'getting-started/choosing-a-model' },
+						{ label: 'Migrate from OpenAI', translations: { de: 'Umstieg von OpenAI' }, slug: 'guides/migrate-from-openai' },
+						{ label: 'Migrate to the new API', translations: { de: 'Umstieg auf die neue API' }, slug: 'api-transition', badge: { text: { en: 'New', de: 'Neu' }, variant: 'tip' } },
+					],
+				},
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
 					collapsed: false,
 					items: [
 						{ label: 'All models', translations: { de: 'Alle Modelle' }, slug: 'models' },
-						{ label: 'Which model to use', translations: { de: 'Welches Modell' }, slug: 'getting-started/choosing-a-model' },
 						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
 						{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
 						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
@@ -411,8 +421,6 @@ export default defineConfig({
 					translations: { de: 'Ressourcen' },
 					collapsed: false,
 					items: [
-						{ label: 'Migrate from OpenAI', translations: { de: 'Umstieg von OpenAI' }, slug: 'guides/migrate-from-openai' },
-						{ label: 'Migrate to the new API', translations: { de: 'Umstieg auf die neue API' }, slug: 'api-transition', badge: { text: { en: 'New', de: 'Neu' }, variant: 'tip' } },
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
 						{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },

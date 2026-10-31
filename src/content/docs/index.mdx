@@ -4,7 +4,7 @@ description: "The sovereign AI platform from T-Systems: 30+ open-source and prop
 tableOfContents: true
 ---
 
-import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelCardGrid from '../../components/ModelCardGrid.astro';
 
 The sovereign AI platform from <span class="nowrap">T-Systems</span>: 30+ open-source and proprietary models behind one OpenAI-compatible API.
@@ -20,83 +20,12 @@ When a T-Cloud model fits the job, start there. Partner models from OpenAI, Anth
 
 <ModelCardGrid />
 
-[All models](/models) · [Plans & pricing](/plans) · [Which model to use](/getting-started/choosing-a-model)
+[All models](/models) · [Plans & pricing](/plans) · [Recommended models](/getting-started/choosing-a-model)
 
 
 ## Quickstart
 
-Send a first request in three steps. Prefer a UI? Use the [Playground](https://playground.llmhub.t-systems.net/).
-
-### 1. Get an API key
-
-Create a free trial key in the [API Key Portal](https://apikey.llmhub.t-systems.net/). A trial key unlocks all models, including Premium models. For a production plan, [contact us](mailto:ai@t-systems.com).
-
-### 2. Set two environment variables
-
-<Tabs>
-  <TabItem value="mac" label="macOS/Linux" default>
-    ```bash
-    export OPENAI_API_KEY="your_api_key_here"
-    export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
-    ```
-  </TabItem>
-  <TabItem value="windows-ps" label="PowerShell">
-    ```powershell
-    $env:OPENAI_API_KEY = "your_api_key_here"
-    $env:OPENAI_BASE_URL = "https://llm-server.ai.t-systems.net/v1"
-    ```
-  </TabItem>
-  <TabItem value="windows-cmd" label="CMD">
-    ```bash
-    setx OPENAI_API_KEY "your_api_key_here"
-    setx OPENAI_BASE_URL "https://llm-server.ai.t-systems.net/v1"
-    ```
-  </TabItem>
-</Tabs>
-
-### 3. Send a request
-
-<Tabs>
-  <TabItem value="curl" label="curl" default>
-    ```bash
-    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
-      -H "Authorization: Bearer $OPENAI_API_KEY" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "model": "gpt-oss-120b",
-        "messages": [{"role": "user", "content": "Hello from AIFS"}]
-      }'
-    ```
-  </TabItem>
-  <TabItem value="python" label="Python">
-    ```python
-    # pip install openai
-    from openai import OpenAI
-
-    client = OpenAI()
-    response = client.chat.completions.create(
-        model="gpt-oss-120b",
-        messages=[{"role": "user", "content": "Hello from AIFS"}],
-    )
-    print(response.choices[0].message.content)
-    ```
-  </TabItem>
-  <TabItem value="node" label="Node.js">
-    ```javascript
-    // npm install openai
-    import OpenAI from "openai";
-
-    const client = new OpenAI();
-    const response = await client.chat.completions.create({
-      model: "gpt-oss-120b",
-      messages: [{ role: "user", content: "Hello from AIFS" }],
-    });
-    console.log(response.choices[0].message.content);
-    ```
-  </TabItem>
-</Tabs>
-
-Next: [Authentication](/getting-started/authentication) · [Migrate from OpenAI](/guides/migrate-from-openai) · [API reference](/reference/api-endpoints)
+Get an API key, set two environment variables, and send a first request: the [Quickstart](/getting-started/quickstart) takes three steps, with curl, Python and Node.js examples. Prefer a UI? Use the [Playground](https://playground.llmhub.t-systems.net/). Setting up a coding tool? See [Coding agent setup](/getting-started/coding-agents).
 
 
 ## Infrastructure: T-Cloud in Germany
@@ -130,7 +59,7 @@ The minimum is a monthly token revenue commitment. Usage above it is billed at l
 
 ## Integrations
 
-Most tools built for OpenAI work once you set the base URL and key.
+Most tools built for OpenAI work once you set the base URL and key. For coding tools, start with [Coding agent setup](/getting-started/coding-agents).
 
 <div class="link-card-row">
   <LinkCard title="LangChain" href="/integrations/langchain/" description="RAG, chains, and agents." />

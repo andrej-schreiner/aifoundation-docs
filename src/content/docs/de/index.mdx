@@ -4,7 +4,7 @@ description: "Die souveräne KI-Plattform von T-Systems: über 30 Open-Source- u
 tableOfContents: true
 ---
 
-import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelCardGrid from '../../../components/ModelCardGrid.astro';
 
 Die souveräne KI-Plattform von <span class="nowrap">T-Systems</span>: über 30 Open-Source- und proprietäre Modelle hinter einer OpenAI-kompatiblen API.
@@ -20,83 +20,12 @@ Wenn ein T-Cloud-Modell zur Aufgabe passt, beginnen Sie dort. Partnermodelle von
 
 <ModelCardGrid />
 
-[Alle Modelle](/de/models) · [Tarife & Preise](/de/plans) · [Welches Modell](/de/getting-started/choosing-a-model)
+[Alle Modelle](/de/models) · [Tarife & Preise](/de/plans) · [Empfohlene Modelle](/de/getting-started/choosing-a-model)
 
 
 ## Quickstart
 
-Die erste Anfrage in drei Schritten. Lieber eine Oberfläche? Nutzen Sie den [Playground](https://playground.llmhub.t-systems.net/).
-
-### 1. API-Schlüssel holen
-
-Einen kostenlosen Test-Schlüssel erstellen Sie im [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/). Ein Test-Schlüssel schaltet alle Modelle frei, einschließlich Premium-Modelle. Für einen Produktivtarif [kontaktieren Sie uns](mailto:ai@t-systems.com).
-
-### 2. Zwei Umgebungsvariablen setzen
-
-<Tabs>
-  <TabItem value="mac" label="macOS/Linux" default>
-    ```bash
-    export OPENAI_API_KEY="your_api_key_here"
-    export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
-    ```
-  </TabItem>
-  <TabItem value="windows-ps" label="PowerShell">
-    ```powershell
-    $env:OPENAI_API_KEY = "your_api_key_here"
-    $env:OPENAI_BASE_URL = "https://llm-server.ai.t-systems.net/v1"
-    ```
-  </TabItem>
-  <TabItem value="windows-cmd" label="CMD">
-    ```bash
-    setx OPENAI_API_KEY "your_api_key_here"
-    setx OPENAI_BASE_URL "https://llm-server.ai.t-systems.net/v1"
-    ```
-  </TabItem>
-</Tabs>
-
-### 3. Anfrage senden
-
-<Tabs>
-  <TabItem value="curl" label="curl" default>
-    ```bash
-    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
-      -H "Authorization: Bearer $OPENAI_API_KEY" \
-      -H "Content-Type: application/json" \
-      -d '{
-        "model": "gpt-oss-120b",
-        "messages": [{"role": "user", "content": "Hello from AIFS"}]
-      }'
-    ```
-  </TabItem>
-  <TabItem value="python" label="Python">
-    ```python
-    # pip install openai
-    from openai import OpenAI
-
-    client = OpenAI()
-    response = client.chat.completions.create(
-        model="gpt-oss-120b",
-        messages=[{"role": "user", "content": "Hello from AIFS"}],
-    )
-    print(response.choices[0].message.content)
-    ```
-  </TabItem>
-  <TabItem value="node" label="Node.js">
-    ```javascript
-    // npm install openai
-    import OpenAI from "openai";
-
-    const client = new OpenAI();
-    const response = await client.chat.completions.create({
-      model: "gpt-oss-120b",
-      messages: [{ role: "user", content: "Hello from AIFS" }],
-    });
-    console.log(response.choices[0].message.content);
-    ```
-  </TabItem>
-</Tabs>
-
-Weiter: [Authentifizierung](/de/getting-started/authentication) · [Umstieg von OpenAI](/de/guides/migrate-from-openai) · [API-Referenz](/de/reference/api-endpoints)
+API-Schlüssel holen, zwei Umgebungsvariablen setzen, erste Anfrage senden: Der [Quickstart](/de/getting-started/quickstart) braucht drei Schritte, mit Beispielen für curl, Python und Node.js. Lieber eine Oberfläche? Nutzen Sie den [Playground](https://playground.llmhub.t-systems.net/). Sie richten ein Coding-Tool ein? Siehe [Coding-Agenten einrichten](/de/getting-started/coding-agents).
 
 
 ## Infrastruktur: T-Cloud in Deutschland
@@ -130,7 +59,7 @@ Das Minimum ist ein monatlicher Token-Umsatz. Darüber hinaus wird zu den Listen
 
 ## Integrationen
 
-Die meisten Werkzeuge für OpenAI funktionieren, sobald Basis-URL und Schlüssel gesetzt sind.
+Die meisten Werkzeuge für OpenAI funktionieren, sobald Basis-URL und Schlüssel gesetzt sind. Für Coding-Tools beginnen Sie mit [Coding-Agenten einrichten](/de/getting-started/coding-agents).
 
 <div class="link-card-row">
   <LinkCard title="LangChain" href="/de/integrations/langchain/" description="RAG, Chains und Agenten." />

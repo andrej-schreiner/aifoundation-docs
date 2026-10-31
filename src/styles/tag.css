@@ -46,7 +46,8 @@ a.hero-badge:hover {
 /* Size: small. The table tags are small, to sit in a dense row. */
 
 .aifs-tag--small,
-.plans-tag {
+.plans-tag,
+.sidebar-content .sl-badge {
 	height: var(--aifs-tag-height-small);
 	padding: 0 var(--aifs-tag-padding-x-small);
 	font-size: var(--aifs-tag-font-size-small);
@@ -113,7 +114,8 @@ button.plans-tag {
 /* Colour: magenta (not in Scale; filled, for the few labels that should stand out) */
 
 .aifs-tag--magenta,
-.tag-tcloud {
+.tag-tcloud,
+.sl-badge.tip {
 	background: var(--aifs-tag-magenta-background);
 	color: var(--aifs-tag-magenta-text);
 }

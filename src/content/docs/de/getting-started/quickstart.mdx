@@ -1,0 +1,79 @@
+---
+title: "Quickstart"
+description: "API-Schlüssel holen, zwei Umgebungsvariablen setzen und die erste Anfrage an AI Foundation Services senden, in drei Schritten."
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+Die erste Anfrage in drei Schritten. Lieber eine Oberfläche? Nutzen Sie den [Playground](https://playground.llmhub.t-systems.net/).
+
+## 1. API-Schlüssel holen
+
+Einen kostenlosen Test-Schlüssel erstellen Sie im [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/). Ein Test-Schlüssel schaltet alle Modelle frei, einschließlich Premium-Modelle. Für einen Produktivtarif [kontaktieren Sie uns](mailto:ai@t-systems.com).
+
+## 2. Zwei Umgebungsvariablen setzen
+
+<Tabs>
+  <TabItem value="mac" label="macOS/Linux" default>
+    ```bash
+    export OPENAI_API_KEY="your_api_key_here"
+    export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
+    ```
+  </TabItem>
+  <TabItem value="windows-ps" label="PowerShell">
+    ```powershell
+    $env:OPENAI_API_KEY = "your_api_key_here"
+    $env:OPENAI_BASE_URL = "https://llm-server.ai.t-systems.net/v1"
+    ```
+  </TabItem>
+  <TabItem value="windows-cmd" label="CMD">
+    ```bash
+    setx OPENAI_API_KEY "your_api_key_here"
+    setx OPENAI_BASE_URL "https://llm-server.ai.t-systems.net/v1"
+    ```
+  </TabItem>
+</Tabs>
+
+## 3. Anfrage senden
+
+<Tabs>
+  <TabItem value="curl" label="curl" default>
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/chat/completions" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "gpt-oss-120b",
+        "messages": [{"role": "user", "content": "Hello from AIFS"}]
+      }'
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python
+    # pip install openai
+    from openai import OpenAI
+
+    client = OpenAI()
+    response = client.chat.completions.create(
+        model="gpt-oss-120b",
+        messages=[{"role": "user", "content": "Hello from AIFS"}],
+    )
+    print(response.choices[0].message.content)
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```javascript
+    // npm install openai
+    import OpenAI from "openai";
+
+    const client = new OpenAI();
+    const response = await client.chat.completions.create({
+      model: "gpt-oss-120b",
+      messages: [{ role: "user", content: "Hello from AIFS" }],
+    });
+    console.log(response.choices[0].message.content);
+    ```
+  </TabItem>
+</Tabs>
+
+Weiter: [Authentifizierung](/de/getting-started/authentication) · [Coding-Agenten einrichten](/de/getting-started/coding-agents) · [Empfohlene Modelle](/de/getting-started/choosing-a-model) · [Umstieg von OpenAI](/de/guides/migrate-from-openai) · [API-Referenz](/de/reference/api-endpoints)
