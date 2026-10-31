@@ -172,6 +172,17 @@
    in magenta with the bar over the line. Smaller text than the site
    navigation, because the column is narrow and the list is secondary.
    Deeper headings step in by --depth, which Starlight sets per level. */
+@media (max-width: 71.99rem) {
+	.sidebar-content :is(a, summary) {
+		padding-block: 8px;
+		min-height: 40px;
+	}
+
+	.sidebar-content ul {
+		margin-block: 0;
+	}
+}
+
 @media (min-width: 72rem) {
 	.right-sidebar-panel starlight-toc h2 {
 		margin: 0 0 var(--aifs-sidebar-nav-condensed-padding-y);

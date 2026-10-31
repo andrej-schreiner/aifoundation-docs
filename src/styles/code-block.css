@@ -108,6 +108,29 @@ html:root[data-theme] .expressive-code {
 	display: none;
 }
 
+.expressive-code,
+.expressive-code .frame,
+.expressive-code pre,
+.expressive-code pre code,
+.expressive-code .ec-line,
+.expressive-code .ec-line .code {
+	max-width: 100%;
+	min-width: 0 !important;
+}
+
+.expressive-code pre code {
+	flex: 1 1 auto !important;
+	width: 100%;
+}
+
+.expressive-code .ec-line,
+.expressive-code code,
+.expressive-code pre {
+	white-space: pre-wrap !important;
+	overflow-wrap: anywhere !important;
+	word-break: break-all;
+}
+
 .expressive-code .frame pre,
 .expressive-code .frame .ec-line:first-child {
 	scroll-margin-top: 2rem;

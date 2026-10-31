@@ -6,19 +6,6 @@
 	--sl-border-lg: 12px;
 }
 
-/* Plans pages use a wider content column for their tables. Starlight derives
-   content centering AND header search alignment from --sl-content-width, so
-   overriding the variable is all that's needed (no JS, no margin math). */
-/* [data-theme] lifts this above the token mapping in tokens.css. */
-:root[data-theme]:has(.plans-page) {
-	--sl-content-width: 85rem;
-}
-
-/* Keep LinkCards and pagination at normal content width on wide plans page */
-.sl-markdown-content:has(.plans-page) :is(.link-card-row, .card-grid, .sl-link-card),
-.sl-container:has(.plans-page) .pagination-links {
-	max-width: 46rem;
-}
 
 /* Hero Badges */
 .hero-badges {

@@ -111,8 +111,31 @@
 	-webkit-hyphens: manual;
 }
 
+.sl-markdown-content sup,
 .sl-markdown-content sup a {
+	white-space: nowrap;
 	text-decoration: none;
+}
+
+@media (max-width: 37.5rem) {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)),
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) > tbody,
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) tr,
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td {
+		display: block;
+		width: 100%;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) > thead {
+		display: none;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td::before {
+		content: attr(data-label);
+		display: block;
+		font-weight: 700;
+		font-size: 0.75rem;
+	}
 }
 
 /* Header */

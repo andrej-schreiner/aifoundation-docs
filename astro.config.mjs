@@ -311,6 +311,11 @@ export default defineConfig({
 			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
+				defaultProps: {
+					wrap: true,
+					preserveIndent: true,
+					hangingIndent: 2,
+				},
 			},
 			plugins: [
 				starlightVersions({

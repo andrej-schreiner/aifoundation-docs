@@ -124,11 +124,8 @@ mobile-starlight-toc nav {
 		background-color: var(--aifs-layout-sheet);
 	}
 
-	/* The 50rem cap is the column beside "On this page". With no table of
-	   contents the sheet fills the row, which is what the home page needs. */
-	[data-has-sidebar]:not([data-has-toc]) .main-pane > main {
-		max-width: none;
-	}
+	/* Every page uses the same sheet, with or without a table of contents,
+	   so the content's left edge does not jump. */
 
 	/* The row Starlight wraps around the table of contents and the content
 	   (TwoColumnContent.astro) gets the frame's padding and gap. No padding
@@ -147,7 +144,20 @@ mobile-starlight-toc nav {
 	}
 
 	.sl-markdown-content {
-		padding-inline-end: 48px;
+		padding-inline-end: 0;
+	}
+
+	.qp-stack {
+		padding-top: 8px;
+		padding-bottom: 4px;
+	}
+
+	main > .content-panel:nth-child(1 of .content-panel) {
+		padding-top: 8px;
+	}
+
+	mobile-starlight-toc {
+		display: none;
 	}
 }
 
@@ -198,6 +208,18 @@ mobile-starlight-toc nav {
 	padding-bottom: 4.5rem;
 }
 
+@media (max-width: 79.99rem) {
+	#tsystems-chat-widget,
+	.widget-container {
+		display: none !important;
+	}
+
+	#starlight__on-this-page--mobile,
+	mobile-starlight-toc {
+		display: none;
+	}
+}
+
 @media (max-width: 40rem) {
 	.main-pane > main {
 		padding-bottom: 5rem;
@@ -209,9 +231,9 @@ mobile-starlight-toc nav {
 		padding-inline-end: 3.25rem;
 	}
 
+	#tsystems-chat-widget,
 	.widget-container.bottom-right {
-		right: 8px;
-		bottom: max(8px, env(safe-area-inset-bottom));
+		display: none !important;
 	}
 
 	.widget-launcher {
