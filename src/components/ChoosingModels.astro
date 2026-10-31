@@ -67,9 +67,13 @@ function contextCell(recommended: string, alternative: string): string {
   return a === b ? a : `${a} · ${b}`;
 }
 
-function logoFor(id: string, name: string): { src: string; zoom: boolean } {
+function logoFor(id: string, name: string): { src: string; zoom: boolean; label: string | undefined } {
   const creator = creatorNameFor(id, name);
-  return { src: getLogo(creator) || getLogo('Other'), zoom: creator.startsWith('Google') };
+  return {
+    src: getLogo(creator) || getLogo('Other'),
+    zoom: creator.startsWith('Google'),
+    label: creator && creator !== 'Other' ? creator : undefined,
+  };
 }
 ---
 
@@ -98,7 +102,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
               <td>
                 <span class="choose-name">
                   <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
-                    <img src={logo.src} alt="" width="20" height="20" />
+                    <img src={logo.src} alt={logo.label ?? ''} title={logo.label} width="20" height="20" />
                   </span>
                   <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
                 </span>
@@ -130,7 +134,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
           <span class="choose-k">{t.recommended}</span>
           <span class="choose-name">
             <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
-              <img src={logo.src} alt="" width="20" height="20" />
+              <img src={logo.src} alt={logo.label ?? ''} title={logo.label} width="20" height="20" />
             </span>
             <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
           </span>

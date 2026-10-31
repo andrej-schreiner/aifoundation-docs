@@ -29,12 +29,10 @@ const t = isDE
   ? {
       heading: 'Empfohlen',
       preview: 'Vorschau',
-      unpublished: 'Kontext nicht angegeben',
     }
   : {
       heading: 'Recommended',
       preview: 'Preview',
-      unpublished: 'Context not published',
     };
 
 function notesHtml(text: string): string {
@@ -63,11 +61,12 @@ function place(hosting: string): string {
       const creator = creatorNameFor(model.id, model.name);
       const logo = getLogo(creator) || getLogo('Other');
       const zoom = creator.startsWith('Google');
+      const label = creator && creator !== 'Other' ? creator : undefined;
       return (
         <li class="model-pick__card">
           <div class="model-pick__head">
             <span class:list={['model-pick__mark', { 'model-pick__mark--zoom': zoom }]}>
-              <img src={logo} alt="" width="20" height="20" />
+              <img src={logo} alt={label ?? ''} title={label} width="20" height="20" />
             </span>
             <strong>{model.name}</strong>
             {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
@@ -75,7 +74,7 @@ function place(hosting: string): string {
           <p class="model-pick__meta">
             <code>{model.id}</code>
             <a class="aifs-tag aifs-tag--small" href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
-            <span>{model.context || t.unpublished}</span>
+            {model.context && <span>{model.context}</span>}
           </p>
         </li>
       );

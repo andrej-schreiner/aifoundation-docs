@@ -21,12 +21,13 @@ function place(hosting: string): string {
       const recommended = modelFact(row.recommended);
       const creator = creatorNameFor(recommended.id, recommended.name);
       const logo = getLogo(creator) || getLogo('Other');
+      const label = creator && creator !== 'Other' ? creator : undefined;
       return (
         <li>
           <span class="model-highlights__case">{isDE ? row.useCase.de : row.useCase.en}</span>
           <span class="model-highlights__model">
             <span class:list={['model-highlights__mark', { 'model-highlights__mark--zoom': creator.startsWith('Google') }]}>
-              <img src={logo} alt="" width="20" height="20" />
+              <img src={logo} alt={label ?? ''} title={label} width="20" height="20" />
             </span>
             <span>
               {recommended.name}
