@@ -91,10 +91,16 @@
 	font-weight: var(--aifs-sidebar-nav-font-weight-group);
 }
 
-.sidebar-content .top-level > li > a,
-.sidebar-content .top-level > li > details > summary,
-.sidebar-content .top-level > li > details > ul > li > a {
-	border-bottom: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-row-border);
+/* A top-level link (Overview) reads as a row, not as a group heading. */
+.sidebar-content .top-level > li > a {
+	font-weight: normal;
+	padding-inline-start: calc(var(--aifs-sidebar-nav-padding-start) + var(--aifs-sidebar-nav-nested-indent));
+}
+
+/* Plain text rows: no line under each link. The group headings keep their
+   bold label and a gap above them. */
+.sidebar-content .top-level > li + li:has(> details) {
+	margin-top: 12px;
 }
 
 /* Level 2: regular, one step in. A group at this level has its line under
@@ -108,9 +114,7 @@
 	padding-inline-start: calc(var(--aifs-sidebar-nav-padding-start) + var(--aifs-sidebar-nav-nested-indent));
 }
 
-.sidebar-content .top-level > li > details > ul > li:has(> details) {
-	border-bottom: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-row-border);
-}
+
 
 /* Level 3: condensed, behind a line that starts under the text above. */
 .sidebar-content .top-level > li > details > ul > li > details > ul {
@@ -180,6 +184,19 @@
 
 	.sidebar-content ul {
 		margin-block: 0;
+	}
+}
+
+/* Wide screens: compact 32px rows, so most of the list fits at 1440x900. */
+@media (min-width: 72rem) {
+	.sidebar-content :is(a, summary) {
+		box-sizing: border-box;
+		min-height: 32px;
+		padding-block: 6px;
+	}
+
+	.sidebar-content .top-level {
+		padding-top: 8px;
 	}
 }
 

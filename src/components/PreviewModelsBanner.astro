@@ -36,6 +36,7 @@ const bars = isDE
         badge: 'Hinweis',
         msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
         cta: 'Zur API-Umstellung',
+        short: 'API-Änderungen: Was ist zu tun?',
         href: `${prefix}/api-transition`,
       },
       {
@@ -44,6 +45,7 @@ const bars = isDE
         badge: 'Neu',
         msg: '<b>GLM 5.3</b> (T-Cloud) und <b>DeepSeek 4.1 Flash</b> ab 2. Nov.',
         cta: 'Modelle ansehen',
+        short: 'GLM 5.3, DeepSeek 4.1 Flash ab 2.\u00a0Nov.',
         href: `${prefix}/models/llms`,
       },
     ]
@@ -54,6 +56,7 @@ const bars = isDE
         badge: 'Notice',
         msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
         cta: 'View API changes',
+        short: 'API changes: what to do',
         href: `${prefix}/api-transition`,
       },
       {
@@ -62,6 +65,7 @@ const bars = isDE
         badge: 'New',
         msg: '<b>GLM 5.3</b> (T-Cloud) and <b>DeepSeek 4.1 Flash</b> from 2 Nov',
         cta: 'View models',
+        short: 'GLM 5.3, DeepSeek 4.1 Flash from 2\u00a0Nov',
         href: `${prefix}/models/llms`,
       },
     ];
@@ -76,6 +80,7 @@ import Icon from './Icon.astro';
     <Tag color="magenta" size="small" class="qp-badge">{b.badge}</Tag>
     <p class="qp-msg" set:html={b.msg}></p>
     <a class="qp-cta" href={b.href}>{b.cta}</a>
+    <a class="qp-short" href={b.href}>{b.short}</a>
     <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={close}>
       <Icon name="action-close" size={16} />
     </Button>
@@ -175,35 +180,32 @@ import Icon from './Icon.astro';
     border-radius: 6px;
   }
 
-  /* Phones: one line of text, the link, and the close control on the right. */
+  .qp-bar a.qp-short {
+    display: none;
+  }
+
+  /* Phones: each bar is one short line: badge, a short linked message, close. */
   @media (max-width: 40rem) {
     .qp-bar {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      grid-template-areas: "badge msg close" "badge cta close";
-      align-items: center;
-      column-gap: 6px;
-      row-gap: 2px;
-      padding: 4px 6px;
+      gap: 6px;
+      min-height: 36px;
+      padding: 2px 2px 2px 6px;
+      font-size: 0.8125rem;
     }
-    .qp-bar :global(.qp-badge) {
-      grid-area: badge;
-      align-self: start;
+    .qp-bar .qp-msg,
+    .qp-bar a.qp-cta {
+      display: none;
     }
-    .qp-msg {
-      grid-area: msg;
+    .qp-bar a.qp-short {
+      display: block;
+      min-height: 0;
+      place-items: initial;
+      flex: 1 1 auto;
       min-width: 0;
-      white-space: normal;
-      overflow: visible;
-      text-overflow: unset;
-    }
-    .qp-cta {
-      grid-area: cta;
-      justify-self: start;
-    }
-    .qp-bar :global(.qp-close) {
-      grid-area: close;
-      align-self: start;
+      color: var(--aifs-color-link-standard);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
     }
   }
 

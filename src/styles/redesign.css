@@ -335,14 +335,24 @@ sup {
 	}
 }
 
-starlight-menu-button,
 starlight-menu-button button {
 	background: transparent;
 	color: var(--aifs-color-text-body);
 }
 
+/* The menu button is fixed in the header; its host element must not take a
+   46px line in the page flow above the content. */
+starlight-menu-button {
+	display: contents;
+}
+
+/* The mobile "On this page" bar is hidden (layout.css), so Starlight must not
+   reserve its 3rem under the header either. */
+:root {
+	--sl-mobile-toc-height: 0rem;
+}
+
 @media (max-width: 50rem) {
-	starlight-menu-button,
 	starlight-menu-button button,
 	site-search button,
 	.qp-bar :is(a, button) {

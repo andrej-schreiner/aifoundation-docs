@@ -334,6 +334,7 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
+				{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
@@ -354,7 +355,6 @@ export default defineConfig({
 					translations: { de: 'API-Nutzung' },
 					collapsed: false,
 					items: [
-						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 						{ label: 'Chat', translations: { de: 'Chat' }, slug: 'guides/chat-completions' },
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },

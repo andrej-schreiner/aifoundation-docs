@@ -148,8 +148,9 @@ mobile-starlight-toc nav {
 	}
 
 	.qp-stack {
+		gap: 4px;
 		padding-top: 8px;
-		padding-bottom: 4px;
+		padding-bottom: 0;
 	}
 
 	main > .content-panel:nth-child(1 of .content-panel) {
@@ -372,4 +373,16 @@ footer.sl-flex .meta:not(:has(*)) {
 /* A heading straight after another keeps its own gap. */
 .sl-markdown-content > :is(h2, h3, h4, h5, h6, .sl-heading-wrapper) + :is(h3, .sl-heading-wrapper.level-h3) {
 	margin-top: var(--aifs-rhythm-heading-4);
+}
+
+/* Phones: the title starts right under the notice bars. This comes after the
+   sheet-padding rule above, which would otherwise win. */
+@media (max-width: 50rem) {
+	main > .content-panel:nth-child(1 of .content-panel) {
+		padding-top: 12px;
+	}
+
+	main > .content-panel:nth-child(1 of .content-panel) .sl-container > h1:first-child {
+		margin-top: 0;
+	}
 }
