@@ -182,7 +182,7 @@ System-Prompt und Dokument sind im folgenden Beispiel bei jedem Aufruf identisch
 - **Eigener Salt** für Anfragen, die berechtigterweise ein Präfix teilen: eine Sitzungs-ID, eine Dokument-ID, ein Batch-Job-Name. Unterschiedliche Salts sind voneinander isoliert, selbst bei identischen Prompts.
 - **`"org"`**, wenn mehrere API-Schlüssel desselben Projekts dasselbe Präfix nutzen — etwa ein gemeinsamer System-Prompt mehrerer Dienste.
 - **`"global"`** nur für unkritische Inhalte, zum Beispiel einen öffentlichen Standard-Prompt.
-- `save_cache: false` (oder weglassen) für einmalige oder sensible Prompts, die gar nicht wiederverwendet werden sollen.
+- `save_cache: false` für einmalige oder sensible Prompts, die gar nicht wiederverwendet werden sollen. Das Feld wegzulassen schaltet Caching nicht aus: es bleibt an.
 
 :::caution
 Caching erfolgt **nach bestem Bemühen** (best effort): Cache-Einträge werden bei anderem Datenverkehr verdrängt, ein Treffer ist daher eine Optimierung, nie eine Garantie. `save_cache` und `cache_salt` sind die einzigen unterstützten Cache-Parameter — alle anderen cachebezogenen Felder in einer Anfrage werden ignoriert.

@@ -49,6 +49,19 @@
 .sidebar-content summary {
 	justify-content: space-between;
 	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
+	pointer-events: none;
+	cursor: default;
+	list-style: none;
+}
+
+.sidebar-content summary::-webkit-details-marker,
+.sidebar-content summary::marker {
+	display: none;
+	content: '';
+}
+
+.sidebar-content summary :is(svg, .caret) {
+	display: none;
 }
 
 .sidebar-content .large {

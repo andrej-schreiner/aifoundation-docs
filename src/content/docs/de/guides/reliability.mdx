@@ -1,11 +1,11 @@
 ---
-title: "Zuverlässigkeit und Wiederholungen"
-description: "429, 500 und 503 wiederholen, und wann die Anfrage stattdessen in die Warteschlange gehört."
+title: "Fehler und Zuverlässigkeit"
+description: "Temporäre Fehler wiederholen, Statuscodes lesen und eine Anfrage über dem Rate-Limit in die Queue legen."
 ---
 
-import { LinkCard } from '@astrojs/starlight/components';
+import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 
-Wiederholen Sie einen fehlgeschlagenen Aufruf, wenn der Status vorübergehend ist. [Fehlercodes](/de/reference/error-codes) listet jeden Status. [Queued Requests](/de/guides/queued-requests) warten auf Rate-Limit-Budget, statt sofort 429 zu liefern.
+Wiederholen Sie einen fehlgeschlagenen Aufruf, wenn der Status vorübergehend ist. [Fehlercodes](/de/reference/error-codes) listet jeden Status. [Queued Requests](#queued-requests) warten auf Rate-Limit-Budget, statt sofort 429 zu liefern.
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
@@ -45,17 +45,274 @@ Bei 429 wartet die Funktion und versucht es erneut. Beim dritten Fehlschlag wirf
 
 ## Grenzen und Fehlersuche
 
-- `429` bedeutet, das Rate-Limit ist erreicht. Warten und mit exponentiellem Backoff wiederholen, oder [Queued Requests](/de/guides/queued-requests) nutzen.
+- `429` bedeutet, das Rate-Limit ist erreicht. Warten und mit exponentiellem Backoff wiederholen, oder [Queued Requests](#queued-requests) nutzen.
 - `500` ist ein serverseitiger Fehler. Nach kurzer Pause erneut versuchen.
 - `503` bedeutet, das Modell ist vorübergehend nicht verfügbar. [Modellstatus](https://uptime.llmhub.t-systems.net/status/health) prüfen und erneut versuchen.
 - `400`, `401`, `403` und `404` sind Fehler der Anfrage oder der Zugangsdaten. Dieselbe Anfrage erneut zu senden hilft nicht. Siehe [Fehlercodes](/de/reference/error-codes).
 
-<div set:html="<!-- TODO(andrej): die Dokumente nennen keinen Retry-After-Header und keine Jitter-Regel. Beides erst dokumentieren, wenn die API es sagt. -->"></div>
+Die Obergrenze der Queue-Wartezeit ist die Stelle, an der diese Doku `Retry-After` festlegt. Siehe [Queued Requests](#queued-requests).
 
 ## Nächste Schritte
 
 <div class="link-card-row">
   <LinkCard title="Fehlercodes" href="/de/reference/error-codes" description="Statuscodes, Ursachen und was Sie ändern." />
-  <LinkCard title="Queued Requests" href="/de/guides/queued-requests" description="Auf Rate-Limit-Budget warten statt sofort 429 zu erhalten." />
+  <LinkCard title="Queued Requests" href="/de/guides/reliability#queued-requests" description="Auf Rate-Limit-Budget warten statt sofort 429 zu erhalten." />
   <LinkCard title="Rate-Limits" href="/de/reference/rate-limits" description="RPM und TPM je Tarif." />
 </div>
+
+<a id="queued-requests"></a>
+
+## Queued Requests
+
+Die `/queue`-Endpunkte funktionieren wie die `/v2`-Endpunkte, mit einem Unterschied: Wenn Sie Ihr [Rate-Limit](/de/reference/rate-limits) überschreiten, antwortet `/v2` sofort mit `429 Too Many Requests`, während `/queue` bis zu zwei Minuten wartet, bis Ihr Limit wieder frei ist, und die Anfrage dann ausführt.
+
+:::caution
+`/queue` ist nicht asynchron. Es gibt keine Job-ID und nichts abzufragen: Sie erhalten die Antwort auf derselben Verbindung wie bei `/v2`. Anfragen werden dadurch weder schneller noch verlängern sich ihre Timeouts.
+:::
+
+:::note[Voraussetzungen]
+- Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
+:::
+
+
+## So funktioniert es
+
+- **Innerhalb Ihres Limits:** Die Anfrage wird sofort ausgeführt.
+- **Über Ihrem Limit:** Die Anfrage wartet. Limits werden jede Minute zurückgesetzt, daher wird sie zu Beginn jeder Minute erneut geprüft.
+- **Nach zwei Minuten noch über Ihrem Limit:** Die Wartezeit ist begrenzt. Die Anfrage wartet nicht länger, und Sie erhalten `429 Too Many Requests` mit einem `Retry-After`-Header, der angibt, nach wie vielen Sekunden Sie es erneut versuchen können. Der Body enthält `Queue wait limit of 120 seconds reached`. Diese Obergrenze sorgt dafür, dass ein ausgehungertes Projekt eine klare Antwort erhält statt eines undurchsichtigen `504 Gateway Timeout` aus der Netzwerkschicht.
+
+Die Obergrenze richtet sich nach der [Kalenderminute](/de/reference/rate-limits#wie-das-minutenfenster-gezählt-wird), nicht nach dem Zeitpunkt, zu dem Ihre Anfrage eintrifft: Die Anfrage wird beim Eintreffen geprüft und erneut bei den nächsten beiden Minutenwechseln; nach dem zweiten gibt sie auf. Die tatsächliche Wartezeit liegt daher zwischen einer und zwei Minuten, je nachdem, wann innerhalb der Minute Sie die Anfrage gesendet haben.
+
+Stellen Sie das Client-Timeout auf mindestens zwei Minuten plus die erwartete Antwortzeit ein, sonst gibt Ihr Client möglicherweise auf, bevor die Queue es tut. Wenn Sie die Verbindung während des Wartens schließen, wird die Anfrage abgebrochen.
+
+Ein `429` von `/queue` bedeutet, dass Sie dauerhaft mehr senden, als Ihr Limit erlaubt, nicht nur eine kurze Spitze. Eine einzelne Anfrage mit mehr Input-Tokens als Ihr Token-Limit pro Minute passt nie und läuft daher immer nach zwei Minuten in den Timeout. Senden Sie langsamer oder [beantragen Sie ein höheres Limit](/de/reference/rate-limits).
+
+
+## Wann die Queue API verwenden
+
+- **Verwenden Sie `/queue`** für Batch-Jobs, die gelegentlich über dem Limit liegen, damit kurze Spitzen warten statt fehlzuschlagen.
+- **Verwenden Sie `/v2`** für interaktive Anwendungen, bei denen ein sofortiger `429` besser ist als Warten, und für lang laufende Anfragen (nutzen Sie [Streaming](/de/guides/streaming)).
+
+
+## Endpunkt-Zuordnung
+
+Jeder Standard-Endpunkt hat ein `/queue`-Aequivalent:
+
+| Standard-Endpunkt | Queue-Endpunkt | Beschreibung |
+|---|---|---|
+| `POST /v2/chat/completions` | `POST /queue/chat/completions` | Chat Completion |
+| `POST /v2/completions` | `POST /queue/completions` | Text Completion |
+| `POST /v2/embeddings` | `POST /queue/embeddings` | Embeddings |
+| `POST /v2/audio/transcriptions` | `POST /queue/audio/transcriptions` | Audio Transcription |
+| `POST /v2/audio/translations` | `POST /queue/audio/translations` | Audio Translation |
+| `POST /v2/images/generations` | `POST /queue/images/generations` | Image Generation |
+| `POST /v2/images/edits` | `POST /queue/images/edits` | Image Edit |
+| `GET /v2/models` | `GET /queue/models` | Modelle auflisten |
+
+Der Request-Body fuer jeden Queue-Endpunkt ist **identisch** mit seinem Standard-Gegenstueck — aendern Sie einfach den Basispfad von `/v2` zu `/queue`.
+
+
+## Grundlegende Verwendung
+
+Senden Sie eine Chat Completion an die Warteschlange:
+
+<Tabs>
+  <TabItem value="curl" label="curl" default>
+
+```bash
+curl -X POST "https://llm-server.llmhub.t-systems.net/queue/chat/completions" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-oss-120b",
+    "messages": [
+      {"role": "system", "content": "You are a helpful assistant."},
+      {"role": "user", "content": "Write a detailed analysis of renewable energy trends in Europe."}
+    ],
+    "max_tokens": 2000
+  }'
+```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://llm-server.llmhub.t-systems.net/queue",
+)
+
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Write a detailed analysis of renewable energy trends in Europe."},
+    ],
+    max_tokens=2000,
+)
+
+print(response.choices[0].message.content)
+```
+
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+
+```javascript
+
+const client = new OpenAI({
+  baseURL: "https://llm-server.llmhub.t-systems.net/queue",
+});
+
+const response = await client.chat.completions.create({
+  model: "gpt-oss-120b",
+  messages: [
+    { role: "system", content: "You are a helpful assistant." },
+    { role: "user", content: "Write a detailed analysis of renewable energy trends in Europe." },
+  ],
+  max_tokens: 2000,
+});
+
+console.log(response.choices[0].message.content);
+```
+
+  </TabItem>
+</Tabs>
+
+
+## Beispiel fuer Batch-Verarbeitung
+
+Verarbeiten Sie mehrere Prompts effizient ueber die Warteschlange:
+
+<Tabs>
+  <TabItem value="python" label="Python" default>
+
+```python
+
+from openai import AsyncOpenAI
+
+client = AsyncOpenAI(
+    base_url="https://llm-server.llmhub.t-systems.net/queue",
+)
+
+prompts = [
+    "Summarize the benefits of solar energy.",
+    "Explain how wind turbines generate electricity.",
+    "Describe the future of hydrogen fuel cells.",
+]
+
+async def process_prompt(prompt):
+    response = await client.chat.completions.create(
+        model="gpt-oss-120b",
+        messages=[{"role": "user", "content": prompt}],
+        max_tokens=500,
+    )
+    return response.choices[0].message.content
+
+async def main():
+    tasks = [process_prompt(p) for p in prompts]
+    results = await asyncio.gather(*tasks)
+    for prompt, result in zip(prompts, results):
+        print(f"Prompt: {prompt[:50]}...")
+        print(f"Result: {result[:100]}...\n")
+
+asyncio.run(main())
+```
+
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+
+```javascript
+
+const client = new OpenAI({
+  baseURL: "https://llm-server.llmhub.t-systems.net/queue",
+});
+
+const prompts = [
+  "Summarize the benefits of solar energy.",
+  "Explain how wind turbines generate electricity.",
+  "Describe the future of hydrogen fuel cells.",
+];
+
+const results = await Promise.all(
+  prompts.map((prompt) =>
+    client.chat.completions.create({
+      model: "gpt-oss-120b",
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: 500,
+    })
+  )
+);
+
+results.forEach((result, i) => {
+  console.log(`Prompt: ${prompts[i]}`);
+  console.log(`Result: ${result.choices[0].message.content}\n`);
+});
+```
+
+  </TabItem>
+</Tabs>
+
+
+## Queue-Endpunkte fuer andere APIs
+
+### Embeddings
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://llm-server.llmhub.t-systems.net/queue",
+)
+
+response = client.embeddings.create(
+    model="text-embedding-bge-m3",
+    input="The benefits of renewable energy in Europe",
+)
+
+print(f"Embedding dimension: {len(response.data[0].embedding)}")
+```
+
+### Audio Transcription
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://llm-server.llmhub.t-systems.net/queue",
+)
+
+with open("meeting_recording.mp3", "rb") as audio_file:
+    transcript = client.audio.transcriptions.create(
+        model="whisper-large-v3",
+        file=audio_file,
+    )
+
+print(transcript.text)
+```
+
+### Image Generation
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://llm-server.llmhub.t-systems.net/queue",
+)
+
+result = client.images.generate(
+    model="gpt-image-2",
+    prompt="A futuristic data center powered by renewable energy",
+)
+
+print(result.data[0].b64_json[:50] + "...")
+```
+
+
+## Naechste Schritte
+
+- [Chat Completions](/de/guides/chat-completions) — Standard-synchrone Chat-API
+- [Streaming](/de/guides/streaming) — Echtzeit-Token-fuer-Token-Antworten
+- [Rate Limits](/de/reference/rate-limits) — TPM/RPM-Limits und Header verstehen
+- [API-Endpunkte](/de/reference/api-endpoints) — Vollstaendige Endpunkt-Referenz

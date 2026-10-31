@@ -1,10 +1,10 @@
 ---
-title: "Embeddings"
-description: "Generate text embeddings for semantic search, clustering, and RAG applications using the AI Foundation Services Embedding API."
+title: "Embeddings and RAG"
+description: "Embeddings, retrieval-augmented generation, and Visual RAG on AI Foundation Services."
 ---
 
 
-import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 
 The Embedding API converts text into vector representations that capture semantic meaning. Use embeddings for semantic search, clustering, and RAG applications.
 
@@ -101,3 +101,271 @@ The dimension table above is what this guide publishes for Jina and BGE-M3.
 
 - **[LangChain Integration](/integrations/langchain)** — Use embeddings with LangChain for RAG
 - **[LlamaIndex Integration](/integrations/llama-index)** — Use embeddings with LlamaIndex for RAG
+
+<a id="rag"></a>
+
+## RAG
+
+Embed a passage, then send that passage to a chat model with the question. Both calls use the same client.
+
+:::note[Prerequisites]
+- An API key ([get one here](https://apikey.llmhub.t-systems.net/))
+- The client from the [quickstart](/)
+- An embedding model and a chat model from [Choosing a model](/getting-started/choosing-a-model)
+:::
+
+## Minimal example
+
+`text-embedding-bge-m3` and `gpt-oss-120b` both run on T-Cloud. BGE-M3 has an 8K context window.
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+
+passages = ["T-Cloud models in this catalog run in Germany."]
+query = "Where do T-Cloud models run?"
+
+embedded = client.embeddings.create(input=passages + [query], model="text-embedding-bge-m3")
+passage_vecs = [item.embedding for item in embedded.data[:-1]]
+query_vec = embedded.data[-1].embedding
+
+def cos(a, b):
+    return sum(x*y for x, y in zip(a, b)) / (math.sqrt(sum(x*x for x in a)) * math.sqrt(sum(y*y for y in b)))
+best = max(range(len(passages)), key=lambda i: cos(query_vec, passage_vecs[i]))
+context = passages[best]
+print("vectors:", len(embedded.data))
+
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[
+        {"role": "system", "content": "Answer only from the passage."},
+        {"role": "user", "content": f"Passage:\n{context}\n\nQuestion: {query}"},
+    ],
+)
+print(response.choices[0].message.content)
+```
+
+BGE-M3 returns 1024-dimensional vectors. Jina Embeddings v2 Base DE returns 768. The chat answer is in `choices[0].message.content`.
+
+## Parameters
+
+Embeddings take `model` and `input`. Chat takes `model` and `messages`.
+
+## Limitations and troubleshooting
+
+Qwen3 Embedding 8B also runs on T-Cloud, with a 32K context window.
+
+<div set:html="<!-- TODO(andrej): no vector database, chunk size, or index API is documented for this pattern. Visual RAG is a separate guide. Do not name a database until one is supported. -->"></div>
+
+For charts and scanned pages, use [Visual RAG](/guides/embeddings#visual-rag) and [OCR](/guides/ocr).
+
+## Next steps
+
+<div class="link-card-row">
+  <LinkCard title="Embeddings" href="/guides/embeddings" description="The embeddings call and the dimension table." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="BGE-M3, Jina DE, and Qwen3 Embedding 8B." />
+  <LinkCard title="Visual RAG" href="/guides/embeddings#visual-rag" description="Index documents that include charts and tables." />
+</div>
+
+<a id="visual-rag"></a>
+
+## Visual RAG
+
+Visual RAG indexes your files in both text and image, combining the stability of text indexing with the flexibility of visual indexing. It can retrieve information from graphs, charts, and complex table layouts that text-based RAG systems miss.
+
+:::note[Prerequisites]
+- An API key with Visual RAG access (contact **AlFoundation@t-systems.com**)
+- OpenAI SDK installed ([Quickstart](/))
+- Documents to index (PDF, PPTX, DOCX, HTML, or PNG)
+:::
+
+**What you'll learn:**
+- How to upload files and create vector stores
+- How to search with both text and image retrieval
+- How to build an end-to-end RAG pipeline
+
+**Supported formats:** PDF, PPTX, DOCX, HTML, PNG
+
+
+## Workflow
+
+![Visual RAG Workflow](/img/vision-rag-workflow.svg)
+
+
+## Setup
+
+```python
+
+from openai import OpenAI
+
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    base_url="https://llm-server.llmhub.t-systems.net/v1",  # Note: v1 for Visual RAG
+)
+```
+
+
+## File Operations
+
+### Upload a File
+
+```python
+uploaded = client.files.create(
+    file=open("/path/to/your_file.pdf", "rb"),
+    purpose="visual-rag",
+)
+print(f"File ID: {uploaded.id}")
+```
+
+### List Files
+
+```python
+file_list = client.files.list(purpose="visual-rag")
+for f in file_list.data:
+    print(f"ID: {f.id}, Name: {f.filename}")
+```
+
+### Get File Info
+
+```python
+file_info = client.files.retrieve("file-abc123")
+print(file_info)
+```
+
+### Delete a File
+
+```python
+client.files.delete("file-abc123")
+```
+
+
+## Vector Store Operations
+
+### Create a Vector Store
+
+```python
+vs = client.vector_stores.create(
+    name="my_vs",
+    chunking_strategy={
+        "text_embedding_model": "text-embedding-bge-m3",
+        "vision_embedding_model": "tsi-embedding-colqwen2-2b-v1",
+    },
+)
+print(f"Vector Store ID: {vs.id}")
+```
+
+### List Vector Stores
+
+```python
+for vs in client.vector_stores.list():
+    print(f"{vs.name} ({vs.id}) - {vs.file_counts}")
+```
+
+### Ingest a File
+
+```python
+client.vector_stores.files.create(
+    vector_store_id="xyz-456",
+    file_id="file-abc123",
+    chunking_strategy={
+        "chunk_size": 1024,
+        "chunk_overlap": 100,
+    },
+)
+```
+
+### List Ingested Files
+
+```python
+files = client.vector_stores.files.list(vector_store_id="xyz-456")
+for f in files.data:
+    print(f"{f.id} - {f.created_at}")
+```
+
+### Delete an Ingested File
+
+```python
+client.vector_stores.files.delete(
+    vector_store_id="xyz-456",
+    file_id="file-abc123",
+)
+```
+
+### Delete a Vector Store
+
+```python
+client.vector_stores.delete(vector_store_id="xyz-456")
+```
+
+
+## Retrieval
+
+Search your vector store with both text and image results:
+
+```python
+results = client.vector_stores.search(
+    vector_store_id="xyz-456",
+    query="Which new features are supported?",
+    extra_body={
+        "top_k_texts": 3,
+        "top_k_images": 2,
+    },
+)
+
+for result in results:
+    if result.content[0].type == "text":
+        print("Text result:", result.content[0].text[:200])
+    elif result.content[0].type == "base64":
+        print(f"Image result from {result.filename}, page {result.page_number}")
+```
+
+
+## End-to-End RAG Example
+
+Combine retrieval with LLM inference for a complete Visual RAG pipeline:
+
+```python
+
+from openai import OpenAI
+
+rag_client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    base_url="https://llm-server.llmhub.t-systems.net/v1",
+)
+llm_client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+    base_url="https://llm-server.ai.t-systems.net/v1",
+)
+
+# 1. Retrieve relevant context
+contexts = rag_client.vector_stores.search(
+    vector_store_id="xyz-456",
+    query="What are the key metrics?",
+    extra_body={"top_k_texts": 5, "top_k_images": 3},
+)
+
+# 2. Build prompt with text and image contexts
+content = [{"type": "text", "text": f"Based on the following context, answer: What are the key metrics?\n\n"}]
+for ctx in contexts:
+    if ctx.content[0].type == "text":
+        content[0]["text"] += ctx.content[0].text + "\n\n"
+    elif ctx.content[0].type == "base64":
+        content.append({"type": "image_url", "image_url": {"url": ctx.content[0].text}})
+
+# 3. Get answer from LLM
+response = llm_client.chat.completions.create(
+    model="Qwen-3.6-35B-FP8",
+    messages=[{"role": "user", "content": content}],
+    max_tokens=2048,
+)
+
+print(response.choices[0].message.content)
+```
+
+
+## Next steps
+
+- [Embeddings](/guides/embeddings) — Text-only embeddings for simpler RAG
+- [Multimodal](/guides/multimodal) — Analyze images with vision models
+- [LangChain Integration](/integrations/langchain) — Use RAG with LangChain

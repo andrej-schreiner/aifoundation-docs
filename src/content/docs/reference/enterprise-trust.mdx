@@ -10,6 +10,39 @@ For every model hosted by Telekom, **customer prompts and responses are not perm
 :::
 
 
+## Data Handling Summary
+
+| Aspect | Category 1 (EU-operated) | Category 2 (Third-party) |
+|---|---|---|
+| **Processing location** | EU/EEA or adequacy-decision country | Determined by third-party provider; may be worldwide |
+| **Storage** | Not permanently stored (short-lived prefix cache, can be switched off) | Per third-party provider's terms |
+| **Visibility** | Not viewable by Telekom or third parties | Per third-party provider's terms |
+| **Training use** | Not used for model training | Not used for model training |
+| **Encryption in transit** | TLS-secured (HTTPS) | TLS-secured (HTTPS) |
+| **Authentication** | API keys via [Self-Service Portal](https://apikey.llmhub.t-systems.net) | API keys via [Self-Service Portal](https://apikey.llmhub.t-systems.net) |
+
+
+
+<a id="infrastructure"></a>
+
+## Infrastructure and certifications
+
+Category 1 models run on T-Cloud Public, Telekom's cloud in Germany. These are infrastructure certifications for that T-Cloud Public infrastructure, not a separate AIFS certificate:
+
+- **ISO/IEC 27001:2022.** Deutsche Telekom AG group certificate, DEKRA no. 172572.00DE. Its sites include the <span class="nowrap">T-Systems</span> data centers in Biere and Magdeburg. [Certificate (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/5/a/5/3/5a53cf06ba3ee159800c6ddcc73f55fb03577792/t-systems-zertifikat-iso-27001.pdf)
+- **ISO/IEC 27017 and ISO/IEC 27018.** DEKRA attestation no. DS-1221076/1. [Attestation (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/8/8/8/4/8884c33cbcde725da0080f90f354ca8fb070fdb3/04_27017_27018_Testat_de_20221130.pdf)
+- **ISO/IEC 27701:2019.** Deutsche Telekom AG group certificate no. DE182572.00. [Certificate (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/2/b/8/b/2b8bae662981d90b783abeaebec52f5e189db861/07_27701_Dachzertifikat_20271203_de.pdf)
+- **BSI C5 Type 2.** Audit report for T-Cloud Public, available on request.
+- **SOC 2 Type II.** Report for the T-Cloud Public (Open Telekom Cloud) system in the German and Dutch data centers, available on request. [SOC 3 summary](https://www.t-cloud-public.com/_Resources/Persistent/4/c/8/6/4c8675853e73ab4e340f94ca9b9de73b47e20274/TS%20OTC%20SOC%203%20Report.pdf)
+- **TISAX Level 3.** T-Cloud Public, regions Germany and Netherlands (ENX ID P0R4YM). [Details](https://www.t-cloud-public.com/en/blog/benefits/vda-tisax-certificate)
+
+For the full list and current documents, see [T-Cloud Public certifications and attestations](https://www.t-cloud-public.com/en/products-services/core-services/certifications).
+
+:::note
+These documents cover Telekom-operated infrastructure only. They do not cover Category 2 models, which run on the third-party provider's own infrastructure under its own certifications and terms. GLM 5.2 and GLM 5.3 Flash can also run on the Industrial AI Cloud in Munich; the documents above are those published for T-Cloud Public. For questions about scope, contact the AIFS team.
+:::
+
+
 ## Two Model Categories — Pick the Right One for Your Data
 
 The Service Description splits the catalog into two categories with materially different data-sovereignty profiles. **Selecting a model is selecting its data-handling regime.**
@@ -66,42 +99,12 @@ Certain data categories (for example social or health data under German law) **m
 - The service is **not a medical device** under MDR and may not be used for diagnosis, prevention, monitoring, prediction, prognosis, treatment, or alleviation of disease.
 
 
-## Certifications
-
-AI Foundation Services runs on T-Cloud Public, Telekom's cloud in Germany, where the Category 1 models are operated. That infrastructure is covered by these certificates and attestations:
-
-- **ISO/IEC 27001:2022.** Deutsche Telekom AG group certificate, DEKRA no. 172572.00DE. Its sites include the <span class="nowrap">T-Systems</span> data centers in Biere and Magdeburg. [Certificate (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/5/a/5/3/5a53cf06ba3ee159800c6ddcc73f55fb03577792/t-systems-zertifikat-iso-27001.pdf)
-- **ISO/IEC 27017 and ISO/IEC 27018.** DEKRA attestation no. DS-1221076/1. [Attestation (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/8/8/8/4/8884c33cbcde725da0080f90f354ca8fb070fdb3/04_27017_27018_Testat_de_20221130.pdf)
-- **ISO/IEC 27701:2019.** Deutsche Telekom AG group certificate no. DE182572.00. [Certificate (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/2/b/8/b/2b8bae662981d90b783abeaebec52f5e189db861/07_27701_Dachzertifikat_20271203_de.pdf)
-- **BSI C5 Type 2.** Audit report for T-Cloud Public, available on request.
-- **SOC 2 Type II.** Report for the T-Cloud Public (Open Telekom Cloud) system in the German and Dutch data centers, available on request. [SOC 3 summary](https://www.t-cloud-public.com/_Resources/Persistent/4/c/8/6/4c8675853e73ab4e340f94ca9b9de73b47e20274/TS%20OTC%20SOC%203%20Report.pdf)
-- **TISAX Level 3.** T-Cloud Public, regions Germany and Netherlands (ENX ID P0R4YM). [Details](https://www.t-cloud-public.com/en/blog/benefits/vda-tisax-certificate)
-
-For the full list and current documents, see [T-Cloud Public certifications and attestations](https://www.t-cloud-public.com/en/products-services/core-services/certifications).
-
-:::note
-These documents cover Telekom-operated infrastructure only. They do not cover Category 2 models, which run on the third-party provider's own infrastructure under its own certifications and terms. GLM 5.2 and GLM 5.3 Flash can also run on the Industrial AI Cloud in Munich; the documents above are those published for T-Cloud Public. For questions about scope, contact the AIFS team.
-:::
-
-
 ## GDPR & Data Processing
 
 - Category 1 models run on GDPR-compliant EU hosting on T-Cloud Public ([EU Regulation 2016/679 (GDPR)](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679)). For Category 2 models, the third-party provider's data-protection terms apply.
 - A **Data Processing Agreement (DPA)** based on Telekom's template is available on request — required if the customer processes personal data through the service.
 - Telekom acts as a data processor; the customer remains the data controller.
 - The customer is responsible for confirming that the data they submit is lawful to process, including processing-location restrictions.
-
-
-## Data Handling Summary
-
-| Aspect | Category 1 (EU-operated) | Category 2 (Third-party) |
-|---|---|---|
-| **Processing location** | EU/EEA or adequacy-decision country | Determined by third-party provider; may be worldwide |
-| **Storage** | Not permanently stored (short-lived prefix cache, can be switched off) | Per third-party provider's terms |
-| **Visibility** | Not viewable by Telekom or third parties | Per third-party provider's terms |
-| **Training use** | Not used for model training | Not used for model training |
-| **Encryption in transit** | TLS-secured (HTTPS) | TLS-secured (HTTPS) |
-| **Authentication** | API keys via [Self-Service Portal](https://apikey.llmhub.t-systems.net) | API keys via [Self-Service Portal](https://apikey.llmhub.t-systems.net) |
 
 
 ## Termination & Data Deletion

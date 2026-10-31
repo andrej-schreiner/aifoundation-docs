@@ -1,6 +1,6 @@
 ---
 title: "Rate-Limits"
-description: "Token- und Anfrage-Rate-Limits je Tarifstufe im LLM Hub, mit Hinweisen zur Behandlung von 429-Antworten und Retry-Strategien."
+description: "Token- und Anfrage-Rate-Limits je Tarif bei AI Foundation Services und der Umgang mit 429-Antworten."
 ---
 
 
@@ -99,10 +99,10 @@ import httpx
 
 # Use httpx directly to inspect response headers
 response = httpx.post(
-    "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
+    "https://llm-server.ai.t-systems.net/v1/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-oss-120b",
+        "model": "gpt-6.1-sol",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -121,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-oss-120b",
+    "model": "gpt-6.1-sol",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'
@@ -144,7 +144,7 @@ Wenn Sie ein Rate-Limit überschreiten, gibt die API einen `429 Too Many Request
 2. **Exponentielles Backoff implementieren** — Verlängern Sie die Wartezeit zwischen Wiederholungsversuchen
 3. **Anfragen bündeln** — Fassen Sie mehrere kleine Anfragen zu weniger größeren zusammen
 4. **Antworten cachen** — Vermeiden Sie das Wiederholen identischer Anfragen
-5. **Queue-API verwenden** — Für Batch-Workloads warten [`/queue`-Endpunkte](/de/guides/queued-requests) bis zu zwei Minuten auf Ihr Limit, statt sofort `429` zurückzugeben
+5. **Queue-API verwenden** — Für Batch-Workloads warten [`/queue`-Endpunkte](/de/guides/reliability#queued-requests) bis zu zwei Minuten auf Ihr Limit, statt sofort `429` zurückzugeben
 
 ```python
 import time

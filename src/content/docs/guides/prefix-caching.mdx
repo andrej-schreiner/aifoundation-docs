@@ -182,7 +182,7 @@ The system prompt and the document below are identical on every call, so only th
 - **Use a custom salt** to group requests that legitimately share a prefix: a session ID, a document ID, a batch job name. Different salts are isolated from each other even for identical prompts.
 - **Use `"org"`** when several API keys of the same project hit the same prefix — for example a shared system prompt used by multiple services.
 - **Use `"global"`** only for content that is not sensitive, such as a public boilerplate prompt.
-- Set `save_cache: false` (or leave it out) for one-off or sensitive prompts you do not want reused at all.
+- Set `save_cache: false` for one-off or sensitive prompts you do not want reused at all. Leaving the field out does not opt out: caching stays on.
 
 :::caution
 Caching is **best-effort**: cache entries are evicted as other traffic arrives, so a hit is an optimisation, never a guarantee. `save_cache` and `cache_salt` are the only supported cache controls — any other cache-related field in a request is ignored.

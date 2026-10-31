@@ -17,17 +17,17 @@ Open-Source-Modelle werden von <span class="nowrap">T-Systems</span> auf der DSG
 
 ### Kann ich die AI Foundation Services kostenlos testen?
 
-Ja! Holen Sie sich einen kostenlosen Test-Schlüssel unter: [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/#/login)
+Ja. Ein kostenloser Test-Schlüssel im [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/) schaltet alle Modelle frei, einschließlich Premium-Modelle.
 
 ### Wie ist die Preisstruktur aufgebaut?
 
-Es gibt Komponenten für LLM und RAG. Die LLM-Komponente bietet Tarife mit einer monatlichen Mindestabnahme an Token-Umsatz; Nutzung darüber wird zu den gelisteten Token-Preisen abgerechnet. Die Tarife unterscheiden sich vor allem in den Rate Limits (TPM/RPM). Für RAG (SmartChat) wird eine monatliche Flatrate basierend auf Nutzern und Speicher vereinbart. Siehe die Seite [Tarife & Preise](/de/plans) für Details.
+Es gibt Komponenten für LLM und RAG. Shared-Tarife haben einen monatlichen Token-Umsatz; darüber wird zu den Listenpreisen abgerechnet. Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude sind in Professional und Agentic enthalten, nicht in Essential. Enterprise ist ein individueller Umsatz; der Preiskatalog führt keine eigene Enterprise-Modellliste. Für RAG (SmartChat) wird eine monatliche Flatrate nach Nutzern und Speicher vereinbart. Siehe [Tarife](/de/plans).
 
 ### Was sind die Rate Limits?
 
 Rate Limits (TPM und RPM) hängen vom gewählten Tarif und Modell ab. Beispielsweise sind für GPT-OSS 120B (T-Cloud, Deutschland) auf dem Essential-Tarif 100 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 400.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM ausgewiesen, skalierbar bis 300 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> RPM und 2.000.000 <sup><a href="/de/reference/rate-limits#hinweise-zu-den-rpm--und-tpm-werten">&ast;</a></sup> Eingabe-TPM auf Agentic. Premium-Modelle wie Claude Opus sind in den Tarifen Professional und Agentic verfügbar.
 
-**Die veröffentlichten RPM/TPM-Werte sind Best-Effort-Obergrenzen im Shared Service — nicht Teil des SLA.** Für Open-Source-Modelle auf T-Cloud kann der effektive Durchsatz bei Lastspitzen niedriger ausfallen. Das Verfügbarkeits-SLA deckt ausschließlich die API-Erreichbarkeit ab, nicht Durchsatz oder Latenz. Für vertragliche Performance-Zusagen siehe [Dedicated LLM Serving](/de/plans/dedicated).
+Veröffentlichte RPM- und TPM-Werte sind Best-Effort-Obergrenzen und nicht Teil des [SLA](/de/reference/service-levels).
 
 Siehe [Rate Limits](/de/reference/rate-limits) für die vollständige Aufschlüsselung.
 

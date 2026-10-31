@@ -1212,7 +1212,7 @@ const priceBuckets = [
   }
 
   .models-table-section--legacy .table-wrapper {
-    overflow-x: auto;
+    overflow-x: visible;
     overflow-y: auto;
     max-height: 42rem;
   }
@@ -1222,7 +1222,7 @@ const priceBuckets = [
   }
 
   .models-table-section .mt-compact-wrap {
-    overflow-x: auto;
+    overflow-x: visible;
     max-height: none;
     container-type: inline-size;
     container-name: models;
@@ -1232,7 +1232,7 @@ const priceBuckets = [
   .models-table-section--legacy .plans-table {
     display: table;
     width: max-content;
-    min-width: 72rem;
+    min-width: 0;
     max-width: none;
     table-layout: auto;
     font-size: 0.875rem;
@@ -1242,7 +1242,7 @@ const priceBuckets = [
   .models-table-section .mt-compact {
     display: table;
     width: 100%;
-    min-width: 52rem;
+    min-width: 0;
     max-width: 100%;
     table-layout: fixed;
     font-size: 0.875rem;
@@ -1438,6 +1438,10 @@ const priceBuckets = [
 
   .plans-filter[open] {
     z-index: 40;
+  }
+
+  .plans-filter:not([open]) > .plans-filter__menu {
+    display: none;
   }
 
   .plans-filter__menu {

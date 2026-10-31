@@ -35,8 +35,8 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const t = {
   ratePlansTitle: isDE ? 'Tarife' : 'Our Rate Plans',
   subtitle: isDE
-    ? 'Die Tarife unterscheiden sich durch den Durchsatz: <a href="/de/reference/rate-limits/">TPM- und RPM-Rate-Limits</a>.'
-    : 'Plans differ by throughput: <a href="/reference/rate-limits/">TPM and RPM rate limits</a>.',
+    ? 'Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude sind in Professional und Agentic enthalten, nicht in Essential. <a href="/de/reference/rate-limits/">Rate-Limits</a>.'
+    : 'Plans differ by throughput (TPM and RPM) and by Premium model access. Premium models such as Claude are included on Professional and Agentic, not on Essential. <a href="/reference/rate-limits/">Rate limits</a>.',
   thPlan: isDE ? 'Tarif' : 'Rate Plan',
   thCommitment: isDE ? 'Mindest-Tokenumsatz' : 'Minimum token commitment',
   thCommitmentUnit: isDE ? '€ / Monat' : '€ / month',
@@ -107,6 +107,7 @@ const t = {
   priceCustom: isDE ? 'Individuell' : 'Custom',
   premiumIncluded: isDE ? 'Premium-Modelle: enthalten' : 'Premium models: included',
   premiumNotIncluded: isDE ? 'Premium-Modelle: nicht enthalten' : 'Premium models: not included',
+  premiumCustom: isDE ? 'Premium-Modelle: kein eigener Katalog' : 'Premium models: no separate catalog',
   blurbEssential: isDE ? 'Für den Standard-Modellkatalog.' : 'For the standard model catalog.',
   blurbProfessional: isDE ? 'Für höheren Durchsatz als Essential.' : 'For higher throughput than Essential.',
   blurbAgentic: isDE ? 'Für den höchsten Best-Effort-Durchsatz.' : 'For the highest best-effort throughput.',
@@ -528,7 +529,9 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               const checks = [
                 { on: plan.modelHost.includes('T-Cloud'), label: t.checkTCloud },
                 { on: plan.modelHost.includes('External'), label: t.checkHyperscaler },
-                { on: plan.modelTier.includes('Premium'), label: t.checkPremium },
+                plan.label === 'Enterprise'
+                  ? { on: false, dash: true, label: t.premiumCustom }
+                  : { on: plan.modelTier.includes('Premium'), label: t.checkPremium },
               ];
               return (
                 <li class="plan-tile">
@@ -555,8 +558,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   <ul class="plan-tile__list">
                     {checks.map((item) => (
                       <li>
-                        <span class:list={['plan-tile__mark', item.on ? 'is-yes' : 'is-no']}>
-                          <Icon name={item.on ? 'action-checkmark' : 'action-close'} size={16} />
+                        <span class:list={['plan-tile__mark', item.dash ? 'is-custom' : item.on ? 'is-yes' : 'is-no']}>
+                          {item.dash ? '—' : <Icon name={item.on ? 'action-checkmark' : 'action-close'} size={16} />}
                         </span>
                         <span>{item.label}</span>
                       </li>
@@ -801,7 +804,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .rate-plans-section .table-wrapper {
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
     padding-top: 0;
     margin-top: 0;
   }

@@ -3,7 +3,7 @@ title: "API Transition"
 description: "The LLM Serving Service is moving to the New API: transition phases and endpoints, what you need to do, API keys, model identifiers and model discovery."
 ---
 
-import { LinkCard } from '@astrojs/starlight/components';
+import { LinkCard, TabItem, Tabs } from '@astrojs/starlight/components';
 
 We are upgrading the LLM Serving Service to provide **lower latency, higher throughput, and a more standardized API experience**.
 
@@ -173,28 +173,362 @@ The New API provides a more scalable and standardized foundation for LLM integra
 
 **All applications should move to the permanent New API endpoint by the end of Phase 2.** For questions or migration support, contact [AI@t-systems.com](mailto:AI@t-systems.com).
 
+<a id="requests"></a>
 
-## Next steps
+## Requests
 
-<div class="link-card-row">
-  <LinkCard
-    title="Requests"
-    href="/api-transition/requests/"
-    description="Request structure, model identifiers in requests and parameter handling on the New API."
-  />
-  <LinkCard
-    title="Responses"
-    href="/api-transition/responses/"
-    description="The standardized response format, model names in responses, token usage details and response metadata."
-  />
-  <LinkCard
-    title="Streaming"
-    href="/api-transition/streaming/"
-    description="Where token usage appears in the stream, the completion marker and errors during streaming."
-  />
-  <LinkCard
-    title="Error Handling"
-    href="/api-transition/errors/"
-    description="Structured errors, status codes, rate limits and retries, and what to include when reporting an issue."
-  />
-</div>
+The New API (`https://llm-server.ai.t-systems.net/v1`) supports standard chat completion requests, including commonly used parameters such as `messages`, `temperature`, `top_p`, `tools`, and `response_format`, where supported by the selected model.
+
+Most applications can continue using their existing request structure with only minor adjustments.
+
+
+## Example: Chat Completion Request
+
+<Tabs>
+  <TabItem label="Legacy API">
+
+```bash
+curl -X POST "https://llm-server.legacy.ai.t-systems.net/v2/chat/completions" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "gpt-6.1-sol",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+  </TabItem>
+  <TabItem label="New API (recommended)">
+
+```bash
+curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "azure/gpt-6.1-sol",
+    "messages": [
+      {"role": "user", "content": "Hello!"}
+    ]
+  }'
+```
+
+  </TabItem>
+</Tabs>
+
+The New API example uses an explicit provider prefix (`azure/`) for predictable routing; the prefix for each model is listed in `/v1/models`. An unprefixed model name such as `gpt-6.1-sol` can also be used when the model is available through automatic provider resolution.
+
+
+## What Changes?
+
+| Aspect | Legacy API | New API |
+|---|---|---|
+| Standard chat parameters | Supported | Supported, subject to model capabilities |
+| Model identifiers | Unprefixed model names | Unprefixed and provider-prefixed names |
+| Provider selection | Managed by the existing routing configuration | Explicit selection supported through provider prefixes |
+| Tool calling | Supported | Supported through standard `tools` and `tool_calls` |
+| Structured output | Supported when available for the model | Supported when available for the model |
+| Provider-specific parameters | Generally forwarded to the provider | May be filtered or ignored unless supported |
+| Request validation | Gateway and provider validation | Primarily provider-dependent; some parameters may be adjusted or ignored |
+
+
+## What You Need to Check
+
+**For standard integrations:** Update the endpoint. Existing request structures and unprefixed model names can continue to work, provided the model is available.
+
+**For predictable model routing:** Use provider-prefixed model identifiers.
+
+**For advanced integrations:** If your application uses provider-specific parameters, custom request fields, or model-specific features, verify that the selected model supports them through the New API.
+
+Request validation depends on the model provider and API parameter handling. Some unsupported or out-of-range parameters may be adjusted or silently ignored instead of being rejected.
+
+:::caution
+A successful HTTP response does not guarantee that every request parameter was applied as provided.
+:::
+
+For detailed model capabilities and supported parameters, see [Models](/models) and the [Model Comparison](/models).
+
+<a id="responses"></a>
+
+## Responses
+
+The New API (`https://llm-server.ai.t-systems.net/v1`) introduces a standardized response structure across different model providers. This improves consistency while preserving the core fields used by standard chat completion integrations: `choices`, `message`, `finish_reason`, and `usage` remain available.
+
+
+## Example: Successful Response
+
+<Tabs>
+  <TabItem label="Legacy API">
+
+```json
+{
+  "id": "chatcmpl-example",
+  "object": "chat.completion",
+  "model": "gpt-6.1-sol",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello!"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 3,
+    "total_tokens": 13
+  }
+}
+```
+
+  </TabItem>
+  <TabItem label="New API">
+
+```json
+{
+  "id": "chatcmpl-example",
+  "object": "chat.completion",
+  "model": "gpt-6.1-sol",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "Hello!"
+      },
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 10,
+    "completion_tokens": 3,
+    "total_tokens": 13
+  },
+  "extra_fields": {}
+}
+```
+
+  </TabItem>
+</Tabs>
+
+:::note
+These examples are simplified to illustrate the common response format. Actual responses may contain additional fields depending on the selected model and request.
+:::
+
+The value of `response.model` may also differ from the requested model identifier for some providers.
+
+
+## What Changes?
+
+| Aspect | Legacy API | New API |
+|---|---|---|
+| Response structure | Provider-oriented response format | Standardized chat completion format |
+| Standard fields | `choices`, `message`, `usage`, etc. | Same core fields |
+| Token usage | Original provider usage information | Usage details may vary by provider; zero-valued optional fields may be omitted |
+| Optional fields | May include explicit `null` or empty values | Some optional fields may be omitted |
+| Response `model` | Typically the requested model identifier | May contain the provider-reported model name, which can differ from the requested identifier |
+| Provider-specific metadata | Generally preserved | May be normalized or omitted |
+| Additional information | Provider-specific fields | Optional diagnostic metadata, including latency information |
+
+
+## Token Usage Details
+
+Standard token usage fields remain available, but additional usage details depend on the selected model and provider. For example, some providers return detailed completion token breakdowns, while others expose different usage fields or omit optional details entirely.
+
+Fields such as `completion_tokens_details`, `reasoning_tokens`, or provider-specific token categories should therefore be treated as optional. Zero-valued usage details may also be omitted rather than returned explicitly as `0`.
+
+Applications that track token consumption should account for these differences when processing usage information.
+
+
+## Additional Response Metadata
+
+The New API may include additional diagnostic information through the `extra_fields` object. Depending on the request and model, this may include:
+
+- **Latency information** — helps understand request processing time.
+- **Routing information** — provides additional details about how the request was processed.
+- **Provider response metadata** — additional information when available.
+
+These fields are optional and should not be treated as part of the required standard response structure.
+
+
+## What You Need to Check
+
+**For standard integrations:** Applications that primarily use `choices`, `message`, `finish_reason`, and the common token usage fields generally require minimal changes to response parsing.
+
+**For model identification:** Review code that assumes `response.model` always matches the requested model name.
+
+**For strict response validation:** Allow optional fields to be absent and support additional response metadata.
+
+**For token accounting:** Review provider-specific usage fields and do not assume that every provider returns identical token breakdowns.
+
+**For provider-specific integrations:** Review any code that depends on nonstandard response fields.
+
+<a id="streaming"></a>
+
+## Streaming
+
+The New API (`https://llm-server.ai.t-systems.net/v1`) continues to support Server-Sent Events (SSE). Most streaming behavior remains compatible, but token usage information is returned differently. For streaming basics, see [Streaming](/guides/streaming).
+
+
+## What Changes?
+
+| Behavior | Legacy API | New API |
+|---|---|---|
+| Streaming protocol | SSE | SSE |
+| Token usage | Separate final usage chunk | Included in the completion's final chunk |
+| Usage by default | Included without an explicit request | Included without an explicit request |
+| Completion marker | `[DONE]` | `[DONE]` |
+| Errors during streaming | Stream may terminate without an explicit error event | Structured errors may be included in the stream |
+
+
+## Token Usage in the Stream
+
+<Tabs>
+  <TabItem label="Legacy API: usage chunk">
+
+```json
+{
+  "choices": [],
+  "usage": {
+    "total_tokens": 150
+  }
+}
+```
+
+  </TabItem>
+  <TabItem label="New API: final completion chunk">
+
+```json
+{
+  "choices": [
+    {
+      "index": 0,
+      "delta": {},
+      "finish_reason": "stop"
+    }
+  ],
+  "usage": {
+    "total_tokens": 150
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+:::note
+The examples show only the relevant fields.
+:::
+
+Both APIs include token usage in successful streaming responses by default, even when `stream_options.include_usage` is not explicitly requested. The main difference is where this information appears in the stream.
+
+
+## What You Need to Check
+
+Applications that process SSE responses directly should read token usage from whichever chunk contains the `usage` field, rather than relying on a separate chunk with an empty `choices` array.
+
+Do not assume that streaming usage details will have an identical structure across all model providers.
+
+:::caution
+A stream that terminates without `[DONE]` should be treated as incomplete.
+:::
+
+<a id="error-handling"></a>
+
+## Error handling
+
+The New API (`https://llm-server.ai.t-systems.net/v1`) introduces structured error responses, making it easier for applications to identify errors and handle them consistently. Standard HTTP status codes continue to indicate request outcomes, while certain error scenarios now have more specific status codes. For the general error reference, see [Error Codes](/reference/error-codes).
+
+
+## What Changes?
+
+| Scenario | Legacy API | New API |
+|---|---|---|
+| Missing API key | 403 | 401 |
+| Invalid API key | 401 | 401 |
+| Blocked or deactivated key | 401 | 403 |
+| Model not found | 404 | 400 for model resolution errors |
+| Model access denied | 404 | 403 |
+| Rate limit exceeded | 429 | 429 |
+| Budget exceeded | 429 | 402 |
+| Invalid request | 400, sometimes plain text | 400, structured JSON |
+| Provider connection failure | 500 | 502 |
+| Provider timeout | 500 | 504 |
+
+
+## Example: Error Response
+
+The Legacy API typically returns provider error information as a string inside `detail`. The New API returns structured error information.
+
+<Tabs>
+  <TabItem label="Legacy API (HTTP 400)">
+
+```json
+{
+  "detail": "Error: 400 - Bad Request - {\"error\":{\"message\":\"Invalid request parameter\",\"type\":\"invalid_request_error\"}}"
+}
+```
+
+  </TabItem>
+  <TabItem label="New API (HTTP 400)">
+
+```json
+{
+  "error": {
+    "message": "Invalid request parameter",
+    "type": "invalid_request_error",
+    "code": "invalid_value",
+    "param": "messages[0].role"
+  }
+}
+```
+
+  </TabItem>
+</Tabs>
+
+:::note
+These examples are simplified to illustrate the difference in error structure.
+:::
+
+Structured error fields allow applications to access error details without parsing an embedded provider error message.
+
+
+## What You Need to Check
+
+**For standard HTTP error handling:** Applications can continue relying on HTTP response status codes.
+
+**For custom error handling:** Review code that depends on specific status codes, error-message text, or the Legacy API's `detail` field.
+
+Use the actual HTTP response status as the primary indicator, and treat error fields such as `type`, `code`, and `param` as optional.
+
+
+## Rate Limiting and Retries
+
+The New API distinguishes between provider rate limits, service-level rate limits, and budget restrictions.
+
+| Scenario | HTTP status | Retry information |
+|---|---|---|
+| Provider rate limit | 429 | Provider-supplied retry information may be available |
+| Service-level rate limit | 429 | No `Retry-After` header; reset information may appear in the error message |
+| Budget exceeded | 402 | No `Retry-After` header; budget information may appear in the error message |
+
+When a provider supplies a `Retry-After` header and it is forwarded in the response, applications should respect it. For service-level rate limits, implement your own backoff strategy; see [Rate Limits](/reference/rate-limits).
+
+Budget-related errors should be handled separately and should not trigger automatic retries.
+
+
+## Response Validation
+
+Validate the response `Content-Type` before attempting to parse the response body. Some unsupported API routes or methods may return HTML rather than JSON.
+
+A successful HTTP status alone does not guarantee that the response contains the expected API structure.
+
+
+## Troubleshooting
+
+When reporting an issue, include the request timestamp, endpoint, HTTP status, and any available request or trace identifier. This helps support investigate requests more efficiently.
+
+For questions or migration support, contact [AI@t-systems.com](mailto:AI@t-systems.com).

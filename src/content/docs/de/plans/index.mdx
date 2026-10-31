@@ -1,6 +1,6 @@
 ---
 title: "Tarife & Preise"
-description: "Alle LLM-Hub-Tarife im Vergleich — Modellverfügbarkeit, Token-Limits und Preise — plus Download der offiziellen Leistungsbeschreibung."
+description: "Shared-Tarife unterscheiden sich im Durchsatz und im Zugang zu Premium-Modellen. Das Minimum ist ein monatlicher Token-Umsatz; darüber wird zu den Listenpreisen abgerechnet."
 tableOfContents: false
 ---
 
@@ -9,7 +9,18 @@ import PlansPage from '../../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
-LLM Serving wird in zwei Servicemodellen angeboten. Die Tarife **Essential / Professional / Agentic** unten gehören zum **Shared LLM Serving Service**. Der monatliche Mindestumsatz ist ein Token-Umsatz: Sie verpflichten sich zu diesem Token-Verbrauch pro Monat, und die Nutzung darüber hinaus wird zu den ausgewiesenen Token-Preisen abgerechnet. Die Tarife unterscheiden sich durch den Durchsatz — Best-Effort-Rate-Limits für RPM und TPM ([Rate-Limits](/de/reference/rate-limits)). Einen API-Key erstellen Sie im [API-Key Self-Service-Portal](https://apikey.llmhub.t-systems.net/login). Zum Bestellen [kontaktieren Sie uns](mailto:ai@t-systems.com). Für Workloads, die vertragliche Performance-Zusagen, private Modelle oder Single-Tenant-Infrastruktur benötigen, siehe [Dedicated LLM Serving](/de/plans/dedicated).
+Shared-Tarife haben einen monatlichen Token-Umsatz. Darüber hinaus wird zu den Listenpreisen abgerechnet. Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude sind in Professional und Agentic enthalten, nicht in Essential. Enterprise ist ein individueller Token-Umsatz und individuelle Rate-Limits; der Preiskatalog führt keine eigene Enterprise-Modellliste. Einen Test-Schlüssel erstellen Sie im [API-Key-Portal](https://apikey.llmhub.t-systems.net/). Ein Test-Schlüssel schaltet alle Modelle frei, einschließlich Premium. Zum Bestellen [kontaktieren Sie uns](mailto:ai@t-systems.com). Für reservierte Hardware siehe [Dedicated Serving](/de/plans/dedicated).
+
+<a id="essential"></a>
+<a id="professional"></a>
+<a id="agentic"></a>
+<a id="enterprise"></a>
+
+## Shared oder Dedicated
+
+<a id="shared-or-dedicated"></a>
+
+Ein Shared-Tarif ist die Mehrmandanten-API hinter Essential, Professional und Agentic. Die Kapazität ist gemeinsam, und jeder Tarif veröffentlicht RPM- und TPM-Obergrenzen unter [Rate-Limits](/de/reference/rate-limits). [Dedicated Serving](/de/plans/dedicated) reserviert GPU-Hardware für Ihren Vertrag, einschließlich eines privaten Modells, das auf diese Hardware passt.
 
 </div>
 
@@ -32,15 +43,9 @@ Preise gültig ab 1. August 2026. Rate-Limits sowie die RPM- und TPM-Werte in de
 
 <a id="rpm-tpm-notes"></a>
 
-## Servicehinweis zu den Rate-Limits und den veröffentlichten RPM- und TPM-Werten
+## Servicehinweis zu den Rate-Limits
 
-<sup>&ast;</sup> Die Rate-Limits in der Tariftabelle sowie die in der Modelltabelle gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
-
-- Diese Werte sind **nicht Teil des [Service Level Agreements (SLA)](/de/reference/service-levels)**. Das SLA deckt ausschließlich die API-Verfügbarkeit ab; es erstreckt sich nicht auf Durchsatz, End-to-End-Latenz oder Time-to-First-Token.
-- Der tatsächlich erreichte Durchsatz, die End-to-End-Latenz und die Time-to-First-Token variieren mit der Plattformlast. Insbesondere können Open-Source-Modelle auf T-Cloud bei hoher gleichzeitiger Nachfrage unterhalb der veröffentlichten Obergrenzen arbeiten.
-- Kunden, die vertragliche Zusagen zu Durchsatz, End-to-End-Latenz oder Time-to-First-Token benötigen, sollten [Dedicated LLM Serving](/de/plans/dedicated) in Betracht ziehen — dort lassen sich solche Zusagen als Performance-SLAs auf reservierter Hardware verhandeln.
-
-Für individuelle Anforderungen wenden Sie sich an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com).
+<sup>&ast;</sup> Veröffentlichte RPM- und TPM-Werte sind Best-Effort-Obergrenzen und nicht Teil des [SLA](/de/reference/service-levels). Das SLA deckt nur die API-Verfügbarkeit ab.
 
 </div>
 

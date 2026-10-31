@@ -1493,6 +1493,10 @@ const rowDataPayload = allModels.map((m) => ({
     z-index: 40;
   }
 
+  .mc-filter:not([open]) > .mc-filter__menu {
+    display: none;
+  }
+
   .mc-filter__menu {
     position: absolute;
     top: calc(100% + 6px);
@@ -1538,14 +1542,14 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison__scroll {
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
     margin-bottom: 8px;
   }
 
   .models-comparison-table {
     display: table;
     width: 100%;
-    min-width: 64rem;
+    min-width: 0;
     table-layout: fixed;
     border-collapse: collapse;
     font-size: 0.8125rem;
@@ -1553,7 +1557,7 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table:has(th[data-sort='category']) {
-    min-width: 80rem;
+    min-width: 0;
   }
 
   @container comparison (min-width: 52rem) {
@@ -1574,7 +1578,7 @@ const rowDataPayload = allModels.map((m) => ({
     padding: 6px 3px;
     white-space: normal;
     word-break: normal;
-    overflow-wrap: normal;
+    overflow-wrap: anywhere;
   }
 
   /* table.css gives the first and last cells extra inline padding. That
@@ -1676,7 +1680,7 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table tbody td {
     vertical-align: top;
     min-width: 0;
-    overflow-wrap: normal;
+    overflow-wrap: anywhere;
   }
 
   .models-comparison-table td[data-label='Category'],
@@ -1687,7 +1691,7 @@ const rowDataPayload = allModels.map((m) => ({
 
   .models-comparison-table td[data-label='Model'] strong,
   .models-comparison-table td[data-label='Modell'] strong {
-    overflow-wrap: normal;
+    overflow-wrap: anywhere;
     word-break: normal;
   }
 
@@ -1717,7 +1721,7 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table td[data-label='Modell'] strong {
     white-space: normal;
     word-break: normal;
-    overflow-wrap: normal;
+    overflow-wrap: anywhere;
     hyphens: manual;
   }
 
@@ -1764,7 +1768,7 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison .mc-usage-field,
   .models-comparison .mc-usage-field code {
     white-space: normal;
-    overflow-wrap: normal;
+    overflow-wrap: anywhere;
     word-break: normal;
   }
 
@@ -1932,7 +1936,7 @@ const rowDataPayload = allModels.map((m) => ({
     }
 
     .models-comparison__filterbar {
-      flex-wrap: nowrap;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
     }
@@ -1944,7 +1948,8 @@ const rowDataPayload = allModels.map((m) => ({
       gap: 8px;
       min-width: 0;
       flex: 1 1 auto;
-      overflow-x: auto;
+      overflow-x: visible;
+      flex-wrap: wrap;
       overscroll-behavior-x: contain;
       scrollbar-width: none;
       padding-bottom: 2px;

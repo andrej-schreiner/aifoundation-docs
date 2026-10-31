@@ -22,10 +22,11 @@
    the wrapper, and one too wide for it scrolls there. Other tables keep
    Starlight's scroll box, which shrinks to their columns. */
 .sl-markdown-content table:not(.plans-table):not(.models-comparison-table) {
-	display: block;
-	width: max-content;
+	display: table;
+	width: 100%;
 	max-width: 100%;
-	overflow-x: auto;
+	overflow-x: visible;
+	table-layout: fixed;
 	border: 0;
 	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
 }
@@ -33,9 +34,8 @@
 .sl-markdown-content .aifs-table-scroll {
 	max-width: 100%;
 	min-width: 0;
-	overflow-x: auto;
+	overflow-x: visible;
 	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
-	scrollbar-gutter: stable;
 }
 
 @media (max-width: 50rem) {
@@ -63,8 +63,44 @@
 }
 
 .sl-markdown-content .md-date {
-	white-space: nowrap;
-	width: 7.25rem;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+.sl-markdown-content .aifs-table-scroll :is(th, td) {
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+	.sl-markdown-content .aifs-table-scroll > table,
+	.sl-markdown-content .aifs-table-scroll > table > thead,
+	.sl-markdown-content .aifs-table-scroll > table > tbody,
+	.sl-markdown-content .aifs-table-scroll > table tr,
+	.sl-markdown-content .aifs-table-scroll > table td {
+		display: block;
+		width: 100%;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table > thead {
+		display: none;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table td::before {
+		content: attr(data-label);
+		display: block;
+		font-weight: 700;
+		font-size: 0.75rem;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table tr {
+		border-bottom: var(--aifs-table-row-border-width) solid var(--aifs-table-row-border);
+		padding: 8px 0;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table td {
+		border: 0;
+		padding: 2px 0;
+	}
 }
 
 /* Header */

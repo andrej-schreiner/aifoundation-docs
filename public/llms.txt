@@ -5,9 +5,9 @@
 ## Get started
 
 - [Quickstart](https://docs.llmhub.t-systems.net/): Install the OpenAI SDK and send your first request.
-- [Choosing a model](https://docs.llmhub.t-systems.net/getting-started/choosing-a-model): Recommendations as of 2 November 2026. T-Cloud first.
+- [Choosing a model](https://docs.llmhub.t-systems.net/getting-started/choosing-a-model): Recommendations. T-Cloud first.
 - [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): API keys and bearer-token requests.
-- [Shared vs dedicated](https://docs.llmhub.t-systems.net/getting-started/shared-vs-dedicated): Shared rate plans versus Dedicated LLM Serving.
+- [Shared vs dedicated](https://docs.llmhub.t-systems.net/plans#shared-or-dedicated): Shared rate plans versus Dedicated LLM Serving.
 - [Concepts and glossary](https://docs.llmhub.t-systems.net/getting-started/concepts): Tokens, TPM, RPM, context window, T-Cloud, partner models.
 - [Migrate to the New API](https://docs.llmhub.t-systems.net/api-transition): Phased move from the existing endpoint to the New API.
 
@@ -24,12 +24,12 @@
 - [Chat completions](https://docs.llmhub.t-systems.net/guides/chat-completions): OpenAI-compatible chat API.
 - [Streaming](https://docs.llmhub.t-systems.net/guides/streaming): Token-by-token responses via Server-Sent Events.
 - [Image input](https://docs.llmhub.t-systems.net/guides/multimodal): Image input on the chat API.
-- [Multimodal](https://docs.llmhub.t-systems.net/guides/modalities): Where image, audio, image output, and OCR are documented.
+- [Multimodal](https://docs.llmhub.t-systems.net/guides/multimodal): Where image, audio, image output, and OCR are documented.
 - [Embeddings](https://docs.llmhub.t-systems.net/guides/embeddings): Text embeddings for semantic search and RAG.
 - [OCR](https://docs.llmhub.t-systems.net/guides/ocr): Document parsing with the preview OCR models.
 - [Function calling](https://docs.llmhub.t-systems.net/guides/function-calling): Tool definitions and JSON arguments.
 - [Structured outputs](https://docs.llmhub.t-systems.net/guides/structured-outputs): JSON Schema on the Responses API.
-- [RAG](https://docs.llmhub.t-systems.net/guides/rag): T-Cloud embeddings plus a T-Cloud chat model.
+- [RAG](https://docs.llmhub.t-systems.net/guides/embeddings#rag): T-Cloud embeddings plus a T-Cloud chat model.
 - [Reliability and retries](https://docs.llmhub.t-systems.net/guides/reliability): Retry 429, 500, and 503, or queue the request.
 - [Migrate from OpenAI](https://docs.llmhub.t-systems.net/guides/migrate-from-openai): Point an OpenAI SDK at this API and use a catalog model id.
 - [Decisions](https://docs.llmhub.t-systems.net/guides/decisions): Typed decisions for agent steps.

@@ -1,6 +1,6 @@
 ---
 title: "Rate Limits"
-description: "Per-plan token and request rate limits for LLM Hub, with guidance on handling 429 responses and retry strategies."
+description: "Per-plan token and request rate limits for AI Foundation Services, and how 429 responses and retries work."
 ---
 
 
@@ -99,10 +99,10 @@ import httpx
 
 # Use httpx directly to inspect response headers
 response = httpx.post(
-    "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
+    "https://llm-server.ai.t-systems.net/v1/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-oss-120b",
+        "model": "gpt-6.1-sol",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -121,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-oss-120b",
+    "model": "gpt-6.1-sol",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'
@@ -144,7 +144,7 @@ When you exceed a rate limit, the API returns a `429 Too Many Requests` error. B
 2. **Implement exponential backoff** — Wait longer between retries
 3. **Batch requests** — Combine multiple small requests into fewer larger ones
 4. **Cache responses** — Avoid repeating identical requests
-5. **Use the Queue API** — For batch workloads, [`/queue` endpoints](/guides/queued-requests) wait up to two minutes for your limit instead of returning `429` right away
+5. **Use the Queue API** — For batch workloads, [`/queue` endpoints](/guides/reliability#queued-requests) wait up to two minutes for your limit instead of returning `429` right away
 
 ```python
 import time

@@ -1,5 +1,5 @@
 ---
-import { CHOICE_ROWS, modelFact, reviewedLabel } from '../shared/lib/choosingModels';
+import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
@@ -72,7 +72,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
 }
 ---
 
-<p>{isDE ? `Empfehlungen zum ${reviewedLabel(true)}.` : `Recommendations as of ${reviewedLabel(false)}.`}</p>
+<p>{isDE ? 'Empfehlungen.' : 'Recommendations.'}</p>
 
 <div class="choose-desktop">
   <div class="aifs-table-scroll">
@@ -181,13 +181,18 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   .choose-desktop :global(.aifs-table-scroll) {
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
   }
 
   .choose-desktop table {
     width: 100%;
     table-layout: fixed;
-    min-width: 48rem;
+    min-width: 0;
+  }
+
+  .choose-desktop :global(th),
+  .choose-desktop :global(td) {
+    overflow-wrap: anywhere;
   }
 
   .choose-desktop th:nth-child(1),
@@ -299,7 +304,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
     color: var(--aifs-color-text-muted, var(--sl-color-gray-3));
   }
 
-  @media (max-width: 50rem) {
+  @media (max-width: 767px) {
     .choose-desktop {
       display: none;
     }

@@ -43,7 +43,7 @@ Performance may degrade if you push the hardware near its limit, but that ceilin
 
 On the shared service, you compete for capacity with every other tenant calling the same open-source model. At peak load, end-to-end latency and time-to-first-token vary; effective throughput can be lower than the published TPM.
 
-On Dedicated LLM Serving, your GPUs serve only your requests. Performance is deterministic and reproducible — the same prompt produces the same latency profile run after run. This is what makes it possible to meet **tight SLAs** on latency or throughput.
+On Dedicated LLM Serving, your GPUs serve only your requests. Performance is predictable and not affected by other tenants. That is what makes **latency or throughput SLAs** negotiable on the reserved hardware.
 
 ### 3. Any compatible model
 

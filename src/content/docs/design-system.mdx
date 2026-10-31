@@ -323,9 +323,9 @@ A tag per plan, with a fixed colour from the tag colours and fixed wording, the 
 </Showcase>
 
 <Showcase label="Small (20px), linked to the plan page, as in the model comparison">
-  <PlanTag plan="essential" size="small" href="/plans/essential/" />
-  <PlanTag plan="professional" size="small" href="/plans/professional/" />
-  <PlanTag plan="agentic" size="small" href="/plans/agentic/" />
+  <PlanTag plan="essential" size="small" href="/plans#essential/" />
+  <PlanTag plan="professional" size="small" href="/plans#professional/" />
+  <PlanTag plan="agentic" size="small" href="/plans#agentic/" />
   <PlanTag plan="test" size="small" href="/models/preview/" />
 </Showcase>
 
@@ -488,7 +488,7 @@ Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), wi
 ```python title="chat.py"
 from openai import OpenAI
 
-client = OpenAI(base_url="https://llm-server.llmhub.t-systems.net/v2")
+client = OpenAI(base_url="https://llm-server.ai.t-systems.net/v1")
 response = client.chat.completions.create(
     model="gpt-oss-120b",
     messages=[{"role": "user", "content": "Hello"}],
@@ -509,7 +509,7 @@ response = client.chat.completions.create(
 
 ```python {2,4}
 client = OpenAI(
-    base_url="https://llm-server.llmhub.t-systems.net/v2",
+    base_url="https://llm-server.ai.t-systems.net/v1",
 )
 response = client.models.list()
 ```
@@ -521,7 +521,7 @@ response = client.models.list()
 ```js ins={3} del={2}
 const client = new OpenAI({
   baseURL: "https://llm-server.llmhub.t-systems.net/v1",
-  baseURL: "https://llm-server.llmhub.t-systems.net/v2",
+  baseURL: "https://llm-server.ai.t-systems.net/v1",
 });
 ```
 
@@ -530,7 +530,7 @@ const client = new OpenAI({
 <Showcase label="Terminal (shell languages)" block>
 
 ```bash
-curl https://llm-server.llmhub.t-systems.net/v2/models \
+curl https://llm-server.ai.t-systems.net/v1/models \
   -H "Authorization: Bearer $API_KEY"
 ```
 

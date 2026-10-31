@@ -1,6 +1,6 @@
 ---
 title: "Authentifizierung"
-description: "So erhalten Sie einen Test- oder Produktions-API-Schlüssel und authentifizieren jede Anfrage an den LLM Hub via Bearer-Token-Header."
+description: "Test- oder Produktionsschlüssel holen und jede Anfrage an die AI Foundation Services API mit einem Bearer-Token authentifizieren."
 ---
 
 
@@ -17,7 +17,7 @@ Starten Sie sofort mit einem kostenlosen Test-Schlüssel:
 
 1. Besuchen Sie das [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/)
 2. Erstellen Sie ein Konto und generieren Sie Ihren API-Schlüssel
-3. Ihr Test-Schlüssel gibt Ihnen Zugang zu allen verfügbaren Modellen
+3. Ihr Test-Schlüssel schaltet alle Modelle frei, einschließlich Premium-Modelle
 
 ### Produktions-Schlüssel
 
@@ -32,7 +32,7 @@ Speichern Sie Ihren API-Schlüssel als Umgebungsvariable — schreiben Sie ihn n
   <TabItem value="mac" label="macOS / Linux" default>
     ```bash
     export OPENAI_API_KEY="your_api_key_here"
-    export OPENAI_BASE_URL="https://llm-server.llmhub.t-systems.net/v2"
+    export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
     ```
 
     Um die Variablen sitzungsübergreifend zu speichern, fügen Sie diese Zeilen zu Ihrer `~/.zshrc`- oder `~/.bashrc`-Datei hinzu.
@@ -40,13 +40,13 @@ Speichern Sie Ihren API-Schlüssel als Umgebungsvariable — schreiben Sie ihn n
   <TabItem value="windows-ps" label="Windows (PowerShell)">
     ```powershell
     $env:OPENAI_API_KEY = "your_api_key_here"
-    $env:OPENAI_BASE_URL = "https://llm-server.llmhub.t-systems.net/v2"
+    $env:OPENAI_BASE_URL = "https://llm-server.ai.t-systems.net/v1"
     ```
   </TabItem>
   <TabItem value="windows-cmd" label="Windows (CMD)">
     ```bash
     setx OPENAI_API_KEY "your_api_key_here"
-    setx OPENAI_BASE_URL "https://llm-server.llmhub.t-systems.net/v2"
+    setx OPENAI_BASE_URL "https://llm-server.ai.t-systems.net/v1"
     ```
   </TabItem>
 </Tabs>
@@ -71,7 +71,7 @@ from openai import OpenAI
 
 client = OpenAI(
     api_key="your_api_key_here",
-    base_url="https://llm-server.llmhub.t-systems.net/v2",
+    base_url="https://llm-server.ai.t-systems.net/v1",
 )
 ```
 
@@ -80,7 +80,7 @@ client = OpenAI(
 Fügen Sie den API-Schlüssel im `Authorization`-Header ein:
 
 ```bash
-curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \
+curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "gpt-oss-120b", "messages": [{"role": "user", "content": "Hello"}]}'
@@ -92,7 +92,7 @@ curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \
 Alle API-Anfragen gehen an:
 
 ```
-https://llm-server.llmhub.t-systems.net/v2
+https://llm-server.ai.t-systems.net/v1
 ```
 
 Dies ist der OpenAI-kompatible Endpunkt. Die vollständige API-Spezifikation finden Sie in der [API-Referenz](https://llm-server.llmhub.t-systems.net/redoc).

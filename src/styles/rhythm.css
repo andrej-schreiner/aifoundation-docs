@@ -1,0 +1,17 @@
+/* Section rhythm stays inside 32px on desktop and 24px on a phone.
+   Loaded after tokens.css so these lengths win over the generated scale. */
+
+.sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2) {
+	margin-top: 32px;
+}
+
+.sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
+	margin-top: 24px;
+}
+
+@media (max-width: 767px) {
+	.sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2),
+	.sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
+		margin-top: 24px;
+	}
+}
