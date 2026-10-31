@@ -61,8 +61,9 @@ function where(recommended: string, alternative: string): string {
 }
 
 function contextCell(recommended: string, alternative: string): string {
-  const a = contextLabel(modelFact(recommended).context);
-  const b = contextLabel(modelFact(alternative).context);
+  const a = modelFact(recommended).context;
+  const b = modelFact(alternative).context;
+  if (!a || !b) return contextLabel(a || b);
   return a === b ? a : `${a} · ${b}`;
 }
 
@@ -71,8 +72,6 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   return { src: getLogo(creator) || getLogo('Other'), zoom: creator.startsWith('Google') };
 }
 ---
-
-<p>{isDE ? 'Empfehlungen.' : 'Recommendations.'}</p>
 
 <div class="choose-root">
 <div class="choose-desktop">
@@ -128,13 +127,12 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
       <li class="choose-card">
         <p class="choose-card__case">{isDE ? row.useCase.de : row.useCase.en}</p>
         <p class="choose-card__rec">
-          <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
-            <img src={logo.src} alt="" width="20" height="20" />
-          </span>
-          <span>
-            <span class="choose-k">{t.recommended}</span>
-            {recommended.name}
-            {recommended.preview ? ` (${t.preview})` : ''}
+          <span class="choose-k">{t.recommended}</span>
+          <span class="choose-name">
+            <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
+              <img src={logo.src} alt="" width="20" height="20" />
+            </span>
+            <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
           </span>
         </p>
         <p>
@@ -293,10 +291,8 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
     font-weight: 700;
   }
 
-  .choose-card__rec {
-    display: flex;
+  .choose-card__rec .choose-name {
     align-items: center;
-    gap: 8px;
   }
 
   .choose-k {

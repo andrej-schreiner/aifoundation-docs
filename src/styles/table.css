@@ -40,12 +40,6 @@
 	container-name: mdtable;
 }
 
-@media (max-width: 50rem) {
-	.sl-markdown-content .aifs-table-scroll {
-		box-shadow: inset -18px 0 14px -16px color-mix(in srgb, var(--aifs-color-text-body) 45%, transparent);
-	}
-}
-
 .sl-markdown-content .aifs-table-scroll > table:not(.plans-table):not(.models-comparison-table) {
 	display: table;
 	width: 100%;
@@ -250,4 +244,37 @@
 :is(.sl-markdown-content table, .plans-table, .models-comparison-table) tfoot td {
 	border-bottom: var(--aifs-table-row-border-width) solid var(--aifs-table-footer-border);
 	font-weight: var(--aifs-table-head-font-weight);
+}
+
+/* Stacked rows read as a compact key/value list: the label sits left of its
+   value. Method and endpoint share one line ("GET /models"). */
+@container mdtable (max-width: 36rem) {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td {
+		display: grid;
+		grid-template-columns: minmax(5.5rem, 32%) minmax(0, 1fr);
+		column-gap: 8px;
+		margin: 0;
+		align-items: baseline;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td::before {
+		display: block;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td:is([data-label='Method'], [data-label='Methode']),
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td:is([data-label='Method'], [data-label='Methode']) + td {
+		display: inline-block;
+		width: auto;
+		max-width: 100%;
+		vertical-align: baseline;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td:is([data-label='Method'], [data-label='Methode']) {
+		padding-inline-end: 8px;
+	}
+
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td:is([data-label='Method'], [data-label='Methode'])::before,
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td:is([data-label='Method'], [data-label='Methode']) + td::before {
+		display: none;
+	}
 }

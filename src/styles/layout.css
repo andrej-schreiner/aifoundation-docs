@@ -266,7 +266,7 @@ html.qp-off-glm53DeepseekLaunchDismissed .qp-bar[data-key='glm53DeepseekLaunchDi
 /* Line length: running text stops at the measure (about 75 characters).
    Code blocks, tables, tabs and cards use the full content width. */
 .sl-markdown-content
-	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *)) {
+	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *, starlight-tabs [role="tablist"], starlight-tabs [role="tablist"] *)) {
 	max-width: var(--aifs-layout-measure);
 }
 

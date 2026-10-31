@@ -108,8 +108,6 @@ export default defineConfig({
 		'/de/getting-started/models': '/de/models',
 		// Renamed when the page stopped describing /queue as asynchronous.
 		// Archived versions and external links still use the old path.
-		'/guides/asynchronous-requests': '/guides/queued-requests',
-		'/de/guides/asynchronous-requests': '/de/guides/queued-requests',
 		'/plans/basic': '/plans',
 		'/de/plans/basic': '/de/plans',
 		'/plans/standard-1000': '/plans',

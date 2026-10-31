@@ -506,7 +506,7 @@ function formatCachedPrice(m: CompiledModel): string {
 
 function planHref(plan: string): string {
   if (plan === 'Test') return `${localePrefix}/models/preview/`;
-  return `${localePrefix}/plans/${plan.toLowerCase()}/`;
+  return `${localePrefix}/plans/#${plan.toLowerCase()}`;
 }
 
 function planTagClass(plan: string): string {
