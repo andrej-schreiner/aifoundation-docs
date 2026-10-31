@@ -534,7 +534,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                   : { on: plan.modelTier.includes('Premium'), label: t.checkPremium },
               ];
               return (
-                <li class="plan-tile">
+                <li class="plan-tile" data-plan={planTagKey(plan.label)}>
                   <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
                   <p class="plan-tile__price">{price}</p>
                   <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
@@ -715,14 +715,27 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     background: var(--aifs-color-scale-6);
   }
 
-  .plan-meter__seg.is-on,
-  .plan-meter__seg.is-custom {
-    background: var(--aifs-color-action-background);
+  /* Filled segments take the plan's own tag colour; magenta stays for
+     actions. */
+  .plan-tile[data-plan='essential'] .plan-meter__seg.is-on {
+    background: var(--aifs-tag-plan-essential-text);
+  }
+
+  .plan-tile[data-plan='professional'] .plan-meter__seg.is-on {
+    background: var(--aifs-tag-plan-professional-text);
+  }
+
+  .plan-tile[data-plan='agentic'] .plan-meter__seg.is-on {
+    background: var(--aifs-tag-plan-agentic-text);
+  }
+
+  .plan-tile[data-plan='enterprise'] .plan-meter__seg.is-custom {
+    background: var(--aifs-tag-plan-enterprise-text);
   }
 
   .plan-meter__custom {
     flex: 0 0 auto;
-    color: var(--aifs-color-brand-text);
+    color: var(--aifs-color-text-muted);
     font-size: var(--aifs-tag-font-size-small);
     font-weight: var(--aifs-tag-font-weight);
   }

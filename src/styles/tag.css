@@ -121,25 +121,28 @@ button.plans-tag {
 /* Plan tags: one fixed colour per plan. Test and the retired plans keep the
    standard colour. */
 
-/* Three looks: neutral (standard), brand (magenta), status (teal). */
 .aifs-tag--plan-essential,
 .tag-plan-essential {
-	background: var(--aifs-tag-standard-background);
-	color: var(--aifs-tag-standard-text);
+	background: var(--aifs-tag-plan-essential-background);
+	color: var(--aifs-tag-plan-essential-text);
 }
 
 .aifs-tag--plan-professional,
-.tag-plan-professional,
+.tag-plan-professional {
+	background: var(--aifs-tag-plan-professional-background);
+	color: var(--aifs-tag-plan-professional-text);
+}
+
 .aifs-tag--plan-agentic,
 .tag-plan-agentic {
-	background: var(--aifs-tag-teal-background);
-	color: var(--aifs-tag-teal-text);
+	background: var(--aifs-tag-plan-agentic-background);
+	color: var(--aifs-tag-plan-agentic-text);
 }
 
 .aifs-tag--plan-enterprise,
 .tag-plan-enterprise {
-	background: var(--aifs-tag-magenta-background);
-	color: var(--aifs-tag-magenta-text);
+	background: var(--aifs-tag-plan-enterprise-background);
+	color: var(--aifs-tag-plan-enterprise-text);
 }
 
 /* Tags that do something: links to a plan page, or buttons that filter a
