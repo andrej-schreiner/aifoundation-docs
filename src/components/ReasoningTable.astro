@@ -1,0 +1,73 @@
+---
+import reasoningEffortData from '../data/reasoning-effort.json';
+import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
+
+const RETIRING = new Set(
+  [
+    'gpt-5-nano',
+    'gpt-5-mini',
+    'gpt-5.4-mini',
+    'gpt-5',
+    'gpt-5-codex',
+    'gpt-5.4',
+    'gpt-5.5',
+    'claude-haiku-4.5',
+    'claude-sonnet-4.6',
+    'claude-opus-4.6',
+    'claude-opus-4.8',
+    'gemini-3-pro',
+    'gemini-3-pro-long-context',
+    // gemini-3-flash retires 2026-11-30; remove then.
+  ].map((id) => id.toLowerCase()),
+);
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const names = new Map<string, string>();
+for (const pkg of pricingData as Array<{ modelQuotaConfigs: Array<{ exactModelName: string; displayModelName: string }> }>) {
+  for (const entry of pkg.modelQuotaConfigs ?? []) {
+    if (!names.has(entry.exactModelName)) names.set(entry.exactModelName, entry.displayModelName);
+  }
+}
+
+const models = reasoningEffortData.models as Record<string, { values: string[]; default?: string | null }>;
+const rows = Object.entries(models)
+  .filter(([id, entry]) => {
+    if (isHiddenModel(id) || RETIRING.has(id.toLowerCase())) return false;
+    return Array.isArray(entry.values) && entry.values.length > 0 && names.has(id);
+  })
+  .map(([id, entry]) => ({
+    id,
+    name: names.get(id) ?? id,
+    values: entry.values.join(', '),
+    fallback: entry.default ? String(entry.default) : '',
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const t = isDE
+  ? { model: 'Modell', id: 'ID', values: 'reasoning_effort', fallback: 'Default im Datenblatt', none: 'Keiner angegeben' }
+  : { model: 'Model', id: 'ID', values: 'reasoning_effort', fallback: 'Datasheet default', none: 'Not listed' };
+---
+
+<div class="aifs-table-scroll">
+  <table>
+    <thead>
+      <tr>
+        <th>{t.model}</th>
+        <th>{t.id}</th>
+        <th>{t.values}</th>
+        <th>{t.fallback}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((row) => (
+        <tr>
+          <td>{row.name}</td>
+          <td><code>{row.id}</code></td>
+          <td><code>{row.values}</code></td>
+          <td>{row.fallback || t.none}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

@@ -1,25 +1,39 @@
 ---
 title: "Available Models"
-description: "Browse available LLMs, vision, embedding, and audio models on AI Foundation Services and retrieve the live model list via API."
+description: "Browse available LLMs (text and image input), embedding, and audio models on AI Foundation Services and retrieve the live model list via API."
 ---
 
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 import AvailableModels from '../../../components/AvailableModels.astro';
+import ModelsComparison from '../../../components/ModelsComparison.astro';
 
-AI Foundation Services provides access to a wide range of open-source and proprietary LLMs, embedding models, vision models, and audio models — all through a single OpenAI-compatible API.
+AI Foundation Services provides access to a wide range of open-source and proprietary LLMs, embedding models, and audio models — all through a single OpenAI-compatible API.
 
-Every hosted model has an individual model card with capabilities, sovereignty rating, pricing, plan availability, and a usage example. Browse the categories in the sidebar or use the table below.
-
-
-## Featured Models
-
-<AvailableModels/>
-
-For a complete list with pricing, see the [Plans & Pricing](/plans) page.
+Browse the categories in the sidebar, or use the catalog below for context, pricing, and plan availability.
 
 
-## List Models via API
+## Featured models
+
+<AvailableModels showHeading={false} />
+
+For plan prices and rate limits, see [Plans & Pricing](/plans).
+
+## Catalog
+
+<ModelsComparison />
+
+## Understanding model categories
+
+- **Chat & reasoning** — General-purpose text generation, conversational agents, and reasoning.
+- **Coding** — Code-tuned models for completion, refactoring, and review.
+- **Embeddings** — Convert text to vectors for semantic search, clustering, and RAG.
+- **Audio** — Speech-to-text models for transcription and translation.
+- **Images** — Generate images from text prompts.
+
+For data-handling details, see [Enterprise Trust](/reference/enterprise-trust).
+
+## List models via API
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -54,7 +68,7 @@ For a complete list with pricing, see the [Plans & Pricing](/plans) page.
 </Tabs>
 
 
-## Model Metadata
+## Model metadata
 
 Each model includes metadata you can inspect:
 
@@ -72,8 +86,8 @@ print(models.data[0].meta_data)
   "max_output_length": 0,
   "deployment_region": "otc-germany",
   "location": "otc-germany",
-  "license": "https://www.llama.com/llama3_3/license/",
-  "display_name": "Meta LLama 3.3 70B",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0.html",
+  "display_name": "GPT-OSS 120B",
   "deployment_country": "Germany, EU",
   "input_modalities": ["text"],
   "output_modalities": ["text"],
@@ -90,21 +104,20 @@ print(models.data[0].meta_data)
 - **deployment_region** — Where the model is hosted (e.g., `otc-germany` for T-Cloud Germany)
 
 
-## Model Categories
+## Model categories
 
 | Category | Examples | Use Case |
 |---|---|---|
-| **LLM** | GPT-OSS 120B, GPT-5, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning |
+| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning, image input (Text, Image) |
 | **Embedding** | jina-embeddings-v2-base-de, text-embedding-bge-m3 | Semantic search, RAG |
-| **Vision** | Qwen 3.6 35B, Gemini 3 Flash | Image analysis, multimodal chat |
 | **Audio/STT** | whisper-large-v3, whisper-large-v3-turbo | Speech-to-text, translation |
 | **Image Generation** | gpt-image-2 | Image creation from text prompts |
 
 
-## Hosting & Compliance
+## Hosting & compliance
 
-- **Open-source models** are operated by T-Systems on the **T-Cloud** in Germany. Data is processed inside the EU/EEA, is not stored, and is not viewable by Telekom or third parties.
-- **Proprietary models** (GPT, Claude, Gemini, Mistral Medium) are forwarded to the upstream provider (Microsoft Azure or Google Cloud), who may use sub-processors worldwide. Selecting one of these models accepts the third-party provider's terms.
+- **Open-source models** are operated by <span class="nowrap">T-Systems</span> on the **T-Cloud** in Germany. Data is processed inside the EU/EEA, is not permanently stored, and is not viewable by Telekom or third parties.
+- **Proprietary models** (GPT, Claude, Gemini) are forwarded to the upstream provider (Microsoft Azure or Google Cloud). The region depends on the model. Selecting one of these models accepts the third-party provider's terms.
 
 **Customer data is not used for model training, regardless of which model you select.**
 

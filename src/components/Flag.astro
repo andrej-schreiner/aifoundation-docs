@@ -1,0 +1,49 @@
+---
+// A round country flag, or the globe for "worldwide". Flags are SVG assets
+// (src/shared/lib/flags.ts); the globe is Telekom's international icon, drawn
+// in currentColor, so it follows the text colour in light and dark mode.
+import { flagNames, getFlag } from '../shared/lib/flags';
+import Icon from './Icon.astro';
+
+interface Props {
+  /** ISO 3166-1 alpha-2 code (de, se, …), `eu`, or `globe` for worldwide. */
+  code: string;
+  /** Diameter in px. 16 sits on a line of body text. */
+  size?: number;
+  /**
+   * Pass `true` when the country name is already written next to the flag, as
+   * in the model tables: the flag is then hidden from screen readers instead
+   * of being announced twice.
+   */
+  decorative?: boolean;
+}
+
+const { code, size = 16, decorative = false } = Astro.props;
+const key = code.toLowerCase();
+const src = getFlag(key);
+const name = flagNames[key] ?? key.toUpperCase();
+---
+
+{
+  key === 'globe' ? (
+    <Icon name="content-international" size={size} class="flag" label={decorative ? undefined : name} />
+  ) : src ? (
+    <img class="flag" src={src} width={size} height={size} alt={decorative ? '' : name} loading="lazy" decoding="async" />
+  ) : null
+}
+
+<style>
+  .flag {
+    display: inline-block;
+    flex: none;
+    vertical-align: middle;
+    border-radius: 50%;
+  }
+
+  /* A hairline ring keeps white flag areas (France's middle band, the Netherlands' stripe)
+     from merging with a white page. Pure black or white, per mode (aifs.color.media-outline). */
+  img.flag {
+    outline: 1px solid var(--aifs-color-media-outline);
+    outline-offset: -1px;
+  }
+</style>

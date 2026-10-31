@@ -1,6 +1,6 @@
 ---
 title: "Rate Limits"
-description: "Per-plan token and request rate limits for LLM Hub, with guidance on handling 429 responses and retry strategies."
+description: "Per-plan token and request rate limits for AI Foundation Services, and how 429 responses and retries work."
 ---
 
 
@@ -9,34 +9,34 @@ import { TabItem, Tabs } from '@astrojs/starlight/components';
 Rate limits protect the service and ensure fair usage. Limits are defined per plan and vary by model. Every RPM and TPM value below is marked with an asterisk <sup><a href="#about-these-rpm-and-tpm-values">&ast;</a></sup> — click it for the full conditions under which these values are provided.
 
 
-## Limits by Plan
+## Limits by plan
 
 Limits vary by both plan and model. The table below shows representative figures across the three plans:
 
 | Metric | Essential | Professional | Agentic |
 |---|---|---|---|
-| **Models available** | 42 | 44 | 44 |
-| **Representative RPM** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| **Models available** | 30 | 33 | 33 |
+| **T-Cloud embedding models (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
-### Example: Per-model limits across plans
+### Example: per-model limits across plans
 
-To illustrate how limits scale, here are the limits for two representative models:
+To illustrate how limits scale, here are the limits for two models.
 
 **GPT-OSS 120B** (T-Cloud, Germany):
 
 | Plan | RPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Input TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Output TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 |---|---|---|---|
-| Essential | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 150,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-| Professional | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-| Agentic | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 2,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| Essential | 100 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 400,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 400,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| Professional | 200 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| Agentic | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 2,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 2,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
-**GPT-5.4** (Azure, EU):
+**GPT-6.1 Sol** (Azure, worldwide):
 
 | Plan | RPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Input TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Output TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 |---|---|---|---|
-| Essential | 30,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 3,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,500,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-| Professional | 60,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 6,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 3,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
-| Agentic | 100,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 10,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 5,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| Essential | 250 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 250,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 125,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| Professional | 500 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 500,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 250,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| Agentic | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 500,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
 :::note
 **Preview models** (the Test catalog) use *dynamic* rate limits rather than fixed RPM/TPM. Telekom may adjust or restrict preview-model usage at any time without prior notice.
@@ -45,12 +45,12 @@ To illustrate how limits scale, here are the limits for two representative model
 For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans) page or download the [Service Description PDF](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf).
 
 
-## How Rate Limits Work
+## How rate limits work
 
-- **TPM (Tokens per Minute)** — best-effort *ceiling* on input tokens processed per minute; not an SLA-backed throughput target
+- **TPM (Tokens per Minute)** — best-effort *ceiling* on tokens processed per minute (input and output have separate limits); not an SLA-backed throughput target
 - **RPM (Requests per Minute)** — best-effort *ceiling* on API requests per minute; not an SLA-backed request-rate target
 - Limits apply at the project level — all API keys you generate in a project share the same quota
-- Both input and output tokens count toward TPM limits
+- Input tokens count toward input TPM; output tokens count toward output TPM
 
 In other words, RPM/TPM tell you when the platform will start *throttling* your traffic. They do **not** tell you the rate at which the platform will *serve* your traffic. On the shared service, the realized rate depends on platform load and other tenants' usage of the same model.
 
@@ -69,12 +69,14 @@ Because the window is aligned to the clock, the counters reset at the top of eac
 Some `429` responses are caused by this: requests spaced 60 seconds apart by a client-side timer can still fall into the same calendar minute on the gateway. The `429` body states the seconds left in the current window.
 
 
-## Rate Limit Response Headers
+## Rate limit response headers
 
-Responses from Azure-hosted models (GPT, o-series) include headers that help you track usage against limits:
+Responses from Azure-hosted GPT models include headers that help you track usage against limits:
 
 :::note
-Rate limit headers are currently returned by Azure-hosted models (e.g., `gpt-5`, `gpt-5-mini`). Open-source models hosted on T-Cloud (e.g., `gpt-oss-120b`) do not return these headers.
+Rate limit headers are currently returned by Azure-hosted models. Open-source models hosted on T-Cloud (for example `gpt-oss-120b`) do not return these headers.
+
+{/* TODO(andrej): the published examples of these headers used gpt-5 and gpt-5-mini. Confirm the same headers on gpt-6.1-sol, which this sample now calls. */}
 :::
 
 | Header | Description |
@@ -86,7 +88,7 @@ Rate limit headers are currently returned by Azure-hosted models (e.g., `gpt-5`,
 | `x-ratelimit-reset-requests` | Time until the request limit resets |
 | `x-ratelimit-reset-tokens` | Time until the token limit resets |
 
-### Reading Headers
+### Reading headers
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -97,10 +99,10 @@ import httpx
 
 # Use httpx directly to inspect response headers
 response = httpx.post(
-    "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
+    "https://llm-server.ai.t-systems.net/v1/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
-        "model": "gpt-5",
+        "model": "gpt-6.1-sol",
         "messages": [{"role": "user", "content": "Hello"}],
         "max_tokens": 10,
     },
@@ -119,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
-    "model": "gpt-5",
+    "model": "gpt-6.1-sol",
     "messages": [{"role": "user", "content": "Hello"}],
     "max_tokens": 10
   }'
@@ -134,7 +136,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
 </Tabs>
 
 
-## Handling Rate Limits
+## Handling rate limits
 
 When you exceed a rate limit, the API returns a `429 Too Many Requests` error. Best practices:
 
@@ -142,7 +144,7 @@ When you exceed a rate limit, the API returns a `429 Too Many Requests` error. B
 2. **Implement exponential backoff** — Wait longer between retries
 3. **Batch requests** — Combine multiple small requests into fewer larger ones
 4. **Cache responses** — Avoid repeating identical requests
-5. **Use the Queue API** — For batch workloads, [`/queue` endpoints](/guides/queued-requests) wait up to two minutes for your limit instead of returning `429` right away
+5. **Use the Queue API** — For batch workloads, [`/queue` endpoints](/guides/reliability#queued-requests) wait up to two minutes for your limit instead of returning `429` right away
 
 ```python
 import time
@@ -174,12 +176,12 @@ def safe_completion(messages, max_retries=3):
 
 - **Not part of the [Service Level Agreement (SLA)](/reference/service-levels).** The 99.5% availability SLA covers API reachability only; it does not extend to RPM, TPM, throughput, end-to-end latency, or time-to-first-token.
 - **For open-source models hosted on T-Cloud**, realised throughput may fall substantially below the published ceilings during periods of peak concurrent demand. End-to-end latency and time-to-first-token also vary with platform load.
-- **The "Representative RPM" figure** in the Limits-by-Plan table is an illustrative value for a representative T-Cloud model; precise limits vary by model. Professional and Agentic include Premium-tier models (e.g. Claude Opus) in addition to the Standard catalogue available on Essential.
+- **The "T-Cloud embedding models (RPM)" figure** in the Limits-by-Plan table is the requests-per-minute value for BGE-M3, Jina Embeddings v2 Base DE, and Qwen3 Embedding 8B. Professional and Agentic include Premium-tier models (e.g. Claude Opus) in addition to the Standard catalog available on Essential.
 - **For contractual guarantees on throughput, end-to-end latency, or time-to-first-token**, see [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 
 
-## Need Higher Limits?
+## Need higher limits?
 
 - **Upgrade your plan** — Higher tiers have significantly higher TPM and RPM limits
 - **Move to Dedicated LLM Serving** — On [Dedicated LLM Serving](/plans/dedicated), there are no RPM/TPM ceilings. You reserve GPU hardware and consume as many tokens as it can produce — useful for bursty traffic or tight latency SLAs that the shared service cannot guarantee
-- **Contact:** [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/) or reach out to the AIFS team at [ai@t-systems.com](mailto:ai@t-systems.com)
+- **Contact:** [Contact us](mailto:ai@t-systems.com)

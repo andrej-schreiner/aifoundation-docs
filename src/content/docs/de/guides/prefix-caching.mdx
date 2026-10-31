@@ -14,7 +14,7 @@ Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anf
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 - Ein Anwendungsfall mit wiederholtem Prompt-Präfix (System-Prompt, RAG-Kontext, Few-Shot-Beispiele, Werkzeugdefinitionen)
 :::
 
@@ -61,7 +61,7 @@ Prefix Caching verändert niemals den Inhalt einer Antwort: Das Modell sieht in 
 
 ## T-Cloud-gehostete Open-Source-Modelle
 
-Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen3.6-35B-A3B-FP8`) ist Prefix Caching **standardmäßig eingeschaltet** und wird pro Anfrage gesteuert. Zwei zusätzliche Felder der Chat-Completion-Anfrage regeln es:
+Bei T-Cloud-gehosteten Open-Source-Modellen (zum Beispiel `gpt-oss-120b`, `Qwen-3.6-35B-FP8`) ist Prefix Caching **standardmäßig eingeschaltet** und wird pro Anfrage gesteuert. Zwei zusätzliche Felder der Chat-Completion-Anfrage regeln es:
 
 | Feld | Typ | Standard | Zweck |
 |---|---|---|---|
@@ -182,7 +182,7 @@ System-Prompt und Dokument sind im folgenden Beispiel bei jedem Aufruf identisch
 - **Eigener Salt** für Anfragen, die berechtigterweise ein Präfix teilen: eine Sitzungs-ID, eine Dokument-ID, ein Batch-Job-Name. Unterschiedliche Salts sind voneinander isoliert, selbst bei identischen Prompts.
 - **`"org"`**, wenn mehrere API-Schlüssel desselben Projekts dasselbe Präfix nutzen — etwa ein gemeinsamer System-Prompt mehrerer Dienste.
 - **`"global"`** nur für unkritische Inhalte, zum Beispiel einen öffentlichen Standard-Prompt.
-- `save_cache: false` (oder weglassen) für einmalige oder sensible Prompts, die gar nicht wiederverwendet werden sollen.
+- `save_cache: false` für einmalige oder sensible Prompts, die gar nicht wiederverwendet werden sollen. Das Feld wegzulassen schaltet Caching nicht aus: es bleibt an.
 
 :::caution
 Caching erfolgt **nach bestem Bemühen** (best effort): Cache-Einträge werden bei anderem Datenverkehr verdrängt, ein Treffer ist daher eine Optimierung, nie eine Garantie. `save_cache` und `cache_salt` sind die einzigen unterstützten Cache-Parameter — alle anderen cachebezogenen Felder in einer Anfrage werden ignoriert.
@@ -205,7 +205,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4.6",
+        model="claude-sonnet-5",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-4.6",
+        "model": "claude-sonnet-5",
         "messages": [
           {
             "role": "system",
@@ -314,10 +314,10 @@ Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden mit **15 % des no
 Beispiel: GLM 5.2 kostet 1,50 € pro Million Input-Tokens, zwischengespeicherte Prompt-Tokens also 0,225 € pro Million.
 
 :::note[Nur T-Cloud-gehostete Modelle]
-Der Preis von 15 % für zwischengespeicherte Tokens gilt für **T-Cloud-gehostete Modelle** — also die im [Modellvergleich](/de/models/comparison) mit `T-Cloud` gekennzeichneten Modelle. Für Modelle externer Anbieter (Azure, GCP) ist die Preisgestaltung für zwischengespeicherte Tokens noch nicht veröffentlicht und wird später ergänzt; bis dahin zeigen diese Modelle in der Cached-Preis-Spalte **n. v.**
+Der Preis von 15 % für zwischengespeicherte Tokens gilt für **T-Cloud-gehostete Modelle** — also die im [Modellvergleich](/de/models) mit `T-Cloud` gekennzeichneten Modelle. Für Modelle externer Anbieter (Azure, GCP) ist die Preisgestaltung für zwischengespeicherte Tokens noch nicht veröffentlicht und wird später ergänzt; bis dahin zeigen diese Modelle in der Cached-Preis-Spalte **n. v.**
 :::
 
-Der Preis pro Modell steht in der Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cached €/M** im [Modellvergleich](/de/models/comparison).
+Der Preis pro Modell steht in der Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cache €/M** im [Modellvergleich](/de/models).
 
 
 ## Best Practices

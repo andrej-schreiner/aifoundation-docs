@@ -10,7 +10,7 @@ AI Foundation Services bietet Whisper-basierte Audiomodelle fuer Transkription u
 
 :::note[Voraussetzungen]
 - Ein API-Schluessel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 - Eine Audiodatei (MP3, WAV, M4A, etc.)
 :::
 
@@ -138,8 +138,14 @@ Die Uebersetzungs-API uebersetzt Audio aus beliebigen Sprachen ins Englische.
 3. **Effiziente Verarbeitung** — Geringe Latenz fuer Transkription und Uebersetzung
 
 
+## Grenzen und Fehlersuche
+
+Der Endpunkt nimmt `model`, `file`, `language` und `temperature` an. Die Spracherkennung nutzt die ersten 30 Sekunden der Aufnahme.
+
+{/* TODO(andrej): maximale Dateigröße und maximale Dauer über diese 30-Sekunden-Notiz hinaus stehen auf dieser Seite nicht. */}
+
 ## Naechste Schritte
 
 - [Chat Completions](/de/guides/chat-completions) — Transkribierten Text mit LLMs verarbeiten
-- [Queued Requests](/de/guides/queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
+- [Queued Requests](/de/guides/reliability#queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
 - [API-Endpunkte](/de/reference/api-endpoints) — Vollstaendige Endpunkt-Referenz

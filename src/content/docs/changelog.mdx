@@ -1,9 +1,21 @@
 ---
 title: "Changelog"
 description: "Major model releases, feature updates, and deprecations for AI Foundation Services."
+tableOfContents:
+  maxHeadingLevel: 2
 ---
 
 Major changes to AI Foundation Services — new models, feature updates, and deprecations.
+
+## 2026-11-02
+
+### Retired
+
+- Retired on 2026-10-31: GPT-5 nano / GPT-5 mini / GPT 5.4 mini (replacement GPT-6 Luna); GPT-5 / GPT-5 Codex / GPT 5.4 / GPT 5.5 (replacement GPT-6.1 Sol); Claude 4.5 Haiku / Claude 4.6 Sonnet (replacement Claude Sonnet 5.5); Claude 4.6 Opus / Claude Opus 4.8 (replacement Claude Opus 5.5); Gemini 3 Pro (≤200k) (replacement Gemini 3.1 Pro (≤200k)); Gemini 3 Pro (>200k) (replacement Gemini 3.1 Pro (>200k)). See [Deprecations](/models/deprecations).
+
+### Changed
+
+- Docs restructure: Quickstart merged into the home page; Comparison merged into Catalog; deprecations on one page; Roo Code page removed (Roo Code was discontinued). Plans, RAG and Visual RAG, queued requests, and the API transition subpages are each merged into one page ([Plans & Pricing](/plans), [Embeddings and RAG](/guides/embeddings), [Errors and reliability](/guides/reliability), [API transition](/api-transition)); the old URLs redirect.
 
 ## v1.2.3 — 2026-10
 
@@ -15,9 +27,9 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 - Two new preview models in the Test catalog for **OCR**: **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris, and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`). Free on any active plan. New guide: [OCR (Document Parsing)](/guides/ocr), with Chat Completions and library examples.
 - New embedding model on the Essential, Professional and Agentic plans: **Qwen3 Embedding 8B** (`qwen3-embedding-8b`), multilingual, with a 32K context window. Same input-token and request limits as Jina Embeddings v2 Base DE; output tokens are not limited, since an embedding returns vectors. See [Plans & Pricing](/plans).
 - New **[API Transition](/api-transition)** guide. The LLM Serving Service moves to the New API in three phases, with a Legacy endpoint for applications that need the current format; the guide covers the endpoints and what you need to do, API keys and model identifiers, and the changes to requests, responses, streaming and error handling.
-- New preview model in the Test catalog: **d3**, a 27B decision model and the recommended model for the **Decisions** endpoint, with text and image input. Free on any active plan. See [Test / Preview Models](/plans/test) and the [Decisions guide](/guides/decisions).
+- New preview model in the Test catalog: **d3**, a 27B decision model and the recommended model for the **Decisions** endpoint, with text and image input. Free on any active plan. See [Test / Preview Models](/models/preview) and the [Decisions guide](/guides/decisions).
 - **Decisions** accepts image input on both preview models, d3 and DiffusionGemma 26B A4B. See [Image input](/guides/decisions#image-input).
-- New preview model in the Test catalog: **DiffusionGemma 26B A4B**, free on any active plan, for chat and for the new **Decisions** endpoint. See [Test / Preview Models](/plans/test) and the [Decisions guide](/guides/decisions).
+- New preview model in the Test catalog: **DiffusionGemma 26B A4B**, free on any active plan, for chat and for the new **Decisions** endpoint. See [Test / Preview Models](/models/preview) and the [Decisions guide](/guides/decisions).
 - New models on the Essential, Professional and Agentic plans: **GPT-6.1 Sol**, **GPT-6 Luna**, **Claude Sonnet 5.5**, and **Gemini 3.8 Flash**. **Claude Opus 5.5** on Professional and Agentic. See [Plans & Pricing](/plans).
 - **GPT-6.1 Sol** and **GPT-6 Luna** are priced by context length, with separate rates above 272k input tokens.
 
@@ -28,7 +40,7 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 
 ### Deprecated
 
-- **GPT-5** to **GPT 5.5**, **Claude 4.5 Haiku**, **Claude 4.6 Sonnet / Opus**, **Claude Opus 4.8** and **Gemini 3 Pro** retire on **2026-10-31**. **Gemini 3 Flash** retires on **2026-11-30**. See [Scheduled for Retirement](/models/scheduled-for-retirement) for replacements.
+- **GPT-5** to **GPT 5.5**, **Claude 4.5 Haiku**, **Claude 4.6 Sonnet / Opus**, **Claude Opus 4.8** and **Gemini 3 Pro** retire on **2026-10-31**. **Gemini 3 Flash** retires on **2026-11-30**. See [Scheduled for Retirement](/models/deprecations#upcoming) for replacements.
 
 ## v1.2.2 — 2026-09
 
@@ -43,7 +55,7 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 
 ### Changed
 
-- **The Queue API is not asynchronous.** `/queue` endpoints work like `/v2`, but when you are over your rate limit they wait up to two minutes instead of returning `429` right away. The guide no longer mentions job polling or background processing. See [Queued Requests](/guides/queued-requests).
+- **The Queue API is not asynchronous.** `/queue` endpoints work like `/v2`, but when you are over your rate limit they wait up to two minutes instead of returning `429` right away. The guide no longer mentions job polling or background processing. See [Queued Requests](/guides/reliability#queued-requests).
 - **The availability target is 99.5%**, not the 99.9% previously published.
 - **GLM 5.2** token prices reduced, and it moved to the **standard** model tier.
 - **GPT-Image-2** pricing corrected.
@@ -55,7 +67,7 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 
 ### Removed
 
-- **Llama 3.3 70B**, **Claude 4.5 Sonnet** and **Claude 4.5 Opus** reached their retirement date. See [Retired Models](/models/retired) for replacements.
+- **Llama 3.3 70B**, **Claude 4.5 Sonnet** and **Claude 4.5 Opus** reached their retirement date. See [Retired Models](/models/deprecations#retired) for replacements.
 
 ### Fixed
 
@@ -67,7 +79,7 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 
 ### Added
 
-- New preview model in the Test catalog: **Qwen 3.8 27B FP8** — natively multimodal, free on any active plan. See [Test / Preview Models](/plans/test).
+- New preview model in the Test catalog: **Qwen 3.8 27B FP8** — natively multimodal, free on any active plan. See [Test / Preview Models](/models/preview).
 
 ## v1.2.0 — 2026-07
 
@@ -75,19 +87,17 @@ Aligns the documentation with the **[Service Description](/files/Leistungsbeschr
 
 - New models on the Essential, Professional and Agentic plans: **GPT-5.4**, **GPT-5.4 mini**, **GPT-5.5** and **GPT-Image-2** (OpenAI); **Gemini 3.1 Pro** and **Gemini 3.5 Flash** (Google). **Claude 4.8 Opus** (Anthropic) on Professional and Agentic. See [Plans & Pricing](/plans).
 - **Mistral Small 4** and **Gemma 4** are now **generally available**, having been preview-only. See [Plans & Pricing](/plans).
-- New preview model in the Test catalog: **GLM 5.2** — free on any active plan. See [Test / Preview Models](/plans/test).
+- New preview model in the Test catalog: **GLM 5.2** — free on any active plan. See [Test / Preview Models](/models/preview).
 
 ### Deprecated
 
-- Models across the **GPT-4.1**, **GPT-4o**, **o-series**, **Qwen3**, **Gemini 2.5**, **Gemini 3** and **Claude Sonnet / Opus** families are **scheduled for retirement on 2026-08-01**, along with **Mistral Small 3** and **GPT Image 1**. See [Scheduled for Retirement](/models/scheduled-for-retirement) for the table and replacements.
+- Models across the **GPT-4.1**, **GPT-4o**, **o-series**, **Qwen3**, **Gemini 2.5**, **Gemini 3** and **Claude Sonnet / Opus** families are **scheduled for retirement on 2026-08-01**, along with **Mistral Small 3** and **GPT Image 1**. See [Scheduled for Retirement](/models/deprecations#upcoming) for the table and replacements.
 
 ## v1.1.0 — 2026-05
 
-Archived snapshot: [v1.1.0](/v1-1-0/).
-
 ### Added
 
-- New top-level **Models** section with a [comparison page](/models/comparison) covering every hosted model — context window, pricing, cloud, modalities, plan availability, and OpenAI-compatible endpoint reference. Image-capable models also surface on the dedicated [Vision page](/models/vision) via a capability filter.
+- New top-level **Models** section with a [comparison page](/models) covering every hosted model — context window, pricing, cloud, modalities, plan availability, and OpenAI-compatible endpoint reference. Image-capable models also surface on the dedicated [image-input models](/models) via a capability filter.
 - **Changelog** page (you are reading it).
 - Two new preview models in the Test catalog: `Mistral Small 4` (`Mistral-Small-4-119B-2603-Preview`) and `Gemma 4` (`gemma-4-31B-it-FP8-preview`). See [rate limits](/reference/rate-limits) for the preview-model policy.
 
@@ -97,4 +107,4 @@ Archived snapshot: [v1.1.0](/v1-1-0/).
 
 ## v1.0.0
 
-Archived snapshot: [v1.0.0](/v1/) — the initial released state of the docs prior to the changelog being introduced.
+The initial released state of the docs, before the changelog was introduced.

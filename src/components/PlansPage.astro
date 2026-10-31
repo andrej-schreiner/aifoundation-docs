@@ -3,9 +3,16 @@ import currentPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2
 import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-01-19.json';
 import ModelsTable from './ModelsTable.astro';
 import Tooltip from './Tooltip.astro';
-import { modelBrandIcons } from '../shared/lib/modelBrandIcons';
+import Icon from './Icon.astro';
+import Button from './Button.astro';
+import { creatorNameFor, logos } from '../shared/lib/logos';
+import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
+import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { isRetiringModel } from '../shared/lib/choosingModels';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { catalogRank } from '../shared/lib/modelCatalogOrder';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
@@ -28,10 +35,10 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const t = {
   ratePlansTitle: isDE ? 'Tarife' : 'Our Rate Plans',
   subtitle: isDE
-    ? 'Wählen Sie den Tarif, der zu Ihren Anforderungen passt. Ein höherer monatlicher Mindestumsatz bedeutet höhere Anfragelimits und Zugriff auf leistungsstärkere Modelle. Sie benötigen eine individuelle Lösung oder ein On-Premises-Hosting? Schreiben Sie uns gerne!'
-    : 'Choose the plan that matches your workload. A higher monthly minimum commitment unlocks higher rate limits and more powerful models. Need a custom setup or on-premises hosting? Contact us!',
+    ? 'Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude Opus sind in Professional und Agentic enthalten, nicht in Essential. <a href="/de/reference/rate-limits/">Rate-Limits</a>.'
+    : 'Plans differ by throughput (TPM and RPM) and by Premium model access. Premium models such as Claude Opus are included on Professional and Agentic, not on Essential. <a href="/reference/rate-limits/">Rate limits</a>.',
   thPlan: isDE ? 'Tarif' : 'Rate Plan',
-  thCommitment: isDE ? 'Monatlicher Mindestumsatz' : 'Minimum Monthly Commitment',
+  thCommitment: isDE ? 'Mindest-Tokenumsatz' : 'Minimum token commitment',
   thCommitmentUnit: isDE ? '€ / Monat' : '€ / month',
   thModelHost: isDE ? 'Modell-Hosting' : 'Model Host',
   thModelTier: isDE ? 'Modell-Tier' : 'Model Tier',
@@ -47,17 +54,24 @@ const t = {
   footnote: isDE
     ? '† Beispielpreise für T-Cloud-gehostete Large Language Models'
     : '† Example pricing for T-Cloud-hosted Large Language Models',
-  commitmentNoteLead: isDE ? 'Monatlicher Mindestumsatz' : 'Minimum Monthly Commitment',
-  commitmentNoteBody: isDE
-    ? 'ist die Untergrenze Ihrer monatlichen Abrechnung — keine zusätzliche Gebühr neben den Token-Kosten.'
-    : 'is the floor of your monthly billing — not a fee on top of token usage.',
+  spendNote: isDE
+    ? 'Der Mindestumsatz ist monatlicher Token-Verbrauch, keine zusätzliche Gebühr. Darüber wird zu den ausgewiesenen Token-Preisen abgerechnet.'
+    : 'The minimum commitment is monthly token spend, not an extra fee. Usage above it is billed at the listed token prices.',
+  perMonth: isDE ? '/ Monat Mindest-Tokenumsatz' : '/ month minimum token spend',
+  throughputLabel: isDE ? 'Durchsatz (TPM / RPM)' : 'Throughput (TPM / RPM)',
+  checkTCloud: isDE ? 'T-Cloud-Modelle' : 'T-Cloud models',
+  checkHyperscaler: isDE ? 'Hyperscaler-Modelle' : 'Hyperscaler models',
+  checkPremium: isDE ? 'Premium-Modelle' : 'Premium models',
+  contactCta: isDE ? 'Kontaktieren Sie uns' : 'Contact us',
+  rateLimitsHref: isDE ? '/de/reference/rate-limits/' : '/reference/rate-limits/',
+  contactHref: 'mailto:ai@t-systems.com',
   modelsTitle: isDE ? 'Unsere Modelle' : 'Our Models',
   modelsSubtitle: isDE
     ? 'Standard-Modelle sind leistungsfähig und auf Geschwindigkeit ausgelegt – zuverlässig für die meisten Anwendungsfälle, ohne Kompromisse bei der Qualität. Premium-Modelle gehen darüber hinaus: für komplexes Reasoning, lange Kontexte und Aufgaben, bei denen die Ausgabequalität im Vordergrund steht.'
     : 'Standard models are capable and built for speed - reliable across most use cases, without cutting corners. Premium models go further: complex reasoning, long contexts, and tasks where output quality is the priority.',
   modelsSubtitleList: isDE
     ? [
-        'Probieren Sie die neuesten KI-Modelle aus: kostenlos testen, sofort erkunden. Unser Preview-Katalog ist Ihre Testumgebung, in der Sie Funktionen bewerten, die Leistung vergleichen und Ideen prototypisieren können, bevor Sie sie in Produktionsumgebungen einsetzen. Sie benötigen lediglich einen aktiven Tarif (Essential, Professional oder Agentic), um loszulegen.',
+        'Probieren Sie die neuesten KI-Modelle aus: kostenlos testen, sofort erkunden. Unser Vorschau-Katalog ist Ihre Testumgebung, in der Sie Funktionen bewerten, die Leistung vergleichen und Ideen prototypisieren können, bevor Sie sie in Produktionsumgebungen einsetzen. Sie benötigen lediglich einen aktiven Tarif (Essential, Professional oder Agentic), um loszulegen.',
         'Wähle ein Modell aus, probiere es in deinem Arbeitsablauf aus und finde heraus, was am besten passt.',
         '\nHinweis',
         'Die Nutzung der Testmodelle ist kostenfrei, setzt jedoch das Abschließen eines Tarifes (Essential / Professional / Agentic) voraus. Die Telekom ist berechtigt, die Nutzung der Testmodelle jederzeit zu limitieren, insbesondere hinsichtlich der verfügbaren Tokens, Rate-Limits (TPM/RPM) und der Nutzungsdauer. Die Telekom ist berechtigt, die Testmodelle jederzeit und ohne vorherige Ankündigung abzuschalten oder den Zugang des Kunden zu diesen einzuschränken. Der Kunde hat keinen Rechtsanspruch auf die fortlaufende Bereitstellung der Testmodelle.',
@@ -70,16 +84,16 @@ const t = {
       ],
   labelRatePlan: isDE ? 'Gewählter Tarif' : 'Rate Plan',
   labelSearch: isDE ? 'Suche' : 'Search',
-  labelServerLocation: 'Server Location',
+  labelServerLocation: isDE ? 'Serverstandort' : 'Server Location',
   labelCloud: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
   labelModelTier: isDE ? 'Modell-Tier' : 'Model Tier',
   labelInputPriceRange: isDE ? 'Input-Preis' : 'Input Price',
   labelOutputPriceRange: isDE ? 'Output-Preis' : 'Output Price',
   placeholderSearch: isDE ? 'Modelle filtern...' : 'Filter models...',
   optionAll: isDE ? 'Alle' : 'All',
-  priceUnder2: 'Under €2/MTok',
-  price2to5: '€2-5/MTok',
-  priceOver5: 'Over €5/MTok',
+  priceUnder2: isDE ? 'Unter 2 €/MTok' : 'Under €2/MTok',
+  price2to5: isDE ? '2–5 €/MTok' : '€2-5/MTok',
+  priceOver5: isDE ? 'Über 5 €/MTok' : 'Over €5/MTok',
   labelResetFilters: isDE ? 'Filter zurücksetzen' : 'Reset filters',
   showingPrefix: isDE ? 'Zeige' : 'Showing',
   ofPrefix: isDE ? 'von' : 'of',
@@ -88,27 +102,63 @@ const t = {
   thCloudProvider: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
   thCreator: isDE ? 'Anbieter' : 'Creator',
   thModelName: isDE ? 'Modellname' : 'Model Name',
-  thInputPrice: 'Input Token Price',
-  thOutputPrice: 'Output Token Price',
+  thModel: isDE ? 'Modell' : 'Model',
+  thModelSub: isDE ? 'Anbieter' : 'Creator',
+  priceCustom: isDE ? 'Individuell' : 'Custom',
+  premiumIncluded: isDE ? 'Premium-Modelle: enthalten' : 'Premium models: included',
+  premiumNotIncluded: isDE ? 'Premium-Modelle: nicht enthalten' : 'Premium models: not included',
+  premiumCustom: isDE ? 'Premium-Modelle: nach Vertrag' : 'Premium models: by contract',
+  blurbEssential: isDE ? 'Für den Standard-Modellkatalog.' : 'For the standard model catalog.',
+  blurbProfessional: isDE ? 'Für höheren Durchsatz als Essential.' : 'For higher throughput than Essential.',
+  blurbAgentic: isDE ? 'Für den höchsten Best-Effort-Durchsatz.' : 'For the highest best-effort throughput.',
+  blurbEnterprise: isDE
+    ? 'Für einen individuellen Token-Umsatz und individuelle Rate-Limits.'
+    : 'For a custom token commitment and custom rate limits.',
+  thHosting: isDE ? 'Hosting' : 'Hosting',
+  thHostingSub: isDE ? 'Host · Cloud · Standort' : 'Host · Cloud · Location',
+  thInput: isDE ? 'Eingabe' : 'Input',
+  thOutput: isDE ? 'Ausgabe' : 'Output',
+  thLimits: isDE ? 'Kontingent' : 'Limits',
+  thLimitsSub: 'RPM · TPM',
+  thContext: isDE ? 'Kontext' : 'Context',
+  thDetails: 'Details',
+  dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
+  dynamicQuota: isDE ? 'Dynamisches Kontingent' : 'Dynamic Shared Quota',
+  labelSortBy: isDE ? 'Sortieren nach' : 'Sort by',
+  labelSortCatalog: isDE ? 'Empfohlen' : 'Recommended',
+  labelExpandAll: isDE ? 'Alle Details öffnen' : 'Expand all details',
+  labelCollapseAll: isDE ? 'Alle Details schließen' : 'Collapse all details',
+  cachedShort: isDE ? 'Cache' : 'cached',
+  thInputPrice: isDE ? 'Input-Token-Preis' : 'Input Token Price',
+  thOutputPrice: isDE ? 'Output-Token-Preis' : 'Output Token Price',
   thCachedInputPrice: isDE ? 'Cached-Input-Token-Preis' : 'Cached Input Token Price',
   cachedPriceNote: isDE
     ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle; für Modelle externer Anbieter wird die Preisgestaltung für Cached Tokens später ergänzt.`
     : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only; cached token pricing for models on external providers will be added later.`,
-  cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  cachedPriceUnavailable: '—',
+  priceTba: isDE ? 'Preis folgt' : 'Pricing to be announced',
   worldwideLocationNote: isDE
-    ? 'Weltweit (Worldwide) bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
+    ? 'Weltweit bedeutet, dass der Drittanbieter das Modell auf eigener Infrastruktur betreibt und Daten auch außerhalb der EU/EWR verarbeiten kann.'
     : 'Worldwide means the third-party provider runs the model on its own infrastructure and may process data outside the EU/EEA.',
   enterpriseTrustLabel: isDE ? 'Enterprise Trust' : 'Enterprise Trust',
   enterpriseTrustHref: isDE ? '/de/reference/enterprise-trust/' : '/reference/enterprise-trust/',
+  adequacyNote: isDE
+    ? '* EU/EWR umfasst Länder mit einem Angemessenheitsbeschluss der EU-Kommission.'
+    : '* EU/EEA includes countries with an adequacy decision by the EU Commission.',
   thTPM: 'TPM',
   thTPMUnit: 'Tokens/Min',
-  thContextWindow: 'Context Window',
+  thContextWindow: isDE ? 'Kontextfenster' : 'Context Window',
   thContextWindowUnit: 'Tokens',
   thLinks: 'Links',
   linkTermsOfUse: isDE ? 'Nutzungsbedingungen' : 'Terms of Use',
   linkDataProtection: isDE ? 'Datenschutz' : 'Data Protection',
   thHostingPlatform: 'Hosting Platform',
-  thServerLocation: 'Server Location',
+  thServerLocation: isDE ? 'Serverstandort' : 'Server Location',
+  emptyCatalogNote: isDE
+    ? 'Für diesen Tarif sind im aktuellen Katalog keine Modelle gelistet.'
+    : 'This plan has no models in the current catalog.',
+  emptyCatalogLink: isDE ? 'Zu Tarife und Preise' : 'See Plans & Pricing',
+  emptyCatalogHref: isDE ? '/de/plans/' : '/plans/',
   thInputTokenLimit: 'Input Token Limit',
   thOutputTokenLimit: 'Output Token Limit',
   thRPMLimit: isDE ? 'RPM-Limit' : 'RPM Limit',
@@ -131,8 +181,8 @@ const t = {
 // Legacy (v1.0.0) overrides — different copy for the archived plans page.
 if (legacy) {
   t.subtitle = isDE
-    ? 'Die AI Foundation Services bieten nutzungsbasierte Preise. Preise variieren je nach Modell, Vereinbarung und Tarif. Kontaktieren Sie uns gerne für weitere Informationen zu dedizierten und On-Premises-Hosting-Optionen.'
-    : 'AI Foundation Services offers pay-as-you-go pricing. Prices vary by model, agreement, and rate plan. Please contact us for more information on the dedicated and on-premises hosting options.';
+    ? 'Die Tarife unterscheiden sich durch den Durchsatz: <a href="/de/reference/rate-limits/">TPM- und RPM-Rate-Limits</a>. Für dediziertes Hosting <a href="mailto:ai@t-systems.com">kontaktieren Sie uns</a>.'
+    : 'Plans differ by throughput: <a href="/reference/rate-limits/">TPM and RPM rate limits</a>. For dedicated hosting, <a href="mailto:ai@t-systems.com">contact us</a>.';
   t.modelsSubtitle = isDE
     ? 'Wählen Sie das richtige Modell für Ihren Anwendungsfall – von schnellen Antworten bis zu tiefgehender Analyse.'
     : 'Choose the right model for your use case - from fast responses to deep analysis';
@@ -155,7 +205,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Essential',
     label: 'Essential',
-    color: '#4de0af',
     basePrice: '1,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Niedriger' : 'Lower',
@@ -166,7 +215,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Professional',
     label: 'Professional',
-    color: '#4ad9cd',
     basePrice: '3,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Mittel' : 'Medium',
@@ -177,7 +225,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Agentic',
     label: 'Agentic',
-    color: '#4dd1e0',
     basePrice: '5,000 \u20AC',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Höchster' : 'Highest',
@@ -188,7 +235,6 @@ const currentPlanConfigs = [
   {
     packageName: 'Tarif Standard3000 Template',
     label: 'Enterprise',
-    color: '#5ec2ed',
     basePrice: 'Custom',
     tokenPrice: '0.20 / 0.65',
     rpm: isDE ? 'Individuell' : 'Custom',
@@ -203,7 +249,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Basic Template',
     label: 'Basic',
-    color: '#4de0af',
     basePrice: '–',
     tokenPrice: '3.53',
     rpm: '20',
@@ -214,7 +259,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard1000 Template',
     label: 'Standard 1000',
-    color: '#4ad9cd',
     basePrice: '1,000 €',
     tokenPrice: '3.53',
     rpm: '150',
@@ -225,7 +269,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard2000 Template',
     label: 'Standard 2000',
-    color: '#4dd1e0',
     basePrice: '2,000 €',
     tokenPrice: '2.89',
     rpm: '300',
@@ -236,7 +279,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard3000 Template',
     label: 'Standard 3000',
-    color: '#5ec2ed',
     basePrice: '3,000 €',
     tokenPrice: '2.23',
     rpm: '450',
@@ -247,7 +289,6 @@ const legacyPlanConfigs = [
   {
     packageName: 'Tarif Standard4000 Template',
     label: 'Standard 4000',
-    color: '#84b0f5',
     basePrice: '4,000 €',
     tokenPrice: '1.75',
     rpm: '600',
@@ -279,38 +320,22 @@ function parseModelHost(deploymentRegion: string): string {
 function parseCloudProvider(deploymentRegion: string): string {
   const lower = deploymentRegion.toLowerCase();
   const provider = lower.split('-')[0];
-  if (provider === 'otc') return 'Telekom';
+  if (provider === 'otc') return 'T-Cloud';
   if (provider === 'azure') return 'Azure';
   if (provider === 'gcp') return 'GCP';
   return deploymentRegion;
 }
 
+function localizeSubName(label: string): string {
+  if (!isDE) return label;
+  return label
+    .replaceAll('Azure Sweden', 'Azure Schweden')
+    .replaceAll('Azure France', 'Azure Frankreich')
+    .replaceAll('Azure Worldwide', 'Azure Weltweit');
+}
+
 function parseModelCreator(exactModelName: string | undefined, displayModelName: string): string {
-  const source = `${exactModelName || ''} ${displayModelName}`.toLowerCase();
-  const isOpenAIOSeries = /\bo\d+(?:[.-]|\b)/.test(source);
-  const isOpenAIAdaSeries = /\b(?:embedding\s+ada|text-embedding-ada|ada(?:[-\s]?\d+)?)\b/.test(source);
-
-  if (source.includes('claude')) return 'Anthropic';
-  if (source.includes('gemma')) return 'Google Gemma';
-  if (source.includes('gemini')) return 'Google Gemini';
-  if (
-    source.includes('gpt') ||
-    isOpenAIOSeries ||
-    isOpenAIAdaSeries ||
-    source.includes('codex') ||
-    source.includes('whisper')
-  )
-    return 'OpenAI';
-  if (source.includes('llama') || source.includes('meta')) return 'Meta';
-  if (source.includes('mistral')) return 'Mistral';
-  if (source.includes('qwen')) return 'Alibaba Cloud';
-  if (source.includes('nemotron') || source.includes('nvidia')) return 'NVIDIA';
-  if (source.includes('glm') || source.includes('zhipu') || source.includes('z.ai')) return 'Zhipu AI';
-  if (source.includes('jina')) return 'Jina AI';
-  if (source.includes('bge')) return 'BAAI';
-  if (source.includes('teuken') || source.includes('tsi') || source.includes('col qwen')) return 'T-Systems';
-
-  return 'Other';
+  return creatorNameFor(exactModelName, displayModelName);
 }
 
 const COUNTRY_CODES: Record<string, string> = {
@@ -323,11 +348,21 @@ const COUNTRY_CODES: Record<string, string> = {
   worldwide: 'globe',
 };
 
+const REGION_DE: Record<string, string> = {
+  germany: 'Deutschland',
+  sweden: 'Schweden',
+  france: 'Frankreich',
+  europe: 'Europa',
+  worldwide: 'Weltweit',
+  us: 'USA',
+};
+
 function parseLocation(deploymentRegion: string): { name: string; code: string } {
   const parts = deploymentRegion.toLowerCase().split('-');
   if (parts.length < 2) return { name: deploymentRegion, code: '' };
   const raw = parts[1];
-  const name = raw.charAt(0).toUpperCase() + raw.slice(1);
+  const english = raw.charAt(0).toUpperCase() + raw.slice(1);
+  const name = isDE ? (REGION_DE[raw] ?? english) : english;
   const code = COUNTRY_CODES[raw] || '';
   return { name, code };
 }
@@ -356,7 +391,8 @@ function mapModelRow(
     )),
     cloudProviderFullName: cloudFullNameFor(exactModelName, ''),
     displayName,
-    subName: model.modelLabel || '',
+    catalogRank: catalogRank(displayName),
+    subName: localizeSubName(model.modelLabel || ''),
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
     // Cached input tokens are a fixed fraction of the input price, and only
@@ -391,10 +427,14 @@ const plansData = allPricing
     if (!selectedPlanId && (!config || !config.isFilterAvailable)) return null;
     if (selectedPlanId && plan.packageName !== selectedPlanId) return null;
     const models = (plan.modelQuotaConfigs || [])
+      .filter((m: any) => !isRetiringModel(m.exactModelName) && !isHiddenModel(m.exactModelName))
       .map((m: any) => {
-        const modelHost = parseModelHost(m.deploymentRegion);
-        const cloudProvider = parseCloudProvider(m.deploymentRegion);
-        const { name: locName, code: locCode } = parseLocation(m.deploymentRegion);
+        const unconfirmed = hostingUnconfirmed(m.exactModelName) || !m.deploymentRegion;
+        const modelHost = unconfirmed ? '' : parseModelHost(m.deploymentRegion);
+        const cloudProvider = unconfirmed ? '' : parseCloudProvider(m.deploymentRegion);
+        const { name: locName, code: locCode } = unconfirmed
+          ? { name: '', code: '' }
+          : parseLocation(m.deploymentRegion);
         const rows: any[] = [mapModelRow(m, m, modelHost, cloudProvider, locName, locCode, false)];
         if (m.modelQuotaMetadata?.data) {
           for (const sub of m.modelQuotaMetadata.data) {
@@ -422,86 +462,128 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     showRatePlans && (
       <section class="rate-plans-section">
         <h2>{t.ratePlansTitle}</h2>
-        <p class="par-description">{t.subtitle}</p>
-        <div class="table-wrapper">
-          <table class="plans-table">
-            <thead>
-              <tr>
-                <th>{t.thPlan}</th>
-                <th>
-                  {t.thCommitment}
-                  <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
-                </th>
-                {showTokenPriceColumn && (
-                  <th>
-                    {t.thTokenPrice}
-                    <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
-                  </th>
-                )}
-                <th>
-                  {legacy ? t.thRPM : t.thRateLimits} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}
-                  {legacy && <div class="plans-table__small-text">{t.thRPMUnit}</div>}
-                </th>
-                <th>{t.thModelHost}</th>
-                {!legacy && <th>{t.thModelTier}</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {planConfigs.map((plan) => (
+        <p class="par-description" set:html={t.subtitle} />
+        {legacy ? (
+          <div class="table-wrapper">
+            <table class="plans-table">
+              <thead>
                 <tr>
-                  <td>
-                    <span class="plans-tag" style={`background:${plan.color};color:#000`}>
-                      {plan.label}
-                    </span>
-                  </td>
-                  <td>
-                    <span class="plans-table__main-text">{plan.basePrice}</span>
-                  </td>
-                  {showTokenPriceColumn && <td>{plan.tokenPrice} †</td>}
-                  <td>{plan.rpm} {!legacy && <sup><a href={t.rpmTpmAnchor}>*</a></sup>}</td>
-                  <td>
-                    {plan.modelHost.map((cloud, i) => (
-                      <>
-                        {i > 0 && ' '}
-                        <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
-                          <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud}</span>
-                        </Tooltip>
-                      </>
-                    ))}
-                  </td>
-                  {!legacy && (
-                    <td>
-                      {plan.modelTier.map((tier, i) => (
+                  <th>{t.thPlan}</th>
+                  <th>
+                    {t.thCommitment}
+                    <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
+                  </th>
+                  {showTokenPriceColumn && (
+                    <th>
+                      {t.thTokenPrice}
+                      <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
+                    </th>
+                  )}
+                  <th>
+                    {t.thRPM}
+                    <div class="plans-table__small-text">{t.thRPMUnit}</div>
+                  </th>
+                  <th>{t.thModelHost}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {planConfigs.map((plan) => (
+                  <tr>
+                    <td data-label={t.thPlan}>
+                      <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
+                    </td>
+                    <td data-label={t.thCommitment}>
+                      <span class="plans-table__main-text">{plan.basePrice}</span>
+                    </td>
+                    {showTokenPriceColumn && <td data-label={t.thTokenPrice}><span class="nowrap">{plan.tokenPrice}{'\u00A0'}†</span></td>}
+                    <td data-label={t.thRPM}>{plan.rpm}</td>
+                    <td data-label={t.thModelHost}>
+                      {plan.modelHost.map((cloud, i) => (
                         <>
                           {i > 0 && ' '}
-                          <Tooltip text={tierTooltips[tier] || tier} maxWidth="24rem">
-                            <span class={`plans-tag ${tier === 'Premium' ? 'tag-premium' : 'tag-tier'}`}>{tier}</span>
+                          <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
+                            <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud}</span>
                           </Tooltip>
                         </>
                       ))}
                     </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <ul class="plan-tiles">
+            {planConfigs.map((plan) => {
+              const price = plan.basePrice === 'Custom' ? t.priceCustom : plan.basePrice;
+              const meter =
+                plan.label === 'Essential' ? 1 : plan.label === 'Professional' ? 2 : plan.label === 'Agentic' ? 3 : 0;
+              const blurb =
+                plan.label === 'Essential'
+                  ? t.blurbEssential
+                  : plan.label === 'Professional'
+                    ? t.blurbProfessional
+                    : plan.label === 'Agentic'
+                      ? t.blurbAgentic
+                      : t.blurbEnterprise;
+              const checks = [
+                { on: plan.modelHost.includes('T-Cloud'), label: t.checkTCloud },
+                { on: plan.modelHost.includes('External'), label: t.checkHyperscaler },
+                plan.label === 'Enterprise'
+                  ? { on: false, dash: true, label: t.premiumCustom }
+                  : { on: plan.modelTier.includes('Premium'), label: t.checkPremium },
+              ];
+              return (
+                <li class="plan-tile">
+                  <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
+                  <p class="plan-tile__price">{price}</p>
+                  <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
+                  <p class="plan-tile__for">{blurb}</p>
+                  <a class="plan-meter" href={t.rateLimitsHref}>
+                    <span class="plan-meter__label">{t.throughputLabel}</span>
+                    <span class="plan-meter__track">
+                      <span class="plan-meter__bar" aria-hidden="true">
+                        {[1, 2, 3, 4].map((step) => (
+                          <span
+                            class:list={[
+                              'plan-meter__seg',
+                              { 'is-on': meter > 0 && step <= meter, 'is-custom': meter === 0 },
+                            ]}
+                          />
+                        ))}
+                      </span>
+                      {meter === 0 && <span class="plan-meter__custom">{t.priceCustom}</span>}
+                    </span>
+                  </a>
+                  <ul class="plan-tile__list">
+                    {checks.map((item) => (
+                      <li>
+                        <span class:list={['plan-tile__mark', item.dash ? 'is-custom' : item.on ? 'is-yes' : 'is-no']}>
+                          {item.dash ? '—' : <Icon name={item.on ? 'action-checkmark' : 'action-close'} size={16} />}
+                        </span>
+                        <span>{item.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <div class="plan-tile__action">
+                    {plan.basePrice === 'Custom' && (
+                      <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
+                        {t.contactCta}
+                      </Button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
         {!showTokenPriceColumn && (
           <p class="token-price-note">
-            {t.thTokenPrice}: {planConfigs[0].tokenPrice} {t.thTokenPriceUnit} †
+            {t.thTokenPrice}: {planConfigs[0].tokenPrice} <span class="nowrap">{t.thTokenPriceUnit}{'\u00A0'}†</span>
           </p>
         )}
+        <p class="plan-spend">{t.spendNote}</p>
         <small>{t.footnote}</small>
-        <br />
-        <small>
-          <a href={isDE ? '/de/reference/rate-limits' : '/reference/rate-limits'}>
-            {isDE ? 'Mehr zu Rate-Limits →' : 'Learn more about rate limits →'}
-          </a>
-        </small>
-
-        <aside class="commitment-note" aria-label={t.commitmentNoteLead}>
-          <strong class="commitment-note__lead">{t.commitmentNoteLead}</strong> {t.commitmentNoteBody}
-        </aside>
       </section>
     )
   }
@@ -511,7 +593,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     effectiveIndex={initialPlanIndex}
     locked={Boolean(selectedPlanId)}
     translations={t}
-    modelBrandIcons={modelBrandIcons}
+    logos={logos}
     hostTooltips={hostTooltips}
     tierTooltips={tierTooltips}
     creatorTooltips={creatorTooltips}
@@ -523,19 +605,13 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 <style is:global>
   .plans-page {
     width: 100%;
-    --model-link-color: #4f5cff;
-    --model-link-icon-color: #000000;
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-text-body);
   }
 
   :root[data-theme='dark'] .plans-page {
-    --model-link-color: var(--aifs-d-link);
-    --model-link-icon-color: var(--aifs-d-link);
-  }
-
-  :root[data-theme='dark'] .plans-table th {
-    background: var(--aifs-d-surface);
-    color: var(--aifs-d-text);
-    border-bottom: 1px solid var(--aifs-d-border);
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-link-standard);
   }
 
   :root[data-theme='dark'] .plans-table th a {
@@ -543,34 +619,194 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   :root[data-theme='dark'] .sort-icon.active {
-    color: var(--aifs-d-link);
-  }
-
-  :root[data-theme='dark'] .tag-premium {
-    background: var(--aifs-d-surface);
-    color: #7fd4ea;
-    box-shadow: inset 0 0 0 1px var(--aifs-d-border);
+    color: var(--aifs-color-link-standard);
   }
 
   .rate-plans-section {
-    margin-bottom: 2rem;
+    margin-bottom: 8px;
+    container-type: inline-size;
+    container-name: rateplans;
   }
 
-  /* Scoped to the rate-plans table: ModelsTable renders its own .table-wrapper
-     on the same page (vertical scroller with sticky headers) that must not
-     inherit the padding/margin trick below. */
-  .rate-plans-section .plans-table {
-    border: 1px solid var(--sl-color-gray-5);
+  .plan-tiles {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    align-items: stretch;
+  }
+
+  .plan-tile {
+    display: grid;
+    grid-template-rows: subgrid;
+    grid-row: span 7;
+    gap: 8px;
+    min-width: 0;
+    margin: 0;
+    padding: 16px;
+    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    border-radius: var(--aifs-radius-card);
+    background: var(--aifs-color-surface-chrome);
+  }
+
+  .plan-tile > .plans-tag {
+    align-self: start;
+    justify-self: start;
+  }
+
+  .plan-tile__price {
+    margin: 0;
+    color: var(--aifs-color-text-body);
+    font-family: var(--aifs-font-body, inherit);
+    font-size: var(--aifs-text-h2-font-size);
+    font-weight: var(--aifs-text-h2-font-weight);
+    line-height: var(--aifs-text-h2-line-height);
+  }
+
+  .plan-tile__unit {
+    margin: -4px 0 0;
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+    font-weight: 500;
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  .sl-markdown-content a.plan-meter {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+    color: inherit;
+    font-size: var(--aifs-text-small-font-size);
+    font-weight: var(--aifs-button-font-weight);
+    line-height: var(--aifs-text-small-line-height);
+    text-decoration: none;
+  }
+
+  .sl-markdown-content a.plan-meter .plan-meter__label {
+    color: var(--aifs-color-link-standard);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .sl-markdown-content a.plan-meter:hover .plan-meter__label,
+  .sl-markdown-content a.plan-meter:focus-visible .plan-meter__label {
+    color: var(--aifs-color-link-hovered);
+  }
+
+  .plan-meter__track {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .plan-meter__bar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+    flex: 1 1 auto;
+    height: 8px;
+  }
+
+  .plan-meter__seg {
+    border-radius: var(--aifs-radius-control);
+    background: var(--aifs-color-scale-6);
+  }
+
+  .plan-meter__seg.is-on,
+  .plan-meter__seg.is-custom {
+    background: var(--aifs-color-action-background);
+  }
+
+  .plan-meter__custom {
+    flex: 0 0 auto;
+    color: var(--aifs-color-brand-text);
+    font-size: var(--aifs-tag-font-size-small);
+    font-weight: var(--aifs-tag-font-weight);
+  }
+
+  .plan-tile__list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin: 4px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  .plan-tile__list li {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  .plan-tile__mark {
+    display: inline-flex;
+    flex: 0 0 auto;
+  }
+
+  .plan-tile__mark.is-yes {
+    color: var(--aifs-color-success);
+  }
+
+  .plan-tile__mark.is-no {
+    color: var(--aifs-color-text-muted);
+  }
+
+  .plan-tile__for {
+    margin: 0;
+    color: var(--aifs-color-text-body);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  /* Full width of the card. Colour, height, radius and states come from
+     .aifs-button--secondary (button.css). */
+  .plan-tile__cta {
+    width: 100%;
+  }
+
+  .plan-spend {
+    margin: 8px 0 0;
+    max-width: 54rem;
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  /* Phones stay one column. Two by two until four cards of about 215px fit.
+     With the sidebar open that is 1280 (content about 854px) and 1440. */
+  @container rateplans (min-width: 34rem) {
+    .plan-tiles {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @container rateplans (min-width: 53rem) {
+    .plan-tiles {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .content-panel .rate-plans-section > * + * {
+    margin-top: 8px;
+  }
+
+  .rate-plans-section .plans-table :is(th, td) {
+    padding-block: 8px;
+    line-height: 1.2;
   }
 
   .rate-plans-section .table-wrapper {
     max-width: 100%;
-    overflow-x: auto;
-    /* Scroll-clipping makes overflow-y compute to auto too; the padding/margin
-       pair keeps room inside the scrollport for the row tooltips that open
-       upward, so they aren't cut off at the wrapper's top edge. */
-    padding-top: 7rem;
-    margin-top: -7rem;
+    overflow-x: visible;
+    padding-top: 0;
+    margin-top: 0;
   }
 
   @media (min-width: 80rem) {
@@ -609,7 +845,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .token-price-note {
-    margin: 0.75rem 0 0.25rem;
+    margin: 8px 0 0;
+    font-size: var(--aifs-text-small-font-size);
   }
 
   .plans-table {
@@ -621,84 +858,40 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     border: 0;
   }
 
-  .plans-table th,
-  .plans-table td {
-    border: 0;
-    padding: 0.85rem 0.85rem;
-    text-align: left;
+  /* Five short columns. Fixed layout lets Host and Tier chips wrap inside
+     the cell, so the table stays a table down to 36rem of content. That is
+     the column under a 900px viewport with the sidebar open (~37rem). */
+  .rate-plans-section .plans-table {
+    table-layout: fixed;
   }
 
-  .plans-table th {
-    background: #f2f2f2;
-    color: #262626;
-    font-weight: 700;
-    cursor: pointer;
-    user-select: none;
-    vertical-align: middle;
+  .rate-plans-section .plans-table :is(th, td) {
+    white-space: normal;
+    overflow-wrap: break-word;
   }
+
+  .rate-plans-section .plans-table :is(.ui-tooltip, .plans-tag) {
+    margin-inline-end: 4px;
+  }
+
+  /* Head, cells, rows and hover: src/styles/table.css. */
 
   .plans-table__small-text {
+    display: block;
+    max-width: 100%;
     font-weight: normal;
     font-size: var(--sl-text-2xs);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .plans-table__main-text {
     font-weight: 650;
   }
 
-  .plans-table tbody tr:hover {
-    background: var(--sl-color-gray-6);
-  }
-
-  .plans-table thead tr {
-    border-bottom: 1px solid var(--sl-color-gray-5);
-  }
-
-  .plans-table tbody tr {
-    border-bottom: 1px solid var(--sl-color-gray-5);
-  }
-
-  .plans-table tbody tr:last-child {
-    border-bottom: 0;
-  }
-
   .plans-table tbody tr.sub-row {
     opacity: 0.85;
     font-size: 0.85rem;
-  }
-
-  .plans-tag {
-    display: inline-block;
-    padding: 0.15rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-
-  .plans-tag:hover {
-    cursor: pointer;
-  }
-
-  .tag-tcloud {
-    background: #e20074 !important;
-    color: white !important;
-  }
-
-  .tag-cloud {
-    background: var(--sl-color-gray-5);
-    color: var(--sl-color-white);
-  }
-
-  .tag-tier {
-    background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
-    color: var(--sl-color-text);
-  }
-
-  .tag-premium {
-    background: rgba(78, 201, 223, 0.28);
-    color: #238fa5;
-    box-shadow: inset 0 0 0 1px rgba(78, 201, 223, 0.22);
   }
 
   .sort-icon {
@@ -708,8 +901,88 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .sort-icon.active {
-    color: #e20074;
+    color: var(--aifs-color-brand-text);
     opacity: 1;
+  }
+
+  @container rateplans (max-width: 36rem) {
+    .rate-plans-section .table-wrapper {
+      overflow: visible;
+      padding-top: 0;
+      margin-top: 0;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table,
+    .rate-plans-section .plans-table tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table thead {
+      display: none;
+    }
+
+    /* Plan chip and commitment fill the first line. Limits, host and tier
+       chips share the next line. */
+    .rate-plans-section .plans-table tr {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 8px;
+      width: 100%;
+      box-sizing: border-box;
+      border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+      border-radius: var(--aifs-table-radius);
+      margin: 0 0 6px;
+      padding: 8px;
+    }
+
+    .rate-plans-section .plans-table td {
+      display: inline-flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+      width: auto;
+      padding: 0;
+      border: 0;
+    }
+
+    .rate-plans-section .plans-table td:nth-child(-n + 2) {
+      order: 0;
+    }
+
+    .rate-plans-section .plans-table td:nth-child(2) {
+      flex: 1 1 auto;
+    }
+
+    .rate-plans-section .plans-table tr::after {
+      content: '';
+      order: 1;
+      flex-basis: 100%;
+      width: 0;
+      height: 0;
+    }
+
+    .rate-plans-section .plans-table td:nth-child(n + 3) {
+      order: 2;
+    }
+
+    .rate-plans-section .plans-table td::before {
+      content: attr(data-label);
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
   }
 
   @media (max-width: 1200px) {

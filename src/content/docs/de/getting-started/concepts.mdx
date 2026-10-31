@@ -1,0 +1,40 @@
+---
+title: "Konzepte und Glossar"
+description: "Tokens, TPM, RPM, Kontextfenster, T-Cloud, Partnermodelle, die OpenAI-kompatible API, Reasoning Effort und Embeddings."
+---
+
+## Tokens
+
+Ein Token ist die Einheit, die die API zählt. Eine Chat-Anfrage kann `max_tokens` setzen und damit begrenzen, wie viele Tokens das Modell erzeugt. Rate-Limits zählen Tokens zusätzlich pro Minute.
+
+## TPM
+
+TPM bedeutet Tokens pro Minute. Jeder Shared-Tarif gibt für jedes Modell ein Input-TPM und ein Output-TPM an. Die Werte und ihre Bedingungen stehen unter [Rate-Limits](/de/reference/rate-limits).
+
+## RPM
+
+RPM bedeutet Anfragen pro Minute. Jeder Shared-Tarif gibt an, wie viele Anfragen Sie an ein Modell senden können. RPM steht auf derselben Seite [Rate-Limits](/de/reference/rate-limits) wie das TPM.
+
+## Kontextfenster
+
+Das Kontextfenster ist die Textmenge, die ein Modell in einer Anfrage akzeptiert. Der Katalog gibt sie je Modell an, zum Beispiel `8K`, `128K` oder `1M`. [Modell wählen](/de/getting-started/choosing-a-model) zeigt den Wert neben jeder Empfehlung.
+
+## T-Cloud
+
+T-Cloud ist die Bezeichnung für Modelle, die die Telekom hostet. Im Katalog ist ihre Region Deutschland. [Enterprise Trust](/de/reference/enterprise-trust) beschreibt, wie Prompts für diese Modelle verarbeitet werden.
+
+## Partnermodelle
+
+Partnermodelle sind die Modelle, die die API an einen anderen Anbieter weiterleitet. Der Katalog führt sie auf Microsoft Azure oder Google Cloud, in einer genannten Region wie Schweden, Frankreich oder `europe-west1`, oder weltweit. [Enterprise Trust](/de/reference/enterprise-trust) beschreibt die Datenverarbeitung für diesen Weg.
+
+## OpenAI-kompatibel
+
+Die API funktioniert mit dem OpenAI SDK. Der [Quickstart](/de/) setzt `OPENAI_BASE_URL` und sendet eine Anfrage an `chat/completions`. Nicht jeder OpenAI-Parameter existiert auf jedem Modell. Nutzen Sie die Anleitung für den Aufruf, den Sie ausführen.
+
+## Reasoning effort
+
+`reasoning_effort` legt fest, wie viel Reasoning ein Modell vor der Antwort ausführt. Das Datenblatt nennt die zulässigen Werte, und die Liste unterscheidet sich je Modell. Siehe [Reasoning](/de/guides/reasoning).
+
+## Embeddings
+
+Ein Embedding ist ein Vektor für einen Text, den `POST /embeddings` zurückgibt. Embeddings dienen der semantischen Suche und dem Retrieval. Siehe [Embeddings](/de/guides/embeddings).

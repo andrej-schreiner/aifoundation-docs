@@ -1,0 +1,110 @@
+---
+import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
+import { creatorNameFor, getLogo } from '../shared/lib/logos';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+
+function place(hosting: string): string {
+  if (!isDE) return hosting;
+  return hosting
+    .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
+    .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
+    .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
+    .replaceAll('Azure (worldwide)', 'Azure (Weltweit)')
+    .replaceAll('GCP (worldwide)', 'GCP (Weltweit)');
+}
+---
+
+<ul class="model-highlights">
+  {
+    CHOICE_ROWS.map((row) => {
+      const recommended = modelFact(row.recommended);
+      const creator = creatorNameFor(recommended.id, recommended.name);
+      const logo = getLogo(creator) || getLogo('Other');
+      return (
+        <li>
+          <span class="model-highlights__case">{isDE ? row.useCase.de : row.useCase.en}</span>
+          <span class="model-highlights__model">
+            <span class:list={['model-highlights__mark', { 'model-highlights__mark--zoom': creator.startsWith('Google') }]}>
+              <img src={logo} alt="" width="20" height="20" />
+            </span>
+            <span>
+              {recommended.name}
+              {recommended.preview ? (isDE ? ' (Vorschau)' : ' (Preview)') : ''}
+            </span>
+          </span>
+          <span class="model-highlights__host">{place(recommended.hosting)}</span>
+        </li>
+      );
+    })
+  }
+</ul>
+
+<style>
+  .model-highlights {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .model-highlights li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+    align-items: baseline;
+    margin: 0;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--aifs-color-border-subtle);
+  }
+
+  .model-highlights__case {
+    flex: 1 1 12rem;
+    font-weight: 700;
+  }
+
+  .model-highlights__model {
+    flex: 1 1 12rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .model-highlights__host {
+    flex: 1 1 10rem;
+    color: var(--aifs-color-text-muted, var(--sl-color-gray-3));
+  }
+
+  .model-highlights__mark {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 2px;
+    box-sizing: border-box;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background, #fff);
+  }
+
+  .model-highlights__mark--zoom {
+    padding: 2px;
+    overflow: visible;
+  }
+
+  .model-highlights__mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .model-highlights__mark--zoom img {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+  }
+</style>

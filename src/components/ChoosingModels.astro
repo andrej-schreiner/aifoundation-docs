@@ -1,0 +1,318 @@
+---
+import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
+import { creatorNameFor, getLogo } from '../shared/lib/logos';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const prefix = isDE ? '/de' : '';
+
+const t = isDE
+  ? {
+      useCase: 'Anwendungsfall',
+      recommended: 'Empfohlen',
+      alternative: 'Alternative',
+      where: 'Wo es läuft',
+      context: 'Kontext',
+      notes: 'Hinweise',
+      unpublished: 'Nicht angegeben',
+      preview: 'Vorschau',
+      migrate: 'Umstieg von GPT, Claude oder Gemini?',
+      deprecations: 'Abkündigungen',
+    }
+  : {
+      useCase: 'Use case',
+      recommended: 'Recommended',
+      alternative: 'Alternative',
+      where: 'Where it runs',
+      context: 'Context',
+      notes: 'Notes',
+      unpublished: 'Not published',
+      preview: 'Preview',
+      migrate: 'Migrating from GPT, Claude, or Gemini?',
+      deprecations: 'Deprecations',
+    };
+
+function place(hosting: string): string {
+  if (!isDE) return hosting;
+  return hosting
+    .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
+    .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
+    .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
+    .replaceAll('Azure (worldwide)', 'Azure (Weltweit)')
+    .replaceAll('GCP (worldwide)', 'GCP (Weltweit)');
+}
+
+function contextLabel(value: string): string {
+  return value || '—';
+}
+
+function richHtml(text: string): string {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replace(/`([^`]+)`/g, '<code>$1</code>')
+    .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>');
+}
+
+function where(recommended: string, alternative: string): string {
+  const a = place(modelFact(recommended).hosting);
+  const b = place(modelFact(alternative).hosting);
+  return a === b ? a : `${a} · ${b}`;
+}
+
+function contextCell(recommended: string, alternative: string): string {
+  const a = modelFact(recommended).context;
+  const b = modelFact(alternative).context;
+  if (!a || !b) return contextLabel(a || b);
+  return a === b ? a : `${a} · ${b}`;
+}
+
+function logoFor(id: string, name: string): { src: string; zoom: boolean } {
+  const creator = creatorNameFor(id, name);
+  return { src: getLogo(creator) || getLogo('Other'), zoom: creator.startsWith('Google') };
+}
+---
+
+<div class="choose-root">
+<div class="choose-desktop">
+  <div class="aifs-table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>{t.useCase}</th>
+          <th>{t.recommended}</th>
+          <th>{t.alternative}</th>
+          <th>{t.where}</th>
+          <th>{t.context}</th>
+          <th>{t.notes}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {CHOICE_ROWS.map((row) => {
+          const recommended = modelFact(row.recommended);
+          const alternative = modelFact(row.alternative);
+          const logo = logoFor(recommended.id, recommended.name);
+          return (
+            <tr>
+              <td>{isDE ? row.useCase.de : row.useCase.en}</td>
+              <td>
+                <span class="choose-name">
+                  <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
+                    <img src={logo.src} alt="" width="20" height="20" />
+                  </span>
+                  <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
+                </span>
+              </td>
+              <td>
+                {alternative.name}
+                {alternative.preview ? ` (${t.preview})` : ''}
+              </td>
+              <td>{where(row.recommended, row.alternative)}</td>
+              <td>{contextCell(row.recommended, row.alternative)}</td>
+              <td><span set:html={richHtml(isDE ? row.notes.de : row.notes.en)} /></td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<ul class="choose-cards">
+  {CHOICE_ROWS.map((row) => {
+    const recommended = modelFact(row.recommended);
+    const alternative = modelFact(row.alternative);
+    const logo = logoFor(recommended.id, recommended.name);
+    return (
+      <li class="choose-card">
+        <p class="choose-card__case">{isDE ? row.useCase.de : row.useCase.en}</p>
+        <p class="choose-card__rec">
+          <span class="choose-k">{t.recommended}</span>
+          <span class="choose-name">
+            <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
+              <img src={logo.src} alt="" width="20" height="20" />
+            </span>
+            <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
+          </span>
+        </p>
+        <p>
+          <span class="choose-k">{t.alternative}</span>
+          {alternative.name}
+          {alternative.preview ? ` (${t.preview})` : ''}
+        </p>
+        <p>
+          <span class="choose-k">{t.where}</span>
+          {where(row.recommended, row.alternative)}
+        </p>
+        <p>
+          <span class="choose-k">{t.context}</span>
+          {contextCell(row.recommended, row.alternative)}
+        </p>
+        <p>
+          <span class="choose-k">{t.notes}</span>
+          <span set:html={richHtml(isDE ? row.notes.de : row.notes.en)} />
+        </p>
+      </li>
+    );
+  })}
+</ul>
+</div>
+
+<h2>{t.migrate}</h2>
+
+<p>
+  {isDE
+    ? 'Ein Modell, das den Katalog verlässt, steht mit Datum und Ersatz unter '
+    : 'A model that is leaving the catalog is listed with its date and replacement on '}
+  <a href={`${prefix}/models/deprecations`}>{t.deprecations}</a>.
+</p>
+
+<style>
+  .choose-desktop,
+  .choose-cards {
+    margin-top: 1rem;
+  }
+
+  .choose-desktop {
+    width: 100%;
+    max-width: none;
+  }
+
+  .choose-desktop :global(.aifs-table-scroll) {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: visible;
+  }
+
+  .choose-desktop table {
+    width: 100%;
+    table-layout: fixed;
+    min-width: 0;
+  }
+
+  .choose-desktop :global(th),
+  .choose-desktop :global(td) {
+    overflow-wrap: anywhere;
+  }
+
+  .choose-desktop th:nth-child(1),
+  .choose-desktop td:nth-child(1) { width: 16%; }
+  .choose-desktop th:nth-child(2),
+  .choose-desktop td:nth-child(2) { width: 18%; }
+  .choose-desktop th:nth-child(3),
+  .choose-desktop td:nth-child(3) { width: 18%; }
+  .choose-desktop th:nth-child(4),
+  .choose-desktop td:nth-child(4) { width: 14%; }
+  .choose-desktop th:nth-child(5),
+  .choose-desktop td:nth-child(5) { width: 10%; }
+  .choose-desktop th:nth-child(6),
+  .choose-desktop td:nth-child(6) { width: 24%; }
+
+  :global(:lang(de)) .choose-desktop :global(td),
+  :global(:lang(de)) .choose-desktop :global(th) {
+    hyphens: manual;
+    -webkit-hyphens: manual;
+    overflow-wrap: break-word;
+  }
+
+  .choose-cards {
+    display: none;
+    list-style: none;
+    margin-top: 1rem;
+    padding: 0;
+    gap: 8px;
+  }
+
+  .choose-name {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: 4px;
+    max-width: 100%;
+  }
+
+  .choose-name > span:last-child {
+    min-width: 0;
+  }
+
+  .choose-name .choose-mark {
+    margin-inline-end: 0;
+    box-sizing: border-box;
+  }
+
+  .choose-mark {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    margin-inline-end: 6px;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 2px;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background, #fff);
+  }
+
+  .choose-mark--zoom {
+    padding: 0;
+  }
+
+  .choose-mark img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .choose-mark--zoom img {
+    width: 175%;
+    height: 175%;
+    max-width: none;
+  }
+
+  .choose-card {
+    background: var(--aifs-color-surface-chrome);
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: var(--aifs-table-radius, 8px);
+    padding: 10px 12px;
+  }
+
+  .choose-card p {
+    margin: 0 0 6px;
+  }
+
+  .choose-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .choose-card__case {
+    font-weight: 700;
+  }
+
+  .choose-card__rec .choose-name {
+    align-items: center;
+  }
+
+  .choose-k {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--aifs-color-text-muted, var(--sl-color-gray-3));
+  }
+
+  .choose-root {
+    container-type: inline-size;
+    container-name: choose;
+  }
+
+  @container choose (max-width: 52rem) {
+    .choose-desktop {
+      display: none;
+    }
+
+    .choose-cards {
+      display: grid;
+    }
+  }
+</style>

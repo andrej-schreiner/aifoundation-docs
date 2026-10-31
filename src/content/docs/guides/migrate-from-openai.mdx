@@ -1,0 +1,57 @@
+---
+title: "Migrate from OpenAI"
+description: "Point an OpenAI SDK at AI Foundation Services with the quickstart base URL, and use a catalog model id."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Point an application that already calls OpenAI at AI Foundation Services. Keep the SDK. Change the base URL, the API key, and the model id.
+
+If your code uses the AzureOpenAI client, switch to the standard OpenAI client: Azure-style deployment URLs and the api-key header are not part of the AI Foundation Services API.
+
+The move from the current AIFS endpoint to the New API is a separate guide: [Migrate to the New API](/api-transition).
+
+:::note[Prerequisites]
+- An AIFS API key ([get one here](https://apikey.llmhub.t-systems.net/))
+- The OpenAI SDK already installed
+:::
+
+## Minimal example
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[{"role": "user", "content": "Hello from AIFS"}],
+)
+print(response.choices[0].message.content)
+```
+
+The response text is `response.choices[0].message.content`.
+
+## Parameters
+
+Set `OPENAI_BASE_URL` and `OPENAI_API_KEY`. The chat body uses `model` and `messages`.
+
+Model ids on AIFS can differ from OpenAI model ids. [Choosing a model](/getting-started/choosing-a-model) lists the catalog. [Deprecations](/models/deprecations) lists retirement dates and replacements.
+
+## Limitations and troubleshooting
+
+The API is OpenAI-compatible. Not every parameter exists on every model. Some models return HTTP 400 for the Responses API. Use the guide for the call you are migrating.
+
+Authentication failures are HTTP 401 or 403. See [Error codes](/reference/error-codes).
+
+## Next steps
+
+<div class="link-card-row">
+  <LinkCard title="Quickstart" href="/" description="Install, key, and the first chat call." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Catalog ids by use case." />
+  <LinkCard title="Migrate to the New API" href="/api-transition" description="The AIFS endpoint change." />
+</div>

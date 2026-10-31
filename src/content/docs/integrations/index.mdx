@@ -5,7 +5,7 @@ description: "Integrate AI Foundation Services with popular AI frameworks includ
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-AI Foundation Services exposes an OpenAI-compatible API, which means most frameworks and tools built for OpenAI work out of the box — point the base URL at `https://llmhub.t-systems.net/v2` and supply your API key. The pages below cover the most common framework integrations with working setup examples.
+AI Foundation Services exposes an OpenAI-compatible API, which means most frameworks and tools built for OpenAI work out of the box — point the base URL at `https://llm-server.ai.t-systems.net/v1` and supply your API key. The pages below cover the most common framework integrations with working setup examples.
 
 <CardGrid>
   <LinkCard
@@ -17,5 +17,25 @@ AI Foundation Services exposes an OpenAI-compatible API, which means most framew
     title="LlamaIndex Integration"
     href="/integrations/llama-index/"
     description="Build RAG applications and chat engines with LlamaIndex by pointing the OpenAI-compatible client at AI Foundation Services."
+  />
+  <LinkCard
+    title="Cline"
+    href="/plugins/cline/"
+    description="Install and configure Cline for AI Engineer in Visual Studio Code, an agentic coding plugin connected to AI Foundation Services."
+  />
+  <LinkCard
+    title="Continue (VS Code)"
+    href="/plugins/continue-vscode/"
+    description="Install and configure the Continue plugin for Visual Studio Code with chat, inline edits, autocomplete, and coding agents on AI Foundation Services."
+  />
+  <LinkCard
+    title="Continue (JetBrains)"
+    href="/plugins/continue-jetbrains/"
+    description="Install and configure the Continue plugin for JetBrains IDEs with chat, inline edits, autocomplete, and coding agents on AI Foundation Services."
+  />
+  <LinkCard
+    title="OpenCode"
+    href="/plugins/opencode/"
+    description="Install OpenCode, an open-source terminal-based AI coding agent, and connect it to AI Foundation Services."
   />
 </CardGrid>

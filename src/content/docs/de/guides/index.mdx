@@ -1,90 +1,38 @@
 ---
 title: "Anleitungen"
-description: "Aufgabenorientierte Anleitungen für das Entwickeln mit AI Foundation Services — Chat Completions, Streaming, Embeddings, Multimodal und mehr."
+description: "Aufgabenorientierte Anleitungen für AI Foundation Services — Chat, Modalitäten, Funktionen und Produktion."
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-Der Abschnitt „Anleitungen" beantwortet „Wie mache ich…"-Fragen. Jede Seite konzentriert sich auf eine einzelne Funktion: Sie zeigt den minimalen funktionsfähigen Code, erläutert die wichtigsten Parameter und weist auf plattformspezifisches Verhalten hin. Alle Beispiele verwenden die OpenAI-kompatible API, sodass vorhandener OpenAI-SDK-Code in der Regel mit einer einzeiligen Anpassung der Basis-URL funktioniert.
+Der Abschnitt „Anleitungen“ beantwortet „Wie mache ich …?“-Fragen. Jede Seite behandelt eine Funktion: der minimale Aufruf, die Parameter und das plattformspezifische Verhalten. Die Beispiele nutzen die OpenAI-kompatible API.
 
-Wählen Sie unten ein Thema aus oder arbeiten Sie die Anleitungen der Reihe nach durch, wenn Sie neu bei AI Foundation Services sind.
-
-## Kern-API
+## Nach Modalität
 
 <CardGrid>
-  <LinkCard
-    title="Chat Completions"
-    href="/de/guides/chat-completions/"
-    description="Chat-Anfragen mit System- und Benutzernachrichten über die OpenAI-kompatible Chat-API von AI Foundation Services senden."
-  />
-  <LinkCard
-    title="Prefix Caching"
-    href="/de/guides/prefix-caching/"
-    description="Wiederholte Prompt-Präfixe wiederverwenden und die Zeit bis zum ersten Token senken — mit save_cache und cache_salt für Open-Source-Modelle und cache_control für Claude."
-  />
-  <LinkCard
-    title="Streaming"
-    href="/de/guides/streaming/"
-    description="LLM-Antworten token-weise über Server-Sent Events streamen — für geringere Latenz und bessere Nutzererfahrung."
-  />
-  <LinkCard
-    title="Embeddings"
-    href="/de/guides/embeddings/"
-    description="Texteinbettungen für semantische Suche, Clustering und RAG-Anwendungen über die Embedding-API von AI Foundation Services generieren."
-  />
-  <LinkCard
-    title="Function Calling"
-    href="/de/guides/function-calling/"
-    description="Werkzeuge definieren und LLM-Hub-Modelle strukturierte JSON-Argumente zurückgeben lassen, um externe APIs und Datenquellen anzubinden."
-  />
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions/" description="System- und Nutzernachrichten auf der Chat-API." />
+  <LinkCard title="Streaming" href="/de/guides/streaming/" description="Antworten Token für Token über Server-Sent Events." />
+  <LinkCard title="Bildeingabe" href="/de/guides/multimodal/" description="Bildeingabe auf der Chat-API." />
+  <LinkCard title="Bildgenerierung" href="/de/guides/image-generation/" description="Textprompts zu Bildern." />
+  <LinkCard title="Audio" href="/de/guides/audio/" description="Whisper-Transkription und Übersetzung." />
+  <LinkCard title="Embeddings" href="/de/guides/embeddings/" description="Vektoren für Suche und RAG." />
+  <LinkCard title="OCR" href="/de/guides/ocr/" description="Vorschau-Modelle, die Dokumente in Markdown wandeln." />
 </CardGrid>
 
-## Multimodal & Medien
+## Funktionen
 
 <CardGrid>
-  <LinkCard
-    title="Multimodal (Vision)"
-    href="/de/guides/multimodal/"
-    description="Bilder zusammen mit Text über visionsfähige Modelle von AI Foundation Services mit der standardmäßigen Chat-Completions-API analysieren."
-  />
-  <LinkCard
-    title="Audio (Sprache-zu-Text)"
-    href="/de/guides/audio/"
-    description="Audiodateien mit Whisper-basierten Modellen von AI Foundation Services transkribieren und übersetzen, kompatibel mit der OpenAI Audio API."
-  />
-  <LinkCard
-    title="Image Generation"
-    href="/de/guides/image-generation/"
-    description="Bilder aus Textprompts über die OpenAI-kompatible Images-API von AI Foundation Services mit verfügbaren Bildmodellen generieren."
-  />
+  <LinkCard title="Function Calling" href="/de/guides/function-calling/" description="Tools und JSON-Argumente." />
+  <LinkCard title="Strukturierte Ausgaben" href="/de/guides/structured-outputs/" description="JSON Schema auf der Responses API." />
+  <LinkCard title="Reasoning" href="/de/guides/reasoning/" description="Der Parameter reasoning_effort, je Modell." />
+  <LinkCard title="Decisions" href="/de/guides/decisions/" description="Typisierte Antworten für Routing und Prüfungen." />
 </CardGrid>
 
-## Erweitert
+## Produktion
 
 <CardGrid>
-  <LinkCard
-    title="OCR (Dokumentenerkennung)"
-    href="/de/guides/ocr/"
-    description="Gescannte Dokumente, PDFs und Fotos mit LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, HTML-Tabellen und LaTeX umwandeln."
-  />
-  <LinkCard
-    title="Decisions"
-    href="/de/guides/decisions/"
-    description="Typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text, aus Text oder Bildern, für schnelle Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks."
-  />
-  <LinkCard
-    title="Reasoning"
-    href="/de/guides/reasoning/"
-    description="Tiefe des Chain-of-Thought mit dem Parameter reasoning_effort bei Reasoning-fähigen Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
-  />
-  <LinkCard
-    title="Visual RAG"
-    href="/de/guides/visual-rag/"
-    description="Dokumente mit kombinierter Text- und Bildindizierung bei AI Foundation Services aufnehmen, um Daten aus Diagrammen, Tabellen und Grafiken zu extrahieren."
-  />
-  <LinkCard
-    title="Queued Requests (Queue API)"
-    href="/de/guides/queued-requests/"
-    description="Bis zu zwei Minuten auf freies Rate-Limit warten, statt sofort einen 429 zu erhalten."
-  />
+  <LinkCard title="Prefix Caching" href="/de/guides/prefix-caching/" description="Ein wiederholtes Prompt-Präfix wiederverwenden." />
+  <LinkCard title="Fehler und Zuverlässigkeit" href="/de/guides/reliability/" description="Wiederholungen, Statuscodes und die Queue." />
+  <LinkCard title="Embeddings und RAG" href="/de/guides/embeddings/" description="Embeddings, RAG und Visual RAG." />
+  <LinkCard title="Umstieg von OpenAI" href="/de/guides/migrate-from-openai/" description="Ein OpenAI-SDK auf diese API umstellen." />
 </CardGrid>

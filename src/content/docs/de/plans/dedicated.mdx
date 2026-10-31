@@ -10,8 +10,23 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 Im Gegensatz zum [Shared LLM Serving Service](/de/plans) gibt es keine Rate-Limit-Obergrenzen und keine geteilte Konkurrenz. End-to-End-Latenz, Time-to-First-Token und Tokens pro Sekunde werden vorhersagbare Funktionen Ihres Modells und Ihres Prompts — nicht des Traffics anderer Tenants.
 
+## Shared und Dedicated
+
+<a id="comparison"></a>
+
+| <span class="sr-only">Aspekt</span> | Shared LLM Serving Service | Dedicated LLM Serving |
+|---|---|---|
+| **Tenancy** | Multi-Tenant — Kapazität wird über alle Kunden gepoolt | Single-Tenant — Hardware ist Ihrem Vertrag exklusiv zugewiesen |
+| **Preismodell** | Monatliche Mindestabnahme an Token-Umsatz; Nutzung darüber wird zu den gelisteten Token-Preisen abgerechnet | Fester Monatspreis pro GPU-Äquivalent |
+| **Rate-Limits** | Tarifabhängige RPM- und TPM-Obergrenzen — Best-Effort, nicht Teil des SLA | Keine — limitiert nur durch Ihre reservierte Hardware |
+| **Modelle** | Voller Katalog laut [Tarife & Preise](/de/plans) | Jedes Modell, das auf die reservierte Hardware passt, inklusive privater Fine-Tuning-Modelle |
+| **Performance** | Best-Effort, variiert mit Plattformlast; nicht Teil des SLA | Vorhersagbar auf der reservierten Hardware; Performance-SLAs verhandelbar |
+| **Verfügbarkeits-SLA** | 99,5% API-Verfügbarkeit im Standardprodukt (Betriebszeit); nur Erreichbarkeit | Individuelle Verfügbarkeits- und Performance-SLAs, pro Vertrag verhandelt |
+| **Bestellung** | [API-Key-Portal](https://apikey.llmhub.t-systems.net/login). [Kontakt](mailto:ai@t-systems.com) zum Bestellen | Angebotsanfrage beim AIFS-Team |
+| **Geeignet für** | Stetigen Produktionsverkehr, Exploration, Prototyping | Strikte Latenz-SLAs, bursty Workloads, hohen Dauerdurchsatz, private Modelle |
+
 <div class="link-card-row">
-  <LinkCard title="Mit Shared vergleichen" href="/de/plans/service-models" description="Beide Servicemodelle nebeneinander, mit Entscheidungsleitfaden." />
+  <LinkCard title="Shared-Tarife" href="/de/plans" description="Essential, Professional und Agentic vergleichen." />
   <LinkCard title="Angebot anfragen" href="mailto:ai@t-systems.com" description="Kontaktieren Sie das AIFS-Team für ein individuelles Dedicated-LLM-Serving-Angebot." />
 </div>
 
@@ -28,7 +43,7 @@ Die Performance kann sich verschlechtern, wenn Sie die Hardware nahe ihrer Grenz
 
 Auf der Shared-Plattform konkurrieren Sie mit allen anderen Tenants um Kapazität auf demselben Open-Source-Modell. Bei Lastspitzen variieren End-to-End-Latenz und Time-to-First-Token; der effektive Durchsatz kann unter der veröffentlichten TPM-Obergrenze liegen.
 
-Im Dedicated LLM Serving bedienen Ihre GPUs ausschließlich Ihre Anfragen. Die Performance ist deterministisch und reproduzierbar — derselbe Prompt erzeugt Lauf für Lauf dasselbe Latenzprofil. Erst das macht **strikte SLAs** auf Latenz oder Durchsatz erreichbar.
+Im Dedicated LLM Serving bedienen Ihre GPUs ausschließlich Ihre Anfragen. Die Performance ist vorhersehbar und nicht von anderen Mandanten beeinflusst. Das macht **SLAs zu Latenz oder Durchsatz** auf der reservierten Hardware verhandelbar.
 
 ### 3. Jedes kompatible Modell
 
@@ -69,7 +84,7 @@ Der Shared LLM Serving Service ist für die meisten Produktions-Workloads geeign
 - **Compliance erfordert Single-Tenant.** Keine geteilte Recheninfrastruktur mit anderen Kunden.
 - **Planbare Kostenstruktur.** Feste Gebühr für Hardware und Managed Service statt token-basierter Abrechnung.
 
-Trifft keiner dieser Punkte zu, bleiben Sie beim Shared Service — er ist einfacher, bei niedrigem bis mittlerem Volumen günstiger und self-service bestellbar.
+Trifft keiner dieser Punkte zu, bleiben Sie beim Shared Service — er ist einfacher und bei niedrigem bis mittlerem Volumen günstiger. Zum Bestellen [kontaktieren Sie uns](mailto:ai@t-systems.com).
 
 
 ## Hybrid-Deployments
@@ -95,7 +110,7 @@ Die Leistungsbeschreibung führt Leistungen auf, die die Telekom bei gesonderter
 
 ## Bestellung
 
-Dedicated LLM Serving ist **nicht** über den T-Cloud Marketplace verfügbar — es erfordert ein individuelles Angebot. Vorgehen:
+Dedicated LLM Serving erfordert ein individuelles Angebot. [Kontaktieren Sie uns](mailto:ai@t-systems.com). Vorgehen:
 
 1. E-Mail an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com) mit Ihrem erwarteten Workload-Profil (Spitzen-Anfragerate, dauerhaftes Token-Volumen, Modellpräferenzen, Latenzziele, Vertragslaufzeit).
 2. Das Team erstellt eine individuelle Preisindikation auf Basis Ihrer Angaben.
@@ -106,7 +121,6 @@ Für sehr große oder compliance-getriebene Deployments prüft das AIFS-Team auc
 
 ## Weiterführende Ressourcen
 
-- **[Shared vs. Dedicated LLM Serving](/de/plans/service-models)** — Beide Servicemodelle nebeneinander
 - **[Tarife & Preise](/de/plans)** — Preise für die Shared-Tarife Essential / Professional / Agentic
 - **[Rate-Limits](/de/reference/rate-limits)** — Wie RPM/TPM auf dem Shared Service funktionieren
 - **[Service-Level](/de/reference/service-levels)** — Standard-SLA-Bedingungen (und wie Dedicated LLM Serving sie erweitern kann)

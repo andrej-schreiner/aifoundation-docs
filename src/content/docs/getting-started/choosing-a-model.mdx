@@ -1,0 +1,17 @@
+---
+title: "Choosing a model"
+description: "Recommendations for chat, reasoning, coding, vision, OCR, embeddings, audio, decisions, and image generation."
+---
+
+import ChoosingModels from '../../../components/ChoosingModels.astro';
+import { LinkCard } from '@astrojs/starlight/components';
+
+Pick a model for the job. When a T-Cloud model fits, it is the recommendation.
+
+<ChoosingModels />
+
+<div class="link-card-row">
+  <LinkCard title="Catalog" href="/models" description="Every hosted model, with filters." />
+  <LinkCard title="Deprecations" href="/models/deprecations" description="Retirement dates and the named replacements." />
+  <LinkCard title="Enterprise Trust" href="/reference/enterprise-trust" description="What T-Cloud hosting means for your data." />
+</div>

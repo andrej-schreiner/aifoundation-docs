@@ -1,4 +1,6 @@
 {
+  "_todo_deepseek": "TODO(andrej): DeepSeek-V4.1-Flash has a vendor thinking mode. Do not record a reasoning_tokens field until AIFS confirms where the count is reported.",
+  "_glm_5_3": "GLM-5.3 usage is inherited from GLM-5.2 and is not live-verified.",
   "_comment": "Where a reasoning model reports its reasoning token count in the chat completion `usage` object. Keyed by exactModelName. Values: completion_tokens_details (the OpenAI field completion_tokens_details.reasoning_tokens) | usage (top-level usage.reasoning_tokens) | none (the model reasons but the response carries no count). Models that do not reason at all are not listed and render as '-'. Decision: AIFS-19314 (2026-10).",
   "_evidence": {
     "verified": "2026-10-12, one live chat completion per model against the production API (/v2/chat/completions), usage block inspected.",
@@ -11,6 +13,7 @@
     "Qwen3.8-27B-FP8": "completion_tokens_details",
     "gemma-4-31B-it-FP8": "completion_tokens_details",
     "GLM-5.2": "usage",
+    "GLM-5.3": "usage",
     "GLM-5.3-Flash": "usage",
     "Qwen-3.6-35B-FP8": "usage",
     "Nemotron-3-Super-120B-FP8": "none",

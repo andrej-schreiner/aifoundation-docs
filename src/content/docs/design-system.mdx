@@ -1,0 +1,829 @@
+---
+title: Design system
+description: The docs' style guides, component library and pattern library on one page, for checking the design in light and dark mode.
+draft: true
+pagefind: false
+head:
+  - tag: meta
+    attrs:
+      name: robots
+      content: noindex
+---
+
+import { Aside, Badge, Card, CardGrid, FileTree, LinkButton, LinkCard, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+import Logo from '../../components/Logo.astro';
+import Flag from '../../components/Flag.astro';
+import Icon from '../../components/Icon.astro';
+import IconGallery from '../../components/design/IconGallery.astro';
+import Tag from '../../components/Tag.astro';
+import PlanTag from '../../components/PlanTag.astro';
+import ModelsComparison from '../../components/ModelsComparison.astro';
+import PlansPage from '../../components/PlansPage.astro';
+import Selector from '../../components/Selector.astro';
+import TextField from '../../components/TextField.astro';
+import Tooltip from '../../components/Tooltip.astro';
+import EmptySection from '../../components/design/EmptySection.astro';
+import TokenOverview from '../../components/design/TokenOverview.astro';
+import Showcase from '../../components/design/Showcase.astro';
+import Disclosure from '../../components/design/Disclosure.astro';
+import Placeholder from '../../components/design/Placeholder.astro';
+import InlineNotification from '../../components/InlineNotification.astro';
+import ComponentCard from '../../components/design/ComponentCard.astro';
+import Button from '../../components/Button.astro';
+
+export const Arrow = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
+export const Copy = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>;
+
+This page collects everything the docs are built from, in the real page frame. Switch between light and dark with the theme menu in the header, and check each section in both.
+
+The page is a draft: it appears in `bun run dev` and never in a production build. It is also kept out of search.
+
+It is organised in three libraries:
+
+- **Style guides**: the visual, content and interaction standards, such as colours, type scale and spacing.
+- **Component library**: the UI blocks, split into base elements and composite components.
+- **Pattern library**: layout patterns for page shells, and task and flow patterns for what readers do on the site.
+
+## Style guides
+
+### Visual
+
+<EmptySection>Nothing here yet: colour, type and spacing standards come here once they are refined.</EmptySection>
+
+### Content
+
+<EmptySection>Nothing here yet: writing standards, such as voice, terminology and wording for links and errors, come here once they are refined.</EmptySection>
+
+### Interaction
+
+<EmptySection>Nothing here yet: standards for states and behaviour, such as hover, focus, motion and feedback, come here once they are refined.</EmptySection>
+
+## Component library
+
+### Base elements
+
+<ComponentCard>
+
+#### Button
+
+Aligned with Scale's [Button](https://telekom.github.io/scale/?path=/docs/components-button--standard): the same variants, sizes, states and spacing, all from tokens (`aifs.button.*`). Hover over and press the examples to see their states, and tab to them to see the focus ring.
+
+- **Primary**: the one main action of a page or section, such as getting an API key.
+- **Secondary**: other actions, such as showing more models or resetting filters.
+- **Ghost**: low-emphasis actions next to content, such as copying a model ID or closing a banner.
+
+<Showcase label="Variants, large (44px, the default)">
+  <Button>Get API key</Button>
+  <Button variant="secondary">Show more models</Button>
+  <Button variant="ghost">Read the FAQ</Button>
+</Showcase>
+
+<Showcase label="Variants, small (32px)">
+  <Button size="small">Get API key</Button>
+  <Button variant="secondary" size="small">Reset filters</Button>
+  <Button variant="ghost" size="small">Read the FAQ</Button>
+</Showcase>
+
+<Showcase label="With an icon after the label">
+  <Button href="/getting-started/quickstart/">Get started <Arrow /></Button>
+  <Button variant="secondary" href="/models/">View models <Arrow /></Button>
+  <Button variant="ghost" href="/faq/">Read the FAQ <Arrow /></Button>
+</Showcase>
+
+<Showcase label="Icon only (the label goes into ariaLabel)">
+  <Button iconOnly ariaLabel="Copy model ID"><Copy /></Button>
+  <Button variant="secondary" iconOnly ariaLabel="Copy model ID"><Copy /></Button>
+  <Button variant="ghost" iconOnly ariaLabel="Copy model ID"><Copy /></Button>
+  <Button variant="ghost" size="small" iconOnly ariaLabel="Copy model ID"><Copy /></Button>
+</Showcase>
+
+<Showcase label="Disabled">
+  <Button disabled>Get API key</Button>
+  <Button variant="secondary" disabled>Show more models</Button>
+  <Button variant="ghost" disabled>Read the FAQ</Button>
+  <Button href="/faq/" disabled>Disabled link</Button>
+</Showcase>
+
+<Showcase label="Starlight's LinkButton, for Markdown pages: primary, secondary, minimal (= ghost)">
+  <LinkButton href="/getting-started/quickstart/">Get started</LinkButton>
+  <LinkButton href="/models/" variant="secondary">View models</LinkButton>
+  <LinkButton href="/faq/" variant="minimal">Read the FAQ</LinkButton>
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `variant` | `primary`, `secondary`, `ghost` | `primary` |
+| `size` | `large` (44px), `small` (32px) | `large` |
+| `iconOnly` | `true` when the slot holds only an icon; then `ariaLabel` is required | `false` |
+| `href` | renders a link instead of a button | – |
+| `disabled` | on a link, removes `href` and sets `aria-disabled` | `false` |
+| `type` | `button`, `submit`, `reset` | `button` |
+| `ariaLabel` | accessible name when the visible text is not enough | – |
+
+Used in: the header (Get API key), the model cards (copy ID, Show more), the model and plan tables (Reset filters) and the announcement banners (close).
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Dropdown select
+
+Aligned with Scale's [Dropdown Select](https://telekom.github.io/scale/?path=/docs/components-dropdown-select--standard): a 44px field, the label inside above the value, a chevron on the right, and Scale's hover, focus, invalid and disabled states. It is a native `<select>`, so it keeps the browser's own option list, keyboard handling and mobile picker. Tokens: `aifs.select.*`.
+
+- **Standard**: in forms and filters, such as the rate plan and filters above the model table.
+- **Ghost**: without border, where a frame would be noise. The header uses it for version, theme and language, with the label hidden.
+- **Hidden label**: when the context already says what the select is for. The label stays for screen readers.
+
+<Showcase label="Standard, with label">
+  <Selector id="ds-select-standard" label="Server location">
+  <option value="">All locations</option>
+  <option value="de">Germany</option>
+  <option value="se">Sweden</option>
+  <option value="fr">France</option>
+  </Selector>
+</Showcase>
+
+<Showcase label="Ghost, with label and with hidden label">
+  <Selector id="ds-select-ghost" label="Server location" variant="ghost">
+  <option value="">All locations</option>
+  <option value="de">Germany</option>
+  <option value="se">Sweden</option>
+  <option value="fr">France</option>
+  </Selector>
+  <Selector id="ds-select-ghost-hidden" label="Server location" variant="ghost" hideLabel>
+  <option value="">All locations</option>
+  <option value="de">Germany</option>
+  <option value="se">Sweden</option>
+  <option value="fr">France</option>
+  </Selector>
+</Showcase>
+
+<Showcase label="With an icon on the left: standard, ghost with hidden label (as in the header)">
+  <Selector id="ds-select-icon" label="Language" icon="content-language">
+    <option>English</option>
+    <option>Deutsch</option>
+  </Selector>
+  <Selector id="ds-select-icon-ghost" label="Theme" icon="action-light-dark-mode" variant="ghost" hideLabel>
+    <option>Auto</option>
+    <option>Light</option>
+    <option>Dark</option>
+  </Selector>
+</Showcase>
+
+<Showcase label="With helper text, invalid, disabled">
+  <Selector id="ds-select-helper" label="Rate plan" helperText="Prices update with the plan.">
+    <option>Essential</option>
+    <option>Professional</option>
+  </Selector>
+  <Selector id="ds-select-invalid" label="Rate plan" invalid helperText="Choose a plan to see prices.">
+    <option value="">Choose a plan</option>
+    <option>Essential</option>
+  </Selector>
+  <Selector id="ds-select-disabled" label="Rate plan" disabled>
+    <option>Essential</option>
+  </Selector>
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `id` | the select's id | – |
+| `label` | shown inside the field; also the accessible name, so always give one | – |
+| `hideLabel` | keeps the label for screen readers only | `false` |
+| `variant` | `standard`, `ghost` | `standard` |
+| `icon` | a Telekom icon on the left, such as `content-language`; decoration, the label names the select | – |
+| `helperText` | text under the field; with `invalid`, what is wrong | – |
+| `invalid` | 2px danger border, `aria-invalid` | `false` |
+| `disabled` | – | `false` |
+
+Options go in the slot as `<option>` elements. Used in: the rate plan and filters above the model table, and (as Starlight's own selects, styled as ghost) the header.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Flags
+
+Round country flags from the [Onboard AI Model](https://www.figma.com/design/8ZbCDneWkOJuqXvfJwa6a9/Onboard-AI-Model?node-id=76-2316) Figma file, as SVG assets in `src/assets/flags/`. They mark server locations and data processing in tables. The globe for "worldwide" is drawn in the text colour, so it follows the theme.
+
+<Showcase label="16px, next to a line of text">
+  <Flag code="de" /> <Flag code="se" /> <Flag code="fr" /> <Flag code="nl" /> <Flag code="be" /> <Flag code="eu" /> <Flag code="us" /> <Flag code="globe" />
+</Showcase>
+
+<Showcase label="24px">
+  <Flag code="de" size={24} /> <Flag code="se" size={24} /> <Flag code="fr" size={24} /> <Flag code="nl" size={24} /> <Flag code="be" size={24} /> <Flag code="eu" size={24} /> <Flag code="us" size={24} /> <Flag code="globe" size={24} />
+</Showcase>
+
+<Showcase label="In a table cell, with the name written next to it (decorative)">
+  <span>Germany <Flag code="de" decorative /></span>
+  <span>Sweden <Flag code="se" decorative /></span>
+  <span>Worldwide <Flag code="globe" decorative /></span>
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `code` | `de`, `se`, `fr`, `nl`, `be`, `eu`, `us`, `globe` | – |
+| `size` | diameter in px | `16` |
+| `decorative` | `true` when the country name is written next to the flag; the flag is then hidden from screen readers | `false` |
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Icon
+
+All 349 Telekom icons from Scale's [Icon](https://telekom.github.io/scale/?path=/docs/components-icon--standard) set, each as an outline and, for most, a filled variant. They are drawn in the text colour, so they follow light and dark mode and the colour of whatever they sit in. Names are Scale's: `scale-icon-alert-information` is `alert-information`.
+
+- **Outline** by default. **Filled** (`selected`) marks an active or chosen item, as in Scale.
+- Next to text, leave out `label`: the text names the action and the icon stays silent for screen readers. An icon that stands alone, such as in an icon-only button, needs a `label` (or the button's own `ariaLabel`).
+
+<Showcase label="Sizes: 16, 20, 24 (the grid Scale draws on), 32px">
+  <Icon name="alert-information" size={16} />
+  <Icon name="alert-information" size={20} />
+  <Icon name="alert-information" size={24} />
+  <Icon name="alert-information" size={32} />
+</Showcase>
+
+<Showcase label="Outline and filled (selected)">
+  <Icon name="action-favorite" />
+  <Icon name="action-favorite" selected />
+  <Icon name="home-home" />
+  <Icon name="home-home" selected />
+  <Icon name="alert-error" />
+  <Icon name="alert-error" selected />
+</Showcase>
+
+<Showcase label="Taking the colour of their surroundings">
+  <Button>Get started <Icon name="navigation-right" size={20} /></Button>
+  <Button variant="secondary"><Icon name="action-download" size={20} /> Download PDF</Button>
+  <Button variant="ghost" iconOnly ariaLabel="Copy model ID"><Icon name="action-copy-paste" size={20} /></Button>
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `name` | category and name, such as `action-success` or `user-file-pdf-file` | – |
+| `selected` | `true` for the filled variant | `false` |
+| `size` | size in px | `24` |
+| `label` | accessible name, for an icon without text next to it | – |
+
+<Disclosure label="All 349 icons">
+
+<Tabs>
+  <TabItem label="Outline">
+    <IconGallery />
+  </TabItem>
+  <TabItem label="Filled">
+    <IconGallery selected />
+  </TabItem>
+</Tabs>
+
+</Disclosure>
+
+The SVGs are in `src/assets/icons/scale/`, with their source and licence in `PROVENANCE.md`: they are Telekom brand assets, for Telekom products.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Logos
+
+The model creators' logos, as shown in the model and plan tables. Each logo is keyed by the creator name the tables use (`src/shared/lib/logos.ts`).
+
+<Showcase label="All logos, 64px">
+  <Logo name="Anthropic" size={64} />
+  <Logo name="BAAI" size={64} />
+  <Logo name="DeepSeek" size={64} />
+  <Logo name="Google" size={64} />
+  <Logo name="Jina AI" size={64} />
+  <Logo name="Meta" size={64} />
+  <Logo name="Mistral" size={64} />
+  <Logo name="OpenAI" size={64} />
+  <Logo name="Alibaba Cloud" size={64} />
+  <Logo name="T-Systems" size={64} />
+  <Logo name="NVIDIA" size={64} />
+  <Logo name="Zhipu AI" size={64} />
+  <Logo name="Other" size={64} />
+</Showcase>
+
+Zhipu AI shows the Z.ai logo, the name it publishes its models under. Google Gemini and Google Gemma both show the Google logo. Only "Other" is still a placeholder.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Plan tag
+
+A tag per plan, with a fixed colour from the tag colours and fixed wording, the same on every page. Plan names are product names, so they read the same in English and German.
+
+<Showcase label="Default (24px)">
+  <PlanTag plan="essential" />
+  <PlanTag plan="professional" />
+  <PlanTag plan="agentic" />
+  <PlanTag plan="enterprise" />
+  <PlanTag plan="test" />
+</Showcase>
+
+<Showcase label="Small (20px), linked to the plan page, as in the model comparison">
+  <PlanTag plan="essential" size="small" href="/plans#essential/" />
+  <PlanTag plan="professional" size="small" href="/plans#professional/" />
+  <PlanTag plan="agentic" size="small" href="/plans#agentic/" />
+  <PlanTag plan="test" size="small" href="/models/preview/" />
+</Showcase>
+
+| Plan | Colour | Light | Dark |
+|---|---|---|---|
+| Essential | Cyan | 4.6:1 | 4.6:1 |
+| Professional | Violet | 4.8:1 | 5.7:1 |
+| Agentic | Green | 4.6:1 | 5.4:1 |
+| Enterprise | Teal | 4.8:1 | 4.8:1 |
+| Test, retired plans | Standard grey | 15.8:1 | 11.5:1 |
+
+The ratios are text on tag background; all pass WCAG AA.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Tag
+
+Aligned with Scale's [Tag](https://telekom.github.io/scale/?path=/docs/components-tag--standard) in its standard type and all ten colours, plus a filled magenta variant. A tag labels something; it is not an action.
+
+- **Standard** (grey): neutral labels, such as a cloud (Azure, GCP), a tier or a property ("OpenAI compatible").
+- **Colours**: to tell groups apart at a glance, such as plans (see Plan tag). Green, orange and red are Telekom's success, warning and danger colours, so keep them for those meanings.
+- **Magenta**: the few labels that should stand out, such as T-Cloud or a "New" notice. Use it sparingly: it shares its colour with the primary button.
+
+There is no dismissible variant, because nothing on the site removes a tag.
+
+<Showcase label="All colours, default (24px)">
+  <Tag>Standard</Tag>
+  <Tag color="cyan">Cyan</Tag>
+  <Tag color="yellow">Yellow</Tag>
+  <Tag color="green">Green</Tag>
+  <Tag color="orange">Orange</Tag>
+  <Tag color="red">Red</Tag>
+  <Tag color="violet">Violet</Tag>
+  <Tag color="brown">Brown</Tag>
+  <Tag color="olive">Olive</Tag>
+  <Tag color="teal">Teal</Tag>
+  <Tag color="magenta">Magenta</Tag>
+</Showcase>
+
+<Showcase label="All colours, small (20px), as in tables and banners">
+  <Tag size="small">Standard</Tag>
+  <Tag color="cyan" size="small">Cyan</Tag>
+  <Tag color="yellow" size="small">Yellow</Tag>
+  <Tag color="green" size="small">Green</Tag>
+  <Tag color="orange" size="small">Orange</Tag>
+  <Tag color="red" size="small">Red</Tag>
+  <Tag color="violet" size="small">Violet</Tag>
+  <Tag color="brown" size="small">Brown</Tag>
+  <Tag color="olive" size="small">Olive</Tag>
+  <Tag color="teal" size="small">Teal</Tag>
+  <Tag color="magenta" size="small">Magenta</Tag>
+</Showcase>
+
+<Showcase label="In use">
+  <Tag>OpenAI compatible</Tag>
+  <Tag size="small">Azure</Tag>
+  <Tag size="small">Premium</Tag>
+  <Tag color="magenta" size="small">T-Cloud</Tag>
+  <Tag color="magenta" size="small">New</Tag>
+</Showcase>
+
+<Showcase label="As a link (underlined on hover)">
+  <Tag href="/models/">All models</Tag>
+  <Tag color="magenta" href="/guides/ocr/">New: OCR</Tag>
+</Showcase>
+
+<Showcase label="Starlight's Badge, for Markdown pages: every variant shows as a standard tag">
+  <Badge text="Default" />
+  <Badge text="Note" variant="note" />
+  <Badge text="Caution" variant="caution" />
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `color` | `standard`, `cyan`, `yellow`, `green`, `orange`, `red`, `violet`, `brown`, `olive`, `teal`, `magenta` | `standard` |
+| `size` | `default` (24px), `small` (20px) | `default` |
+| `href` | renders a link instead of a label | – |
+
+All colours pass WCAG AA in both modes (4.5–15.8:1); cyan, yellow and red only just, as in Scale.
+
+Used in: the model and plan tables (cloud, tier, T-Cloud; the cloud and tier tags there are buttons that filter the table), the homepage labels and the announcement banners.
+
+</ComponentCard>
+
+<EmptySection>Other base elements, such as inputs and text links, come here once they are refined.</EmptySection>
+
+### Composite components
+
+<ComponentCard>
+
+#### Aside
+
+The short notes in guides (`:::note`, `:::tip`, `:::caution`, `:::danger`). Because guides use many of them, they are a lighter take on the inline notification, styled like the tags: a tinted background, the heading and the Telekom icon in the matching colour, the body in the normal text colour. Tokens: `aifs.aside.*`. For a notice that needs attention, use the Inline notification.
+
+| In Markdown | Colour | Use for |
+|---|---|---|
+| `:::note` | Informational (blue) | Extra information that is useful but not essential |
+| `:::tip` | Success (green) | A better or faster way to do something |
+| `:::caution` | Warning (orange) | Something that can go wrong, such as a rate limit |
+| `:::danger` | Danger (red) | Data loss, security risks or costs |
+
+<Showcase label="All four, with their default headings" block>
+
+:::note
+A note gives extra information that is useful but not essential.
+:::
+
+:::tip
+A tip suggests a better or faster way to do something.
+:::
+
+:::caution
+A caution warns about something that can go wrong, for example a rate limit.
+:::
+
+:::danger
+A danger warns about data loss, security risks or costs.
+:::
+
+</Showcase>
+
+<Showcase label="With its own heading, a link and two paragraphs" block>
+
+:::note[API transition]
+The `/v1` endpoints stay available until the end of the year. See [API Transition](/api-transition/) for what changes.
+
+Requests to `/v2` already use the new format.
+:::
+
+</Showcase>
+
+<Showcase label="Written as a component" block>
+
+<Aside type="tip" title="Aside as a component">
+The same aside, written with the `Aside` component instead of the `:::` syntax.
+</Aside>
+
+</Showcase>
+
+Links in asides keep the text colour and are underlined. The icons are Telekom's, from Scale (`src/assets/icons/notification/`).
+
+Used in: almost every guide and reference page (about 210 asides; notes are by far the most common).
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Code block
+
+Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a quiet header bar with the file name, a plain code area, and tinted lines for highlights and diffs. Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
+
+- **With a file name** when the code goes into a file. Add `title="…"` after the language.
+- **Without** for examples that are not saved anywhere.
+- **Highlight** only the lines the text talks about.
+
+<Showcase label="With a file name" block>
+
+```python title="chat.py"
+from openai import OpenAI
+
+client = OpenAI(base_url="https://llm-server.ai.t-systems.net/v1")
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[{"role": "user", "content": "Hello"}],
+)
+```
+
+</Showcase>
+
+<Showcase label="Without a file name" block>
+
+```json
+{ "model": "gpt-oss-120b", "stream": true }
+```
+
+</Showcase>
+
+<Showcase label="Highlighted lines: {2,4}" block>
+
+```python {2,4}
+client = OpenAI(
+    base_url="https://llm-server.ai.t-systems.net/v1",
+)
+response = client.models.list()
+```
+
+</Showcase>
+
+<Showcase label="Inserted and deleted lines: ins={3} del={2}" block>
+
+```js ins={3} del={2}
+const client = new OpenAI({
+  baseURL: "https://llm-server.llmhub.t-systems.net/v1",
+  baseURL: "https://llm-server.ai.t-systems.net/v1",
+});
+```
+
+</Showcase>
+
+<Showcase label="Terminal (shell languages)" block>
+
+```bash
+curl https://llm-server.ai.t-systems.net/v1/models \
+  -H "Authorization: Bearer $API_KEY"
+```
+
+</Showcase>
+
+| In Markdown | Effect |
+|---|---|
+| ` ```python title="chat.py" ` | Header bar with the file name |
+| ` ```python {2,4} ` | Highlights lines 2 and 4 |
+| ` ```js ins={3} del={2} ` | Marks line 3 as added and line 2 as removed |
+| ` ```diff ` | A diff, with `+` and `-` at the line starts |
+
+Used in: almost every guide and reference page.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### File tree
+
+Modelled on Vercel Geist's [File Tree](https://vercel.com/geist/file-tree), with Telekom's tokens (`aifs.file-tree.*`): 28px rows with a hover background, grey folder and file icons, names in the code font, and the same frame as a code block. It is Starlight's `FileTree`, so folders open and close with a click or the keyboard. The icons are Telekom's: the filled folder marks an open folder.
+
+<Showcase label="Folders, files, a highlighted entry and a comment" block>
+
+<FileTree>
+- src
+  - components
+    - Button.astro
+    - **Tag.astro** the tag component
+  - styles
+    - tokens.css generated from tokens/
+- tokens
+  - aifs.resolver.json
+- package.json
+</FileTree>
+
+</Showcase>
+
+<Showcase label="Closed folders and a placeholder" block>
+
+<FileTree>
+- public/
+- src/
+  - …
+- astro.config.mjs
+</FileTree>
+
+</Showcase>
+
+| In Markdown | Effect |
+|---|---|
+| `- name` in a list, nested by indentation | A file; an entry with children is a folder |
+| `- name/` | An empty, closed folder |
+| `- **name**` | Highlights the entry |
+| `- name some text` | Text after the name is a comment |
+| `- …` | A placeholder for more files |
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Inline notification
+
+Aligned with Scale's [Notification](https://telekom.github.io/scale/?path=/docs/components-notification--standard) of type inline: a full subtle background in the functional colour, the icon in its own column, a bold heading and the message below. Tokens: `aifs.notification.*`. Use it for the few notices on a page that need attention, such as a change that breaks requests; for short notes in running text, use an aside.
+
+<Showcase label="Informational, success, warning, danger" block>
+  <InlineNotification heading="API changes ahead">The `/v1` endpoints stay available until the end of the year. See [API Transition](/api-transition/) for what changes.</InlineNotification>
+  <InlineNotification variant="success" heading="API key created">Copy it now: it is shown only once.</InlineNotification>
+  <InlineNotification variant="warning" heading="Rate limit almost reached">You have used 90% of your requests per minute.</InlineNotification>
+  <InlineNotification variant="danger" heading="Model retired">This model no longer answers requests. Switch to a successor in the model list.</InlineNotification>
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `variant` | `informational`, `success`, `warning`, `danger` | `informational` |
+| `heading` | the notification's heading | – |
+| `headingLevel` | heading level for screen readers | `3` |
+
+The message goes in the slot.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Table
+
+Aligned with Scale's [Table](https://telekom.github.io/scale/?path=/docs/components-table--standard): a grey header row with bold small text and rounded top corners, no outer frame, a line under each row and a hover fill. Tokens: `aifs.table.*`. Every Markdown table and the three data tables (rate plans, model table, model comparison) use it without new markup.
+
+- **Default** (16px cell padding): Markdown tables and the rate plans table.
+- **Compact** (8px): dense data, as in the model table and the model comparison.
+- **Sortable headers** get a fill on hover and press and a blue focus ring, as in Scale.
+- Deviation from Scale: text in cells wraps, because docs tables hold descriptions.
+
+<Showcase label="Default: a Markdown table" block>
+
+| Parameter | Type | Description |
+|---|---|---|
+| `model` | string | Model ID (e.g., `gpt-oss-120b`) |
+| `messages` | array | List of message objects with `role` and `content` |
+| `temperature` | float | Sampling temperature (0–2). Lower = more deterministic |
+| `stream` | boolean | Enable streaming responses |
+
+</Showcase>
+
+<Showcase label="Compact and striped (classes aifs-table--compact, aifs-table--striped)" block>
+
+<div class="sl-markdown-content">
+<table class="aifs-table--compact aifs-table--striped">
+  <thead><tr><th>Model</th><th>Context</th><th>Input €/M</th><th>Output €/M</th></tr></thead>
+  <tbody>
+    <tr><td>GPT-OSS 120B</td><td>131k</td><td>0.50</td><td>1.50</td></tr>
+    <tr><td>Gemma 4</td><td>128k</td><td>0.20</td><td>0.60</td></tr>
+    <tr><td>GLM 5.2</td><td>200k</td><td>0.60</td><td>2.20</td></tr>
+    <tr><td>Mistral Small 4</td><td>128k</td><td>0.10</td><td>0.30</td></tr>
+  </tbody>
+</table>
+</div>
+
+</Showcase>
+
+<Showcase label="Wide: scrolls sideways on narrow screens" block>
+
+| Model | Provider | Context | Input price | Output price | Location | Cloud | Streaming | Function calling | Vision | Status |
+|---|---|---|---|---|---|---|---|---|---|---|
+| GPT-OSS 120B | OpenAI | 131k | 0.50 € | 1.50 € | Germany | Telekom | Yes | Yes | No | Active |
+| Gemma 4 | Google | 128k | 0.20 € | 0.60 € | Germany | Telekom | Yes | Yes | Yes | Preview |
+
+</Showcase>
+
+Sortable headers are shown in the model comparison under Not yet sorted.
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Tabs
+
+Aligned with Scale's [Tab Navigation](https://telekom.github.io/scale/?path=/docs/components-tab-navigation--text-icon): a light line under the tabs, the selected tab in magenta with a 3px bar, hover and press a shade darker, 48px high. It is Starlight's `Tabs` component, restyled with tokens (`aifs.tabs.*`), so the arrow keys move between tabs and tabs with the same `syncKey` switch together across the page.
+
+Use tabs for alternatives of the same content, such as one request in several languages. Don't use them for steps that follow each other.
+
+<Showcase label="Text" block>
+
+<Tabs syncKey="ds-lang">
+  <TabItem label="cURL">
+    <Placeholder>cURL</Placeholder>
+  </TabItem>
+  <TabItem label="Python">
+    <Placeholder>Python</Placeholder>
+  </TabItem>
+  <TabItem label="JavaScript">
+    <Placeholder>JavaScript</Placeholder>
+  </TabItem>
+</Tabs>
+
+</Showcase>
+
+<Showcase label="Text and icon (synced with the tabs above: pick a language in one, the other follows)" block>
+
+<Tabs syncKey="ds-lang">
+  <TabItem label="cURL" icon="seti:shell">
+    <Placeholder>cURL</Placeholder>
+  </TabItem>
+  <TabItem label="Python" icon="seti:python">
+    <Placeholder>Python</Placeholder>
+  </TabItem>
+  <TabItem label="JavaScript" icon="seti:javascript">
+    <Placeholder>JavaScript</Placeholder>
+  </TabItem>
+</Tabs>
+
+</Showcase>
+
+| Prop | On | Values |
+|---|---|---|
+| `syncKey` | `Tabs` | a name; all tab groups with the same name switch together |
+| `label` | `TabItem` | the tab's text |
+| `icon` | `TabItem` | a Starlight icon, such as `seti:python` |
+
+Used in: the guides and API reference, mostly for code in several languages (90 tab groups).
+
+</ComponentCard>
+
+<EmptySection>Other composite components, such as cards, tables and navigation, come here once they are refined.</EmptySection>
+
+## Pattern library
+
+### Layout patterns
+
+<EmptySection>Nothing here yet: page shells, such as the guide, reference and overview pages, come here once they are refined.</EmptySection>
+
+### Task and flow patterns
+
+<EmptySection>Nothing here yet: reader journeys, such as getting an API key, choosing a model or comparing plans, come here once they are refined.</EmptySection>
+
+## Not yet sorted
+
+Everything the docs use today, as it was before sorting. Each part moves into one of the libraries above once it has been reviewed and refined.
+
+### Typography
+
+#### Heading level 4
+
+##### Heading level 5
+
+###### Heading level 6
+
+Body text is set at the base size. It contains an [internal link](/getting-started/quickstart/), an [external link](https://www.telekom.com/), **bold text**, *italic text*, `inline code` and a footnote marker<sup>1</sup>.
+
+Lists:
+
+- First item
+- Second item with `code`
+  - Nested item
+- Third item
+
+1. First step
+2. Second step
+3. Third step
+
+> A blockquote, used for quoted text from a contract or a specification.
+
+---
+
+<details>
+<summary>Expandable details</summary>
+
+Content that is hidden until someone opens it.
+
+</details>
+
+### Cards and links
+
+<LinkCard title="Quickstart" description="Send your first request in under 5 minutes." href="/getting-started/quickstart/" />
+
+<CardGrid>
+  <Card title="Card one" icon="rocket">
+    A card with an icon and short text.
+  </Card>
+  <Card title="Card two" icon="setting">
+    Cards sit side by side on wide screens.
+  </Card>
+</CardGrid>
+
+
+### Steps
+
+<Steps>
+
+1. Create an API key.
+2. Set it as `OPENAI_API_KEY`.
+3. Send a request.
+
+</Steps>
+
+### Custom components
+
+#### Tooltip
+
+<Tooltip text="Tooltips explain a term without leaving the page.">
+  <span>Hover or focus here</span>
+</Tooltip>
+
+#### Text field
+
+<TextField id="design-text-field" label="Search models" placeholder="e.g. Qwen" />
+
+#### Model comparison
+
+<ModelsComparison category="embeddings" />
+
+#### Plan page
+
+<PlansPage selectedPlanId="Essential" />
+
+### Design tokens
+
+The draft tokens from `tokens/`, resolved for both modes. Every value comes from Telekom's design tokens; see `tokens/README.md`. Nothing on the site uses them yet.
+
+#### Colour
+
+<TokenOverview group="color" />
+
+#### Text styles
+
+<TokenOverview group="text" />
+
+#### Fonts
+
+<TokenOverview group="font" />
+
+#### Radius and borders
+
+<TokenOverview group="radius" />
+
+<TokenOverview group="border-width" />

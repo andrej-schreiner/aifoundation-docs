@@ -6,7 +6,40 @@ description: "Sicherheit, Compliance, Datensouveränität und KI-Verordnungs-Kon
 AI Foundation Services bietet eine einheitliche OpenAI-kompatible API für zwei klar getrennte Modellkategorien — solche, die von der Telekom in der EU/EWR betrieben werden, und solche, die an Drittanbieter unter deren eigenen Bedingungen weitergeleitet werden. Diese Seite fasst die Trust- und Compliance-Position zusammen; die [Leistungsbeschreibung (PDF)](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) ist die verbindliche Quelle.
 
 :::tip[Kein Training mit Kundendaten]
-Unabhängig davon, welches von Telekom gehostete Modell Sie auswählen, werden **Kunden-Prompts und -Antworten niemals gespeichert oder zum Training oder Fine-Tuning eines Modells genutzt**.
+Bei allen von der Telekom gehosteten Modellen werden **Kunden-Prompts und -Antworten nicht dauerhaft gespeichert und niemals zum Training oder Fine-Tuning eines Modells genutzt**. Das Prefix-Caching speichert bereits verarbeitete Anfragen für eine begrenzte Zeit zwischen, damit wiederkehrende Anfragen schneller beantwortet werden; es ist standardmäßig eingeschaltet und kann abgeschaltet werden. Siehe [Prefix-Caching](/de/guides/prefix-caching).
+:::
+
+
+## Übersicht zur Datenverarbeitung
+
+| Aspekt | Kategorie 1 (EU-Betrieb) | Kategorie 2 (Drittanbieter) |
+|---|---|---|
+| **Verarbeitungsort** | EU/EWR oder Land mit Angemessenheitsbeschluss | Vom Drittanbieter bestimmt; ggf. weltweit |
+| **Speicherung** | Nicht dauerhaft (kurzlebiger Prefix-Cache, abschaltbar) | Gemäß Bedingungen des Drittanbieters |
+| **Einsehbarkeit** | Weder für Telekom noch Dritte einsehbar | Gemäß Bedingungen des Drittanbieters |
+| **Nutzung für Training** | Keine | Keine |
+| **Verschlüsselung bei Übertragung** | TLS-gesichert (HTTPS) | TLS-gesichert (HTTPS) |
+| **Authentifizierung** | API-Keys über das [Self-Service-Portal](https://apikey.llmhub.t-systems.net) | API-Keys über das [Self-Service-Portal](https://apikey.llmhub.t-systems.net) |
+
+
+
+<a id="infrastructure"></a>
+
+## Infrastruktur und Zertifizierungen
+
+Modelle der Kategorie 1 laufen auf der T-Cloud Public, der Cloud der Telekom in Deutschland. Das sind Infrastrukturnachweise für diese T-Cloud-Public-Infrastruktur, kein eigenes AIFS-Zertifikat:
+
+- **ISO/IEC 27001:2022.** Konzernzertifikat der Deutschen Telekom AG, DEKRA Nr. 172572.00DE. Zu den Standorten gehören die <span class="nowrap">T-Systems</span>-Rechenzentren in Biere und Magdeburg. [Zertifikat (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/5/a/5/3/5a53cf06ba3ee159800c6ddcc73f55fb03577792/t-systems-zertifikat-iso-27001.pdf)
+- **ISO/IEC 27017 und ISO/IEC 27018.** DEKRA-Testat Nr. DS-1221076/1. [Testat (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/8/8/8/4/8884c33cbcde725da0080f90f354ca8fb070fdb3/04_27017_27018_Testat_de_20221130.pdf)
+- **ISO/IEC 27701:2019.** Konzernzertifikat der Deutschen Telekom AG Nr. DE182572.00. [Zertifikat (PDF)](https://www.t-cloud-public.com/_Resources/Persistent/2/b/8/b/2b8bae662981d90b783abeaebec52f5e189db861/07_27701_Dachzertifikat_20271203_de.pdf)
+- **BSI C5 Typ 2.** Prüfbericht für die T-Cloud Public, auf Anfrage erhältlich.
+- **SOC 2 Typ II.** Bericht für das T-Cloud Public (Open Telekom Cloud) System in den deutschen und niederländischen Rechenzentren, auf Anfrage verfügbar. [SOC-3-Zusammenfassung](https://www.t-cloud-public.com/_Resources/Persistent/4/c/8/6/4c8675853e73ab4e340f94ca9b9de73b47e20274/TS%20OTC%20SOC%203%20Report.pdf)
+- **TISAX Level 3.** T-Cloud Public, Regionen Deutschland und Niederlande (ENX-ID P0R4YM). [Details](https://www.t-cloud-public.com/de/blog/vorteile/t-cloud-public-tisax)
+
+Die vollständige Liste und die aktuellen Dokumente finden Sie unter [Zertifikate und Testate der T-Cloud Public](https://www.t-cloud-public.com/de/produkte-services/core-services/zertifikate).
+
+:::note
+Diese Nachweise gelten nur für die von der Telekom betriebene Infrastruktur. Sie gelten nicht für Modelle der Kategorie 2, die auf der eigenen Infrastruktur des Drittanbieters unter dessen eigenen Zertifizierungen und Bedingungen laufen. GLM 5.2 und GLM 5.3 Flash können auch in der Industrial AI Cloud in München laufen; die oben genannten Nachweise sind die für die T-Cloud Public veröffentlichten. Bei Fragen zum Geltungsbereich wenden Sie sich bitte an das AIFS-Team.
 :::
 
 
@@ -23,25 +56,29 @@ Werden von der Telekom auf der T-Cloud Public betrieben. Beispiele:
 - Alibaba Qwen 3.6 35B
 - Alibaba Qwen 3.8 27B
 - NVIDIA Nemotron 3 Super
+- Zhipu AI GLM 5.3
 - Zhipu AI GLM 5.2
 - Zhipu AI GLM 5.3 Flash
 - OpenAI GPT-OSS-120B
 - OpenAI Whisper Large v3 / v3 Turbo (STT)
-- Jina Embeddings v2, BAAI BGE m3 (Embeddings)
+- Jina Embeddings v2, BAAI BGE m3, Qwen3 Embedding 8B (Embeddings)
 
 Für diese Modelle gilt:
 
 - Datenverarbeitung erfolgt **innerhalb der EU/EWR oder in Staaten mit datenschutzrechtlichem Angemessenheitsbeschluss der EU-Kommission**
-- Übermittelte Daten und zurückgelieferte Ergebnisse werden **nicht gespeichert** und sind **weder für die Telekom noch für Dritte einsehbar**
+- Übermittelte Daten und zurückgelieferte Ergebnisse werden **nicht dauerhaft gespeichert** und sind **weder für die Telekom noch für Dritte einsehbar**
 
 ### Kategorie 2 — Drittanbieter, Subunternehmer weltweit
 
 Werden von der Telekom direkt an den jeweiligen Drittanbieter weitergeleitet, der diese auf eigener Infrastruktur betreibt. Beispiele:
 
-- OpenAI GPT-5- und GPT-6-Familie, GPT Image 2, Ada-Text — auf Microsoft Azure (Frankreich/Schweden)
-- Anthropic Claude (4.6, Opus 4.8, 5er- und 5.5er-Familien) — auf Google Cloud oder Microsoft Azure
-- Google Gemini 3 Familie — auf Google Cloud
-- Mistral Medium 3 — auf Google Cloud
+- OpenAI GPT-5.6 Sol, GPT-5.6 Terra und GPT-5.6 Luna — auf Microsoft Azure (Schweden)
+- OpenAI GPT-6 Luna — auf Microsoft Azure (Schweden)
+- OpenAI GPT-6.1 Sol — auf Microsoft Azure (weltweit)
+- OpenAI GPT Image 2 — auf Microsoft Azure (Schweden)
+- OpenAI Ada Text Embedding — auf Microsoft Azure (Frankreich)
+- Anthropic Claude Sonnet 5, Claude Sonnet 5.5, Claude Opus 5, Claude Opus 5.5 und Claude Fable 5 — auf Google Cloud (europe-west1) oder Microsoft Azure
+- Google Gemini 3.1 Pro, Gemini 3.5 Flash, Gemini 3.8 Flash und Gemini 3 Pro Image — auf Google Cloud (weltweit)
 
 Für diese Modelle gilt:
 
@@ -62,35 +99,12 @@ Bestimmte Datenkategorien (z. B. Sozial- oder Gesundheitsdaten nach deutschem Re
 - Der Service ist **kein Medizinprodukt** im Sinne der MDR und darf nicht zur Diagnose, Verhütung, Überwachung, Vorhersage, Prognose, Behandlung oder Linderung von Krankheiten eingesetzt werden.
 
 
-## Zertifizierungen
-
-Die Betriebsabläufe von T-Systems sind **ISO 27001** zertifiziert und decken das Informationssicherheitsmanagement für die Infrastruktur und Prozesse der AI Foundation Services ab.
-
-Die vollständige Liste der für die T-Systems-Infrastruktur geltenden Zertifizierungen finden Sie auf der [T-Systems-Zertifikateseite](https://www.t-systems.com/de/en/company/about-t-systems/t-systems-certificates).
-
-:::note
-Der Zertifizierungsumfang hängt vom spezifischen Service und der Infrastrukturebene ab. Bei Fragen zu den für Ihren Anwendungsfall geltenden Zertifizierungen wenden Sie sich bitte an das AIFS-Team.
-:::
-
-
 ## DSGVO & Auftragsverarbeitung
 
-- AI Foundation Services wird im Einklang mit der [EU-Verordnung 2016/679 (DSGVO)](https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016R0679) erbracht.
+- Modelle der Kategorie 1 laufen auf DSGVO-konformem EU-Hosting auf der T-Cloud Public ([EU-Verordnung 2016/679 (DSGVO)](https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32016R0679)). Für Modelle der Kategorie 2 gelten die Datenschutzbedingungen des jeweiligen Drittanbieters.
 - Ein **Auftragsverarbeitungsvertrag (AVV)** nach Mustervorlage der Telekom ist auf Anfrage verfügbar — erforderlich, wenn der Kunde personenbezogene Daten über den Service verarbeitet.
 - Die Telekom agiert als Auftragsverarbeiter; der Kunde bleibt Verantwortlicher.
 - Der Kunde ist dafür verantwortlich zu prüfen, ob die übermittelten Daten zulässig verarbeitet werden dürfen — einschließlich Beschränkungen des Verarbeitungsortes.
-
-
-## Übersicht zur Datenverarbeitung
-
-| Aspekt | Kategorie 1 (EU-Betrieb) | Kategorie 2 (Drittanbieter) |
-|---|---|---|
-| **Verarbeitungsort** | EU/EWR oder Land mit Angemessenheitsbeschluss | Vom Drittanbieter bestimmt; ggf. weltweit |
-| **Speicherung** | Keine | Gemäß Bedingungen des Drittanbieters |
-| **Einsehbarkeit** | Weder für Telekom noch Dritte einsehbar | Gemäß Bedingungen des Drittanbieters |
-| **Nutzung für Training** | Keine | Keine |
-| **Verschlüsselung bei Übertragung** | TLS-gesichert (HTTPS) | TLS-gesichert (HTTPS) |
-| **Authentifizierung** | API-Keys über das [Self-Service-Portal](https://apikey.llmhub.t-systems.net) | API-Keys über das [Self-Service-Portal](https://apikey.llmhub.t-systems.net) |
 
 
 ## Beendigung & Datenlöschung
@@ -106,4 +120,4 @@ Für Unternehmens-Beschaffungsteams, die AI Foundation Services evaluieren:
 - **Compliance-Fragebögen** — Kontaktieren Sie uns für ausgefüllte Sicherheitsfragebögen (CAIQ, VSA oder individuelle Formate).
 - **Auftragsverarbeitungsvertrag** — Fordern Sie einen AVV an, der auf Ihre Anforderungen zugeschnitten ist.
 - **Sicherheitsdokumentation** — Unter NDA verfügbar.
-- **Kontakt** — [ai@t-systems.com](mailto:ai@t-systems.com) oder über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/).
+- **Kontakt** — [Kontaktieren Sie uns](mailto:ai@t-systems.com).

@@ -1,34 +1,58 @@
-# LLM Hub (T-Systems AI Foundation Services)
+# AI Foundation Services (T-Systems)
 
-> Sovereign, GDPR-compliant LLM inference API. OpenAI-compatible. Hosted in Germany and the EU. 30+ open-source and proprietary models on a single endpoint.
+> OpenAI-compatible LLM inference API by T-Systems. 30+ open-source and proprietary models on a single endpoint. Open-source models run on T-Cloud in Germany with GDPR-compliant EU hosting; proprietary models are forwarded to Microsoft Azure or Google Cloud, where processing may take place worldwide.
 
-## Docs
+## Get started
 
-- [Overview](https://docs.llmhub.t-systems.net/): Product overview, available models, compliance posture.
-- [Quickstart](https://docs.llmhub.t-systems.net/getting-started/quickstart): Install the OpenAI SDK and send your first request in under 5 minutes.
-- [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): API key acquisition and bearer-token request flow.
-- [Models](https://docs.llmhub.t-systems.net/getting-started/models): Catalog of available LLMs, embedding, vision, and audio models.
-- [Chat Completions](https://docs.llmhub.t-systems.net/guides/chat-completions): OpenAI-compatible chat API — system/user messages, response structure.
+- [Quickstart](https://docs.llmhub.t-systems.net/): Install the OpenAI SDK and send your first request.
+- [Choosing a model](https://docs.llmhub.t-systems.net/getting-started/choosing-a-model): Recommendations. T-Cloud first.
+- [Authentication](https://docs.llmhub.t-systems.net/getting-started/authentication): API keys and bearer-token requests.
+- [Shared vs dedicated](https://docs.llmhub.t-systems.net/plans#shared-or-dedicated): Shared rate plans versus Dedicated LLM Serving.
+- [Concepts and glossary](https://docs.llmhub.t-systems.net/getting-started/concepts): Tokens, TPM, RPM, context window, T-Cloud, partner models.
+- [Migrate to the New API](https://docs.llmhub.t-systems.net/api-transition): Phased move from the existing endpoint to the New API.
+
+## Models
+
+- [Catalog](https://docs.llmhub.t-systems.net/models): Hosted LLMs, embeddings, audio, and image models.
+- GLM 5.3 (`GLM-5.3`) on T-Cloud, in the shared rate plans, from 2 November 2026. Input €1.40 / output €4.40 per 1M tokens.
+- DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash`) is in the preview catalog from 2 November 2026, with pricing to be announced.
+- [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR and decision models are free on any active plan; DeepSeek 4.1 Flash pricing is to be announced.
+- [Deprecations](https://docs.llmhub.t-systems.net/models/deprecations): Upcoming retirements and models already retired.
+
+## Guides
+
+- [Chat completions](https://docs.llmhub.t-systems.net/guides/chat-completions): OpenAI-compatible chat API.
 - [Streaming](https://docs.llmhub.t-systems.net/guides/streaming): Token-by-token responses via Server-Sent Events.
+- [Image input](https://docs.llmhub.t-systems.net/guides/multimodal): Image input on the chat API.
+- [Multimodal](https://docs.llmhub.t-systems.net/guides/multimodal): Where image, audio, image output, and OCR are documented.
 - [Embeddings](https://docs.llmhub.t-systems.net/guides/embeddings): Text embeddings for semantic search and RAG.
-- [Function Calling](https://docs.llmhub.t-systems.net/guides/function-calling): Tool definitions and structured JSON outputs.
-- [Fine-Tuning](https://docs.llmhub.t-systems.net/guides/fine-tuning): Fine-tune Mistral and Llama via LoRA or DPO.
-- [API Endpoints](https://docs.llmhub.t-systems.net/reference/api-endpoints): Complete REST API reference.
-- [Error Codes](https://docs.llmhub.t-systems.net/reference/error-codes): HTTP error codes with causes and resolutions.
-- [Rate Limits](https://docs.llmhub.t-systems.net/reference/rate-limits): Per-plan token and request rate limits.
-- [Plans & Pricing](https://docs.llmhub.t-systems.net/plans): Subscription tiers, model availability, pricing.
+- [OCR](https://docs.llmhub.t-systems.net/guides/ocr): Document parsing with the preview OCR models.
+- [Function calling](https://docs.llmhub.t-systems.net/guides/function-calling): Tool definitions and JSON arguments.
+- [Structured outputs](https://docs.llmhub.t-systems.net/guides/structured-outputs): JSON Schema on the Responses API.
+- [RAG](https://docs.llmhub.t-systems.net/guides/embeddings#rag): T-Cloud embeddings plus a T-Cloud chat model.
+- [Reliability and retries](https://docs.llmhub.t-systems.net/guides/reliability): Retry 429, 500, and 503, or queue the request.
+- [Migrate from OpenAI](https://docs.llmhub.t-systems.net/guides/migrate-from-openai): Point an OpenAI SDK at this API and use a catalog model id.
+- [Decisions](https://docs.llmhub.t-systems.net/guides/decisions): Typed decisions for agent steps.
+
+## API reference
+
+- [Endpoints](https://docs.llmhub.t-systems.net/reference/api-endpoints): REST API reference.
+- [Error codes](https://docs.llmhub.t-systems.net/reference/error-codes): HTTP error codes with causes and resolutions.
+
+## Plans
+
+- [Plans and pricing](https://docs.llmhub.t-systems.net/plans): Essential, Professional, Agentic, and Enterprise.
+- [Rate limits](https://docs.llmhub.t-systems.net/reference/rate-limits): Per-plan request and token limits.
+- [Dedicated serving](https://docs.llmhub.t-systems.net/plans/dedicated): Reserved GPU hardware.
 
 ## Integrations
 
 - [LangChain](https://docs.llmhub.t-systems.net/integrations/langchain): Use langchain-openai against AI Foundation Services.
-- [LlamaIndex](https://docs.llmhub.t-systems.net/integrations/llama-index): Point the OpenAI-compatible client at the LLM Hub endpoint.
-
-## SmartChat (RAG product)
-
-- [SmartChat Overview](https://docs.llmhub.t-systems.net/smartchat/overview): Hosted RAG over your documents — browser UI and API.
-- [RAG API Reference](https://docs.llmhub.t-systems.net/smartchat/api-reference): HTTP gateway, authentication, service routing.
+- [LlamaIndex](https://docs.llmhub.t-systems.net/integrations/llama-index): Point the OpenAI-compatible client at AI Foundation Services.
 
 ## Optional
 
 - [FAQ](https://docs.llmhub.t-systems.net/faq): Compliance, pricing, rate limits, ordering.
+- [Changelog](https://docs.llmhub.t-systems.net/changelog): Product changes.
 - [German docs](https://docs.llmhub.t-systems.net/de/): Full documentation in German.
+- [SmartChat docs](https://docs.smartchat.ai.t-systems.net): Separate product documentation.

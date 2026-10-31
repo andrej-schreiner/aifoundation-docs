@@ -1,0 +1,49 @@
+---
+title: "Deprecations"
+description: "Models scheduled for retirement and models already retired from AI Foundation Services, with dates and replacements."
+---
+
+Models leave the catalog on a published date. Until that date, migrate to the replacement. After it, requests to the old model ID return an error that names the replacement.
+
+Major changes are also announced on the [Changelog](/changelog).
+
+## Upcoming
+
+| Provider | Model | Retirement date | Suggested replacement |
+|---|---|---|---|
+| Google | Gemini 3 Flash | 2026-11-30 | Gemini 3.8 Flash |
+
+:::caution[Important]
+If you use Gemini 3 Flash, migrate to Gemini 3.8 Flash before **2026-11-30**.
+:::
+
+## Retired
+
+Models that have already left the catalog. New requests targeting these model IDs return an error.
+
+| Provider | Model | Retired | Replacement at retirement |
+|---|---|---|---|
+| OpenAI | GPT-5 nano / GPT-5 mini / GPT 5.4 mini | 2026-10-31 | GPT-6 Luna |
+| OpenAI | GPT-5 / GPT-5 Codex / GPT 5.4 / GPT 5.5 | 2026-10-31 | GPT-6.1 Sol |
+| Anthropic | Claude 4.5 Haiku / Claude 4.6 Sonnet | 2026-10-31 | Claude Sonnet 5.5 |
+| Anthropic | Claude 4.6 Opus / Claude Opus 4.8 | 2026-10-31 | Claude Opus 5.5 |
+| Google | Gemini 3 Pro (≤200k) | 2026-10-31 | Gemini 3.1 Pro (≤200k) |
+| Google | Gemini 3 Pro (>200k) | 2026-10-31 | Gemini 3.1 Pro (>200k) |
+| Mistral | Mistral Medium 3 | 2026-10 | — |
+| Mistral | Mistral Large 2411 | 2026-10 | — |
+| Meta | Llama 3.3 70B | 2026-09-01 | GPT-OSS 120B |
+| Anthropic | Claude 4.5 Sonnet | 2026-09-01 | Claude Sonnet 5 |
+| Anthropic | Claude 4.5 Opus | 2026-09-01 | Claude Opus 5 |
+| Mistral | Mistral Small 3 | 2026-08-01 | Mistral Small 4 |
+| Alibaba Cloud | Qwen3-VL | 2026-08-01 | Qwen 3.6 35B FP8 |
+| Alibaba Cloud | Qwen3 Coder | 2026-08-01 | Qwen 3.6 35B FP8 |
+| Alibaba Cloud | Qwen3-Next | 2026-08-01 | Qwen 3.6 35B FP8 |
+| OpenAI | GPT-4.1 / GPT-4.1 mini / GPT-4.1 nano | 2026-08-01 | GPT-5.4 mini |
+| OpenAI | GPT-4o / GPT-4o mini | 2026-08-01 | GPT-5.4 |
+| OpenAI | GPT Image 1 | 2026-08-01 | GPT Image 2 |
+| OpenAI | GPT-5.2 | 2026-08-01 | GPT-5.4 |
+| OpenAI | o1 / o1-mini / o3 / o3-mini / o4-mini | 2026-08-01 | GPT-5.4 |
+| Anthropic | Claude 3.7 Sonnet, Claude 4 Sonnet | 2026-08-01 | Claude 4.6 Sonnet |
+| Google | Gemini 2.5 Flash / Flash Image / Pro | 2026-08-01 | Gemini 3.5 Flash / Gemini 3 Pro Image / Gemini 3.1 Pro |
+
+If a listed replacement has since been scheduled for retirement, see [Upcoming](#upcoming) or the [catalog](/models/).

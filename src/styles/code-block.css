@@ -1,0 +1,154 @@
+/* Code blocks, modelled on Vercel Geist's Code Block
+   (https://vercel.com/geist/code-block): a light frame with an 8px radius,
+   a 40px header bar with the file name, a plain code area, and tinted lines
+   for highlights, insertions and deletions. Starlight draws code blocks with
+   Expressive Code; its --ec-* variables are set here from --aifs-code-block-*
+   tokens, so light and dark follow the theme. Syntax colours stay with the
+   github-light / github-dark themes (astro.config.mjs).
+
+   Expressive Code sets its variables on `.expressive-code` and again under
+   `:root[data-theme='dark']`; `html:root[data-theme]` is one step more
+   specific, so these win in both modes. */
+
+html:root[data-theme] .expressive-code {
+	/* Frame */
+	--ec-brdRad: var(--aifs-code-block-radius);
+	--ec-brdWd: var(--aifs-code-block-border-width);
+	--ec-brdCol: var(--aifs-code-block-border);
+	--ec-frm-shdCol: transparent;
+	--ec-frm-frameBoxShdCssVal: none;
+	--ec-focusBrd: var(--aifs-code-block-focus);
+
+	/* Code area */
+	--ec-codeBg: var(--aifs-code-block-background);
+	--ec-codeFontFml: var(--aifs-font-code);
+	--ec-codeFontSize: var(--aifs-code-block-font-size);
+	--ec-codeLineHt: var(--aifs-code-block-line-height);
+	--ec-codePadBlk: var(--aifs-code-block-padding-block);
+	--ec-codePadInl: var(--aifs-code-block-padding-inline);
+	--ec-frm-edBg: var(--aifs-code-block-background);
+	--ec-frm-trmBg: var(--aifs-code-block-background);
+
+	/* Header: one flat bar with the file name, no tab look. */
+	--ec-uiFontFml: var(--aifs-font-body);
+	--ec-uiFontSize: var(--aifs-code-block-header-font-size);
+	--ec-uiFontWg: 400;
+	--ec-uiLineHt: var(--aifs-code-block-header-line-height);
+	--ec-uiPadBlk: var(--aifs-code-block-header-padding-y);
+	--ec-uiPadInl: var(--aifs-code-block-padding-inline);
+	--ec-frm-edTabBarBg: var(--aifs-code-block-header-background);
+	--ec-frm-edTabBarBrdCol: var(--aifs-code-block-border);
+	--ec-frm-edTabBarBrdBtmCol: var(--aifs-code-block-border);
+	--ec-frm-edActTabBg: var(--aifs-code-block-header-background);
+	--ec-frm-edActTabFg: var(--aifs-code-block-header-text);
+	--ec-frm-edActTabBrdCol: transparent;
+	--ec-frm-edActTabIndHt: 0px;
+	--ec-frm-edActTabIndTopCol: transparent;
+	--ec-frm-edActTabIndBtmCol: transparent;
+	--ec-frm-edTabBrdRad: 0px;
+	--ec-frm-edTabsMargBlkStart: 0px;
+	--ec-frm-edTabsMargInlStart: 0px;
+	--ec-frm-trmTtbBg: var(--aifs-code-block-header-background);
+	--ec-frm-trmTtbFg: var(--aifs-code-block-header-text);
+	--ec-frm-trmTtbBrdBtmCol: var(--aifs-code-block-border);
+	--ec-frm-trmTtbDotsFg: var(--aifs-code-block-header-text);
+
+	/* Copy button */
+	--ec-frm-copyIcon: url('../assets/icons/scale/action/copy-paste/default.svg');
+	--ec-frm-inlBtnFg: var(--aifs-code-block-text);
+	--ec-frm-inlBtnBg: var(--aifs-code-block-text);
+	--ec-frm-inlBtnBrd: var(--aifs-code-block-border);
+
+	/* Marked lines: highlight, inserted, deleted. Their tint is mixed with
+	   transparency (line-tint-opacity), so it reads as a light wash. */
+	--ec-tm-markBg: color-mix(in srgb, var(--aifs-code-block-highlight-background) calc(var(--aifs-code-block-line-tint-opacity) * 100%), transparent);
+	--ec-tm-markBrdCol: var(--aifs-code-block-highlight-accent);
+	--ec-tm-insBg: color-mix(in srgb, var(--aifs-code-block-inserted-background) calc(var(--aifs-code-block-line-tint-opacity) * 100%), transparent);
+	--ec-tm-insBrdCol: var(--aifs-code-block-inserted-indicator);
+	--ec-tm-insDiffIndCol: var(--aifs-code-block-inserted-indicator);
+	--ec-tm-delBg: color-mix(in srgb, var(--aifs-code-block-deleted-background) calc(var(--aifs-code-block-line-tint-opacity) * 100%), transparent);
+	--ec-tm-delBrdCol: var(--aifs-code-block-deleted-indicator);
+	--ec-tm-delDiffIndCol: var(--aifs-code-block-deleted-indicator);
+}
+
+/* The frame's own border is drawn by Expressive Code from --ec-brdCol;
+   remove the extra one the older styles drew around it. */
+.expressive-code {
+	border: 0;
+}
+
+/* One frame around the block. Expressive Code's own border was dropped, and
+   untitled blocks grew an empty band under 50rem so the copy button cleared
+   the first line. The band is the header colour, with a line under it. */
+.expressive-code .frame {
+	box-shadow: inset 0 0 0 var(--aifs-code-block-border-width) var(--aifs-code-block-border);
+	border-radius: var(--aifs-code-block-radius);
+	overflow: hidden;
+}
+
+/* The header as one flat bar, as in Geist. Expressive Code draws the file
+   name as a tab with its own background; that background covered the
+   frame's rounded top-left corner and the line below it. Here the whole
+   header gets the bar colour, the tab none, and the line under the header
+   runs the full width. */
+.expressive-code .frame.has-title:not(.is-terminal) .header {
+	background: var(--aifs-code-block-header-background);
+}
+
+.expressive-code .frame.has-title:not(.is-terminal) .header::before {
+	border-bottom: var(--aifs-code-block-border-width) solid var(--aifs-code-block-border);
+}
+
+.expressive-code .frame.has-title:not(.is-terminal) .header .title {
+	background: transparent;
+	border-color: transparent;
+}
+
+.expressive-code .frame.has-title:not(.is-terminal) .header .title::after {
+	display: none;
+}
+
+.expressive-code,
+.expressive-code .frame,
+.expressive-code pre,
+.expressive-code pre code,
+.expressive-code .ec-line,
+.expressive-code .ec-line .code {
+	max-width: 100%;
+	min-width: 0 !important;
+}
+
+.expressive-code pre code {
+	flex: 1 1 auto !important;
+	width: 100%;
+}
+
+.expressive-code .ec-line,
+.expressive-code code,
+.expressive-code pre {
+	white-space: pre-wrap !important;
+	overflow-wrap: anywhere !important;
+	word-break: normal;
+}
+
+.expressive-code .frame pre,
+.expressive-code .frame .ec-line:first-child {
+	scroll-margin-top: 2rem;
+}
+
+.expressive-code .copy {
+	inset-block-start: 0.2rem !important;
+	z-index: 3;
+}
+
+/* One header bar at most. Titled and terminal frames have their bar and the
+   copy button sits in it (inset above). Untitled blocks get no bar at all:
+   the copy button floats top-right, and Expressive Code pads the first
+   line so the code keeps clear of it. */
+.expressive-code .frame:not(.has-title):not(.is-terminal) {
+	padding-top: 0;
+}
+
+.expressive-code .frame.is-terminal:not(.has-title) {
+	padding-top: 0;
+}

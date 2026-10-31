@@ -1,0 +1,20 @@
+---
+// A stand-in for content on the design-system page, such as a tab's panel:
+// a dashed box with a label, so the component is seen without real content.
+---
+
+<div class="placeholder not-content"><slot /></div>
+
+<style>
+	.placeholder {
+		display: grid;
+		place-items: center;
+		min-height: calc(var(--aifs-design-system-row-gap) * 3);
+		padding: var(--aifs-design-system-example-gap);
+		border: var(--aifs-design-system-card-border-width) dashed var(--aifs-color-border-standard);
+		border-radius: var(--aifs-radius-card);
+		background: var(--aifs-color-surface-subtle);
+		color: var(--aifs-color-text-muted);
+		font-size: var(--aifs-text-small-font-size);
+	}
+</style>

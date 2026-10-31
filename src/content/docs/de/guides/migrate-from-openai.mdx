@@ -1,0 +1,57 @@
+---
+title: "Umstieg von OpenAI"
+description: "Ein OpenAI-SDK auf AI Foundation Services umstellen, mit der Basis-URL aus dem Quickstart und einer Katalog-Modell-ID."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Stellen Sie eine Anwendung, die bereits OpenAI aufruft, auf AI Foundation Services um. Das SDK bleibt. Basis-URL, API-Schlüssel und Modell-ID ändern sich.
+
+Wenn Ihr Code den AzureOpenAI-Client nutzt, wechseln Sie zum Standard-OpenAI-Client: Azure-Deployment-URLs und der api-key-Header gehören nicht zur API von AI Foundation Services.
+
+Der Wechsel vom heutigen AIFS-Endpunkt zur neuen API ist eine eigene Anleitung: [Umstieg auf die neue API](/de/api-transition).
+
+:::note[Voraussetzungen]
+- Ein AIFS-API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- Das OpenAI SDK ist bereits installiert
+:::
+
+## Minimales Beispiel
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
+```
+
+```python
+from openai import OpenAI
+
+client = OpenAI()
+response = client.chat.completions.create(
+    model="gpt-oss-120b",
+    messages=[{"role": "user", "content": "Hello from AIFS"}],
+)
+print(response.choices[0].message.content)
+```
+
+Der Antworttext steht in `response.choices[0].message.content`.
+
+## Parameter
+
+Setzen Sie `OPENAI_BASE_URL` und `OPENAI_API_KEY`. Der Chat-Körper nutzt `model` und `messages`.
+
+Modell-IDs auf AIFS können sich von OpenAI-Modell-IDs unterscheiden. [Modell wählen](/de/getting-started/choosing-a-model) listet den Katalog. [Abkündigungen](/de/models/deprecations) listet Stilllegungsdaten und Ersatzmodelle.
+
+## Grenzen und Fehlersuche
+
+Die API ist OpenAI-kompatibel. Nicht jeder Parameter existiert auf jedem Modell. Einige Modelle antworten auf die Responses API mit HTTP 400. Nutzen Sie die Anleitung für den Aufruf, den Sie migrieren.
+
+Authentifizierungsfehler sind HTTP 401 oder 403. Siehe [Fehlercodes](/de/reference/error-codes).
+
+## Nächste Schritte
+
+<div class="link-card-row">
+  <LinkCard title="Quickstart" href="/de/" description="Installation, Schlüssel und der erste Chat-Aufruf." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="Katalog-IDs nach Anwendungsfall." />
+  <LinkCard title="Umstieg auf die neue API" href="/de/api-transition" description="Der Wechsel des AIFS-Endpunkts." />
+</div>

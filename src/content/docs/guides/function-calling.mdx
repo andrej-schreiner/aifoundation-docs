@@ -1,6 +1,6 @@
 ---
 title: "Function Calling"
-description: "Define tools and let LLM Hub models return structured JSON arguments to integrate with external APIs and data sources."
+description: "Define tools and let AI Foundation Services models return structured JSON arguments for external APIs and data sources."
 ---
 
 
@@ -10,17 +10,17 @@ Function calling lets models generate structured JSON arguments for functions yo
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
+- OpenAI SDK installed ([Quickstart](/))
 - A model that supports function calling (most hosted models do — see [Available Models](/models))
 :::
 
 **What you'll learn:**
 - How to define tools/functions for the model to call
 - How to use function calling with the Responses API
-- How to extract structured data using JSON Schema
+- Where the JSON Schema example moved ([Structured outputs](/guides/structured-outputs))
 
 
-## Basic Example
+## Basic example
 
 <Tabs>
   <TabItem value="python" label="Python" default>
@@ -60,7 +60,7 @@ Function calling lets models generate structured JSON arguments for functions yo
     ]
 
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="GLM-5.3",
         messages=messages,
         tools=tools,
     )
@@ -89,7 +89,7 @@ ChatCompletionMessage(
 ```
 
 
-## Function Calling with Responses API
+## Function calling with Responses API
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -116,7 +116,7 @@ tools = [
 ]
 
 response = client.responses.create(
-    model="gpt-5",
+    model="GLM-5.3",
     input=[{"role": "user", "content": "What is the weather like in Paris today?"}],
     tools=tools,
 )
@@ -125,60 +125,11 @@ print(response.output)
 ```
 
 
-## Structured Output (JSON Schema)
+## Structured output
 
-Parse text into a structured schema:
+JSON Schema on the Responses API is documented on [Structured outputs](/guides/structured-outputs).
 
-```python showLineNumbers
-import json
-from openai import OpenAI
-
-client = OpenAI()
-
-description = """
-Our Premium Laptop Backpack features padded compartments that fit
-laptops up to 15.6 inches. Available in navy blue, black, and gray.
-Price: $79.99, on sale for $64.99.
-"""
-
-response = client.responses.create(
-    model="gpt-5",
-    input=f"Extract structured product information: {description}",
-    max_output_tokens=2000,
-    text={
-        "format": {
-            "type": "json_schema",
-            "name": "product_details",
-            "schema": {
-                "type": "object",
-                "properties": {
-                    "product_name": {"type": "string"},
-                    "features": {"type": "array", "items": {"type": "string"}},
-                    "colors": {"type": "array", "items": {"type": "string"}},
-                    "pricing": {
-                        "type": "object",
-                        "properties": {
-                            "regular_price": {"type": "number"},
-                            "sale_price": {"type": "number"},
-                            "currency": {"type": "string"},
-                        },
-                        "required": ["regular_price", "sale_price", "currency"],
-                        "additionalProperties": False,
-                    },
-                },
-                "required": ["product_name", "features", "colors", "pricing"],
-                "additionalProperties": False,
-            },
-            "strict": True,
-        }
-    },
-)
-
-print(json.dumps(json.loads(response.output_text), indent=2))
-```
-
-
-## Compatibility
+## Limitations and troubleshooting
 
 :::note
 Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available Models](/models) before relying on it.
@@ -187,7 +138,7 @@ The Responses API is not limited to OpenAI models either — tool calls through 
 :::
 
 
-## Next Steps
+## Next steps
 
 - [Streaming](/guides/streaming) — Stream function calling responses in real-time
 - [Chat Completions](/guides/chat-completions) — Basic chat API usage

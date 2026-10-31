@@ -10,7 +10,7 @@ Die Chat Completions API ist die primäre Methode zur Interaktion mit LLMs auf A
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 :::
 
 **Was Sie lernen werden:**
@@ -124,7 +124,7 @@ Die Completion API sendet Rohtext direkt an das LLM, ohne das Chat-Nachrichtenfo
 </Tabs>
 
 :::note
-Die Completions API ist nur für Open-Source-Modelle verfügbar. Um korrektes Verhalten zu erhalten, müssen Sie dem spezifischen Prompt-Template des Modells folgen. **Wir empfehlen, immer die [Chat Completions API](#grundlegende-nutzung) zu verwenden.**
+Die Completions API ist nur für Open-Source-Modelle verfügbar. Um korrektes Verhalten zu erhalten, müssen Sie dem spezifischen Prompt-Template des Modells folgen. **Wir empfehlen, immer die [Chat Completions API](#grundlegende-verwendung) zu verwenden.**
 :::
 
 
@@ -140,7 +140,7 @@ Mit einer aktuellen Version des OpenAI Python-Pakets können Sie die Responses A
     client = OpenAI()
 
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-oss-120b",
         input="Write a one-sentence bedtime story about a unicorn.",
     )
 
@@ -153,7 +153,7 @@ Sie können auch die Felder input und instructions gemeinsam verwenden:
 
 ```python showLineNumbers
 response = client.responses.create(
-    model="gpt-5",
+    model="gpt-oss-120b",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
     max_output_tokens=2000,
@@ -163,7 +163,7 @@ print(response.output_text)
 ```
 
 :::note
-Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Calls und Streaming sind bestätigt für OpenAI-Modelle (`gpt-5`), Google-Modelle (`gemini-3-flash`), Anthropic-Modelle (`claude-sonnet-4.6`) und T-Cloud-gehostete Open-Source-Modelle (`gpt-oss-120b`). Die Abdeckung ist jedoch noch nicht vollständig: Einzelne Modelle weisen Responses-API-Anfragen mit HTTP 400 zurück. Nutzen Sie in dem Fall die Chat Completions API, die überall unterstützt wird.
+Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Calls und Streaming sind bestätigt für T-Cloud-gehostete Open-Source-Modelle (`gpt-oss-120b`). Die Abdeckung ist jedoch noch nicht vollständig: Einzelne Modelle weisen Responses-API-Anfragen mit HTTP 400 zurück. Nutzen Sie in dem Fall die Chat Completions API, die überall unterstützt wird.
 :::
 
 
@@ -181,9 +181,15 @@ Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Cal
 Die vollständige API-Spezifikation finden Sie in der [API-Referenz](https://llm-server.llmhub.t-systems.net/redoc).
 
 
+## Grenzen und Fehlersuche
+
+Die Completions API gilt nur für Open-Source-Modelle und sollte nicht Ihr Standardweg sein. Einige Modelle lehnen die Responses API mit HTTP 400 ab.
+
+{/* TODO(andrej): eine Parametermatrix je Modell steht in dieser Anleitung nicht. Die Parametertabelle ist der dokumentierte Satz. */}
+
 ## Nächste Schritte
 
 - [Streaming](/de/guides/streaming) — Antworten Token für Token streamen
 - [Function Calling](/de/guides/function-calling) — Modelle mit externen Tools verbinden
 - [Multimodal](/de/guides/multimodal) — Bilder zusammen mit Text analysieren
-- [Queued Requests](/de/guides/queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
+- [Queued Requests](/de/guides/reliability#queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten

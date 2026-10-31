@@ -1,16 +1,17 @@
 ---
 title: "Reasoning"
-description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf Reasoning-fähigen Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
+description: "Tiefe des Chain-of-Thought mit dem Parameter reasoning_effort steuern. Die zulässigen Werte stehen im Datenblatt und unterscheiden sich je Modell."
 ---
 
 
-import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { TabItem, Tabs, LinkCard } from '@astrojs/starlight/components';
+import ReasoningTable from '../../../../components/ReasoningTable.astro';
 
 Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Tiefe des Reasoning-Prozesses mit dem Parameter `reasoning_effort` steuern.
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK installiert ([Quickstart](/de/))
 - Ein Reasoning-fähiges Modell (siehe [Chat & Reasoning (LLMs)](/de/models/llms))
 :::
 
@@ -20,20 +21,15 @@ Für Modelle, die Reasoning (Chain-of-Thought) unterstützen, können Sie die Ti
 - Wie Sie Reasoning für Qwen 3.6-Modelle deaktivieren
 
 
-## Beispiele für Reasoning-Steuerung
+## Zulässige Werte
 
-:::note[Beispiele, keine vollständige Liste]
-Die folgende Tabelle zeigt einige gängige Modelle und wie Reasoning dort gesteuert wird. Sie ist **keine** vollständige Aufzählung — weitere Modelle auf der Plattform unterstützen Reasoning-Steuerung ebenfalls, und der Katalog ändert sich laufend. Die aktuelle Liste finden Sie unter [Chat & Reasoning (LLMs)](/de/models/llms) oder über den [Models-Endpunkt](/de/reference/api-endpoints).
-:::
+Zulässige Werte für `reasoning_effort` und der Default aus dem Datenblatt:
 
-| Modell (Beispiel) | Reasoning |
-|---|---|
-| GPT-5, GPT-5 mini, GPT-5 nano | Parameter `reasoning_effort` |
-| Gemini 3 | Parameter `reasoning_effort` |
-| Claude 4.6, Claude Opus 5 | Parameter `reasoning_effort` |
-| Qwen 3.6 | Prompt-Schlüsselwort `/no_think` |
+<ReasoningTable />
 
-Die meisten Reasoning-Modelle folgen einem dieser beiden Muster: dem OpenAI-kompatiblen Parameter `reasoning_effort` oder einem Prompt-Schlüsselwort. `reasoning_effort` wird deutlich breiter akzeptiert, als die Tabelle vermuten lässt — auch GLM, Mistral, Gemma, Nemotron und die T-Cloud-gehosteten Open-Source-Modelle nehmen ihn entgegen.
+{/* TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) unterstützt laut Anbieter einen Thinking-Modus. Die reasoning_effort-Werte auf AIFS bestätigen, bevor sie in die Tabelle kommen. */}
+
+Qwen 3.6 akzeptiert zusätzlich das Prompt-Schlüsselwort `/no_think`, im Abschnitt unten.
 
 Einige Modelle bilden Ausnahmen:
 
@@ -54,12 +50,12 @@ Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat &
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-4.6",
+        model="GLM-5.3",
         messages=[
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
         ],
-        reasoning_effort="low",  # "low", "medium", or "high"
+        reasoning_effort="high",  # GLM-5.3 akzeptiert "none", "high" oder "max"
     )
 
     print(response.choices[0].message.content)
@@ -67,10 +63,7 @@ Lehnt ein Modell `reasoning_effort` ab, prüfen Sie seinen Eintrag unter [Chat &
   </TabItem>
 </Tabs>
 
-Der Parameter `reasoning_effort` akzeptiert drei Werte:
-- **`low`** — Schnelle Antworten, minimales Reasoning
-- **`medium`** — Ausgewogene Reasoning-Tiefe
-- **`high`** — Tiefgehendes Reasoning für komplexe Probleme
+Das Beispiel setzt `reasoning_effort="high"` auf `GLM-5.3`. Das Datenblatt listet für dieses Modell `none`, `high` und `max`. Nicht davon ausgehen, dass jedes Modell dieselben Werte akzeptiert.
 
 
 ## Reasoning für Qwen 3.6 deaktivieren
@@ -83,7 +76,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen3.6-35B-A3B-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},
@@ -94,8 +87,20 @@ print(response.choices[0].message.content)
 ```
 
 
+## Grenzen und Fehlersuche
+
+Bekannte Grenzen:
+
+- Mistral-Modelle akzeptieren nur `none` und `high`. `low` oder `medium` führen zu HTTP 400 mit `reasoning_effort=... is not supported by Mistral models.`
+- Einzelne neuere Anthropic-Modelle lehnen `reasoning_effort` ab. Die Fehlermeldung nennt die Alternative.
+- Einige auf Code spezialisierte Modelle weisen den Parameter mit `The requested operation is unsupported.` zurück.
+
+{/* TODO(andrej): bestätigen, welche aktuellen Anthropic-Modell-IDs reasoning_effort ablehnen. Der Satz oben ist der bestehende Hinweis; er nennt keine IDs. */}
+
 ## Nächste Schritte
 
-- [Chat Completions](/de/guides/chat-completions) — Standard-Chat-API-Nutzung
-- [Function Calling](/de/guides/function-calling) — Reasoning-Modelle mit externen Tools verbinden
-- [Streaming](/de/guides/streaming) — Antworten von Reasoning-Modellen streamen
+<div class="link-card-row">
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Der Chat-Aufruf, dem dieser Parameter hinzugefügt wird." />
+  <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools auf demselben Client." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="GLM 5.2 und Qwen 3.6 35B auf T-Cloud." />
+</div>

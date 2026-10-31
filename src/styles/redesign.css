@@ -1,429 +1,117 @@
 /* T-Systems docs chrome. Loaded after custom.css so these unlayered
-   rules win over Starlight's layered defaults and the older accent block.
-   TeleNeo is not shipped (no woff2 in the repo). The stack below is the
-   deliberate fallback until a licensed webfont can be added. */
+   rules win over Starlight's layered defaults.
+   Every colour, font, radius and border width here is a --aifs-* variable
+   from tokens.css, generated from tokens/ and set per data-theme, so the
+   rules below hold for light and dark alike. Starlight's own --sl-color-*
+   variables are set in tokens.css too. */
 
 :root {
-	--aifs-magenta: #e20074;
-	--aifs-ink: #262626;
-	--aifs-white: #ffffff;
-	--aifs-grey: #ededed;
-	--aifs-muted: #616161;
-	--aifs-font: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-	--aifs-font-medium: var(--aifs-font);
-	--aifs-font-bold: var(--aifs-font);
-	--aifs-table-head: #f2f2f2;
-	--aifs-table-head-text: #262626;
-	--sl-font: var(--aifs-font);
-	--sl-font-system: var(--aifs-font);
 	--sl-nav-height: 4.25rem;
-	--sl-content-width: 46rem;
-	--sl-text-h1: 2.5rem; /* 40px */
-	--sl-text-h2: 2rem; /* 32px */
-	--sl-text-h3: 1.5rem; /* 24px */
-	--sl-text-h4: 1.25rem; /* 20px */
-	--sl-line-height: 1.6;
 	--sl-line-height-headings: 1.2;
+	--sl-shadow-sm: none;
+	--sl-shadow-md: none;
 	color-scheme: dark;
 	font-synthesis: weight;
 }
 
 :root[data-theme='light'] {
-	--sl-color-white: #262626;
-	--sl-color-gray-1: #262626;
-	--sl-color-gray-2: #262626;
-	--sl-color-gray-3: #616161;
-	--sl-color-gray-4: #7c7c7c;
-	--sl-color-gray-5: #d8d8d8;
-	--sl-color-gray-6: #ededed;
-	--sl-color-gray-7: #f5f5f5;
-	--sl-color-black: #ffffff;
-	--sl-color-accent-low: #fce4ef;
-	--sl-color-accent: #e20074;
-	--sl-color-accent-high: #b5005d;
-	--sl-color-text-accent: #e20074;
-	--sl-color-text-invert: #ffffff;
-	--sl-color-bg-nav: #ffffff;
-	--sl-color-bg-sidebar: #ffffff;
-	--sl-color-bg-inline-code: #ffffff;
-	--sl-color-hairline: #d8d8d8;
-	--sl-color-hairline-light: #ededed;
-	--sl-color-hairline-shade: #d8d8d8;
-	--sl-color-bg-accent: #e20074;
-	--sl-color-banner-text: #ffffff;
-	--sl-shadow-sm: none;
-	--sl-shadow-md: none;
 	color-scheme: light;
 }
 
-:root[data-theme='dark'] {
-	/* Live docs.llmhub.t-systems.net dark greys (Starlight defaults). */
-	--aifs-d-bg: hsl(224, 10%, 10%); /* #17181c page */
-	--aifs-d-surface: hsl(224, 14%, 16%); /* #23262f gray-6 */
-	--aifs-d-raised: hsl(224, 10%, 23%); /* #353841 gray-5 hover */
-	--aifs-d-border: hsl(224, 10%, 23%);
-	--aifs-d-border-strong: hsl(224, 7%, 36%);
-	--aifs-d-text: hsl(0, 0%, 100%);
-	--aifs-d-text-body: hsl(224, 6%, 77%);
-	--aifs-d-text-muted: hsl(224, 6%, 56%);
-	--aifs-d-link: #ff52a3; /* hover #fff + underline */
-	--aifs-d-magenta: #e20074; /* fills, bars, rules only; never small text */
-	--aifs-d-btn-bg: #e20074;
-	--aifs-d-btn-text: #ffffff;
-	--aifs-d-btn-hover-bg: #ffffff;
-	--aifs-d-btn-hover-text: #e20074;
-	--aifs-d-accent-bar: #e20074;
-	--aifs-d-danger: #ff5470;
-	--sl-color-white: hsl(0, 0%, 100%);
-	--sl-color-gray-1: hsl(224, 20%, 94%);
-	--sl-color-gray-2: hsl(224, 6%, 77%);
-	--sl-color-gray-3: hsl(224, 6%, 56%);
-	--sl-color-gray-4: hsl(224, 7%, 36%);
-	--sl-color-gray-5: hsl(224, 10%, 23%);
-	--sl-color-gray-6: hsl(224, 14%, 16%);
-	--sl-color-gray-7: hsl(224, 14%, 16%);
-	--sl-color-black: hsl(224, 10%, 10%);
-	--sl-color-bg-nav: var(--sl-color-gray-6);
-	--sl-color-bg-sidebar: var(--sl-color-gray-6);
-	--sl-color-accent-low: var(--sl-color-gray-6);
-	--sl-color-accent: #e20074;
-	--sl-color-accent-high: #ff52a3;
-	--sl-color-text-accent: #ff52a3;
-	--sl-color-text-invert: hsl(224, 10%, 10%);
-	--sl-color-bg-inline-code: var(--sl-color-gray-5);
-	--sl-color-hairline-light: var(--sl-color-gray-5);
-	--sl-color-hairline: var(--sl-color-gray-6);
-	--sl-color-hairline-shade: var(--sl-color-black);
-	--sl-color-bg-accent: var(--aifs-d-magenta);
-	--sl-color-banner-text: var(--aifs-d-btn-text);
-	--sl-shadow-sm: none;
-	--sl-shadow-md: none;
-	color-scheme: dark;
+/* Set for one frame while the theme changes (see astro.config.mjs), so all
+   colours switch together instead of fading at different speeds. */
+:root[data-theme-switching] *,
+:root[data-theme-switching] *::before,
+:root[data-theme-switching] *::after {
+	transition: none !important;
 }
 
+/* Narrow screens: every heading one step down Telekom's scale. */
 @media (max-width: 50rem) {
 	:root {
-		--sl-text-h1: 2rem; /* 32px */
-		--sl-text-h2: 1.625rem; /* 26px */
-		--sl-text-h3: 1.375rem; /* 22px */
-		--sl-text-h4: 1.125rem; /* 18px */
+		--sl-text-h1: var(--aifs-text-h2-font-size);
+		--sl-text-h2: var(--aifs-text-h3-font-size);
+		--sl-text-h3: var(--aifs-text-h4-font-size);
+		--sl-text-h4: var(--aifs-text-body-font-size);
 	}
 }
 
 body {
-	font-family: var(--aifs-font);
-}
-
-/* Current sidebar item: magenta bar, tinted background, and bold text. */
-.sidebar-content a[aria-current='page'],
-.sidebar-content a[aria-current='page']:hover,
-.sidebar-content a[aria-current='page']:focus {
-	background: #fce4ef;
-	color: #1a1a1a;
-	font-family: var(--aifs-font-bold);
-	font-weight: 700;
-	border-radius: 0;
-	box-shadow: inset 3px 0 0 var(--aifs-magenta);
-}
-
-:root[data-theme='dark'] .sidebar-content a[aria-current='page'],
-:root[data-theme='dark'] .sidebar-content a[aria-current='page']:hover,
-:root[data-theme='dark'] .sidebar-content a[aria-current='page']:focus {
-	background: color-mix(in srgb, var(--aifs-magenta) 22%, var(--aifs-d-surface));
-	color: #ffffff;
-	box-shadow: inset 3px 0 0 var(--aifs-d-accent-bar);
+	font-family: var(--aifs-font-body);
 }
 
 .sl-markdown-content {
-	font-size: 1rem;
-	line-height: 1.6;
+	font-size: var(--aifs-text-body-font-size);
+	line-height: var(--aifs-line-height-prose);
 }
 
 .sl-markdown-content :not(pre) > code {
-	border: 1px solid var(--sl-color-gray-5);
-	border-radius: 4px;
+	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+	border-radius: var(--aifs-radius-control);
 }
 
 .sl-markdown-content :is(h1, h2, h3, h4) {
-	font-family: var(--aifs-font);
 	letter-spacing: 0;
+	text-wrap: balance;
 }
 
-.sl-markdown-content :is(h1, h2),
+/* No single word alone on the last line of a paragraph. */
+.sl-markdown-content :is(p, li) {
+	text-wrap: pretty;
+}
+
+.sl-markdown-content h2 {
+	font-weight: var(--aifs-text-h2-font-weight);
+	line-height: var(--aifs-text-h2-line-height);
+}
+
+.sl-markdown-content h1,
 .sl-container > h1 {
-	font-weight: 700;
+	font-weight: var(--aifs-text-h1-font-weight);
+	line-height: var(--aifs-text-h1-line-height);
 }
 
-.sl-markdown-content :is(h3, h4) {
-	font-weight: 600;
+.sl-markdown-content h3 {
+	font-weight: var(--aifs-text-h3-font-weight);
+	line-height: var(--aifs-text-h3-line-height);
+}
+
+.sl-markdown-content h4 {
+	font-weight: var(--aifs-text-h4-font-weight);
+	line-height: var(--aifs-text-h4-line-height);
 }
 
 .sl-markdown-content :is(strong, b, th) {
-	font-family: var(--aifs-font-bold);
 	font-weight: 700;
 }
 
-.sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *)) {
-	font-family: var(--aifs-font);
+/* Links in running text: Telekom blue, always underlined, because blue and
+   black body text are only 2.7:1 apart and colour alone does not mark a link. */
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *, .aifs-button, .aifs-button *, .aifs-tag, .plans-tag, th *)) {
+	color: var(--aifs-color-link-standard);
 	font-weight: 500;
 	text-decoration: underline;
 	text-underline-offset: 2px;
-	text-decoration-thickness: 1px;
+	text-decoration-thickness: var(--aifs-border-width-standard);
 }
 
-.sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *)):hover {
-	text-decoration: underline;
+.sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *, .aifs-button, .aifs-button *, .aifs-tag, .plans-tag, th *)):hover {
+	color: var(--aifs-color-link-hovered);
 	text-decoration-thickness: 2px;
 }
 
-/* Starlight sets display:block on tables, so a border on the table box is
-   wider than the columns. Shrink the box to the columns and scroll inside it. */
-.sl-markdown-content table:not(.plans-table):not(.models-comparison-table) {
-	display: block;
-	width: max-content;
-	max-width: 100%;
-	overflow-x: auto;
-	border-collapse: separate;
-	border-spacing: 0;
-	border: 1px solid var(--sl-color-gray-5);
-	border-radius: 8px;
-}
-
-.sl-markdown-content th {
-	background: var(--aifs-table-head);
-	color: var(--aifs-table-head-text);
-	font-weight: 700;
-	border: 0;
-	border-bottom: 1px solid #d8d8d8;
-	padding: 0.7rem 0.85rem;
-}
-
-.sl-markdown-content tr:first-child th:first-child {
-	border-start-start-radius: 7px;
-}
-
-.sl-markdown-content tr:first-child th:last-child {
-	border-start-end-radius: 7px;
-}
-
-.sl-markdown-content th :not(pre) > code,
-.sl-markdown-content th code {
-	background: transparent;
-	color: var(--aifs-table-head-text);
-	border: 1px solid #c8c8c8;
-	box-shadow: none;
-}
-
-.sl-markdown-content td {
-	border: 0;
-	border-bottom: 1px solid var(--sl-color-gray-5);
-	padding: 0.7rem 0.85rem;
-	vertical-align: middle;
-	background: transparent;
-}
-
-.sl-markdown-content tbody tr:last-child td {
-	border-bottom: 0;
-}
-
-.sl-markdown-content tbody tr:nth-child(odd),
-:root[data-theme='dark'] .sl-markdown-content tbody tr:nth-child(odd) {
-	background: transparent;
-}
-
-.starlight-aside {
-	border: 1px solid var(--sl-color-gray-5);
-	border-inline-start-width: 3px;
-	border-radius: 8px;
-	background: var(--sl-color-black);
-	box-shadow: none;
-	color: var(--sl-color-white);
-}
-
-.starlight-aside a {
-	text-decoration: underline;
-}
-
-:root[data-theme='light'] .starlight-aside--note {
-	--sl-color-asides-text-accent: #e20074;
-	background: #ffffff;
-	border-color: #d8d8d8;
-	border-inline-start-color: #e20074;
-	color: #262626;
-}
-:root[data-theme='light'] .starlight-aside--tip {
-	--sl-color-asides-text-accent: #0b6b42;
-	background: #e8f6ee;
-	border-color: #b7e0cc;
-	border-inline-start-color: #0b7a4b;
-	color: #1a1a1a;
-}
-:root[data-theme='light'] .starlight-aside--caution {
-	--sl-color-asides-text-accent: #9a3412;
-	background: #fff4e0;
-	border-color: #f0c36a;
-	border-inline-start-color: #c2410c;
-	color: #1a1a1a;
-}
-:root[data-theme='light'] .starlight-aside--danger {
-	--sl-color-asides-text-accent: #b42318;
-	background: #fff0f0;
-	border-color: #f5b4b0;
-	border-inline-start-color: #c30a03;
-	color: #1a1a1a;
-}
-
-:root[data-theme='dark'] .starlight-aside {
-	background: var(--aifs-d-surface);
-	border-color: var(--aifs-d-border);
-	color: var(--aifs-d-text-body);
-}
-:root[data-theme='dark'] .starlight-aside--note {
-	--sl-color-asides-text-accent: var(--aifs-d-link);
-	background: var(--aifs-d-surface);
-	border-color: var(--aifs-d-border);
-	border-inline-start-color: var(--aifs-d-link);
-	color: var(--aifs-d-text-body);
-}
-:root[data-theme='dark'] .starlight-aside--tip {
-	--sl-color-asides-text-accent: #9be7c4;
-	background: #143028;
-	border-color: #1f6b52;
-	border-inline-start-color: #3dbe8c;
-	color: #e7fff4;
-}
-:root[data-theme='dark'] .starlight-aside--caution {
-	--sl-color-asides-text-accent: #ffd27a;
-	background: #3a2a14;
-	border-color: #8a5a1a;
-	border-inline-start-color: #f5b942;
-	color: #fff6e4;
-}
-:root[data-theme='dark'] .starlight-aside--danger {
-	--sl-color-asides-text-accent: #ffb3c0;
-	background: #3a1a22;
-	border-color: #8a3040;
-	border-inline-start-color: #ff6b81;
-	color: #ffe8ec;
-}
-
-.expressive-code {
-	--ec-brdRad: 8px;
-	--ec-codeFontSize: 0.875rem;
-	border: 1px solid var(--sl-color-gray-5);
-	border-radius: 8px;
-}
-
-:root[data-theme='light'] .expressive-code {
-	--ec-codeBg: #f6f6f6;
-	--ec-frm-edBg: #f6f6f6;
-	--ec-frm-edTabBarBg: #f3f3f3;
-	--ec-frm-edActTabBg: #f6f6f6;
-	--ec-frm-trmBg: #f6f6f6;
-	--ec-frm-trmTtbBg: #f3f3f3;
-	border-color: #d8d8d8;
-}
-
-.expressive-code pre {
-	border-radius: 8px;
-}
+/* Tables: src/styles/table.css. */
 
 .sl-steps > li::before {
-	background: var(--aifs-magenta);
-	color: #ffffff;
+	background: var(--aifs-color-action-background);
+	color: var(--aifs-color-action-text);
 	box-shadow: none;
-	font-family: var(--aifs-font-bold);
-}
-
-.sidebar-content a:hover,
-.sidebar-content a:focus-visible {
-	background: transparent;
-	color: var(--aifs-magenta);
-}
-
-.sidebar-content a[aria-current='page']:hover,
-.sidebar-content a[aria-current='page']:focus-visible {
-	color: #1a1a1a;
-}
-
-:root[data-theme='dark'] .sidebar-content a:hover,
-:root[data-theme='dark'] .sidebar-content a:focus-visible {
-	color: var(--aifs-d-link);
-}
-
-:root[data-theme='dark'] .sidebar-content a[aria-current='page']:hover,
-:root[data-theme='dark'] .sidebar-content a[aria-current='page']:focus-visible {
-	color: #ffffff;
-}
-
-.right-sidebar-panel a,
-.right-sidebar a {
-	font-size: 0.9375rem;
-}
-
-.right-sidebar a[aria-current='true'] {
-	color: var(--aifs-magenta);
-	font-family: var(--aifs-font-bold);
 	font-weight: 700;
-}
-
-:root[data-theme='dark'] .right-sidebar a[aria-current='true'] {
-	color: var(--aifs-d-link);
-}
-
-.status-badge {
-	display: inline-block;
-	padding: 0.1rem 0.45rem;
-	border-radius: 4px;
-	font-family: var(--aifs-font-bold);
-	font-size: 0.75rem;
-	font-weight: 700;
-	line-height: 1.4;
-	letter-spacing: 0.01em;
-}
-
-.status-badge--active {
-	background: #ffffff;
-	color: #262626;
-	border: 1px solid #d8d8d8;
-}
-
-.status-badge--preview {
-	background: #93cdee;
-	color: #262626;
-}
-
-.status-badge--deprecated {
-	background: #ffe4e4;
-	color: #c30a03;
-}
-
-:root[data-theme='dark'] .status-badge--active,
-:root[data-theme='dark'] .status-badge--preview,
-:root[data-theme='dark'] .status-badge--deprecated {
-	background: var(--aifs-d-surface);
-	border: 1px solid var(--aifs-d-border);
-}
-
-:root[data-theme='dark'] .status-badge--active {
-	color: var(--aifs-d-text);
-}
-
-:root[data-theme='dark'] .status-badge--preview {
-	color: #93cdee;
-}
-
-:root[data-theme='dark'] .status-badge--deprecated {
-	color: var(--aifs-d-danger);
 }
 
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-	outline: 2px solid var(--aifs-ink);
+	outline: 2px solid var(--aifs-color-focus);
 	outline-offset: 2px;
-}
-
-:root[data-theme='dark'] :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-	outline-color: #ffffff;
 }
 
 html:not([data-has-sidebar]) .pagination-links,
@@ -482,15 +170,15 @@ html:not([data-has-sidebar]) .meta {
 	flex-direction: column;
 	align-items: flex-start;
 	justify-content: flex-start;
-	gap: 0.25rem;
+	gap: 4px;
 	width: 100%;
 	height: 100%;
 	min-width: 0;
 	box-sizing: border-box;
-	padding: 1.25rem 1.5rem;
-	border: 1px solid var(--sl-color-gray-5);
-	border-radius: 8px;
-	background: var(--sl-color-black);
+	padding: 20px 24px;
+	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+	border-radius: var(--aifs-radius-card);
+	background: var(--aifs-color-surface-chrome);
 	box-shadow: none;
 	text-align: left;
 }
@@ -500,7 +188,7 @@ html:not([data-has-sidebar]) .meta {
 	width: 1.5rem;
 	height: 1.5rem;
 	flex: 0 0 auto;
-	color: var(--aifs-magenta);
+	color: var(--aifs-color-brand-text);
 }
 
 .sl-link-card .stack {
@@ -510,10 +198,9 @@ html:not([data-has-sidebar]) .meta {
 
 .sl-link-card .title {
 	display: block;
-	margin-top: 0.75rem;
-	font-family: var(--aifs-font-bold);
+	margin-top: 4px;
 	font-weight: 700;
-	font-size: 1rem;
+	font-size: var(--aifs-text-body-font-size);
 	text-align: left;
 }
 
@@ -528,86 +215,19 @@ html:not([data-has-sidebar]) .meta {
 
 .sl-link-card:hover,
 .sl-link-card:focus-within {
-	background: var(--sl-color-black);
-	border-color: var(--aifs-magenta);
+	background: var(--aifs-color-surface-chrome);
+	border-color: var(--aifs-color-action-background);
 }
 
-.sl-link-card:hover .icon,
-.sl-link-card:focus-within .icon {
-	color: var(--aifs-magenta);
+.commitment-note {
+	background: var(--aifs-color-surface-subtle);
+	border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
+	color: var(--aifs-color-text-body);
 }
 
-:root[data-theme='dark'] .sl-link-card {
-	background: var(--aifs-d-surface);
-	border-color: var(--aifs-d-border);
-}
-
-:root[data-theme='dark'] .sl-link-card .icon,
-:root[data-theme='dark'] .sl-link-card:hover .icon,
-:root[data-theme='dark'] .sl-link-card:focus-within .icon {
-	color: var(--aifs-d-link);
-}
-
-:root[data-theme='dark'] .sl-link-card:hover,
-:root[data-theme='dark'] .sl-link-card:focus-within {
-	background: var(--aifs-d-raised);
-	border-color: var(--aifs-d-border);
-}
-
-/* Dark content chrome. Light rules above are not restated here. */
-:root[data-theme='dark'] .sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *, th *)) {
-	color: var(--aifs-d-link);
-	text-decoration: underline;
-	text-underline-offset: 2px;
-	text-decoration-thickness: 1px;
-}
-
-:root[data-theme='dark'] .sl-markdown-content a:not(:where(.not-content *, .sl-link-card, .sl-link-card *, .card, .card *, .sl-anchor-link, .sl-link-button, .sl-link-button *, th *)):hover {
-	color: #ffffff;
-	text-decoration: underline;
-	text-decoration-thickness: 2px;
-}
-
-:root[data-theme='dark'] .hero-badge,
-:root[data-theme='dark'] .plans-tag.tag-cloud,
-:root[data-theme='dark'] .plans-tag.tag-tier,
-:root[data-theme='dark'] .tag-cloud,
-:root[data-theme='dark'] .tag-tier {
-	background: var(--aifs-d-surface);
-	color: var(--aifs-d-text);
-	border: 1px solid var(--aifs-d-border);
-	box-shadow: none;
-}
-
-:root[data-theme='dark'] .tag-premium {
-	background: var(--aifs-d-surface);
-	color: #7fd4ea;
-	border: 1px solid var(--aifs-d-border);
-	box-shadow: none;
-}
-
-:root[data-theme='dark'] .commitment-note {
-	background: var(--aifs-d-surface);
-	border-inline-start-color: var(--aifs-d-magenta);
-	color: var(--aifs-d-text-body);
-}
-
-:root[data-theme='dark'] .commitment-note__lead {
-	color: var(--aifs-d-link);
-}
-
-:root[data-theme='dark'] .sl-markdown-content th,
-:root[data-theme='dark'] .plans-table th,
-:root[data-theme='dark'] .models-comparison-table thead th {
-	background: var(--aifs-d-surface);
-	color: var(--aifs-d-text);
-	border-bottom: 1px solid var(--aifs-d-border);
-}
-
-:root[data-theme='dark'] .sl-markdown-content th code,
-:root[data-theme='dark'] .sl-markdown-content th :not(pre) > code {
-	color: var(--aifs-d-text);
-	border-color: var(--aifs-d-border-strong);
+.commitment-note__lead {
+	color: var(--aifs-color-text-body);
+	font-weight: 700;
 }
 
 .plans-table th a,
@@ -617,41 +237,15 @@ html:not([data-has-sidebar]) .meta {
 	color: inherit;
 	text-decoration: underline;
 	text-underline-offset: 2px;
-	text-decoration-thickness: 1px;
+	text-decoration-thickness: var(--aifs-border-width-standard);
 }
 
-:root[data-theme='dark'] input,
-:root[data-theme='dark'] select,
-:root[data-theme='dark'] textarea {
-	background-color: var(--aifs-d-surface);
-	color: var(--aifs-d-text);
-	border-color: var(--aifs-d-border);
-}
-
-/* Header version, theme, and language selects stay transparent, matching light mode. */
-:root[data-theme='dark'] .ts-header select {
-	background-color: transparent;
-	color: var(--aifs-d-text-body);
-	border-color: transparent;
-}
-
-:root[data-theme='dark'] .ts-header label {
-	color: var(--aifs-d-text-body);
-}
-
-:root[data-theme='dark'] .ts-header label :is(.caret, .caret-icon) {
-	color: var(--aifs-d-text-muted);
-}
-
-:root[data-theme='dark'] .ts-header label:hover select,
-:root[data-theme='dark'] .ts-header label:focus-within select {
-	background-color: var(--aifs-d-raised);
-	color: var(--aifs-d-text-body);
-}
-
-:root[data-theme='dark'] .ts-header select:focus-visible {
-	outline: 2px solid var(--aifs-d-text);
-	outline-offset: 2px;
+input,
+select,
+textarea {
+	background-color: var(--aifs-color-surface-chrome);
+	color: var(--aifs-color-text-body);
+	border-color: var(--aifs-color-border-standard);
 }
 
 /* Plans intro, cards, and note share the table's content width. */
@@ -673,8 +267,98 @@ html:not([data-has-sidebar]) .meta {
 	max-width: 100%;
 }
 
+/* The data tables scroll inside these; as in Scale, there is no outer frame,
+   only the header's rounded top corners. */
 .models-table-section .table-wrapper,
 .models-comparison__scroll {
-	border: 1px solid var(--sl-color-gray-5);
-	border-radius: 8px;
+	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
+}
+
+.sl-markdown-content:has(.plans-page) :is(.link-card-row, .card-grid) {
+	max-width: 46rem !important;
+	width: min(100%, 46rem);
+}
+
+main:is(:has(.plans-page), :has(.models-comparison), :has(.models-table-section)) .qp-bar {
+	width: 100% !important;
+	max-width: none !important;
+}
+
+sup {
+	font-size: max(0.75em, 12px);
+	line-height: 0;
+	position: relative;
+	top: -0.4em;
+	vertical-align: baseline;
+	margin: 0;
+	padding: 0;
+	white-space: nowrap;
+}
+
+.sl-markdown-content sup a,
+.plans-table sup a,
+.plan-tile sup a,
+.models-comparison-table sup a,
+.starlight-aside sup a {
+	color: var(--aifs-color-link-standard);
+	vertical-align: baseline;
+	font-size: 1em;
+	line-height: 0;
+	margin: 0;
+	padding: 0 1px;
+	font-size: max(1em, 12px);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+}
+
+.sl-markdown-content .starlight-aside :not(pre) > code {
+	white-space: normal;
+	overflow-wrap: anywhere;
+	background: transparent;
+	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-standard);
+}
+
+.models-table-section .mt-compact-wrap {
+	box-shadow: none;
+	overflow: visible;
+	border-radius: var(--aifs-table-radius);
+}
+
+:root[data-theme='dark'] .sl-markdown-content img[src$='vision-rag-workflow.svg'] {
+	filter: invert(1) hue-rotate(180deg);
+}
+
+@media (min-width: 60rem) {
+	.card-grid:has(> :nth-child(3):last-child),
+	.link-card-row:has(> :nth-child(3):last-child) {
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+	}
+}
+
+starlight-menu-button button {
+	background: transparent;
+	color: var(--aifs-color-text-body);
+}
+
+/* The menu button is fixed in the header; its host element must not take a
+   46px line in the page flow above the content. */
+starlight-menu-button {
+	display: contents;
+}
+
+/* The mobile "On this page" bar is hidden (layout.css), so Starlight must not
+   reserve its 3rem under the header either. */
+:root {
+	--sl-mobile-toc-height: 0rem;
+}
+
+@media (max-width: 50rem) {
+	starlight-menu-button button,
+	site-search button,
+	.qp-bar :is(a, button) {
+		display: inline-grid;
+		place-items: center;
+		min-width: 40px;
+		min-height: 40px;
+	}
 }

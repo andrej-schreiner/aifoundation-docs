@@ -10,7 +10,7 @@ The Chat Completions API is the primary way to interact with LLMs on AI Foundati
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK or HTTP client installed ([Quickstart](/getting-started/quickstart))
+- OpenAI SDK or HTTP client installed ([Quickstart](/))
 :::
 
 **What you'll learn:**
@@ -20,7 +20,7 @@ The Chat Completions API is the primary way to interact with LLMs on AI Foundati
 - Key parameters for controlling output
 
 
-## Basic Usage
+## Basic usage
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -140,7 +140,7 @@ Using an up-to-date version of the OpenAI Python package, you can use the Respon
     client = OpenAI()
 
     response = client.responses.create(
-        model="gpt-5",
+        model="gpt-oss-120b",
         input="Write a one-sentence bedtime story about a unicorn.",
     )
 
@@ -153,7 +153,7 @@ You can also use both input and instructions fields:
 
 ```python showLineNumbers
 response = client.responses.create(
-    model="gpt-5",
+    model="gpt-oss-120b",
     instructions="You are a professional copywriter. Focus on benefits rather than features.",
     input="Create a product description for NoiseGuard Pro Headphones.",
     max_output_tokens=2000,
@@ -163,7 +163,7 @@ print(response.output_text)
 ```
 
 :::note
-The Responses API works with models from several providers — text, tool calls and streaming are all confirmed on OpenAI models (`gpt-5`), Google models (`gemini-3-flash`), Anthropic models (`claude-sonnet-4.6`) and T-Cloud-hosted open-source models (`gpt-oss-120b`). Coverage is still not universal: a few models reject Responses API requests and return HTTP 400. If you hit one, use the Chat Completions API, which is supported everywhere.
+The Responses API works with models from several providers — text, tool calls and streaming are all confirmed on T-Cloud-hosted open-source models (`gpt-oss-120b`). Coverage is still not universal: a few models reject Responses API requests and return HTTP 400. If you hit one, use the Chat Completions API, which is supported everywhere.
 :::
 
 
@@ -181,9 +181,15 @@ The Responses API works with models from several providers — text, tool calls 
 For the full API specification, see the [API Reference](https://llm-server.llmhub.t-systems.net/redoc).
 
 
-## Next Steps
+## Limitations and troubleshooting
+
+The Completions API is only for open-source models and should not be your default. Some models reject the Responses API with HTTP 400.
+
+{/* TODO(andrej): a per-model parameter matrix is not in this guide. The parameters table is the documented set. */}
+
+## Next steps
 
 - [Streaming](/guides/streaming) — Stream responses token-by-token
 - [Function Calling](/guides/function-calling) — Connect models to external tools
 - [Multimodal](/guides/multimodal) — Analyze images alongside text
-- [Queued Requests](/guides/queued-requests) — Wait for rate-limit budget instead of getting a 429
+- [Queued Requests](/guides/reliability#queued-requests) — Wait for rate-limit budget instead of getting a 429

@@ -1,5 +1,5 @@
 ---
-title: "Multimodal (Vision)"
+title: "Bildeingabe"
 description: "Bilder gemeinsam mit Text über vision-fähige Modelle auf AI Foundation Services mithilfe der Standard-Chat-Completions-API analysieren."
 ---
 
@@ -10,8 +10,8 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
-- Ein visionfähiges Modell (siehe [Verfügbare Modelle](/de/getting-started/models))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
+- Ein visionfähiges Modell (siehe [Verfügbare Modelle](/de/models))
 :::
 
 **Was Sie lernen werden:**
@@ -29,7 +29,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "gemini-3-flash",
+        "model": "Qwen-3.6-35B-FP8",
         "messages": [
           {
             "role": "user",
@@ -50,7 +50,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="gemini-3-flash",
+        model="Qwen-3.6-35B-FP8",
         messages=[
             {
                 "role": "user",
@@ -78,7 +78,7 @@ AI Foundation Services bietet Vision-Modelle, die Bilder zusammen mit Text analy
     const client = new OpenAI();
 
     const response = await client.chat.completions.create({
-      model: "gemini-3-flash",
+      model: "Qwen-3.6-35B-FP8",
       messages: [
         {
           role: "user",
@@ -120,7 +120,7 @@ def encode_image(image_path):
 base64_image = encode_image("/path/to/your/image.jpg")
 
 response = client.chat.completions.create(
-    model="Qwen3.6-35B-A3B-FP8",
+    model="Qwen-3.6-35B-FP8",
     messages=[
         {
             "role": "user",
@@ -140,20 +140,23 @@ print(response.choices[0].message.content)
 ```
 
 
-## Beispiele für Vision-Modelle
+## Beispielmodelle mit Bildeingabe
 
 :::note[Beispiele, keine vollständige Liste]
-Die folgenden Modelle sind Beispiele aus diesem Guide. Auch andere Modelle auf der Plattform verarbeiten Bilder — die aktuelle Liste finden Sie unter [Vision-Modelle](/de/models/vision).
+Die folgenden Modelle sind Beispiele aus diesem Guide. Auch andere Modelle auf der Plattform verarbeiten Bilder — die aktuelle Liste finden Sie unter [Verfügbare Modelle](/de/models); filtern Sie die Eingabe nach „Bild“.
 :::
 
 | Modell (Beispiel) | Anbieter | Fähigkeiten |
 |---|---|---|
-| `Qwen3.6-35B-A3B-FP8` | T-Cloud (Deutschland) | Bild-, Dokument- & Videoverständnis, OCR |
-| `gemini-3-flash` | Google Cloud | Bild- + Videoverständnis |
-| `gpt-5` | Azure | Bildverständnis |
+| `Qwen-3.6-35B-FP8` | T-Cloud (Deutschland) | Text- und Bildeingabe |
+| `gemma-4-31B-it-FP8` | T-Cloud (Deutschland) | Text- und Bildeingabe |
+
+## Grenzen und Fehlersuche
+
+Für gescannte Seiten und Handschrift nutzen Sie [OCR](/de/guides/ocr) mit den Vorschau-Modellen.
 
 :::caution[Bildlimits pro Anfrage unterscheiden sich je Modell]
-T-Cloud-gehostete Modelle begrenzen, wie viele Bilder eine Anfrage enthalten darf — **das Limit ist nicht bei allen Modellen gleich**. Prüfen Sie es für das von Ihnen genutzte Modell, statt einen einheitlichen Wert anzunehmen. Gemessene Beispiele: `gemma-4-31B-it-FP8` und `Qwen3-VL-30B-A3B-Instruct-FP8` akzeptieren 10, `Qwen3.6-35B-A3B-FP8` dagegen nur 8.
+T-Cloud-gehostete Modelle begrenzen, wie viele Bilder eine Anfrage enthalten darf. **Das Limit ist nicht bei allen Modellen gleich.** `gemma-4-31B-it-FP8` akzeptiert 10. `Qwen-3.6-35B-FP8` akzeptiert 8.
 
 Wird das Limit überschritten, folgt HTTP 400 — entweder `At most 10 image(s) may be provided in one prompt.` oder `Image count 9 exceeds limit 8 per request.` Teilen Sie große Batches auf mehrere Anfragen auf.
 :::
@@ -161,6 +164,6 @@ Wird das Limit überschritten, folgt HTTP 400 — entweder `At most 10 image(s) 
 
 ## Nächste Schritte
 
-- [Visual RAG](/de/guides/visual-rag) — Dokumente mit Text- + Bildverständnis indizieren und abrufen
+- [Visual RAG](/de/guides/embeddings#visual-rag) — Dokumente mit Text- + Bildverständnis indizieren und abrufen
 - [Function Calling](/de/guides/function-calling) — Modelle mit externen Tools verbinden
 - [Streaming](/de/guides/streaming) — Antworten für bessere UX streamen

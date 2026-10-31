@@ -1,0 +1,108 @@
+---
+title: "Strukturierte Ausgaben"
+description: "JSON erzeugen, das einem Schema entspricht, über die Responses API."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Strukturierte Ausgaben fordern JSON an, das einem Schema folgt. Nutzen Sie sie, wenn der nächste Schritt Felder braucht und keinen Absatz: einen Produktdatensatz, ein Label oder einen Score.
+
+Der Aufruf nutzt die Responses API. Prüfen Sie, ob Ihr Modell `text.format` mit `json_schema` unterstützt, bevor Sie sich darauf verlassen.
+
+:::note[Voraussetzungen]
+- Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- OpenAI SDK installiert ([Quickstart](/de/))
+:::
+
+## Minimales Beispiel
+
+Diese Anfrage extrahiert einen Produktdatensatz. Das Schema verlangt einen Namen, eine Liste von Merkmalen, eine Liste von Farben und ein Preisobjekt.
+
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI()
+
+description = """
+Our Premium Laptop Backpack features padded compartments that fit
+laptops up to 15.6 inches. Available in navy blue, black, and gray.
+Price: $79.99, on sale for $64.99.
+"""
+
+response = client.responses.create(
+    model="gpt-oss-120b",
+    input=f"Extract structured product information: {description}",
+    max_output_tokens=2000,
+    text={
+        "format": {
+            "type": "json_schema",
+            "name": "product_details",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string"},
+                    "features": {"type": "array", "items": {"type": "string"}},
+                    "colors": {"type": "array", "items": {"type": "string"}},
+                    "pricing": {
+                        "type": "object",
+                        "properties": {
+                            "regular_price": {"type": "number"},
+                            "sale_price": {"type": "number"},
+                            "currency": {"type": "string"},
+                        },
+                        "required": ["regular_price", "sale_price", "currency"],
+                        "additionalProperties": False,
+                    },
+                },
+                "required": ["product_name", "features", "colors", "pricing"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        }
+    },
+)
+
+print(json.dumps(json.loads(response.output_text), indent=2))
+```
+
+{/* TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text vor. Das JSON unten ist die Form, die Schema und Prompt nahelegen. */}
+
+`response.output_text` ist ein JSON-String. Beispielausgabe (illustrativ):
+
+```json
+{
+  "product_name": "Premium Laptop Backpack",
+  "features": ["Padded compartments that fit laptops up to 15.6 inches"],
+  "colors": ["navy blue", "black", "gray"],
+  "pricing": {
+    "regular_price": 79.99,
+    "sale_price": 64.99,
+    "currency": "USD"
+  }
+}
+```
+
+## Parameter
+
+Setzen Sie `model`, `input`, `max_output_tokens` und `text.format`. In `text.format` setzen Sie `type` auf `json_schema` sowie `name`, `schema` und `strict`.
+
+{/* TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. */}
+
+## Modellunterstützung
+
+Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten auf `client.responses.create` mit HTTP 400. Für diese Modelle [Chat Completions](/de/guides/chat-completions) verwenden.
+
+{/* TODO(andrej): bestätigen, dass gpt-oss-120b diese text.format-Nutzlast mit json_schema akzeptiert. */}
+
+## Grenzen
+
+`strict: True` zusammen mit `additionalProperties: false` beschränkt die Ausgabe auf die Felder Ihres Schemas. Prüfen Sie die Werte in Ihrem Code. Für JSON-Argumente eines selbst definierten Tools verwenden Sie [Function Calling](/de/guides/function-calling).
+
+## Siehe auch
+
+<div class="link-card-row">
+  <LinkCard title="Function Calling" href="/de/guides/function-calling" description="Tools und JSON-Argumente." />
+  <LinkCard title="Chat Completions" href="/de/guides/chat-completions" description="Die Chat-API und ihre Parameter." />
+  <LinkCard title="Modell wählen" href="/de/getting-started/choosing-a-model" description="T-Cloud-Modelle nach Anwendungsfall." />
+</div>

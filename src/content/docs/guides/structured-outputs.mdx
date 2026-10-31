@@ -1,0 +1,108 @@
+---
+title: "Structured outputs"
+description: "Return JSON that matches a schema, using the Responses API."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+
+Structured outputs ask a model to return JSON that follows a schema you define. Use them when the next step in your application needs fields, not a paragraph: a product record, a label, or a score.
+
+The call uses the Responses API. Check that your model supports `text.format` with `json_schema` before relying on it.
+
+:::note[Prerequisites]
+- An API key ([get one here](https://apikey.llmhub.t-systems.net/))
+- OpenAI SDK installed ([Quickstart](/))
+:::
+
+## Minimal example
+
+This request extracts a product record. The schema requires a name, a list of features, a list of colors, and a price object.
+
+```python
+import json
+from openai import OpenAI
+
+client = OpenAI()
+
+description = """
+Our Premium Laptop Backpack features padded compartments that fit
+laptops up to 15.6 inches. Available in navy blue, black, and gray.
+Price: $79.99, on sale for $64.99.
+"""
+
+response = client.responses.create(
+    model="gpt-oss-120b",
+    input=f"Extract structured product information: {description}",
+    max_output_tokens=2000,
+    text={
+        "format": {
+            "type": "json_schema",
+            "name": "product_details",
+            "schema": {
+                "type": "object",
+                "properties": {
+                    "product_name": {"type": "string"},
+                    "features": {"type": "array", "items": {"type": "string"}},
+                    "colors": {"type": "array", "items": {"type": "string"}},
+                    "pricing": {
+                        "type": "object",
+                        "properties": {
+                            "regular_price": {"type": "number"},
+                            "sale_price": {"type": "number"},
+                            "currency": {"type": "string"},
+                        },
+                        "required": ["regular_price", "sale_price", "currency"],
+                        "additionalProperties": False,
+                    },
+                },
+                "required": ["product_name", "features", "colors", "pricing"],
+                "additionalProperties": False,
+            },
+            "strict": True,
+        }
+    },
+)
+
+print(json.dumps(json.loads(response.output_text), indent=2))
+```
+
+{/* TODO(andrej): no recorded output_text for this call is in the docs. The JSON below is the shape the schema and the prompt imply. */}
+
+`response.output_text` is a JSON string. Example output (illustrative):
+
+```json
+{
+  "product_name": "Premium Laptop Backpack",
+  "features": ["Padded compartments that fit laptops up to 15.6 inches"],
+  "colors": ["navy blue", "black", "gray"],
+  "pricing": {
+    "regular_price": 79.99,
+    "sale_price": 64.99,
+    "currency": "USD"
+  }
+}
+```
+
+## Parameters
+
+Set `model`, `input`, `max_output_tokens`, and `text.format`. Inside `text.format`, set `type` to `json_schema`, plus `name`, `schema`, and `strict`.
+
+{/* TODO(andrej): confirm whether chat completions accept response_format or json_schema. Only the Responses API example is in the repo today. */}
+
+## Model support
+
+The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
+
+{/* TODO(andrej): confirm that gpt-oss-120b accepts this text.format json_schema payload. */}
+
+## Limitations
+
+`strict: True` together with `additionalProperties: false` keeps the output to the fields in your schema. Validate the values in your code. For JSON arguments of a tool you defined, use [Function calling](/guides/function-calling).
+
+## See also
+
+<div class="link-card-row">
+  <LinkCard title="Function calling" href="/guides/function-calling" description="Tools and JSON arguments." />
+  <LinkCard title="Chat completions" href="/guides/chat-completions" description="The chat API and its parameters." />
+  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="T-Cloud models by use case." />
+</div>

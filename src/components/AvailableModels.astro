@@ -1,8 +1,19 @@
 ---
-import 'flag-icons/css/flag-icons.min.css';
+import Flag from './Flag.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
+import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { isRetiringModel } from '../shared/lib/choosingModels';
+import { hostingUnconfirmed } from '../shared/lib/launchModels';
 
 // Locale detection (mirrors PlansPage.astro pattern)
+interface Props {
+  showHeading?: boolean;
+}
+const { showHeading = true } = Astro.props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
 const t = {
@@ -12,6 +23,7 @@ const t = {
   showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show More ({count} more)',
   showLess: isDE ? 'Weniger anzeigen' : 'Show Less',
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
+  preview: isDE ? 'Vorschau' : 'Preview',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
@@ -19,16 +31,6 @@ const t = {
   copiedAriaTemplate: isDE ? 'Kopiert: {id}' : 'Copied {id}',
   modelsCountAriaTemplate: isDE ? '{count} Modelle insgesamt' : '{count} models total',
 };
-
-const OFFLINE_MODELS = new Set([
-  'gpt-4.1-nano',
-  'gpt-4o-mini',
-  'GPT-5-Codex',
-  'gpt-5-nano',
-  'Mistral-Large-2411',
-  'Mistral-Medium-3',
-  'o1',
-]);
 
 // Models not present in the pricing JSON but that should still appear on the
 // featured grid. Keep this list current: entries for retired models (see
@@ -49,67 +51,6 @@ const EXTRA_MODELS: Array<{
 // Empty is fine — every model in the catalog currently reads correctly from its
 // deployment region.
 const CLOUD_OVERRIDES: Record<string, string> = {};
-
-const SORT_ORDER = [
-  'LightOnOCR-3-4B',
-  'PaddleOCR-VL-1.6',
-  'd3',
-  'DiffusionGemma 26B A4B',
-  'GLM 5.3 Flash',
-  'GLM 5.2',
-  'NVIDIA Nemotron 3 Super 120B FP8',
-  'Gemma 4',
-  'Mistral Small 4',
-  'GPT-OSS 120B',
-  'Qwen 3.8 27B FP8',
-  'Qwen 3.6 35B FP8',
-  'Qwen3-Next 80B',
-  'Qwen3-VL 30B',
-  'Qwen3 Coder 30B',
-  'Qwen 3 Coder 30B',
-  'Llama 3.3 70B',
-  'Mistral Small 3',
-  'Mistral Medium 3',
-  'GPT-5.2',
-  'GPT 5.2',
-  'GPT-5',
-  'GPT-5 mini',
-  'GPT-5 nano',
-  'GPT-5 Codex',
-  'o4 mini',
-  'o3',
-  'o3 mini',
-  'o1 mini',
-  'Claude 4.6 Opus',
-  'Claude 4.6 Sonnet',
-  'Claude 4.5 Opus',
-  'Claude 4.5 Sonnet (>200k)',
-  'Claude 4.5 Sonnet (≤200k)',
-  'Claude 4.5 Haiku',
-  'Claude 4 Sonnet',
-  'Claude 3.7 Sonnet',
-  'Gemini 3 Pro (>200k)',
-  'Gemini 3 Pro (≤200k)',
-  'Gemini 3 Flash',
-  'Gemini 2.5 Pro (>200k)',
-  'Gemini 2.5 Pro (≤200k)',
-  'Gemini 2.5 Flash',
-  'Gemini 3 Pro Image',
-  'Gemini 2.5 Flash Image',
-  'GPT-4.1',
-  'GPT-4.1 mini',
-  'GPT-4.1 nano',
-  'GPT-4o',
-  'GPT-4o mini',
-  'GPT-Image-1 (Text→Image)',
-  'GPT-Image-1 (Image→Image)',
-  'BGE-M3',
-  'Ada Text Embedding',
-  'Qwen3 Embedding 8B',
-  'Jina Embeddings v2 Base DE',
-  'Whisper Large v3',
-  'Whisper Large v3 Turbo',
-];
 
 // Map country names to ISO 3166-1 alpha-2 codes for flag icons
 const COUNTRY_TO_CODE: Record<string, string> = {
@@ -133,6 +74,9 @@ function parseRegion(region: string): {
   dataProcessing: string;
   dataProcessingCode: string;
 } {
+  if (!region) {
+    return { provider: '', hosted: '', countryCode: '', dataProcessing: '', dataProcessingCode: '' };
+  }
   const parts = region.split('-');
   const raw = parts[0].toLowerCase();
   const PROVIDER_MAP: Record<string, string> = { otc: 'T-Cloud', azure: 'Azure', gcp: 'GCP' };
@@ -141,12 +85,25 @@ function parseRegion(region: string): {
   let country = parts[1] ?? '';
   const isWorldwide = country.toLowerCase() === 'worldwide';
   country = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
+  const regionDe: Record<string, string> = {
+    Germany: 'Deutschland',
+    Sweden: 'Schweden',
+    France: 'Frankreich',
+    Europe: 'Europa',
+    Worldwide: 'Weltweit',
+    Us: 'USA',
+  };
+  if (isDE && regionDe[country]) country = regionDe[country];
   // A worldwide region resolves to the globe glyph rather than a country flag.
   const countryCode = getCountryCode(country);
 
   // A `worldwide` region means the third-party provider may run the model —
   // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
-  const dataProcessing = raw === 'otc' ? 'Germany' : isWorldwide ? 'Worldwide' : 'EU';
+  const dataProcessing = raw === 'otc'
+    ? (isDE ? 'Deutschland' : 'Germany')
+    : isWorldwide
+      ? (isDE ? 'Weltweit' : 'Worldwide')
+      : 'EU';
   // Only worldwide processing carries a glyph; Germany and EU stay text-only.
   const dataProcessingCode = isWorldwide ? 'globe' : '';
   return { provider, hosted: country, countryCode, dataProcessing, dataProcessingCode };
@@ -162,30 +119,37 @@ const configs = exposedPlans.flatMap((p) =>
 interface ModelCard {
   modelId: string;
   name: string;
+  creator: string;
+  logo: string;
   provider: string;
   hosted: string;
   countryCode: string;
   dataProcessing: string;
   dataProcessingCode: string;
   preview?: boolean;
+  showHosting?: boolean;
 }
 
 // Build model cards from pricing data (filtering out offline models)
 const pricingModels: ModelCard[] = configs
-  .filter((c: { exactModelName: string }) => !OFFLINE_MODELS.has(c.exactModelName))
+  .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName) && !isRetiringModel(c.exactModelName))
   .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; isPreview: boolean }) => {
     const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
       c.deploymentRegion,
     );
+    const creator = creatorNameFor(c.exactModelName, c.displayModelName);
     return {
       modelId: c.exactModelName,
       name: c.displayModelName,
+      creator,
+      logo: creatorLogoFor(c.exactModelName, c.displayModelName),
       provider: CLOUD_OVERRIDES[c.exactModelName] ?? provider,
       hosted,
       countryCode,
       dataProcessing,
       dataProcessingCode,
       preview: c.isPreview,
+      showHosting: !hostingUnconfirmed(c.exactModelName) && Boolean(c.deploymentRegion),
     };
   });
 
@@ -198,114 +162,79 @@ for (const m of allModels) {
   modelMap.set(m.name, m);
 }
 
-// Sort: preview (newest) first, then by priority list, then alphabetical for unlisted
-const sortedModels = [...modelMap.values()].sort((a, b) => {
-  if (a.preview !== b.preview) return a.preview ? -1 : 1;
-  const ai = SORT_ORDER.indexOf(a.name);
-  const bi = SORT_ORDER.indexOf(b.name);
-  if (ai !== -1 && bi !== -1) return ai - bi;
-  if (ai !== -1) return -1;
-  if (bi !== -1) return 1;
-  return a.name.localeCompare(b.name);
-});
+// Same order as the plans table default. See modelCatalogOrder.ts.
+const sortedModels = [...modelMap.values()].sort((a, b) => compareCatalogName(a.name, b.name));
 
 const INITIAL_COUNT = 6;
 ---
 
 <div class="available-models">
-  <h2 class="models-heading">
-    {t.sectionHeading}{' '}
-    <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(sortedModels.length))}>
-      ({sortedModels.length})
-    </span>
-  </h2>
+  {showHeading && (
+    <h2 class="models-heading">
+      {t.sectionHeading}{' '}
+      <span class="models-count" aria-label={t.modelsCountAriaTemplate.replace('{count}', String(sortedModels.length))}>
+        ({sortedModels.length})
+      </span>
+    </h2>
+  )}
   <span id="copy-status" class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="models-grid" id="models-grid">
     {
       sortedModels.map((model, index) => (
         <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
-          <button
+          <Button
+            variant="ghost"
+            size="small"
+            iconOnly
             class="model-card__copy"
-            type="button"
             data-model-id={model.modelId}
             data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
             title={t.copyTitleTemplate.replace('{id}', model.modelId)}
-            aria-label={t.copyAriaTemplate.replace('{id}', model.modelId)}>
-            <>
-              <svg
-                class="icon-copy"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true">
-                <>
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </>
-              </svg>
-              <svg
-                class="icon-check"
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                aria-hidden="true">
-                <polyline points="20 6 9 17 4 12" />
-              </svg>
-            </>
-          </button>
+            ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}>
+            <Icon name="action-copy-paste" size={16} class="icon-copy" />
+            <Icon name="action-checkmark" size={16} class="icon-check" />
+          </Button>
           <h3 class="model-card__name">
-            {model.name}
-            {model.preview && <span class="model-card__preview-tag"> – Preview</span>}
+            <span class:list={['model-card__mark', { 'model-card__mark--zoom': model.creator.startsWith('Google') }]}>
+              <img
+                class="model-card__logo"
+                src={model.logo}
+                alt={model.creator === 'Other' ? '' : model.creator}
+                title={model.creator === 'Other' ? undefined : model.creator}
+                width="20"
+                height="20"
+              />
+            </span>
+            <span class="model-card__title">
+              {model.name}
+              {model.preview && <span class="status-badge status-badge--preview">{t.preview}</span>}
+            </span>
           </h3>
-          <div class="model-card__details">
-            <span>
-              {t.cloud}: <strong>{model.provider}</strong>
-            </span>
-            <span>
-              {t.serverLocation}: <strong>{model.hosted}</strong>{' '}
-              {model.countryCode && (
-                <span
-                  class={`fi fi-${model.countryCode}`}
-                  style="margin-left: 4px;"
-                  role="presentation"
-                  aria-hidden="true"
-                />
-              )}
-            </span>
-            <span>
-              {t.dataProcessing}: <strong>{model.dataProcessing}</strong>{' '}
-              {model.dataProcessingCode && (
-                <span
-                  class={`fi fi-${model.dataProcessingCode}`}
-                  style="margin-left: 4px;"
-                  role="presentation"
-                  aria-hidden="true"
-                />
-              )}
-            </span>
-          </div>
+          {model.showHosting !== false && model.provider && (
+          <p class="model-card__where">
+            <span>{model.provider}</span>
+            <span aria-hidden="true">·</span>
+            {model.countryCode && <Flag code={model.countryCode} size={16} decorative />}
+            <span>{model.hosted}</span>
+          </p>
+          )}
+          {model.showHosting !== false && model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
+            <p class="model-card__where model-card__where--extra">
+              <span class="model-card__k">{t.dataProcessing}</span>
+              {model.dataProcessingCode && <Flag code={model.dataProcessingCode} size={16} decorative />}
+              <span>{model.dataProcessing}</span>
+            </p>
+          )}
         </div>
       ))
     }
   </div>
   {
     sortedModels.length > INITIAL_COUNT && (
-      <button
+      <Button
+        variant="secondary"
         class="models-toggle"
         id="models-toggle"
-        type="button"
         aria-controls="models-grid"
         aria-expanded="false"
         data-total={sortedModels.length}
@@ -313,18 +242,20 @@ const INITIAL_COUNT = 6;
         data-show-more-template={t.showMoreTemplate}
         data-show-less={t.showLess}>
         {t.showMoreTemplate.replace('{count}', String(sortedModels.length - INITIAL_COUNT))}
-      </button>
+      </Button>
     )
   }
 </div>
 
 <style>
   .available-models {
-    margin: 1.5rem 0;
+    margin-top: var(--aifs-rhythm-heading-2);
+    margin-bottom: 8px;
   }
 
   .models-heading {
-    margin-bottom: 1rem;
+    margin: 0 0 8px;
+    line-height: 1.2;
   }
 
   .models-count {
@@ -340,21 +271,11 @@ const INITIAL_COUNT = 6;
 
   .models-grid {
     display: grid;
-    gap: 1rem;
-    grid-template-columns: 1fr;
+    gap: 8px;
+    /* As many ~15rem cards as the column holds: three in a wide column, two
+       beside the table of contents, one on phones. */
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
     align-items: stretch;
-  }
-
-  @media (min-width: 640px) {
-    .models-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 960px) {
-    .models-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
   }
 
   .model-card {
@@ -362,26 +283,22 @@ const INITIAL_COUNT = 6;
     background: var(--sl-color-black);
     color: var(--sl-color-white);
     border: 1px solid var(--sl-color-gray-5);
-    border-radius: 8px;
-    padding: 1rem 2rem;
+    border-radius: var(--aifs-table-radius, 8px);
+    padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    text-align: center;
+    gap: 4px;
+    text-align: start;
+    line-height: 1.2;
   }
 
   :global(:root[data-theme='dark']) .model-card {
-    background: var(--aifs-d-surface);
-    border-color: var(--aifs-d-border);
+    background: var(--aifs-color-surface-chrome);
+    border-color: var(--aifs-color-border-subtle);
   }
 
   .model-card:hover {
-    border-color: #e20074;
-  }
-
-  :global(:root[data-theme='dark']) .model-card:hover {
-    background: var(--aifs-d-raised);
-    border-color: var(--aifs-d-border);
+    border-color: var(--aifs-color-action-background);
   }
 
   .model-card--hidden {
@@ -391,9 +308,73 @@ const INITIAL_COUNT = 6;
   .model-card__name {
     margin: 0;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1.2;
     color: var(--sl-color-white);
-    min-height: 2.5em;
+    padding-right: 1.75rem;
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: baseline;
+    gap: 6px;
+  }
+
+  /* 20px tile on the title line. Google's mark is mostly margin, so it is scaled up. */
+  .model-card__mark {
+    width: 20px;
+    height: 20px;
+    flex: 0 0 20px;
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 2px;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background);
+  }
+
+  .model-card__mark--zoom {
+    padding: 2px;
+    overflow: visible;
+  }
+
+  .model-card__logo {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .model-card__mark--zoom .model-card__logo {
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  .model-card__title {
+    min-width: 0;
+  }
+
+  .model-card__where {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px;
+    margin: 0 0 0 26px;
+    padding: 0 2.5rem 0 0;
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+
+  .model-card__where--extra {
+    color: var(--aifs-color-text-muted);
+  }
+
+  .model-card__k {
+    color: var(--aifs-color-text-muted);
   }
 
   .model-card__preview-tag {
@@ -401,47 +382,30 @@ const INITIAL_COUNT = 6;
     color: var(--sl-color-text-accent);
   }
 
-  .model-card__copy {
+  /* The Button component draws this one (ghost, small, icon only); here it is
+     only placed in the card's corner. :global because the button element
+     belongs to Button.astro, not to this component's scope. */
+  .model-card :global(.model-card__copy) {
     position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.25rem;
-    color: var(--sl-color-gray-3);
-    opacity: 0.6;
-    transition: opacity 0.15s;
+    top: 4px;
+    right: 4px;
   }
 
-  .model-card__copy:hover,
-  .model-card__copy:focus-visible {
-    opacity: 1;
-    color: var(--sl-color-white);
-  }
-
-  .model-card__copy:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-
-  .model-card__copy .icon-check {
+  .model-card :global(.model-card__copy .icon-check) {
     display: none;
-    color: #4ade80;
+    color: var(--aifs-color-success);
   }
 
-  .model-card__copy[data-copied] .icon-copy {
+  .model-card :global(.model-card__copy[data-copied] .icon-copy) {
     display: none;
   }
 
-  .model-card__copy[data-copied] .icon-check {
+  .model-card :global(.model-card__copy[data-copied] .icon-check) {
     display: inline;
   }
 
-  .model-card__copy[data-copied] {
-    opacity: 1;
-    color: #4ade80;
+  .model-card :global(.model-card__copy[data-copied]) {
+    color: var(--aifs-color-success);
   }
 
   .copy-status {
@@ -465,40 +429,10 @@ const INITIAL_COUNT = 6;
     font-weight: 500;
   }
 
-  .models-toggle {
-    display: block;
-    margin: 1.25rem auto 0;
-    padding: 0.5rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--sl-color-white);
-    background: var(--sl-color-black);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 8px;
-    cursor: pointer;
-  }
-
-  :global(:root[data-theme='dark']) .models-toggle {
-    background: var(--aifs-d-surface);
-    border-color: var(--aifs-d-border);
-    color: var(--aifs-d-text);
-  }
-
-  .models-toggle:hover {
-    background: var(--sl-color-black);
-    border-color: #e20074;
-    color: #e20074;
-  }
-
-  :global(:root[data-theme='dark']) .models-toggle:hover {
-    background: var(--aifs-d-raised);
-    border-color: var(--aifs-d-border);
-    color: var(--aifs-d-text);
-  }
-
-  .models-toggle:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
+  /* Drawn by the Button component (secondary); centred under the grid here. */
+  :global(.models-toggle) {
+    display: flex;
+    margin: 8px auto 0;
   }
 </style>
 

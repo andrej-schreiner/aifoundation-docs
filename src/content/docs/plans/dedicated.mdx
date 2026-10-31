@@ -10,13 +10,28 @@ import { LinkCard } from '@astrojs/starlight/components';
 
 Unlike the [shared LLM Serving Service](/plans), there are no rate-limit ceilings and no shared contention. End-to-end latency, time-to-first-token, and tokens-per-second become predictable functions of your model and prompt, not of other tenants' traffic.
 
+## Shared and dedicated
+
+<a id="comparison"></a>
+
+| <span class="sr-only">Aspect</span> | Shared LLM Serving Service | Dedicated LLM Serving |
+|---|---|---|
+| **Tenancy** | Multi-tenant — capacity is pooled across all customers | Single-tenant — hardware reserved for your contract |
+| **Pricing** | Monthly minimum token-spend commitment; usage above it is billed at the listed per-token prices | Fixed monthly fee per GPU equivalent |
+| **Rate limits** | Per-plan RPM and TPM ceilings — best-effort, not part of the SLA | None — limited only by the hardware you reserve |
+| **Models** | The full catalog on the [Plans page](/plans) | Any model that fits on the reserved hardware, including private fine-tuned models |
+| **Performance** | Best-effort, varies with platform load; not part of the SLA | Predictable on the reserved hardware; performance SLAs negotiable |
+| **Availability SLA** | 99.5% API availability on the standard product (business hours); reachability only | Custom availability and performance SLAs, negotiated per contract |
+| **Ordering** | [API Key portal](https://apikey.llmhub.t-systems.net/login). [Contact us](mailto:ai@t-systems.com) to order | Contact the AIFS team for a quote |
+| **Best for** | Steady production traffic, exploration, prototyping | Tight latency SLAs, bursty workloads, high sustained throughput, private models |
+
 <div class="link-card-row">
-  <LinkCard title="Compare to Shared" href="/plans/service-models" description="Side-by-side comparison of the two service models and when to pick which." />
+  <LinkCard title="Shared plans" href="/plans" description="Compare Essential, Professional, and Agentic." />
   <LinkCard title="Request a Quote" href="mailto:ai@t-systems.com" description="Contact the AIFS team for a tailored Dedicated LLM Serving offering." />
 </div>
 
 
-## Why Choose Dedicated LLM Serving
+## Why choose Dedicated LLM Serving
 
 ### 1. No usage limits
 
@@ -28,7 +43,7 @@ Performance may degrade if you push the hardware near its limit, but that ceilin
 
 On the shared service, you compete for capacity with every other tenant calling the same open-source model. At peak load, end-to-end latency and time-to-first-token vary; effective throughput can be lower than the published TPM.
 
-On Dedicated LLM Serving, your GPUs serve only your requests. Performance is deterministic and reproducible — the same prompt produces the same latency profile run after run. This is what makes it possible to meet **tight SLAs** on latency or throughput.
+On Dedicated LLM Serving, your GPUs serve only your requests. Performance is predictable and not affected by other tenants. That is what makes **latency or throughput SLAs** negotiable on the reserved hardware.
 
 ### 3. Any compatible model
 
@@ -43,7 +58,7 @@ You pay a fixed fee for the reserved hardware and a fixed fee for the managed in
 The shared service's standard SLA (99.5% **API availability** during business hours, no committed resolution times) covers reachability only — it does *not* cover throughput, latency, time-to-first-token, or RPM/TPM. On Dedicated LLM Serving, you can **negotiate custom SLAs** that go beyond the standard product, including 24/7 coverage, faster response times, stricter availability targets, and — uniquely — performance SLAs tied to the reserved hardware (latency, time-to-first-token, sustained throughput). Discuss your needs with your Telekom account representative.
 
 
-## Commercial Structure
+## Commercial structure
 
 A Dedicated LLM Serving offering is composed of three commercial elements:
 
@@ -58,7 +73,7 @@ For a price indication, contact the AIFS team at [ai@t-systems.com](mailto:ai@t-
 :::
 
 
-## When to Move to Dedicated LLM Serving
+## When to move to Dedicated LLM Serving
 
 The shared LLM Serving Service is appropriate for most production workloads. Move to Dedicated LLM Serving when **one or more** of the following apply:
 
@@ -69,10 +84,10 @@ The shared LLM Serving Service is appropriate for most production workloads. Mov
 - **Your compliance posture requires single-tenant infrastructure.** No shared compute with other customers.
 - **You want a predictable cost structure.** A fixed fee for the hardware and the managed service, instead of token-based billing.
 
-If none of these apply, stay on the shared service — it's simpler, cheaper at low to moderate volume, and self-service via the marketplace.
+If none of these apply, stay on the shared service — it's simpler and cheaper at low to moderate volume. To order, [contact us](mailto:ai@t-systems.com).
 
 
-## Hybrid Deployments
+## Hybrid deployments
 
 Many enterprise customers combine both:
 
@@ -93,9 +108,9 @@ The Service Description covers a set of services Telekom provides on separate or
 - **Further support services** (§ 3.4.5) — implementation support, consulting/coaching and training, billed on a time-and-material basis.
 
 
-## How to Order
+## How to order
 
-Dedicated LLM Serving is **not** available via the T-Cloud Marketplace — it requires a tailored offer. To get a quote:
+Dedicated LLM Serving requires a tailored offer. [Contact us](mailto:ai@t-systems.com) to get a quote:
 
 1. Email the AIFS team at [ai@t-systems.com](mailto:ai@t-systems.com) with your expected workload profile (peak request rate, sustained token volume, model preferences, latency targets, contract term).
 2. The team will produce a tailored price indication based on your inputs.
@@ -104,9 +119,8 @@ Dedicated LLM Serving is **not** available via the T-Cloud Marketplace — it re
 For very large or compliance-driven deployments, the AIFS team can also assess installation on a **customer-owned environment** ([§ 3.4.3 of the Service Description](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf)), subject to feasibility checks. Mention this in your initial enquiry if relevant.
 
 
-## Related Resources
+## Related resources
 
-- **[Shared vs Dedicated LLM Serving](/plans/service-models)** — Compare both service models side-by-side
 - **[Plans & Pricing](/plans)** — Pricing for the shared Essential / Professional / Agentic plans
 - **[Rate Limits](/reference/rate-limits)** — How RPM/TPM work on the shared service
 - **[Service Levels](/reference/service-levels)** — Standard SLA terms (and how Dedicated LLM Serving can extend them)

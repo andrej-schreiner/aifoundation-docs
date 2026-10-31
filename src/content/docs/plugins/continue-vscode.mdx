@@ -3,9 +3,9 @@ title: "Continue for VS Code"
 description: "Install and configure the Continue plugin for Visual Studio Code with chat, inline edits, autocomplete, and coding agents on AI Foundation Services."
 ---
 
-Continue for AI Engineer is a custom version of the Continue extension for Visual Studio Code. It brings chat, inline edits, autocomplete, and coding agents into the editor so you can stay in the same workflow while working with AI models.
+Continue for AI Engineer is a custom version of the Continue extension for Visual Studio Code. It brings chat, inline edits, autocomplete, and coding agents into the editor so you can stay in the same workflow while working with AI models. The JetBrains setup is on [Continue for JetBrains](/plugins/continue-jetbrains).
 
-## Key Features
+## Key features
 
 - Chat interface for questions, code explanations, and development assistance
 - Inline edits for targeted code changes without leaving the file
@@ -14,15 +14,15 @@ Continue for AI Engineer is a custom version of the Continue extension for Visua
 
 ## Installation
 
-1. Download the VSIX from [Continue for VS Code](https://plugins.dev.aie.ai.t-systems.net/v1/registry/434192/packages/latest/download?package_name=continue-vscode).
+1. Download the *Continue* VSIX from [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins).
 2. In VS Code, open **Extensions**, open the three-dot menu, and choose **Install from VSIX**.
 3. Select the downloaded plugin file and reload VS Code.
 
-## Config File Setup
+## Config file setup
 
 After the first installation, open the AI Engineer Continue plugin and choose **Local config**. This opens an empty `config.yaml` file that you can update with your model, base URL, and API key details.
 
-1. Choose a model ID from [Available Models](/getting-started/models):
+1. Choose a model ID from [Available Models](/models):
 
 ```yaml
 model: gpt-oss-120b
@@ -56,15 +56,26 @@ name: Local Config
 version: 1.0.0
 schema: v1
 models:
-  - name: gpt-5
-    model: gpt-5
+  - name: gpt-oss-120b
+    model: gpt-oss-120b
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
     apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
-  - name: Qwen-3.6-35B-FP8
-    model: Qwen-3.6-35B-FP8
+      - edit
+      - apply
+  - name: GLM-5.3
+    model: GLM-5.3
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+  - name: GLM-5.3-Flash
+    model: GLM-5.3-Flash
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
     apiKey: ${{ secrets.OPENAI_API_KEY }}
@@ -86,7 +97,7 @@ The `${{ secrets.OPENAI_API_KEY }}` reference resolves the value at runtime inst
 4. The process environment
 
 :::caution[VS Code may not see your shell environment]
-On macOS and Windows, VS Code typically does **not** inherit shell environment variables. Even if you exported `OPENAI_API_KEY` in your terminal during the [Quickstart](/getting-started/quickstart), Continue running inside VS Code may not see it. The reliable path is a `.env` file.
+On macOS and Windows, VS Code typically does **not** inherit shell environment variables. Even if you exported `OPENAI_API_KEY` in your terminal during the [Quickstart](/), Continue running inside VS Code may not see it. The reliable path is a `.env` file.
 :::
 
 Create `~/.continue/.env` with your key:

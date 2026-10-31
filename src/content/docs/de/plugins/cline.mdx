@@ -1,0 +1,66 @@
+---
+title: "Cline"
+description: "Cline for AI Engineer in Visual Studio Code installieren und einrichten, ein agentisches Coding-Plugin für AI Foundation Services."
+---
+
+Cline for AI Engineer ist eine angepasste Fassung der Cline-Erweiterung für den Unternehmenseinsatz, ohne Telemetrie. Sie bindet sich in Visual Studio Code ein und bietet einen agentischen Ablauf zum Planen von Änderungen, Bearbeiten von Dateien, Ausführen von Terminalbefehlen und Anbinden externer Werkzeuge über MCP.
+
+## Funktionen
+
+- Agentischer Ablauf zum Planen, Bearbeiten von Dateien und Ausführen von Terminalbefehlen
+- MCP-Unterstützung für externe Werkzeuge und Datenquellen
+- Geeignet für eigenständige Korrektur- und Abschluss-Schleifen
+- Passend, wenn Sie einen üblichen Coding-Agenten mit breiten Integrationen wollen
+
+## Installation
+
+1. Laden Sie die Cline-Erweiterung für VS Code unter [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins) herunter.
+2. Wenn Sie eine vorhandene Installation aktualisieren, löschen Sie den alten Cline-Ordner unter `.vscode/extensions`.
+3. Öffnen Sie in VS Code **Extensions**, dann das Dreipunkt-Menü, und wählen Sie **Install from VSIX**.
+4. Wählen Sie die heruntergeladene Datei und laden Sie VS Code neu.
+
+## Einrichtung
+
+1. Wählen Sie **Bring my own API Key** und klicken Sie auf **Continue**.
+
+![Cline-Einrichtung mit der Option „Bring my own API Key“ und der Schaltfläche „Continue“](/img/cline_onboarding_state.png)
+
+2. Stellen Sie den API-Anbieter ein:
+
+```text
+API Provider = OpenAI Compatible
+```
+
+3. Stellen Sie die Basis-URL ein:
+
+```text
+Base URL = https://llm-server.llmhub.t-systems.net/v2/coding
+```
+
+4. Erzeugen Sie einen API-Schlüssel unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard) und fügen Sie ihn in Cline ein:
+
+```text
+API Key = gen-************************************************
+```
+
+5. Wählen Sie eine Modell-ID aus [Verfügbare Modelle](/de/models):
+
+```text
+Model = gpt-oss-120b
+```
+
+Sie können jetzt einen Chat starten und Cline in VS Code verwenden.
+
+## Aktualisieren
+
+Nach der Einrichtung kann Cline neu veröffentlichte Versionen automatisch laden. Wenn Sie VS Code starten oder neu laden und ein Update vorliegt, erscheint ein Hinweis.
+
+1. Klicken Sie auf **Yes**, um die aktuelle Version herunterzuladen.
+
+![Update-Hinweis von Cline in VS Code mit der Schaltfläche „Yes“ zum Herunterladen der aktuellen Version](/img/cline_auto_update_1.png)
+
+2. Wenn der Download fertig ist, klicken Sie auf **Reload Now**, um die Erweiterung neu zu starten.
+
+![Hinweis nach dem Download in VS Code mit der Schaltfläche „Reload Now“ zum Neustart der Erweiterung](/img/cline_auto_update_2.png)
+
+Nach dem Neustart von Visual Studio Code ist die aktuelle Cline-Version einsatzbereit.

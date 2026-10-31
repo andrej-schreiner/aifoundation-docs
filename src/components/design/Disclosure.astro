@@ -1,0 +1,87 @@
+---
+// A closed-by-default section on the design-system page, for long content
+// such as the full icon set. The header stays under the site header while
+// the open content scrolls, so it can be closed from anywhere in it.
+import Icon from '../Icon.astro';
+
+interface Props {
+	label: string;
+	open?: boolean;
+}
+
+const { label, open = false } = Astro.props;
+---
+
+<details class="disclosure not-content" open={open}>
+	<summary class="disclosure__summary">
+		<span>{label}</span>
+		<Icon name="navigation-collapse-down" size={20} class="disclosure__chevron" />
+	</summary>
+	<div class="disclosure__content"><slot /></div>
+</details>
+
+<style>
+	/* Starlight gives <details> in content a 16px inset and a left rule of its
+	   own; this box draws its own frame and starts flush. */
+	.disclosure {
+		padding: 0;
+		border: var(--aifs-design-system-card-border-width) solid var(--aifs-design-system-card-border);
+		border-radius: var(--aifs-radius-card);
+	}
+
+	.disclosure__summary {
+		position: sticky;
+		/* Below Starlight's header, and below its "On this page" bar on narrow screens. */
+		top: calc(var(--sl-nav-height) + var(--sl-mobile-toc-height));
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--aifs-design-system-label-gap);
+		min-height: var(--aifs-button-min-height);
+		padding: 0 var(--aifs-design-system-example-gap);
+		border-radius: var(--aifs-radius-card);
+		background: var(--aifs-design-system-card-background);
+		color: var(--aifs-color-text-body);
+		font-weight: 700;
+		list-style: none;
+		cursor: pointer;
+	}
+
+	.disclosure__summary::-webkit-details-marker {
+		display: none;
+	}
+
+	.disclosure[open] > .disclosure__summary {
+		border-bottom: var(--aifs-design-system-card-border-width) solid var(--aifs-design-system-card-border);
+		border-radius: var(--aifs-radius-card) var(--aifs-radius-card) 0 0;
+	}
+
+	.disclosure__summary:hover {
+		background: color-mix(in srgb, var(--aifs-color-nav-hover-background), var(--aifs-design-system-card-background));
+	}
+
+	.disclosure__summary:focus-visible {
+		outline: 2px solid var(--aifs-color-focus);
+		outline-offset: -2px;
+	}
+
+	.disclosure__summary :global(.disclosure__chevron) {
+		color: var(--aifs-color-text-muted);
+		transition: rotate var(--aifs-button-transition-duration) var(--aifs-button-transition-easing);
+	}
+
+	.disclosure[open] > .disclosure__summary :global(.disclosure__chevron) {
+		rotate: 180deg;
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.disclosure__summary :global(.disclosure__chevron) {
+			transition: none;
+		}
+	}
+
+	.disclosure__content {
+		padding: var(--aifs-design-system-example-gap);
+	}
+</style>

@@ -4,14 +4,17 @@ description: "Turn scanned documents, PDFs and photos into Markdown, tables and 
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import ModelPick from '../../../components/ModelPick.astro';
 
 Two OCR models read documents for you: scanned letters, invoices, forms, scientific papers and slides. They return the content as **Markdown, HTML tables and LaTeX**, ready for search, RAG pipelines or data extraction, instead of a flat block of text.
 
 Both are open-weight models hosted on T-Cloud Public in Germany, so your documents are processed in Germany.
 
+<ModelPick useCase="ocr" />
+
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- `OPENAI_API_KEY` and `OPENAI_BASE_URL` set as in the [Quickstart](/getting-started/quickstart)
+- `OPENAI_API_KEY` and `OPENAI_BASE_URL` set as in the [Quickstart](/)
 - `pip install openai pypdfium2 pillow` for the Python examples (`pypdfium2` renders PDF pages to images)
 :::
 
@@ -24,7 +27,7 @@ Both are open-weight models hosted on T-Cloud Public in Germany, so your documen
 
 ## Supported models
 
-| | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
+| <span class="sr-only">Aspect</span> | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
 |---|---|---|
 | Model ID | `LightOnOCR-3-4B-Preview` | `PaddleOCR-VL-1.6-Preview` |
 | Made by | [LightOn](https://www.lighton.ai), Paris, France | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
@@ -39,12 +42,12 @@ Both are open-weight models hosted on T-Cloud Public in Germany, so your documen
 Made in Europe by LightOn, Paris. It reads printed text and handwriting, and keeps tables and multi-column layouts.
 :::
 
-Both models are in [Test / Preview](/plans/test): free on any active plan, with dynamic rate limits.
+Both models are in [Test / Preview](/models/preview): free on any active plan, with dynamic rate limits.
 
 
 ## Two ways to call the models
 
-| | **Chat Completions** (OpenAI SDK, curl, any language) | **Vendor libraries** (`lightonocr`, `paddleocr`) |
+| <span class="sr-only">Aspect</span> | **Chat Completions** (OpenAI SDK, curl, any language) | **Vendor libraries** (`lightonocr`, `paddleocr`) |
 |---|---|---|
 | Setup | nothing beyond your HTTP client | a Python package (`paddleocr` also needs PaddlePaddle and downloads a ~120 MB layout model on first use) |
 | PDF handling | you render pages to images yourself | the library renders PDFs, sends pages in parallel and writes the results to files |
@@ -332,11 +335,11 @@ Tables come back as **OTSL**: `<nl>` ends a row, `<fcel>` starts a cell with tex
 - **Send images as base64 data URLs.** `https://` image links are rejected with `422`: the models do not download images.
 - **Images count as input tokens.** About 3,000 per page for LightOnOCR at 2048 px, and up to about 1,260 per image for PaddleOCR-VL (fewer for small element crops). Check `usage.prompt_tokens`.
 - **Streaming works** for both models (`stream=True`) if you want to show text while a page is read.
-- **Preview models.** Both run under the [Test / Preview](/plans/test) terms: dynamic rate limits, no SLA, not for production workloads.
+- **Preview models.** Both run under the [Test / Preview](/models/preview) terms: dynamic rate limits, no SLA, not for production workloads.
 
 
 ## Next steps
 
-- [Multimodal (Vision)](/guides/multimodal) — Ask questions about images with vision chat models
-- [Visual RAG](/guides/visual-rag) — Search documents by their page images
-- [Test / Preview Models](/plans/test) — Limits and terms for preview models
+- [Image input](/guides/multimodal) — Ask questions about images with chat models
+- [Visual RAG](/guides/embeddings#visual-rag) — Search documents by their page images
+- [Test / Preview Models](/models/preview) — Limits and terms for preview models

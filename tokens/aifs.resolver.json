@@ -1,0 +1,34 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/resolver.json",
+  "version": "2025.10",
+  "name": "AI Foundation Services docs",
+  "description": "Telekom primitives and semantic tokens, a light/dark colour modifier, then the docs layer on top. Resolve with { \"theme\": \"light\" } or { \"theme\": \"dark\" }.",
+  "sets": {
+    "telekom": {
+      "description": "Telekom primitives and mode-independent semantic tokens.",
+      "sources": [
+        { "$ref": "telekom.core.tokens.json" },
+        { "$ref": "telekom.semantic.tokens.json" }
+      ]
+    },
+    "aifs": {
+      "description": "Docs roles, aliased to Telekom semantic tokens.",
+      "sources": [{ "$ref": "aifs.docs.tokens.json" }]
+    }
+  },
+  "modifiers": {
+    "theme": {
+      "description": "Colour mode. Matches Starlight's data-theme attribute.",
+      "contexts": {
+        "light": [{ "$ref": "telekom.color.light.tokens.json" }],
+        "dark": [{ "$ref": "telekom.color.dark.tokens.json" }]
+      },
+      "default": "light"
+    }
+  },
+  "resolutionOrder": [
+    { "$ref": "#/sets/telekom" },
+    { "$ref": "#/modifiers/theme" },
+    { "$ref": "#/sets/aifs" }
+  ]
+}

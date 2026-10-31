@@ -5,7 +5,7 @@ description: "Install and configure the Continue plugin for JetBrains IDEs with 
 
 Continue for AI Engineer is a custom version of the Continue plugin for JetBrains IDEs. It brings chat, inline edits, autocomplete, and coding agents directly into IntelliJ-based workflows so you can work with AI models without leaving your editor.
 
-## Key Features
+## Key features
 
 - Chat interface for questions, code explanations, and development assistance
 - Inline edits for targeted code changes inside the editor
@@ -21,11 +21,11 @@ Continue for AI Engineer is a custom version of the Continue plugin for JetBrain
 4. Click **OK** to save the repository list and apply the changes.
 5. Open the marketplace, search for **Continue for AI Engineer**, and install it.
 
-## Config File Setup
+## Config file setup
 
 After the first installation, open the AI Engineer Continue plugin and choose **Local config**. This opens an empty `config.yaml` file that you can update with your model, base URL, and API key details.
 
-1. Choose a model ID from [Available Models](/getting-started/models):
+1. Choose a model ID from [Available Models](/models):
 
 ```yaml
 model: gpt-oss-120b
@@ -40,8 +40,10 @@ apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
 3. Generate an API key in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard):
 
 ```yaml
-apiKey: gen-************************************************
+apiKey: ${{ secrets.OPENAI_API_KEY }}
 ```
+
+Store the key in ~/.continue/.env as OPENAI_API_KEY=… .
 
 4. Assign one or more roles to the model, such as `chat`, `edit`, `apply`, `autocomplete`, or `embed`:
 
@@ -55,7 +57,7 @@ If you use IntelliJ or PyCharm on Windows, add your proxy settings to the config
 
 ```yaml
 requestOptions:
-  proxy: YourProxyHost:Port
+  proxy: http://proxy.example.com:8080
 ```
 :::
 
@@ -66,26 +68,39 @@ name: Local Config
 version: 1.0.0
 schema: v1
 models:
-  - name: gpt-5
-    model: gpt-5
+  - name: gpt-oss-120b
+    model: gpt-oss-120b
     provider: openai
     apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
-    roles:
-      - chat
-    requestOptions:
-      proxy: YourProxyHost:Port
-  - name: Qwen-3.6-35B-FP8
-    model: Qwen-3.6-35B-FP8
-    provider: openai
-    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
-    apiKey: gen-************************************************
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
     roles:
       - chat
       - edit
       - apply
     requestOptions:
-      proxy: YourProxyHost:Port
+      proxy: http://proxy.example.com:8080
+  - name: GLM-5.3
+    model: GLM-5.3
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    requestOptions:
+      proxy: http://proxy.example.com:8080
+  - name: GLM-5.3-Flash
+    model: GLM-5.3-Flash
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    requestOptions:
+      proxy: http://proxy.example.com:8080
 ```
 
 Once the config is saved, you can start a chat and use Continue in your JetBrains IDE.

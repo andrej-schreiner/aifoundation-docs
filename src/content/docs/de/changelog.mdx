@@ -1,9 +1,21 @@
 ---
 title: "Änderungsprotokoll"
 description: "Wichtige Modellveröffentlichungen, Funktionsupdates und Deprecations für AI Foundation Services."
+tableOfContents:
+  maxHeadingLevel: 2
 ---
 
 Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdates und Deprecations.
+
+## 2026-11-02
+
+### Stillgelegt
+
+- Stillgelegt am 31.10.2026: GPT-5 nano / GPT-5 mini / GPT 5.4 mini (Ersatz GPT-6 Luna); GPT-5 / GPT-5 Codex / GPT 5.4 / GPT 5.5 (Ersatz GPT-6.1 Sol); Claude 4.5 Haiku / Claude 4.6 Sonnet (Ersatz Claude Sonnet 5.5); Claude 4.6 Opus / Claude Opus 4.8 (Ersatz Claude Opus 5.5); Gemini 3 Pro (≤200k) (Ersatz Gemini 3.1 Pro (≤200k)); Gemini 3 Pro (>200k) (Ersatz Gemini 3.1 Pro (>200k)). Siehe [Abkündigungen](/de/models/deprecations).
+
+### Geändert
+
+- Umbau der Dokumentation: Quickstart in die Startseite übernommen; Vergleich in den Katalog übernommen; Abkündigungen auf einer Seite; Seite zu Roo Code entfernt (Roo Code wurde eingestellt). Tarife, RAG und Visual RAG, Queued Requests und die Unterseiten zur API-Umstellung sind jeweils auf einer Seite zusammengeführt ([Tarife & Preise](/de/plans), [Embeddings und RAG](/de/guides/embeddings), [Fehler und Zuverlässigkeit](/de/guides/reliability), [API-Umstellung](/de/api-transition)); die alten URLs leiten weiter.
 
 ## v1.2.3 — 2026-10
 
@@ -15,9 +27,9 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/
 - Zwei neue Preview-Modelle im Test-Katalog für **OCR**: **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) von LightOn aus Paris und **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`). Kostenlos in jedem aktiven Tarif. Neue Anleitung: [OCR (Dokumentenerkennung)](/de/guides/ocr), mit Beispielen für Chat Completions und Bibliotheken.
 - Neues Embedding-Modell in den Tarifen Essential, Professional und Agentic: **Qwen3 Embedding 8B** (`qwen3-embedding-8b`), mehrsprachig, mit einem Kontextfenster von 32K. Dieselben Limits für Input-Tokens und Anfragen wie Jina Embeddings v2 Base DE; Output-Tokens werden nicht begrenzt, da ein Embedding Vektoren zurückgibt. Siehe [Tarife & Preise](/de/plans).
 - Neue Anleitung **[API-Umstellung](/de/api-transition)**. Der LLM Serving Service wechselt in drei Phasen auf die neue API, mit einem Legacy-Endpunkt für Anwendungen, die das bisherige Format benötigen; die Anleitung beschreibt die Endpunkte und was Sie tun müssen, API-Schlüssel und Modellbezeichner sowie die Änderungen bei Anfragen, Antworten, Streaming und Fehlerbehandlung.
-- Neues Preview-Modell im Test-Katalog: **d3**, ein Decision-Modell mit 27B Parametern und das empfohlene Modell für den Endpunkt **Decisions**, mit Text- und Bildeingabe. Kostenlos in jedem aktiven Tarif. Siehe [Test / Vorschau Modelle](/de/plans/test) und die [Decisions-Anleitung](/de/guides/decisions).
+- Neues Preview-Modell im Test-Katalog: **d3**, ein Decision-Modell mit 27B Parametern und das empfohlene Modell für den Endpunkt **Decisions**, mit Text- und Bildeingabe. Kostenlos in jedem aktiven Tarif. Siehe [Test / Vorschau Modelle](/de/models/preview) und die [Decisions-Anleitung](/de/guides/decisions).
 - **Decisions** nimmt bei beiden Preview-Modellen, d3 und DiffusionGemma 26B A4B, Bildeingabe an. Siehe [Bildeingabe](/de/guides/decisions#bildeingabe).
-- Neues Preview-Modell im Test-Katalog: **DiffusionGemma 26B A4B**, kostenlos in jedem aktiven Tarif, für Chat und für den neuen Endpunkt **Decisions**. Siehe [Test / Vorschau Modelle](/de/plans/test) und die [Decisions-Anleitung](/de/guides/decisions).
+- Neues Preview-Modell im Test-Katalog: **DiffusionGemma 26B A4B**, kostenlos in jedem aktiven Tarif, für Chat und für den neuen Endpunkt **Decisions**. Siehe [Test / Vorschau Modelle](/de/models/preview) und die [Decisions-Anleitung](/de/guides/decisions).
 - Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-6.1 Sol**, **GPT-6 Luna**, **Claude Sonnet 5.5**, und **Gemini 3.8 Flash**. **Claude Opus 5.5** in Professional und Agentic. Siehe [Tarife & Preise](/de/plans).
 - **GPT-6.1 Sol** und **GPT-6 Luna** werden nach Kontextlänge bepreist, mit eigenen Preisen ab 272k Input-Tokens.
 
@@ -28,7 +40,7 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/
 
 ### Veraltet
 
-- **GPT-5** bis **GPT 5.5**, **Claude 4.5 Haiku**, **Claude 4.6 Sonnet / Opus**, **Claude Opus 4.8** und **Gemini 3 Pro** werden am **31.10.2026** stillgelegt, **Gemini 3 Flash** am **30.11.2026**. Ersatzmodelle siehe [Zur Stilllegung vorgesehen](/de/models/scheduled-for-retirement).
+- **GPT-5** bis **GPT 5.5**, **Claude 4.5 Haiku**, **Claude 4.6 Sonnet / Opus**, **Claude Opus 4.8** und **Gemini 3 Pro** werden am **31.10.2026** stillgelegt, **Gemini 3 Flash** am **30.11.2026**. Ersatzmodelle siehe [Zur Stilllegung vorgesehen](/de/models/deprecations#upcoming).
 
 ## v1.2.2 — 2026-09
 
@@ -43,19 +55,19 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/
 
 ### Geändert
 
-- **Die Queue API ist nicht asynchron.** `/queue`-Endpunkte funktionieren wie `/v2`, warten aber bei überschrittenem Rate-Limit bis zu zwei Minuten, statt sofort `429` zurückzugeben. Der Leitfaden erwähnt kein Job-Polling und keine Hintergrundverarbeitung mehr. Siehe [Queued Requests](/de/guides/queued-requests).
+- **Die Queue API ist nicht asynchron.** `/queue`-Endpunkte funktionieren wie `/v2`, warten aber bei überschrittenem Rate-Limit bis zu zwei Minuten, statt sofort `429` zurückzugeben. Der Leitfaden erwähnt kein Job-Polling und keine Hintergrundverarbeitung mehr. Siehe [Queued Requests](/de/guides/reliability#queued-requests).
 - **Die Mindestverfügbarkeit beträgt 99,5 %**, nicht die zuvor ausgewiesenen 99,9 %.
 - **GLM 5.2** — Token-Preise gesenkt, und das Modell wurde in das Tier **Standard** überführt.
 - **GPT-Image-2** — Preise korrigiert.
 - **Prefix Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiv**, nicht Opt-in.
-- Serverstandort und Datenverarbeitung der **Gemini-3-Familie** werden nun als **Worldwide** ausgewiesen statt als Europa. Siehe [Enterprise Trust](/de/reference/enterprise-trust).
+- Serverstandort und Datenverarbeitung der **Gemini-3-Familie** werden nun als **weltweit** ausgewiesen statt als Europa. Siehe [Enterprise Trust](/de/reference/enterprise-trust).
 - Die **Anthropic**-Modelle sind mit **GCP / Azure** gekennzeichnet.
 - Die mit der Dokumentation ausgelieferte **Leistungsbeschreibung** wurde aktualisiert.
 - **Enterprise Trust**, Kategorie 1, führt nun die Modelle auf, die die Leistungsbeschreibung nennt.
 
 ### Entfernt
 
-- **Llama 3.3 70B**, **Claude 4.5 Sonnet** und **Claude 4.5 Opus** haben ihr Stilllegungsdatum erreicht. Ersatzmodelle siehe [Stillgelegte Modelle](/de/models/retired).
+- **Llama 3.3 70B**, **Claude 4.5 Sonnet** und **Claude 4.5 Opus** haben ihr Stilllegungsdatum erreicht. Ersatzmodelle siehe [Stillgelegte Modelle](/de/models/deprecations#retired).
 
 ### Behoben
 
@@ -67,7 +79,7 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/
 
 ### Hinzugefügt
 
-- Neues Preview-Modell im Test-Katalog: **Qwen 3.8 27B FP8** — nativ multimodal, kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/plans/test).
+- Neues Preview-Modell im Test-Katalog: **Qwen 3.8 27B FP8** — nativ multimodal, kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/models/preview).
 
 ## v1.2.0 — 2026-07
 
@@ -75,19 +87,17 @@ Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/
 
 - Neue Modelle in den Tarifen Essential, Professional und Agentic: **GPT-5.4**, **GPT-5.4 mini**, **GPT-5.5** und **GPT-Image-2** (OpenAI); **Gemini 3.1 Pro** und **Gemini 3.5 Flash** (Google). **Claude 4.8 Opus** (Anthropic) in Professional und Agentic. Siehe [Tarife & Preise](/de/plans).
 - **Mistral Small 4** und **Gemma 4** sind jetzt **allgemein verfügbar**, zuvor nur als Preview. Siehe [Tarife & Preise](/de/plans).
-- Neues Preview-Modell im Test-Katalog: **GLM 5.2** — kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/plans/test).
+- Neues Preview-Modell im Test-Katalog: **GLM 5.2** — kostenlos mit jedem aktiven Tarif. Siehe [Test- / Vorschau-Modelle](/de/models/preview).
 
 ### Veraltet
 
-- Modelle der Familien **GPT-4.1**, **GPT-4o**, **o-Serie**, **Qwen3**, **Gemini 2.5**, **Gemini 3** und **Claude Sonnet / Opus** sind **zur Stilllegung am 01.08.2026 vorgesehen**, ebenso **Mistral Small 3** und **GPT Image 1**. Siehe [Zur Stilllegung vorgesehen](/de/models/scheduled-for-retirement) für die Tabelle und die Ersatzmodelle.
+- Modelle der Familien **GPT-4.1**, **GPT-4o**, **o-Serie**, **Qwen3**, **Gemini 2.5**, **Gemini 3** und **Claude Sonnet / Opus** sind **zur Stilllegung am 01.08.2026 vorgesehen**, ebenso **Mistral Small 3** und **GPT Image 1**. Siehe [Zur Stilllegung vorgesehen](/de/models/deprecations#upcoming) für die Tabelle und die Ersatzmodelle.
 
 ## v1.1.0 — 2026-05
 
-Archivierter Stand: [v1.1.0](/v1-1-0/).
-
 ### Hinzugefügt
 
-- Neuer Bereich **Modelle** auf oberster Ebene mit einer [Vergleichsseite](/de/models/comparison) für jedes gehostete Modell — Kontextfenster, Preise, Cloud, Modalitäten, Tarifverfügbarkeit und OpenAI-kompatible Endpunkt-Referenz. Bild-fähige Modelle erscheinen zusätzlich auf der dedizierten [Vision-Seite](/de/models/vision) über einen Capability-Filter.
+- Neuer Bereich **Modelle** auf oberster Ebene mit einer [Vergleichsseite](/de/models) für jedes gehostete Modell — Kontextfenster, Preise, Cloud, Modalitäten, Tarifverfügbarkeit und OpenAI-kompatible Endpunkt-Referenz. Bild-fähige Modelle erscheinen zusätzlich bei den [Modellen mit Bildeingabe](/de/models) über einen Capability-Filter.
 - Seite **Änderungsprotokoll** (die Sie gerade lesen).
 - Zwei neue Preview-Modelle im Test-Katalog: `Mistral Small 4` (`Mistral-Small-4-119B-2603-Preview`) und `Gemma 4` (`gemma-4-31B-it-FP8-preview`). Siehe [Rate-Limits](/de/reference/rate-limits) für die Richtlinie zu Preview-Modellen.
 
@@ -97,4 +107,4 @@ Archivierter Stand: [v1.1.0](/v1-1-0/).
 
 ## v1.0.0
 
-Archivierter Stand: [v1.0.0](/v1/) — der ursprünglich veröffentlichte Stand der Dokumentation, bevor das Änderungsprotokoll eingeführt wurde.
+Der ursprünglich veröffentlichte Stand der Dokumentation, bevor das Änderungsprotokoll eingeführt wurde.

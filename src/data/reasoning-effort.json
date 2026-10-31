@@ -9,6 +9,16 @@
       ],
       "default": "max"
     },
+    "GLM-5.3": {
+      "values": [
+        "none",
+        "high",
+        "max"
+      ],
+      "default": "max",
+      "inheritedFrom": "GLM-5.2",
+      "liveVerified": false
+    },
     "GLM-5.2-B200-Lab": {
       "values": [
         "none",

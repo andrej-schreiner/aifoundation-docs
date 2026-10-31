@@ -9,7 +9,7 @@ Use AI Foundation Services with LlamaIndex for building RAG applications, indexi
 ## Setup
 
 ```bash
-pip install llama-index llama-index-llms-azure-openai llama-index-embeddings-openai
+pip install llama-index llama-index-llms-openai-like llama-index-embeddings-openai
 ```
 
 
@@ -18,13 +18,14 @@ pip install llama-index llama-index-llms-azure-openai llama-index-embeddings-ope
 ```python showLineNumbers
 import os
 
-from llama_index.llms.azure_openai import AzureOpenAI
+from llama_index.llms.openai_like import OpenAILike
 
-llm = AzureOpenAI(
-    deployment_name="gpt-5",
+llm = OpenAILike(
+    model="gpt-oss-120b",
+    api_base=os.getenv("OPENAI_BASE_URL"),
     api_key=os.getenv("OPENAI_API_KEY"),
-    azure_endpoint=os.getenv("OPENAI_BASE_URL"),
-    api_version="2023-07-01-preview",
+    is_chat_model=True,
+    context_window=128000,
 )
 
 # Test
@@ -34,7 +35,7 @@ for response in response_iter:
 ```
 
 
-## Initialize Embeddings
+## Initialize embeddings
 
 ```python showLineNumbers
 import os
@@ -52,9 +53,9 @@ print(f"Embedding dimension: {len(query_embedding)}")
 ```
 
 
-## Simple RAG Example
+## Simple RAG example
 
-### 1. Prepare Documents
+### 1. Prepare documents
 
 ```bash
 mkdir example_data
@@ -62,7 +63,7 @@ mkdir example_data
 cp /path/to/your-documents.pdf example_data/
 ```
 
-### 2. Index Documents
+### 2. Index documents
 
 ```python showLineNumbers
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
@@ -79,7 +80,7 @@ index = VectorStoreIndex.from_documents(
 )
 ```
 
-### 3. Create Chat Engine
+### 3. Create chat engine
 
 ```python showLineNumbers
 from llama_index.core.postprocessor import LongContextReorder
@@ -106,7 +107,7 @@ chat_engine = index.as_chat_engine(
 )
 ```
 
-### 4. Ask Questions
+### 4. Ask questions
 
 ```python showLineNumbers
 response = chat_engine.stream_chat("How much revenue did Alphabet generate?")
@@ -121,7 +122,7 @@ in the quarter ended March 31, 2023.
 ```
 
 
-## Next Steps
+## Next steps
 
 - **[Embeddings Guide](/guides/embeddings)** — Learn more about embedding models
 - **[LangChain Integration](/integrations/langchain)** — Alternative RAG framework

@@ -10,7 +10,7 @@ AI Foundation Services provides Whisper-based audio models for transcription and
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK or HTTP client installed ([Quickstart](/getting-started/quickstart))
+- OpenAI SDK or HTTP client installed ([Quickstart](/))
 - An audio file (MP3, WAV, M4A, etc.)
 :::
 
@@ -20,7 +20,7 @@ AI Foundation Services provides Whisper-based audio models for transcription and
 - Available audio models and parameters
 
 
-## List Audio Models
+## List audio models
 
 Audio models have `model_type: "STT"` in their metadata. Use the models endpoint and filter:
 
@@ -48,7 +48,7 @@ Audio models have `model_type: "STT"` in their metadata. Use the models endpoint
 </Tabs>
 
 
-## Audio Transcription
+## Audio transcription
 
 The transcription API converts audio into text in the same language as the input. It auto-detects the language from the first 30 seconds if `language` is not specified.
 
@@ -88,7 +88,7 @@ A cold dip restores health and zest. A salt pickle tastes fine with ham.
 ```
 
 
-## Audio Translation
+## Audio translation
 
 The translation API translates audio from any language into English.
 
@@ -131,15 +131,21 @@ The translation API translates audio from any language into English.
 | `temperature` | float | `0.0` for deterministic, higher for more varied output |
 
 
-## Key Features
+## Key features
 
 1. **Auto Language Detection** — Identifies input language from the first 30 seconds
 2. **Customizable Output** — Adjust behavior with `language` and `temperature` parameters
 3. **Efficient Processing** — Low latency for both transcription and translation
 
 
-## Next Steps
+## Limitations and troubleshooting
+
+The endpoint takes `model`, `file`, `language`, and `temperature`. Language detection uses the first 30 seconds of the audio.
+
+{/* TODO(andrej): max file size and max duration beyond that 30-second detection note are not on this page. */}
+
+## Next steps
 
 - [Chat Completions](/guides/chat-completions) — Process transcribed text with LLMs
-- [Queued Requests](/guides/queued-requests) — Wait for rate-limit budget instead of getting a 429
+- [Queued Requests](/guides/reliability#queued-requests) — Wait for rate-limit budget instead of getting a 429
 - [API Endpoints](/reference/api-endpoints) — Full endpoint reference

@@ -1,0 +1,51 @@
+---
+title: "Preview models"
+description: "Preview models on AI Foundation Services, including OCR and decision models. Free on any active plan, with dynamic rate limits and no SLA. DeepSeek 4.1 Flash: pricing to be announced."
+tableOfContents: false
+---
+
+import PlansPage from '../../../components/PlansPage.astro';
+
+<div style="max-width: 54rem;">
+
+:::tip[New in preview: DeepSeek 4.1 Flash]
+**DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash`) accepts text and image and returns text. It is a preview model. Pricing is to be announced.
+:::
+
+:::tip[New in preview: two OCR models]
+**LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris (made in Europe), and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) turn scanned documents, PDFs and photos into Markdown, HTML tables and LaTeX. LightOnOCR reads a whole page per request, including handwriting; PaddleOCR-VL reads page elements and works best with the PaddleOCR pipeline. Both take image input through `/chat/completions`. See [OCR](/guides/ocr).
+:::
+
+:::tip[New in preview: d3]
+**d3** (`d3-preview`) is a 27B decision model from the open-weight Decision 3.0 family of vLLM Semantic Router. It is the recommended model for **Decisions**: `/decisions` returns typed answers (a probability, a choice or a score) instead of text, for fast agent steps such as tool routing, approval gates and grounding checks. It takes text and image input. d3 serves `/decisions` only; it does not generate text. See [Decisions](/guides/decisions).
+
+**DiffusionGemma 26B A4B** (`diffusiongemma-26B-A4B-it-Preview`), a diffusion-based Gemma model from Google with a 256K context window, serves both endpoints:
+
+- **Chat**: `/chat/completions` with text and image input, streaming, function calling and an optional thinking mode. See [Chat Completions](/guides/chat-completions).
+- **Decisions**: `/decisions` with text and image input. See [Decisions](/guides/decisions).
+:::
+
+:::note
+RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the conditions that apply.
+:::
+
+</div>
+
+<PlansPage selectedPlanId="Test" sectionTitle="Preview models" modelsSectionTitle="Our Models" />
+
+<div style="max-width: 54rem;">
+
+<a id="rpm-tpm-notes"></a>
+
+## Service note on Test / Preview models
+
+<sup>&ast;</sup> Test and Preview models operate under **dynamic rate limits** rather than fixed Requests-per-Minute (RPM) or Tokens-per-Minute (TPM) ceilings. In addition:
+
+- Telekom may adjust, restrict, or discontinue them at any time without prior notice.
+- They carry **no minimum-availability commitment** and are **not part of any Service Level Agreement (SLA)**.
+- They are intended for evaluation and prototyping; they are **not suitable for production workloads**.
+- Preview models are free on any active plan. **DeepSeek 4.1 Flash: pricing to be announced.**
+
+Customers requiring contractual guarantees on throughput, end-to-end latency, or time-to-first-token should consider [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
+
+</div>

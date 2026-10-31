@@ -1,17 +1,20 @@
 ---
-title: "OCR (Dokumentenerkennung)"
-description: "Gescannte Dokumente, PDFs und Fotos mit den Preview-Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
+title: "OCR (Dokumenten\u00ADerkennung)"
+description: "Gescannte Dokumente, PDFs und Fotos mit den Vorschau-Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Zwei OCR-Modelle lesen Dokumente für Sie: gescannte Briefe, Rechnungen, Formulare, wissenschaftliche Artikel und Folien. Sie liefern den Inhalt als **Markdown, HTML-Tabellen und LaTeX**, bereit für Suche, RAG-Pipelines oder Datenextraktion, statt als unstrukturierten Textblock.
 
 Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre Dokumente werden also in Deutschland verarbeitet.
 
+<ModelPick useCase="ocr" />
+
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/getting-started/quickstart)
+- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/)
 - `pip install openai pypdfium2 pillow` für die Python-Beispiele (`pypdfium2` wandelt PDF-Seiten in Bilder um)
 :::
 
@@ -24,7 +27,7 @@ Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre
 
 ## Unterstützte Modelle
 
-| | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
+| <span class="sr-only">Aspekt</span> | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
 |---|---|---|
 | Modell-ID | `LightOnOCR-3-4B-Preview` | `PaddleOCR-VL-1.6-Preview` |
 | Hersteller | [LightOn](https://www.lighton.ai), Paris, Frankreich | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
@@ -39,12 +42,12 @@ Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre
 Made in Europe von LightOn aus Paris. Es liest gedruckten Text und Handschrift und erhält Tabellen und mehrspaltige Layouts.
 :::
 
-Beide Modelle sind in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
+Beide Modelle sind in [Test / Vorschau](/de/models/preview): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
 
 
 ## Zwei Wege, die Modelle aufzurufen
 
-| | **Chat Completions** (OpenAI SDK, curl, jede Sprache) | **Bibliotheken der Hersteller** (`lightonocr`, `paddleocr`) |
+| <span class="sr-only">Aspekt</span> | **Chat Completions** (OpenAI SDK, curl, jede Sprache) | **Bibliotheken der Hersteller** (`lightonocr`, `paddleocr`) |
 |---|---|---|
 | Einrichtung | nichts außer Ihrem HTTP-Client | ein Python-Paket (`paddleocr` braucht zusätzlich PaddlePaddle und lädt beim ersten Aufruf ein Layout-Modell von ~120 MB) |
 | PDFs | Sie wandeln die Seiten selbst in Bilder um | die Bibliothek wandelt PDFs um, sendet Seiten parallel und schreibt die Ergebnisse in Dateien |
@@ -332,11 +335,11 @@ Tabellen kommen als **OTSL**: `<nl>` beendet eine Zeile, `<fcel>` beginnt eine Z
 - **Senden Sie Bilder als Base64-Data-URLs.** `https://`-Bildlinks werden mit `422` abgelehnt: Die Modelle laden keine Bilder herunter.
 - **Bilder zählen als Input-Tokens.** Etwa 3.000 pro Seite bei LightOnOCR mit 2048 px und bis zu etwa 1.260 pro Bild bei PaddleOCR-VL (weniger bei kleinen Ausschnitten). Prüfen Sie `usage.prompt_tokens`.
 - **Streaming funktioniert** bei beiden Modellen (`stream=True`), wenn Sie Text schon während des Lesens anzeigen möchten.
-- **Preview-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
+- **Vorschau-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/models/preview): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
 
 
 ## Nächste Schritte
 
-- [Multimodal (Vision)](/de/guides/multimodal) — Fragen zu Bildern mit Vision-Chat-Modellen stellen
-- [Visual RAG](/de/guides/visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
-- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle
+- [Bildeingabe](/de/guides/multimodal) — Fragen zu Bildern mit Chat-Modellen stellen
+- [Visual RAG](/de/guides/embeddings#visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
+- [Test-/Vorschau-Modelle](/de/models/preview) — Limits und Bedingungen für Vorschau-Modelle

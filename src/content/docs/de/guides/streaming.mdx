@@ -10,7 +10,7 @@ Streamen Sie Antworten Token für Token mit Server-Sent Events (SSE) für eine s
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 :::
 
 **Was Sie lernen werden:**
@@ -202,7 +202,7 @@ tools = [
 ]
 
 stream = client.chat.completions.create(
-    model="gpt-5",
+    model="GLM-5.3",
     messages=[{"role": "user", "content": "What's the weather in Berlin?"}],
     tools=tools,
     stream=True,
@@ -298,5 +298,5 @@ for chunk in stream:
 
 - [Chat Completions](/de/guides/chat-completions) — Nicht-streamende Chat-API-Nutzung
 - [Function Calling](/de/guides/function-calling) — Tools mit der API definieren und verwenden
-- [Queued Requests](/de/guides/queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
+- [Queued Requests](/de/guides/reliability#queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
 - [Fehlercodes](/de/reference/error-codes) — API-Fehler behandeln

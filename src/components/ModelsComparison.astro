@@ -1,21 +1,28 @@
 ---
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
-import { getModelBrandIcon } from '../shared/lib/modelBrandIcons';
-import { getProviderTooltips } from '../shared/lib/providerTooltips';
+import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { isRetiringModel } from '../shared/lib/choosingModels';
+import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
+import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import {
   CACHED_INPUT_PRICE_PERCENT,
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
+import { formatEuro } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
 // Per-model reasoning_effort values from the platform datasheet; refreshed by
 // scripts/fetch-model-parameters.mjs before each build, kept as last known good.
 import reasoningEffortData from '../data/reasoning-effort.json';
 // Where each model reports its reasoning token count in `usage` (engine-dependent).
 import reasoningTokensUsageData from '../data/reasoning-tokens-usage.json';
 
-type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
 // X" beats curating a category list. Vision is the motivating case: an LLM
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
@@ -31,18 +38,7 @@ const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
 
-// Models that are no longer offered through the regular plans (mirrors AvailableModels.astro)
-const OFFLINE_MODELS = new Set([
-  'gpt-4.1-nano',
-  'gpt-4o-mini',
-  'GPT-5-Codex',
-  'gpt-5-nano',
-  'Mistral-Large-2411',
-  'Mistral-Medium-3',
-  'o1',
-]);
-
-type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+type Category = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 
 // PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
 // models whose primary purpose is NOT general-purpose LLM appear here.
@@ -69,13 +65,13 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
-  // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
-  'LightOnOCR-3-4B-Preview': 'vision',
-  'PaddleOCR-VL-1.6-Preview': 'vision',
+  // OCR (document parsing): Image -> Text, served on chat completions.
+  'LightOnOCR-3-4B-Preview': 'llms',
+  'PaddleOCR-VL-1.6-Preview': 'llms',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
-  // /models/llms. They still surface on /models/vision via image-input derivation.
+  // /models/llms.
   'gemini-3-pro-image': 'image-generation',
   'gpt-image-2': 'image-generation',
 };
@@ -85,7 +81,7 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 }
 
 // Multi-category derivation. A model's `categories` array is its primary
-// plus any modality-driven additions: image input → 'vision', any audio
+// plus any modality-driven additions: any audio
 // → 'audio', image output → 'image-generation', vector output → 'embeddings'.
 // Returned in stable display order so the Category column renders consistently.
 // Extra category memberships that cannot be inferred from modalities.
@@ -94,6 +90,8 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // appear on /models/coding in addition to its primary category (/models/llms).
 const EXTRA_CATEGORIES: Record<string, Category[]> = {
   'GLM-5.2': ['coding'],
+  // TODO(andrej): confirm the exact id GLM-5.3. Same coding tag as GLM-5.2.
+  'GLM-5.3': ['coding'],
   // GLM-5.3-Flash is positioned by Z.ai as a coding/agentic model —
   // its model card reports it approaching Claude Opus 4.8 on coding and
   // agentic benchmarks — but stays primary 'llms' as a general-purpose model.
@@ -106,49 +104,29 @@ const EXTRA_CATEGORIES: Record<string, Category[]> = {
 
 function deriveCategories(primary: Category, caps: Capabilities, extra: Category[] = []): Category[] {
   const cats = new Set<Category>([primary, ...extra]);
-  if (caps.inputModalities.includes('Image')) cats.add('vision');
   if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
   if (caps.outputModalities.includes('Image')) cats.add('image-generation');
   if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
-  const ORDER: Category[] = ['llms', 'coding', 'vision', 'image-generation', 'audio', 'embeddings'];
+  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings'];
   return ORDER.filter((c) => cats.has(c));
 }
 
 // ---------------- Capabilities ----------------
 
-type Creator =
-  | 'Meta'
-  | 'OpenAI'
-  | 'Anthropic'
-  | 'Google'
-  | 'Google Gemma'
-  | 'Mistral'
-  | 'Alibaba Cloud'
-  | 'Zhipu AI'
-  | 'T-Systems'
-  | 'Other';
 type InputModality = 'Text' | 'Image' | 'Audio';
 type OutputModality = 'Text' | 'Image' | 'Audio' | 'Vector';
 
 interface Capabilities {
-  creator: Creator;
+  creator: string;
   inputModalities: InputModality[];
   outputModalities: OutputModality[];
-  streaming: boolean;
-  toolCalling: boolean;
+  /** null: not in the repo data. The table shows an em dash and the mobile row hides it. */
+  streaming: boolean | null;
+  toolCalling: boolean | null;
 }
 
-function inferCreator(exactModelName: string): Creator {
-  const n = exactModelName;
-  if (/^Llama-/i.test(n)) return 'Meta';
-  if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
-  if (/^Qwen/i.test(n)) return 'Alibaba Cloud';
-  if (/^GLM-/i.test(n)) return 'Zhipu AI';
-  if (/^claude-/i.test(n)) return 'Anthropic';
-  if (/^(diffusion)?gemma-/i.test(n)) return 'Google Gemma';
-  if (/^gemini-/i.test(n)) return 'Google';
-  if (/^(gpt-|o1-|o3-|o4-|gpt-image)/i.test(n)) return 'OpenAI';
-  return 'Other';
+function inferCreator(exactModelName: string): string {
+  return creatorNameFor(exactModelName, exactModelName);
 }
 
 // Default capability shape per category (creator filled in per-model below).
@@ -165,7 +143,6 @@ function inferCreator(exactModelName: string): Creator {
 const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
   llms:               { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   coding:             { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
-  vision:             { inputModalities: ['Text', 'Image'], outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
   audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
   'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
@@ -195,6 +172,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3.8-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemma-4-31B-it-FP8':            { inputModalities: ['Text', 'Image'] },
+  // TODO(andrej): confirm id DeepSeek-V4.1-Flash. Text and image in, text out.
+  // Tool calling and streaming are not in the repo data, so both stay unset.
+  'DeepSeek-V4.1-Flash':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: null },
   // Mistral Small 4 is multimodal (Text+Image in). Keys match the GA ids in the
   // pricing catalog (the earlier `-Preview`/`-preview` suffixes are retired).
   'Mistral-Small-4-119B-2603':     { inputModalities: ['Text', 'Image'] },
@@ -281,12 +261,12 @@ function resolveCapabilities(exactModelName: string, category: Category): Capabi
 
 // ---------------- Cloud (replaces Sovereignty) ----------------
 
-type CloudKey = 'Telekom' | 'Azure' | 'GCP' | 'Other';
+type CloudKey = 'T-Cloud' | 'Azure' | 'GCP' | 'Other';
 
 function resolveCloud(deploymentRegion: string): CloudKey {
   const region = (deploymentRegion ?? '').toLowerCase();
-  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → Telekom
-  if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'Telekom';
+  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → T-Cloud
+  if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'T-Cloud';
   if (region.startsWith('azure')) return 'Azure';
   if (region.startsWith('gcp') || region.startsWith('google')) return 'GCP';
   return 'Other';
@@ -294,7 +274,7 @@ function resolveCloud(deploymentRegion: string): CloudKey {
 
 function cloudFullName(cloud: CloudKey): string {
   switch (cloud) {
-    case 'Telekom':
+    case 'T-Cloud':
       return 'T-Cloud Public';
     case 'Azure':
       return 'Microsoft Azure';
@@ -306,7 +286,7 @@ function cloudFullName(cloud: CloudKey): string {
 }
 
 function cloudTagClass(cloud: CloudKey): string {
-  return cloud === 'Telekom' ? 'tag-tcloud' : 'tag-cloud';
+  return cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud';
 }
 
 // ---------------- Compile model list ----------------
@@ -325,6 +305,8 @@ interface CompiledModel {
   cachedInputPricePerMillionTokens: number | null;
   cachedPricingPublished: boolean;
   plans: string[];
+  /** Lowercase catalog tier. Only `premium` is shown; Standard is omitted. */
+  modelTier: string;
   capabilities: Capabilities;
 }
 
@@ -358,10 +340,11 @@ for (const pkg of pricingData as Array<{
 }>) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const exactModelName = entry.exactModelName as string;
-    if (OFFLINE_MODELS.has(exactModelName)) continue;
+    if (isHiddenModel(exactModelName) || isRetiringModel(exactModelName)) continue;
     const existing = byName.get(exactModelName);
     if (existing) {
       if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);
+      if (String(entry.modelTier || '').toLowerCase() === 'premium') existing.modelTier = 'premium';
       continue;
     }
     const deploymentRegion = entry.deploymentRegion as string;
@@ -384,6 +367,7 @@ for (const pkg of pricingData as Array<{
       ),
       cachedPricingPublished: hasCachedTokenPricing(deploymentRegion),
       plans: [pkg.packageName],
+      modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
     });
   }
@@ -397,7 +381,7 @@ for (const m of byName.values()) {
 
 // Default order: Telekom-first by cloud priority, then alphabetical by
 // display name. Client-side sort (column-header clicks) can override.
-const CLOUD_RANK: Record<CloudKey, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+const CLOUD_RANK: Record<CloudKey, number> = { 'T-Cloud': 0, Azure: 1, GCP: 2, Other: 3 };
 
 function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined): boolean {
   if (!cap) return true;
@@ -417,7 +401,7 @@ const allModels = [...byName.values()]
   .sort((a, b) => {
     const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
     if (rankDiff !== 0) return rankDiff;
-    return a.displayModelName.localeCompare(b.displayModelName);
+    return compareCatalogName(a.displayModelName, b.displayModelName);
   });
 
 // ---------------- Translations & formatters ----------------
@@ -430,14 +414,22 @@ const t = {
   colCloud: isDE ? 'Cloud' : 'Cloud',
   colInput: isDE ? 'Eingabe' : 'Input',
   colOutput: isDE ? 'Ausgabe' : 'Output',
-  colStreaming: isDE ? 'Streaming-Ausgabe' : 'Streaming output',
-  colTools: isDE ? 'Tool Calling' : 'Tool calling',
+  colStreaming: 'Streaming',
+  colTools: 'Tools',
   colContext: isDE ? 'Kontext' : 'Context',
-  colReasoningEffort: 'Reasoning Effort',
+  colReasoningEffort: 'Reasoning',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
   colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
-  colCachedPrice: isDE ? 'Cached €/M' : 'Cached €/M',
+  colCachedPrice: isDE ? 'Cache €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
+  details: 'Details',
+  freeInPreview: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
+  priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
+  free: isDE ? 'Kostenlos' : 'Free',
+  perMillion: isDE ? 'pro 1M' : 'per 1M',
+  priceIn: isDE ? 'Ein' : 'In',
+  priceOut: isDE ? 'Aus' : 'Out',
+  planPreview: isDE ? 'Vorschau' : 'Preview',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
   showing: isDE ? 'Zeige' : 'Showing',
   of: isDE ? 'von' : 'of',
@@ -453,42 +445,39 @@ const t = {
   tooltipCachedPrice: isDE
     ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle — für externe Anbieter wird die Cache-Preisgestaltung später ergänzt.`
     : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only — cached pricing for external providers will be added later.`,
-  cachedPriceUnavailable: isDE ? 'n. v.' : 'n/a',
+  cachedPriceUnavailable: '—',
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
     : 'Accepted values of the reasoning_effort parameter, from the platform model datasheet. "-": no values are published for this model. See the Reasoning Control guide.',
-  reasoningEffortNone: '-',
-  colReasoningTokensUsage: isDE ? 'Reasoning-Tokens in usage' : 'Reasoning tokens in usage',
+  reasoningEffortNone: '—',
+  colReasoningTokensUsage: isDE ? 'Reasoning-Tokens' : 'Reasoning tokens',
   tooltipReasoningTokensUsage: isDE
-    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder not reported (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
+    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder nicht gemeldet (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
     : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
-  reasoningTokensNotReported: 'not reported',
-  reasoningTokensUnknown: '-',
+  reasoningTokensNotReported: isDE ? 'nicht gemeldet' : 'not reported',
+  reasoningTokensUnknown: '—',
 };
-
-const PROVIDER_TOOLTIPS = getProviderTooltips(isDE);
 
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
-      Telekom: 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
-      Azure:   'Gehostet auf Microsoft Azure (EU-Regionen).',
-      GCP:     'Gehostet auf Google Cloud Platform (EU-Regionen).',
+      'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
+      Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab.',
+      GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab.',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
-      Telekom: "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
-      Azure:   'Hosted on Microsoft Azure (EU regions).',
-      GCP:     'Hosted on Google Cloud Platform (EU regions).',
+      'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
+      Azure:   'Hosted on Microsoft Azure. The region depends on the model.',
+      GCP:     'Hosted on Google Cloud Platform. The region depends on the model.',
       Other:   'Hosted by a third-party provider.',
     };
 
 const CATEGORY_LABELS: Record<Category, string> = {
   llms: 'LLM',
   coding: 'Coding',
-  vision: 'Vision',
   embeddings: 'Embedding',
   audio: 'Audio',
-  'image-generation': isDE ? 'Bildgenerierung' : 'Image Generation',
+  'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image Generation',
 };
 
 const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
@@ -501,28 +490,86 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 // `null` means the price has not been published yet (placeholder rows for
 // newly announced models); `0` means the model is genuinely free of charge.
 function formatPrice(n: number | null | undefined): string {
-  if (n == null) return 'xx';
-  if (n <= 0) return '—';
-  return `€${n.toFixed(2)}`;
+  if (n == null) return t.priceTba;
+  return formatEuro(n, 2);
 }
 
 function formatCachedPrice(m: CompiledModel): string {
   if (!m.cachedPricingPublished) return t.cachedPriceUnavailable;
   const value = m.cachedInputPricePerMillionTokens;
   if (value == null) return 'xx';
-  if (value <= 0) return '—';
   // A cached price is 15% of the input price, so two decimals would round most
   // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
   // four decimals and drop trailing zeros.
-  return `€${value.toFixed(4).replace(/0+$/, '').replace(/\.$/, '')}`;
+  return formatEuro(value, 4);
 }
 
 function planHref(plan: string): string {
-  return `${localePrefix}/plans/${plan.toLowerCase()}/`;
+  if (plan === 'Test') return `${localePrefix}/models/preview/`;
+  return `${localePrefix}/plans/#${plan.toLowerCase()}`;
 }
 
 function planTagClass(plan: string): string {
   return `tag-plan-${plan.toLowerCase()}`;
+}
+
+/** The Test catalog is the preview catalog. The tag says Preview; the plan id stays Test. */
+function planLabel(plan: string): string {
+  return plan === 'Test' ? t.planPreview : plan;
+}
+
+/** Catalog context labels. 102,400 is 102.4K, not 100K. 1050K is 1.05M. */
+function formatContextLabel(raw: string | null | undefined): string {
+  if (blankContext(raw)) return '—';
+  const text = (raw ?? '').trim();
+  const compact = text.replace(/,/g, '');
+  if (compact === '102400') return '102.4K';
+  if (/^1050k$/i.test(compact)) return '1.05M';
+  return text;
+}
+
+function blankContext(raw: string | null | undefined): boolean {
+  const value = (raw ?? '').trim();
+  const lower = value.toLowerCase();
+  return value === '' || value === '—' || value === '-' || value === '–' || lower === 'n/a' || lower === 'none' || lower === 'null';
+}
+
+function previewCatalog(m: CompiledModel): boolean {
+  return m.plans.includes('Test');
+}
+
+/** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
+function mobilePriceLine(m: CompiledModel): string | null {
+  const input = m.inputPricePerMillionTokens;
+  const output = m.outputPricePerMillionTokens;
+  if (input == null && output == null) return t.priceTba;
+  const inputFree = input == null || input === 0;
+  const outputFree = output == null || output === 0;
+  if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
+  const bits: string[] = [];
+  if (input != null && input !== 0) bits.push(formatEuro(input, 2));
+  if (output != null && output !== 0) bits.push(formatEuro(output, 2));
+  if (bits.length === 0) return null;
+  return `${bits.join(' / ')} ${t.perMillion}`;
+}
+
+function cachedDetail(m: CompiledModel): string | null {
+  if (!m.cachedPricingPublished) return null;
+  const value = m.cachedInputPricePerMillionTokens;
+  if (value == null || value === 0) return null;
+  return formatEuro(value, 4);
+}
+
+function reasoningTokensDetail(m: CompiledModel): string | null {
+  if (m.reasoningTokensUsage === 'completion_tokens_details') return 'completion_tokens_details.reasoning_tokens';
+  if (m.reasoningTokensUsage === 'usage') return 'usage.reasoning_tokens';
+  if (m.reasoningTokensUsage === 'none') return t.reasoningTokensNotReported;
+  return null;
+}
+
+function detailsIdFor(exactModelName: string): string {
+  const scope = categoryFilter || capabilityFilter || 'all';
+  return `mc-d-${scope}-${exactModelName.replace(/[^a-zA-Z0-9_-]+/g, '-')}`;
 }
 
 // ---------------- Filter values (unique sets) ----------------
@@ -532,7 +579,7 @@ function planTagClass(plan: string): string {
 // category any visible row belongs to, not just primary categories.
 const uniqueCategories = [...new Set(allModels.flatMap((m) => m.categories))];
 const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
-const uniqueClouds = (['Telekom', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
+const uniqueClouds = (['T-Cloud', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
   allModels.some((m) => m.cloud === c),
 );
 const uniqueInputs = (['Text', 'Image', 'Audio'] as InputModality[]).filter((mod) =>
@@ -571,7 +618,7 @@ const filterChips: FilterChip[] = [
   { id: 'output', label: t.colOutput, values: uniqueOutputs, optionLabel: (v) => MODALITY_LABELS[v as OutputModality] },
   { id: 'streaming', label: t.colStreaming, values: ['true', 'false'], optionLabel: boolToTick },
   { id: 'tools', label: t.colTools, values: ['true', 'false'], optionLabel: boolToTick },
-  { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => v },
+  { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => planLabel(v) },
 ];
 
 // Build the row-data payload consumed by the client script. We render the
@@ -608,6 +655,7 @@ const rowDataPayload = allModels.map((m) => ({
   outputPrice: m.outputPricePerMillionTokens,
   cachedInputPrice: m.cachedInputPricePerMillionTokens,
   plans: m.plans,
+  catalogRank: catalogRank(m.displayModelName),
 }));
 ---
 
@@ -615,28 +663,33 @@ const rowDataPayload = allModels.map((m) => ({
   class="models-comparison"
   data-rows={JSON.stringify(rowDataPayload)}>
   <div class="models-comparison__filterbar not-content" role="group" aria-label={t.heading}>
-    {filterChips.map((chip) => (
-      <details class="mc-filter" data-filter={chip.id}>
-        <summary>
-          <span class="mc-filter__label">{chip.label}</span>
-          <span class="mc-filter__count" data-count></span>
-        </summary>
-        <div class="mc-filter__menu">
-          {chip.values.map((v) => (
-            <label class="mc-filter__option">
-              <input
-                type="checkbox"
-                value={v}
-                checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
-              />
-              <span>{chip.optionLabel(v)}</span>
-            </label>
-          ))}
-        </div>
-      </details>
-    ))}
+    <div class="models-comparison__chips">
+      {filterChips.map((chip) => (
+        <details class="mc-filter" data-filter={chip.id}>
+          <summary>
+            <span class="mc-filter__label">{chip.label}</span>
+            <span class="mc-filter__count" data-count></span>
+          </summary>
+          <div class="mc-filter__menu">
+            {chip.values.map((v) => (
+              <label class="mc-filter__option">
+                <input
+                  type="checkbox"
+                  value={v}
+                  checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
+                />
+                <span>{chip.optionLabel(v)}</span>
+              </label>
+            ))}
+          </div>
+        </details>
+      ))}
+    </div>
 
-    <button type="button" class="mc-reset" data-reset>{t.reset}</button>
+    <Button variant="secondary" size="small" class="mc-reset" data-reset>
+      <span class="mc-reset__full">{t.reset}</span>
+      <span class="mc-reset__short">{isDE ? 'Zurücksetzen' : 'Reset'}</span>
+    </Button>
   </div>
 
   <div class="models-comparison__status" aria-live="polite">
@@ -655,7 +708,6 @@ const rowDataPayload = allModels.map((m) => ({
             { key: 'provider', label: t.colProvider, cls: '', tooltip: undefined as string | undefined },
             { key: 'cloud', label: t.colCloud, cls: '', tooltip: undefined as string | undefined },
             { key: 'input', label: t.colInput, cls: '', tooltip: undefined as string | undefined },
-            { key: 'output', label: t.colOutput, cls: '', tooltip: undefined as string | undefined },
             { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming },
             { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
             { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
@@ -670,17 +722,13 @@ const rowDataPayload = allModels.map((m) => ({
               {h.tooltip ? (
                 <Tooltip text={h.tooltip} maxWidth="22rem">
                   <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
-                    <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
-                      <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
-                    </svg>
+                    <Icon name="content-sort-indicator-down" size={16} class="mc-sort-icon" />
                     <span>{h.label}</span>
                   </button>
                 </Tooltip>
               ) : (
                 <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
-                  <svg class="mc-sort-icon" viewBox="0 0 7 5" fill="none" aria-hidden="true">
-                    <path d="M3.46411 4.5L8.97647e-06 -1.75695e-07L6.92821 4.29987e-07L3.46411 4.5Z" />
-                  </svg>
+                  <Icon name="content-sort-indicator-down" size={16} class="mc-sort-icon" />
                   <span>{h.label}</span>
                 </button>
               )}
@@ -690,74 +738,176 @@ const rowDataPayload = allModels.map((m) => ({
       </thead>
       <tbody>
         {allModels.map((m) => {
-          const brandIcon = getModelBrandIcon(m.capabilities.creator);
+          const creatorLogo = getLogo(m.capabilities.creator) || getLogo('Other');
           const fullCloud = cloudFullName(m.cloud);
+          const cloudLabel = cloudLabelFor(m.exactModelName, m.cloud);
+          const detailsId = detailsIdFor(m.exactModelName);
+          const priceLine = mobilePriceLine(m);
+          const factParts = [
+            blankContext(m.contextWindow) ? '' : formatContextLabel(m.contextWindow),
+            m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', '),
+          ].filter(Boolean);
+          const cached = cachedDetail(m);
+          const reasoningTokens = reasoningTokensDetail(m);
           return (
             <tr data-key={m.exactModelName}>
-              <td><strong>{m.displayModelName}</strong></td>
+              <td data-label={t.colModel}><strong>{m.displayModelName}</strong></td>
               {!categoryFilter && (
-                <td>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
+                <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
               )}
-              <td>
-                <Tooltip text={PROVIDER_TOOLTIPS[m.capabilities.creator] ?? m.capabilities.creator} maxWidth="24rem">
-                  <span class="creator-brand" aria-label={m.capabilities.creator}>
-                    {brandIcon
-                      ? <img class="creator-brand__icon" src={brandIcon} alt={m.capabilities.creator} width="18" height="18" />
-                      : <span class="creator-brand__fallback">{m.capabilities.creator}</span>}
+              <td data-label={t.colProvider}>
+                <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
+                  <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
+                    {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
                   </span>
                 </Tooltip>
               </td>
-              <td>
-                <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
-                  <button
-                    type="button"
-                    class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
-                    data-cloud={m.cloud}
-                    aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
-                  >
-                    {cloudLabelFor(m.exactModelName, m.cloud)}
-                  </button>
-                </Tooltip>
+              <td data-label={t.colCloud}>
+                {!hostingUnconfirmed(m.exactModelName) && (
+                  <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
+                    <button
+                      type="button"
+                      class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
+                      data-cloud={m.cloud}
+                      aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
+                    >
+                      {cloudLabelFor(m.exactModelName, m.cloud)}
+                    </button>
+                  </Tooltip>
+                )}
               </td>
-              <td>{m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
-              <td>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</td>
-              <td class="center">
-                {m.capabilities.streaming
+              <td data-label={t.colInput}>
+                {m.capabilities.inputModalities.map((mod, index) => (
+                  <>
+                    {index > 0 ? ' ' : ''}
+                    <span class="mc-mod">{MODALITY_LABELS[mod]}{index < m.capabilities.inputModalities.length - 1 ? ',' : ''}</span>
+                  </>
+                ))}
+              </td>
+              <td class="center" data-label={t.colStreaming}>
+                {m.capabilities.streaming == null
+                  ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
+                  : m.capabilities.streaming
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
-              <td class="center">
-                {m.capabilities.toolCalling
+              <td class="center" data-label={t.colTools}>
+                {m.capabilities.toolCalling == null
+                  ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
+                  : m.capabilities.toolCalling
                   ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
                   : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
               </td>
-              <td>{m.contextWindow}</td>
-              <td class="mc-reasoning-effort">
+              <td class="mc-context" data-label={t.colContext}>{formatContextLabel(m.contextWindow)}</td>
+              <td class="mc-reasoning-effort" data-label={t.colReasoningEffort}>
                 {m.reasoningEffort.length > 0
                   ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
                   : <span aria-label="No reasoning_effort values published">{t.reasoningEffortNone}</span>}
               </td>
-              <td class="mc-usage-field">
+              <td class="mc-usage-field" data-label={t.colReasoningTokensUsage}>
                 {m.reasoningTokensUsage === 'completion_tokens_details' && (
-                  <code>completion_tokens_details<wbr />.reasoning_tokens</code>
+                  <span title="completion_tokens_details.reasoning_tokens">details</span>
                 )}
-                {m.reasoningTokensUsage === 'usage' && <code>usage<wbr />.reasoning_tokens</code>}
+                {m.reasoningTokensUsage === 'usage' && (
+                  <span title="usage.reasoning_tokens">usage</span>
+                )}
                 {m.reasoningTokensUsage === 'none' && (
-                  <span class="mc-usage-field__none">{t.reasoningTokensNotReported}</span>
+                  <span class="mc-usage-field__none" title={t.reasoningTokensNotReported}>{t.reasoningTokensNotReported}</span>
                 )}
                 {m.reasoningTokensUsage === null && (
                   <span aria-label="Not documented">{t.reasoningTokensUnknown}</span>
                 )}
               </td>
-              <td class="num">{formatPrice(m.inputPricePerMillionTokens)}</td>
-              <td class="num">{formatPrice(m.outputPricePerMillionTokens)}</td>
-              <td class="num">{formatCachedPrice(m)}</td>
-              <td>
+              <td class="num" data-label={t.colInputPrice} title={m.inputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.inputPricePerMillionTokens == null ? '—' : formatPrice(m.inputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colOutputPrice} title={m.outputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.outputPricePerMillionTokens == null ? '—' : formatPrice(m.outputPricePerMillionTokens)}</td>
+              <td class="num" data-label={t.colCachedPrice}>{formatCachedPrice(m)}</td>
+              <td data-label={t.colPlans}>
                 <span class="mc-plans">
                   {m.plans.map((p) => (
-                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{p}</a>
+                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
                   ))}
                 </span>
+              </td>
+              <td class="mc-mobile-cell">
+                <div class="mc-m">
+                  <div class="mc-m__top">
+                    <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
+                      {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
+                    </span>
+                    <strong class="mc-m__name">{m.displayModelName}</strong>
+                    <Button
+                      variant="ghost"
+                      size="small"
+                      iconOnly
+                      class="mc-m__details"
+                      ariaLabel={t.details}
+                      aria-expanded="false"
+                      aria-controls={detailsId}
+                    >
+                      <svg class="mc-m__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    </Button>
+                  </div>
+                  <div class="mc-m__meta">
+                    {!hostingUnconfirmed(m.exactModelName) && <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>}
+                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small aifs-tag--yellow">Premium</span>}
+                    {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
+                    {priceLine && <span class:list={['mc-m__price', { 'mc-m__price--wrap': priceLine === t.priceTba }]}>{priceLine}</span>}
+                  </div>
+                  <div class="mc-m__panel" id={detailsId} hidden="until-found">
+                    <dl class="mc-m__dl">
+                      {m.capabilities.outputModalities.length > 0 && (
+                        <div>
+                          <dt>{t.colOutput}</dt>
+                          <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
+                        </div>
+                      )}
+                      {m.capabilities.streaming === true && (
+                        <div>
+                          <dt>{t.colStreaming}</dt>
+                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
+                        </div>
+                      )}
+                      {m.capabilities.toolCalling === true && (
+                        <div>
+                          <dt>{t.colTools}</dt>
+                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
+                        </div>
+                      )}
+                      {cached && (
+                        <div>
+                          <dt>{t.colCachedPrice}</dt>
+                          <dd>{cached}</dd>
+                        </div>
+                      )}
+                      {m.reasoningEffort.length > 0 && (
+                        <div>
+                          <dt>{t.colReasoningEffort}</dt>
+                          <dd class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</dd>
+                        </div>
+                      )}
+                      {reasoningTokens && (
+                        <div>
+                          <dt>{t.colReasoningTokensUsage}</dt>
+                          <dd><code>{reasoningTokens}</code></dd>
+                        </div>
+                      )}
+                      {!categoryFilter && (
+                        <div>
+                          <dt>{t.colCategory}</dt>
+                          <dd>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</dd>
+                        </div>
+                      )}
+                      <div>
+                        <dt>{t.colPlans}</dt>
+                        <dd class="mc-plans">
+                          {m.plans.map((p) => (
+                            <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
+                          ))}
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+                </div>
               </td>
             </tr>
           );
@@ -774,14 +924,15 @@ const rowDataPayload = allModels.map((m) => ({
   type RowData = {
     key: string;
     displayModelName: string;
+    catalogRank?: number;
     category: string;        // primary, for sort
     categories: string[];    // multi, for filter chip
     provider: string;
     cloud: string;
     inputs: string[];
     outputs: string[];
-    streaming: boolean;
-    toolCalling: boolean;
+    streaming: boolean | null;
+    toolCalling: boolean | null;
     contextWindowRaw: string;
     contextWindowNum: number;
     reasoningEffort: string[];
@@ -818,9 +969,9 @@ const rowDataPayload = allModels.map((m) => ({
     // Sort state. Default: cloud (Telekom-first via custom rank). SSR-render
     // is already in this order so the first paint matches; subsequent sorts
     // reorder the rows in-place.
-    let sortKey = 'cloud';
+    let sortKey = '';
     let sortAsc = true;
-    const CLOUD_RANK: Record<string, number> = { Telekom: 0, Azure: 1, GCP: 2, Other: 3 };
+    const CLOUD_RANK: Record<string, number> = { 'T-Cloud': 0, Azure: 1, GCP: 2, Other: 3 };
 
     const filterDefs: Array<{ id: string; type: 'single' | 'multi' | 'bool'; field: keyof RowData }> = [
       { id: 'category', type: 'multi', field: 'categories' },
@@ -864,7 +1015,9 @@ const rowDataPayload = allModels.map((m) => ({
           // Row passes this filter if ANY of its values is checked.
           if (!values.some((v) => checked.has(v))) return false;
         } else {
-          const v = valueToString(row[def.field]);
+          const raw = row[def.field];
+          if (raw == null || raw === '') continue;
+          const v = valueToString(raw);
           if (!checked.has(v)) return false;
         }
       }
@@ -931,6 +1084,8 @@ const rowDataPayload = allModels.map((m) => ({
           const ar = CLOUD_RANK[a.cloud] ?? 99;
           const br = CLOUD_RANK[b.cloud] ?? 99;
           if (ar !== br) return sortAsc ? ar - br : br - ar;
+          const rankDiff = (a.catalogRank ?? 10000) - (b.catalogRank ?? 10000);
+          if (rankDiff !== 0) return rankDiff;
           av = a.displayModelName.toLowerCase();
           bv = b.displayModelName.toLowerCase();
           break;
@@ -944,14 +1099,12 @@ const rowDataPayload = allModels.map((m) => ({
           bv = b.outputs.join(',').toLowerCase();
           break;
         case 'streaming':
-          // true sorts before false in asc — flip boolean to numeric so the
-          // generic numeric comparator below does the right thing.
-          av = a.streaming ? 0 : 1;
-          bv = b.streaming ? 0 : 1;
+          av = a.streaming == null ? 2 : a.streaming ? 0 : 1;
+          bv = b.streaming == null ? 2 : b.streaming ? 0 : 1;
           break;
         case 'tools':
-          av = a.toolCalling ? 0 : 1;
-          bv = b.toolCalling ? 0 : 1;
+          av = a.toolCalling == null ? 2 : a.toolCalling ? 0 : 1;
+          bv = b.toolCalling == null ? 2 : b.toolCalling ? 0 : 1;
           break;
         case 'context': {
           const an = a.contextWindowNum;
@@ -1030,7 +1183,7 @@ const rowDataPayload = allModels.map((m) => ({
       const state = readState();
       // Sort the row list, then re-append matching <tr>s to <tbody> in the
       // new order. Skips the no-results row, which stays at the end.
-      const ordered = [...rows].sort(compareRows);
+      const ordered = sortKey ? [...rows].sort(compareRows) : [...rows];
       if (tbody) {
         for (const row of ordered) {
           const tr = tableRowsByKey.get(row.key);
@@ -1146,6 +1299,70 @@ const rowDataPayload = allModels.map((m) => ({
     // synthetic 'change' event so the existing change listener handles both
     // the apply() call AND the zero-selection auto-revert (uncheck the last
     // remaining cloud → all three snap back to checked).
+    function setMobileDetails(btn: HTMLButtonElement, open: boolean) {
+      const id = btn.getAttribute('aria-controls');
+      if (!id) return;
+      const panel = root.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
+      if (!panel) return;
+      if (open) panel.removeAttribute('hidden');
+      else panel.setAttribute('hidden', 'until-found');
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    root.addEventListener('click', (evt) => {
+      const target = evt.target as HTMLElement | null;
+      const detailsBtn = target?.closest('button.mc-m__details') as HTMLButtonElement | null;
+      if (!detailsBtn || !root.contains(detailsBtn)) return;
+      setMobileDetails(detailsBtn, detailsBtn.getAttribute('aria-expanded') !== 'true');
+    });
+
+    root.addEventListener('beforematch', (evt) => {
+      const panel = evt.target;
+      if (!(panel instanceof HTMLElement) || !panel.classList.contains('mc-m__panel')) return;
+      const btn = root.querySelector<HTMLButtonElement>(`button.mc-m__details[aria-controls="${CSS.escape(panel.id)}"]`);
+      if (btn) setMobileDetails(btn, true);
+    });
+
+    // On a narrow column the chip row scrolls, which would clip an absolute
+    // menu. Pin the open menu to the viewport instead.
+    function placeFilterMenu(details: HTMLDetailsElement) {
+      const menu = details.querySelector<HTMLElement>('.mc-filter__menu');
+      const summary = details.querySelector<HTMLElement>('summary');
+      if (!menu || !summary) return;
+      if (!details.open) {
+        menu.style.position = '';
+        menu.style.top = '';
+        menu.style.left = '';
+        menu.style.maxWidth = '';
+        menu.style.width = '';
+        return;
+      }
+      const rect = details.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      const maxW = Math.min(240, vw - 16);
+      const left = Math.max(8, Math.min(rect.left, vw - maxW - 8));
+      menu.style.position = 'absolute';
+      menu.style.top = '';
+      menu.style.right = 'auto';
+      menu.style.left = `${Math.round(left - rect.left)}px`;
+      menu.style.width = `${maxW}px`;
+      menu.style.maxWidth = `${maxW}px`;
+      menu.style.boxSizing = 'border-box';
+      menu.style.overflowX = 'hidden';
+    }
+
+    root.addEventListener('toggle', (evt) => {
+      const details = evt.target;
+      if (details instanceof HTMLDetailsElement && details.classList.contains('mc-filter')) {
+        placeFilterMenu(details);
+      }
+    }, true);
+
+    root.querySelector('.models-comparison__chips')?.addEventListener('scroll', () => {
+      const open = root.querySelector<HTMLDetailsElement>('details.mc-filter[open]');
+      if (open) placeFilterMenu(open);
+    }, { passive: true });
+
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
       const btn = target?.closest('.mc-cloud-filter-btn') as HTMLElement | null;
@@ -1187,7 +1404,11 @@ const rowDataPayload = allModels.map((m) => ({
 
 <style>
   .models-comparison {
-    margin: 1.5rem 0 2.5rem;
+    margin: 8px 0;
+    container-type: inline-size;
+    container-name: comparison;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .models-comparison__filterbar {
@@ -1196,6 +1417,18 @@ const rowDataPayload = allModels.map((m) => ({
     gap: 0.5rem;
     align-items: center;
     margin-bottom: 0.75rem;
+  }
+
+  .models-comparison__chips {
+    display: contents;
+  }
+
+  .mc-reset__short {
+    display: none;
+  }
+
+  .mc-mobile-cell {
+    display: none;
   }
 
   .mc-filter {
@@ -1233,13 +1466,13 @@ const rowDataPayload = allModels.map((m) => ({
     display: none;
   }
 
+  /* Telekom's collapse-down icon, turned up while the filter is open. */
   .mc-filter > summary::after {
     content: '';
-    width: 0;
-    height: 0;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 4px solid currentColor;
+    width: 1rem;
+    height: 1rem;
+    background: currentColor;
+    mask: url('../assets/icons/scale/navigation/collapse-down/default.svg') center / contain no-repeat;
     opacity: 0.65;
     transition: transform 120ms ease;
   }
@@ -1266,18 +1499,31 @@ const rowDataPayload = allModels.map((m) => ({
     z-index: 40;
   }
 
+  .mc-filter:not([open]) > .mc-filter__menu {
+    display: none;
+  }
+
+  .mc-filter[open] {
+    flex: 1 0 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+
   .mc-filter__menu {
-    position: absolute;
-    top: calc(100% + 6px);
-    left: 0;
+    position: static;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
     z-index: 40;
-    min-width: 12rem;
     max-height: 16rem;
     overflow-y: auto;
     padding: 0.4rem;
     background: var(--sl-color-bg-nav);
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 8px;
+    /* TODO(token-gap): Telekom shadow tokens are not converted yet. */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
     display: flex;
     flex-direction: column;
@@ -1291,7 +1537,7 @@ const rowDataPayload = allModels.map((m) => ({
     padding: 0.2rem 0.35rem;
     border-radius: 4px;
     cursor: pointer;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .mc-filter__option:hover {
@@ -1299,24 +1545,7 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .mc-filter__option input[type='checkbox'] {
-    accent-color: #e20074;
-  }
-
-  .mc-reset {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.2;
-    color: var(--sl-color-text);
-    background: transparent;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 999px;
-    cursor: pointer;
-    margin-left: 0;
-  }
-
-  .mc-reset:hover {
-    background: var(--sl-color-gray-6);
+    accent-color: var(--aifs-color-action-background);
   }
 
   .models-comparison__status {
@@ -1326,43 +1555,209 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison__scroll {
-    overflow-x: auto;
-    margin-bottom: 1.5rem;
+    max-width: 100%;
+    overflow-x: visible;
+    margin-bottom: 8px;
   }
 
   .models-comparison-table {
     display: table;
     width: 100%;
+    min-width: 0;
+    table-layout: fixed;
     border-collapse: collapse;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     border: 0;
   }
 
-  .models-comparison-table thead th {
-    text-align: left;
-    padding: 0.55rem 0.65rem;
-    border-bottom: 1px solid #d8d8d8;
-    background: #f2f2f2;
-    color: #262626;
-    font-weight: 700;
+  .models-comparison-table:has(th[data-sort='category']) {
+    min-width: 0;
+  }
+
+  @container comparison (min-width: 52rem) {
+    .models-comparison-table:not(:has(th[data-sort='category'])) {
+      min-width: 0;
+    }
+  }
+
+  .models-comparison-table .mc-sort-icon {
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .models-comparison-table th,
+  .models-comparison-table td {
+    box-sizing: border-box;
+    padding: 6px 3px;
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: normal;
+  }
+
+  /* Headers, plan tags and prices never split inside a word. */
+  .models-comparison-table thead th,
+  .models-comparison-table .mc-sort-header > span,
+  .models-comparison-table .plans-tag,
+  .models-comparison-table td.num {
     white-space: nowrap;
+    overflow-wrap: normal;
+    word-break: keep-all;
+  }
+
+  /* table.css gives the first and last cells extra inline padding. That
+     padding sits outside a content-box percentage and pushes the last
+     column out of the sheet. */
+  .models-comparison-table :is(th, td):first-child,
+  .models-comparison-table :is(th, td):last-child {
+    padding-inline: 4px;
+  }
+
+  .models-comparison-table th:first-child,
+  .models-comparison-table td:first-child {
+    position: static;
+    min-width: 0;
+    background: transparent;
+  }
+
+  .models-comparison-table th:first-child {
+    background: var(--aifs-table-head-background);
+    z-index: 3;
+  }
+  .models-comparison-table thead th {
+    overflow: visible;
+    line-height: 1.15;
+    font-size: 12px;
+    vertical-align: bottom;
+    hyphens: manual;
+    -webkit-hyphens: manual;
+    /* table.css pads headers 8px. At the sheet width that leaves Streaming
+       and Reasoning wider than the cell. */
+    padding-inline: 2px;
+  }
+
+  /* 13 columns in the sheet beside the sidebar (~850px at 1280).
+     Percentages include padding (border-box) and sum to 100. */
+  .models-comparison-table th[data-sort='model'],
+  .models-comparison-table td:first-child {
+    width: 14%;
+    min-width: 0;
+  }
+  .models-comparison-table th[data-sort='provider'] { width: 7%; }
+  .models-comparison-table th[data-sort='cloud'] { width: 8%; }
+  .models-comparison-table th[data-sort='input'] { width: 7%; }
+  .models-comparison-table th[data-sort='streaming'] { width: 7.5%; }
+  .models-comparison-table th[data-sort='tools'] { width: 4.5%; }
+  .models-comparison-table th[data-sort='context'] { width: 6.5%; }
+  .models-comparison-table th[data-sort='reasoningEffort'] { width: 8.5%; }
+  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
+  .models-comparison-table th[data-sort='inputPrice'] { width: 6.5%; }
+  .models-comparison-table th[data-sort='outputPrice'] { width: 7%; }
+  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 5.5%; }
+  .models-comparison-table th[data-sort='plans'] { width: 10%; }
+  .models-comparison-table th[data-sort='category'] { width: 8%; }
+
+  /* Tooltip.astro owns these nodes, so the selectors have to be global
+     or the header button stays shrink-to-fit and splits "Provider". */
+  .models-comparison-table th :global(.ui-tooltip),
+  .models-comparison-table th :global(.ui-tooltip__trigger) {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .models-comparison-table .mc-sort-header {
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    white-space: normal;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 4px;
+  }
+
+  .models-comparison-table .mc-sort-header > span {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .models-comparison-table td[data-label='Input'],
+  .models-comparison-table td[data-label='Eingabe'] {
+    white-space: normal;
+  }
+
+  .models-comparison-table .plans-tag {
+    height: auto;
+    min-height: 24px;
+    max-width: 100%;
+    padding-inline: 4px;
+    font-size: 11px;
+    white-space: normal;
+    text-align: center;
   }
 
   .models-comparison-table tbody td {
-    padding: 0.5rem 0.65rem;
-    border-bottom: 1px solid var(--sl-color-gray-6);
     vertical-align: top;
+    min-width: 0;
+    overflow-wrap: normal;
   }
 
-  .models-comparison-table tbody tr:hover {
-    background: var(--sl-color-gray-6);
+  .models-comparison-table td[data-label='Category'],
+  .models-comparison-table td[data-label='Kategorie'] {
+    hyphens: manual;
+    -webkit-hyphens: manual;
+  }
+
+  .models-comparison-table td[data-label='Model'] strong,
+  .models-comparison-table td[data-label='Modell'] strong {
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   .models-comparison-table th.num,
-  .models-comparison-table td.num {
+  .models-comparison-table td.num,
+  .models-comparison-table td.mc-context {
     text-align: right;
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+    white-space: normal;
+    padding-inline: 1px;
+    font-size: 12px;
+  }
+
+  .models-comparison-table thead th.num {
+    white-space: normal;
+  }
+
+  /* Each modality is one unbreakable item. The comma stays on that item, so the
+     next line starts at the next word. */
+  .models-comparison-table .mc-mod {
+    display: inline;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+  }
+
+  .models-comparison-table td[data-label='Model'] strong,
+  .models-comparison-table td[data-label='Modell'] strong {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: anywhere;
+    hyphens: manual;
+  }
+
+  .models-comparison-table td[data-label='Input'],
+  .models-comparison-table td[data-label='Eingabe'] {
+    text-align: start;
+  }
+
+  .models-comparison-table td.mc-context {
+    text-align: start;
   }
 
   /* Capability cells (Streaming output, Tool calling): give the tick/cross a
@@ -1375,21 +1770,32 @@ const rowDataPayload = allModels.map((m) => ({
   }
   /* Values flow inline and wrap onto a second line once they exceed the cap,
      so six levels take two short lines instead of one long row. */
+  .models-comparison-table td.mc-reasoning-effort {
+    min-width: 0;
+    white-space: normal;
+  }
+
   .models-comparison .mc-effort-values {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.2rem 0.3rem;
-    max-width: 11rem;
+    align-items: center;
+    gap: 2px;
+    max-width: 100%;
   }
 
   .models-comparison .mc-effort-values code {
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    max-width: 100%;
+    font-size: 12px;
   }
 
   /* Field paths may break after the dot (<wbr>) instead of widening the row. */
+  .models-comparison .mc-usage-field,
   .models-comparison .mc-usage-field code {
     white-space: normal;
     overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   .models-comparison .mc-usage-field__none {
@@ -1397,10 +1803,10 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison .mc-cap--yes {
-    color: #4ade80; /* green-400 */
+    color: var(--aifs-color-success);
   }
   .models-comparison .mc-cap--no {
-    color: #94a3b8; /* slate-400 — muted, not alarming */
+    color: var(--aifs-color-text-muted);
   }
 
   .models-comparison-table th.center,
@@ -1408,12 +1814,13 @@ const rowDataPayload = allModels.map((m) => ({
     text-align: center;
   }
 
-  .models-comparison-table a {
+  /* Plan tags are links too, but keep their colours from tag.css. */
+  .models-comparison-table a:not(.plans-tag) {
     color: var(--sl-color-text-accent);
     text-decoration: none;
   }
 
-  .models-comparison-table a:hover {
+  .models-comparison-table a:not(.plans-tag):hover {
     text-decoration: underline;
   }
 
@@ -1423,23 +1830,54 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--sl-color-gray-3);
   }
 
-  /* Brand-icon: icon-only cell. Creator name lives in aria-label/title for
-     a11y and hover; we only fall back to text when no logo is registered. */
-  .models-comparison .creator-brand {
+  /* Same tile as the catalog cards: 20px, white field, hairline. Google's
+     mark is mostly margin, so it is scaled inside the tile. */
+  .models-comparison .creator-brand--tile {
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    min-height: 20px;
+    flex: 0 0 20px;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-sizing: border-box;
+    padding: 0;
+    border: 1px solid var(--aifs-color-border-subtle);
+    border-radius: 4px;
+    background: var(--aifs-color-logo-background);
+    line-height: 0;
     vertical-align: middle;
   }
 
-  .models-comparison .creator-brand__icon {
-    width: 18px;
-    height: 18px;
+  .models-comparison .creator-brand--zoom {
+    padding: 0;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 175%;
+  }
+
+  .models-comparison .creator-brand--tile .creator-brand__icon {
     display: block;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 0 !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
     object-fit: contain;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 4px;
-    padding: 1px;
-    background: white;
+  }
+
+
+  .models-comparison .creator-brand:not(:has(img)),
+  .models-comparison .creator-brand__fallback {
+    width: auto;
+    height: auto;
+    overflow: visible;
   }
 
   .models-comparison .creator-brand__fallback {
@@ -1448,105 +1886,19 @@ const rowDataPayload = allModels.map((m) => ({
     white-space: nowrap;
   }
 
-  /* Plans-tag styling, scoped — colors match the Plans overview palette */
-  .models-comparison .plans-tag {
-    display: inline-block;
-    padding: 0.14rem 0.5rem;
-    border-radius: 4px;
-    font-size: 0.76rem;
-    font-weight: 600;
-    line-height: 1.25;
-    white-space: nowrap;
-    text-decoration: none;
-  }
-
-  .models-comparison a.plans-tag:hover {
-    filter: brightness(1.08);
-    text-decoration: none;
-  }
-
-  /* Cloud tag in a row is a button (one-click filter); reset native button
-     chrome so it looks identical to the static span versions elsewhere. */
-  .models-comparison button.plans-tag.mc-cloud-filter-btn {
-    border: 0;
-    margin: 0;
-    font: inherit;
-    cursor: pointer;
-    appearance: none;
-  }
-
-  .models-comparison button.plans-tag.mc-cloud-filter-btn:hover {
-    filter: brightness(1.08);
-  }
-
-  .models-comparison button.plans-tag.mc-cloud-filter-btn:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-  }
-
-  .models-comparison .tag-tcloud {
-    background: #e20074;
-    color: white;
-  }
-
-  .models-comparison .tag-cloud {
-    background: color-mix(in srgb, var(--sl-color-gray-5) 72%, white 28%);
-    color: var(--sl-color-text);
-  }
-
   .models-comparison .mc-plans {
     display: inline-flex;
+    flex-direction: row;
     flex-wrap: wrap;
     gap: 0.25rem;
-  }
-
-  /* Per-plan colors */
-  .models-comparison .tag-plan-essential {
-    background: rgba(99, 102, 241, 0.18);
-    color: #4338ca;
-    box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.35);
-  }
-
-  .models-comparison .tag-plan-professional {
-    background: rgba(226, 0, 116, 0.16);
-    color: #b3005c;
-    box-shadow: inset 0 0 0 1px rgba(226, 0, 116, 0.4);
-  }
-
-  .models-comparison .tag-plan-agentic {
-    background: rgba(34, 197, 94, 0.16);
-    color: #15803d;
-    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.4);
-  }
-
-  .models-comparison .tag-plan-test {
-    background: transparent;
-    color: var(--sl-color-text);
-    box-shadow: inset 0 0 0 1px var(--sl-color-gray-4);
+    align-items: center;
   }
 
   :root[data-theme='dark'] .models-comparison {
-    --model-link-color: var(--aifs-d-link);
-    --model-link-icon-color: var(--aifs-d-link);
+    --model-link-color: var(--aifs-color-link-standard);
+    --model-link-icon-color: var(--aifs-color-link-standard);
   }
 
-  :root[data-theme='dark'] .models-comparison-table thead th {
-    background: var(--aifs-d-surface);
-    color: var(--aifs-d-text);
-    border-bottom: 1px solid var(--aifs-d-border);
-  }
-
-  :root[data-theme='dark'] .models-comparison .tag-plan-essential {
-    color: #c7d2fe;
-  }
-
-  :root[data-theme='dark'] .models-comparison .tag-plan-professional {
-    color: #fbcfe8;
-  }
-
-  :root[data-theme='dark'] .models-comparison .tag-plan-agentic {
-    color: #bbf7d0;
-  }
 
   /* Column-header click-to-sort. Mirrors the plans-table .sort-* pattern but
      scoped with .mc- prefixes so the two components stay independent. */
@@ -1570,11 +1922,11 @@ const rowDataPayload = allModels.map((m) => ({
     outline-offset: 2px;
   }
 
-  .mc-sort-icon {
-    width: 0.5rem;
-    height: 0.36rem;
+  .models-comparison :global(.mc-sort-icon) {
+    width: 12px;
+    height: 12px;
     flex: 0 0 auto;
-    opacity: 0.4;
+    opacity: 0.65;
     transform: rotate(0deg);
     transition:
       transform 160ms ease,
@@ -1582,25 +1934,239 @@ const rowDataPayload = allModels.map((m) => ({
     color: currentColor;
   }
 
-  .mc-sort-icon path {
-    fill: currentColor;
-  }
-
-  .mc-sort-icon--active {
+  /* The arrow marks the sorted column; as a graphic it needs 3:1, which magenta
+     has on the grey head in both modes (4.1:1 light, 4.0:1 dark). */
+  .models-comparison :global(.mc-sort-icon--active) {
     opacity: 1;
+    color: var(--aifs-color-brand-text);
   }
 
-  .mc-sort-icon--asc {
+  .models-comparison :global(.mc-sort-icon--asc) {
     transform: rotate(180deg);
   }
 
-  .mc-sort-icon--desc {
+  .models-comparison :global(.mc-sort-icon--desc) {
     transform: rotate(0deg);
   }
 
   .models-comparison-table th.mc-sort-active .mc-sort-header {
-    color: #ffffff;
+    color: var(--aifs-color-table-head-text);
   }
+
+  /* Stacked cards once the content column is under 52rem. */
+  @container comparison (max-width: 52rem) {
+    .models-comparison,
+    .models-comparison__scroll {
+      padding-inline: 0;
+      margin-inline: 0;
+    }
+
+    .models-comparison__filterbar {
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .models-comparison__chips {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      flex: 1 1 100%;
+      overflow: visible;
+      padding-bottom: 2px;
+    }
+
+    .models-comparison__chips::-webkit-scrollbar {
+      display: none;
+    }
+
+    .models-comparison__filterbar .mc-reset {
+      flex: 1 0 100%;
+    }
+
+    .mc-reset__full {
+      display: none;
+    }
+
+    .mc-reset__short {
+      display: inline;
+    }
+
+    .models-comparison__scroll {
+      overflow: visible;
+      box-shadow: none;
+      scrollbar-gutter: auto;
+    }
+
+    .models-comparison-table,
+    .models-comparison-table:has(th[data-sort='category']),
+    .models-comparison-table tbody {
+      display: block;
+      width: 100%;
+      min-width: 0;
+    }
+
+    .models-comparison-table thead {
+      display: none;
+    }
+
+    .models-comparison-table tr[hidden] {
+      display: none !important;
+    }
+
+    /* Touch can leave :hover stuck on the last row. The list has no hover fill. */
+    .models-comparison .models-comparison-table tbody tr[data-key]:hover {
+      background: transparent;
+    }
+
+    .models-comparison-table tr[data-key] {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
+      margin: 0;
+      padding: 4px 0;
+      border: 0;
+      border-bottom: 1px solid var(--aifs-color-border-subtle);
+      border-radius: 0;
+      background: transparent;
+    }
+
+    .models-comparison-table tr[data-key]:first-child {
+      border-top: 1px solid var(--aifs-color-border-subtle);
+    }
+
+    .models-comparison-table td:not(.mc-mobile-cell) {
+      display: none;
+    }
+
+    .models-comparison .models-comparison-table td.mc-mobile-cell {
+      display: block;
+      min-width: 0 !important;
+      width: 100%;
+      padding: 0 !important;
+      border: 0;
+      position: static;
+      white-space: normal;
+      background: transparent;
+    }
+
+    .models-comparison-table .mc-no-results {
+      display: block;
+      border: 0;
+      background: transparent;
+      padding: 8px 0;
+    }
+
+    .models-comparison-table .mc-no-results td {
+      display: block;
+      padding: 8px 0;
+      border: 0;
+    }
+  }
+
+  .mc-m__top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    min-height: 32px;
+  }
+
+  .mc-m__name {
+    flex: 1 1 auto;
+    min-width: 0;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow-wrap: break-word;
+  }
+
+  .mc-m__details {
+    flex: 0 0 auto;
+    align-self: flex-start;
+  }
+
+  .mc-m__chevron {
+    display: block;
+    transition: transform 160ms ease;
+  }
+
+  .mc-m__details[aria-expanded='true'] .mc-m__chevron {
+    transform: rotate(180deg);
+  }
+
+  .mc-m__details[aria-expanded='true'] {
+    background: var(--aifs-button-ghost-background-pressed);
+    color: var(--aifs-button-ghost-text-pressed);
+  }
+
+  .mc-m__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 8px;
+    margin: 2px 0 0 26px;
+    min-width: 0;
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 1.3;
+  }
+
+  .mc-m__facts {
+    min-width: 0;
+  }
+
+  .mc-m__price {
+    white-space: nowrap;
+  }
+
+  .mc-m__price--wrap {
+    white-space: normal;
+  }
+
+  .mc-m__panel:not([hidden]) {
+    margin: 8px 0 0 22px;
+    padding: 8px 10px;
+    border-radius: var(--aifs-radius-control, 8px);
+    background: var(--aifs-color-surface-subtle);
+  }
+
+  /* until-found keeps the panel searchable, but its box must not paint a bar. */
+  .models-comparison .mc-m__panel[hidden] {
+    height: 0;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: transparent;
+    border: 0;
+    content-visibility: hidden;
+  }
+
+  .mc-m__dl {
+    display: grid;
+    gap: 8px 16px;
+    margin: 0;
+  }
+
+  .mc-m__dl div {
+    min-width: 0;
+  }
+
+  .mc-m__dl dt {
+    margin: 0 0 2px;
+    color: var(--aifs-color-text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .mc-m__dl dd {
+    margin: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 1.3;
+  }
+
 </style>
-</content>
-</invoke>

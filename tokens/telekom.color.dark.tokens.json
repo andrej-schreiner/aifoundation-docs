@@ -1,0 +1,1180 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "Telekom semantic colours, dark mode. Converted from github.com/telekom/design-tokens@882d939 (Telekom theme) to DTCG 2025.10.",
+  "color": {
+    "$description": "Telekom brand color design tokens",
+    "text-&-icon": {
+      "standard": {
+        "$type": "color",
+        "$value": "{core.color.white}",
+        "$description": "Default text color with highest contrast."
+      },
+      "additional": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "alpha": 0.65,
+          "hex": "#ffffff"
+        },
+        "$description": "Use in combination with standard text for additional text elements.",
+        "$extensions": {
+          "com.telekom.design-tokens": {
+            "alphaOf": "{core.color.white}"
+          }
+        }
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            1.0,
+            1.0,
+            1.0
+          ],
+          "alpha": 0.3,
+          "hex": "#ffffff"
+        },
+        "$description": "Only use for disabled text.",
+        "$extensions": {
+          "com.telekom.design-tokens": {
+            "alphaOf": "{core.color.white}"
+          }
+        }
+      },
+      "link": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}"
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.blue.100}"
+        },
+        "visited": {
+          "$type": "color",
+          "$value": "{core.color.violet.300}"
+        },
+        "active": {
+          "$type": "color",
+          "$value": "{core.color.blue.0}"
+        }
+      },
+      "primary": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.brand.standard_dark}"
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.brand.light}"
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": "{core.color.brand.lighter}"
+        }
+      },
+      "inverted": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.black}",
+          "$description": "Standard text color inverted to be used on high contrast colors like ui/extra strong"
+        },
+        "additional": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.65,
+            "hex": "#000000"
+          },
+          "$description": "Additional text color inverted to be used on high contrast colors like ui/extra strong",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.black}"
+            }
+          }
+        }
+      },
+      "white": {
+        "$description": "This text color is light in all modes (light & dark)",
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.white}",
+          "$description": "Light text to be used on backgrounds that are dark in all modes (light & dark)"
+        },
+        "additional": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.65,
+            "hex": "#ffffff"
+          },
+          "$description": "Semi-Light text to be used on backgrounds that are dark in all modes (light & dark)",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.white}"
+            }
+          }
+        }
+      },
+      "black": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.black}",
+          "$description": "This text color is dark in all modes (light & dark)"
+        },
+        "additional": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.65,
+            "hex": "#000000"
+          },
+          "$description": "This text color is dark in all modes (light & dark)",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.black}"
+            }
+          }
+        }
+      },
+      "functional": {
+        "informational": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}"
+        },
+        "success": {
+          "$type": "color",
+          "$value": "{core.color.green.500}"
+        },
+        "danger": {
+          "$type": "color",
+          "$value": "{core.color.red.300}"
+        },
+        "warning": {
+          "$type": "color",
+          "$value": "{core.color.orange.500}"
+        }
+      },
+      "on-subtle": {
+        "informational": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}"
+        },
+        "success": {
+          "$type": "color",
+          "$value": "{core.color.green.300}"
+        },
+        "danger": {
+          "$type": "color",
+          "$value": "{core.color.red.200}"
+        },
+        "warning": {
+          "$type": "color",
+          "$value": "{core.color.orange.300}"
+        },
+        "violet": {
+          "$type": "color",
+          "$value": "{core.color.violet.200}"
+        },
+        "blue": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}"
+        },
+        "cyan": {
+          "$type": "color",
+          "$value": "{core.color.cyan.400}"
+        },
+        "teal": {
+          "$type": "color",
+          "$value": "{core.color.teal.400}"
+        },
+        "green": {
+          "$type": "color",
+          "$value": "{core.color.green.300}"
+        },
+        "olive": {
+          "$type": "color",
+          "$value": "{core.color.olive.400}"
+        },
+        "brown": {
+          "$type": "color",
+          "$value": "{core.color.brown.300}"
+        },
+        "yellow": {
+          "$type": "color",
+          "$value": "{core.color.yellow.500}"
+        },
+        "orange": {
+          "$type": "color",
+          "$value": "{core.color.orange.300}"
+        },
+        "red": {
+          "$type": "color",
+          "$value": "{core.color.red.200}"
+        }
+      }
+    },
+    "background": {
+      "$description": "Background colors are used for page, app and component backgrounds",
+      "canvas": {
+        "$type": "color",
+        "$value": "{core.color.grey.2200}",
+        "$description": "Use as the background for your product (app, website, etc.)"
+      },
+      "canvas-subtle": {
+        "$type": "color",
+        "$value": "{core.color.grey.2100}",
+        "$description": "Use as the background for your product (app, website, etc.)"
+      },
+      "backdrop": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "alpha": 0.65,
+          "hex": "#000000"
+        },
+        "$description": "Use to overlay content below dialogs to separate dialog from content below",
+        "$extensions": {
+          "com.telekom.design-tokens": {
+            "alphaOf": "{core.color.black}"
+          }
+        }
+      },
+      "surface": {
+        "$type": "color",
+        "$value": "{core.color.grey.2000}",
+        "$description": "Use as the background of elements like cards, headers, bottom bars, etc."
+      },
+      "surface-subtle": {
+        "$type": "color",
+        "$value": "{core.color.grey.1800}",
+        "$description": "Use as the background of elements like cards, headers, bottom bars, etc."
+      },
+      "surface-highlight": {
+        "$type": "color",
+        "$value": "{core.color.grey.1500}",
+        "$description": "Use as the background of elements that should stand out highlighted sections, footer, etc."
+      }
+    },
+    "primary": {
+      "standard": {
+        "$type": "color",
+        "$value": "{core.color.brand.standard_dark}"
+      },
+      "hovered": {
+        "$type": "color",
+        "$value": "{core.color.brand.dark}"
+      },
+      "pressed": {
+        "$type": "color",
+        "$value": "{core.color.brand.darker}"
+      }
+    },
+    "ui": {
+      "$description": "Used to create UI elements like dividers, checkboxes, buttons, etc.",
+      "base": {
+        "$type": "color",
+        "$value": "{core.color.grey.2100}"
+      },
+      "subtle": {
+        "$type": "color",
+        "$value": "{core.color.grey.1900}"
+      },
+      "faint": {
+        "$type": "color",
+        "$value": "{core.color.grey.1600}"
+      },
+      "regular": {
+        "$type": "color",
+        "$value": "{core.color.grey.1300}"
+      },
+      "strong": {
+        "$type": "color",
+        "$value": "{core.color.grey.1000}"
+      },
+      "extra-strong": {
+        "$type": "color",
+        "$value": "{core.color.grey.300}"
+      },
+      "white": {
+        "$type": "color",
+        "$value": "{core.color.grey.0}"
+      },
+      "black": {
+        "$type": "color",
+        "$value": "{core.color.grey.2200}"
+      },
+      "disabled": {
+        "$type": "color",
+        "$value": "{core.color.grey.1700}"
+      },
+      "border": {
+        "$description": "Border tokens for outlined elements as well as filled elements with borders",
+        "standard": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.4,
+            "hex": "#ffffff"
+          },
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.grey.0}"
+            }
+          }
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.54,
+            "hex": "#ffffff"
+          },
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.grey.0}"
+            }
+          }
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.94,
+            "hex": "#ffffff"
+          },
+          "$description": "Use this token for borders in pressed or active state",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.grey.0}"
+            }
+          }
+        },
+        "disabled": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.21,
+            "hex": "#ffffff"
+          },
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.grey.0}"
+            }
+          }
+        }
+      },
+      "state-fill": {
+        "$description": "State fills are used for elements without a solid background like ghost buttons or outlined elements e.g. inputs, secondary buttons, etc.",
+        "standard": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0,
+            "hex": "#ffffff"
+          },
+          "$description": "For outlined and ghost elements: The standard fill is invisible / 0% opacity",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.white}"
+            }
+          }
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.14,
+            "hex": "#ffffff"
+          },
+          "$description": "For outlined and ghost elements: When hovered a light, transparent fill is applied",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.white}"
+            }
+          }
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "alpha": 0.27,
+            "hex": "#ffffff"
+          },
+          "$description": "For outlined and ghost elements: When pressed or active a medium transparent fill is applied",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.white}"
+            }
+          }
+        },
+        "hovered-inverted": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.07,
+            "hex": "#000000"
+          },
+          "$description": "For outlined and ghost elements: When hovered a light, transparent fill is applied",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.black}"
+            }
+          }
+        },
+        "pressed-inverted": {
+          "$type": "color",
+          "$value": {
+            "colorSpace": "srgb",
+            "components": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "alpha": 0.21,
+            "hex": "#000000"
+          },
+          "$description": "For outlined and ghost elements: When pressed or active a medium transparent fill is applied",
+          "$extensions": {
+            "com.telekom.design-tokens": {
+              "alphaOf": "{core.color.black}"
+            }
+          }
+        }
+      }
+    },
+    "functional": {
+      "focus": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}"
+        },
+        "inverted": {
+          "$type": "color",
+          "$value": "{core.color.blue.500}"
+        },
+        "on-dark-background": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}"
+        },
+        "on-light-background": {
+          "$type": "color",
+          "$value": "{core.color.blue.500}"
+        }
+      },
+      "informational": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.blue.500}"
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.blue.400}"
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": "{core.color.blue.300}"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.blue.shade}"
+        }
+      },
+      "success": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.green.500}"
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.green.400}"
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": "{core.color.green.300}"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.green.shade}"
+        }
+      },
+      "danger": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.red.500}"
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.red.400}"
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": "{core.color.red.300}"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.red.shade}"
+        }
+      },
+      "warning": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.orange.500}"
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.orange.400}"
+        },
+        "pressed": {
+          "$type": "color",
+          "$value": "{core.color.orange.300}"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.orange.shade}"
+        }
+      }
+    },
+    "additional": {
+      "violet": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.violet.0}",
+          "$description": "tags: additional, violet"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.violet.100}",
+          "$description": "tags: additional, violet"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.violet.200}",
+          "$description": "tags: additional, violet"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.violet.300}",
+          "$description": "tags: additional, violet"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.violet.400}",
+          "$description": "tags: additional, violet"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.violet.500}",
+          "$description": "tags: additional, violet"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.violet.600}",
+          "$description": "tags: additional, violet"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.violet.700}",
+          "$description": "tags: additional, violet"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.violet.800}",
+          "$description": "tags: additional, violet"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.violet.900}",
+          "$description": "tags: additional, violet"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.violet.shade}",
+          "$description": "tags: violet, additional"
+        }
+      },
+      "blue": {
+        "$description": "Some shades from this color are used as functional informational colors. When using blue for other purposes make sure the user does not confuse informational states or interative elements and other elements.",
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.blue.0}",
+          "$description": "tags: additional, blue"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.blue.100}",
+          "$description": "tags: additional, blue"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.blue.200}",
+          "$description": "tags: additional, blue"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.blue.300}",
+          "$description": "tags: additional, blue"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.blue.400}",
+          "$description": "tags: additional, blue"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.blue.500}",
+          "$description": "tags: additional, blue"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.blue.600}",
+          "$description": "tags: additional, blue"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.blue.700}",
+          "$description": "tags: additional, blue"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.blue.800}",
+          "$description": "tags: additional, blue"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.blue.900}",
+          "$description": "tags: additional, blue"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.blue.shade}",
+          "$description": "tags: additional, subtle, blue"
+        }
+      },
+      "cyan": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.cyan.0}",
+          "$description": "tags: additional, cyan"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.cyan.100}",
+          "$description": "tags: additional, cyan"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.cyan.200}",
+          "$description": "tags: additional, cyan"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.cyan.300}",
+          "$description": "tags: additional, cyan"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.cyan.400}",
+          "$description": "tags: additional, cyan"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.cyan.500}",
+          "$description": "tags: additional, cyan"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.cyan.600}",
+          "$description": "tags: additional, cyan"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.cyan.700}",
+          "$description": "tags: additional, cyan"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.cyan.800}",
+          "$description": "tags: additional, cyan"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.cyan.900}",
+          "$description": "tags: additional, cyan"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.cyan.shade}",
+          "$description": "tags: additional, subtle, cyan"
+        }
+      },
+      "teal": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.teal.0}",
+          "$description": "tags: additional, teal"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.teal.100}",
+          "$description": "tags: additional, teal"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.teal.200}",
+          "$description": "tags: additional, teal"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.teal.300}",
+          "$description": "tags: additional, teal"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.teal.400}",
+          "$description": "tags: additional, teal"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.teal.500}",
+          "$description": "tags: additional, teal"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.teal.600}",
+          "$description": "tags: additional, teal"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.teal.700}",
+          "$description": "tags: additional, teal"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.teal.800}",
+          "$description": "tags: additional, teal"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.teal.900}",
+          "$description": "tags: additional, teal"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.teal.shade}",
+          "$description": "tags: additional, subtle, teal"
+        }
+      },
+      "green": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.green.0}",
+          "$description": "tags: additional, green"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.green.100}",
+          "$description": "tags: additional, green"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.green.200}",
+          "$description": "tags: additional, green"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.green.300}",
+          "$description": "tags: additional, green"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.green.400}",
+          "$description": "tags: additional, green"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.green.500}",
+          "$description": "tags: additional, green"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.green.600}",
+          "$description": "tags: additional, green"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.green.700}",
+          "$description": "tags: additional, green"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.green.800}",
+          "$description": "tags: additional, green"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.green.900}",
+          "$description": "tags: additional, green"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.green.shade}",
+          "$description": "tags: green, subtle, additional"
+        }
+      },
+      "olive": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.olive.0}",
+          "$description": "tags: additional, olive"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.olive.100}",
+          "$description": "tags: additional, olive"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.olive.200}",
+          "$description": "tags: additional, olive"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.olive.300}",
+          "$description": "tags: additional, olive"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.olive.400}",
+          "$description": "tags: additional, olive"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.olive.500}",
+          "$description": "tags: additional, olive"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.olive.600}",
+          "$description": "tags: additional, olive"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.olive.700}",
+          "$description": "tags: additional, olive"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.olive.800}",
+          "$description": "tags: additional, olive"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.olive.900}",
+          "$description": "tags: additional, olive"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.olive.shade}",
+          "$description": "tags: additional, subtle, olive"
+        }
+      },
+      "brown": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.brown.0}",
+          "$description": "tags: additional, brown"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.brown.100}",
+          "$description": "tags: additional, brown"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.brown.200}",
+          "$description": "tags: additional, brown"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.brown.300}",
+          "$description": "tags: additional, brown"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.brown.400}",
+          "$description": "tags: additional, brown"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.brown.500}",
+          "$description": "tags: additional, brown"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.brown.600}",
+          "$description": "tags: additional, brown"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.brown.700}",
+          "$description": "tags: additional, brown"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.brown.800}",
+          "$description": "tags: additional, brown"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.brown.900}",
+          "$description": "tags: additional, brown"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.brown.shade}",
+          "$description": "tags: additional, subtle, brown"
+        }
+      },
+      "yellow": {
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.yellow.0}",
+          "$description": "tags: additional, yellow"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.yellow.100}",
+          "$description": "tags: additional, yellow"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.yellow.200}",
+          "$description": "tags: additional, yellow"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.yellow.300}",
+          "$description": "tags: additional, yellow"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.yellow.400}",
+          "$description": "tags: additional, yellow"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.yellow.500}",
+          "$description": "tags: additional, yellow"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.yellow.600}",
+          "$description": "tags: additional, yellow"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.yellow.700}",
+          "$description": "tags: additional, yellow"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.yellow.800}",
+          "$description": "tags: additional, yellow"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.yellow.900}",
+          "$description": "tags: additional, yellow"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.yellow.shade}",
+          "$description": "tags: additional, subtle, yellow"
+        }
+      },
+      "orange": {
+        "$description": "Some shades from this color are used as functional warning colors. When using orange for other purposes make sure the user does not confuse warning states and other elements.",
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.orange.0}",
+          "$description": "tags: additional, orange"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.orange.100}",
+          "$description": "tags: additional, orange"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.orange.200}",
+          "$description": "tags: additional, orange"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.orange.300}",
+          "$description": "tags: additional, orange"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.orange.400}",
+          "$description": "tags: additional, orange"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.orange.500}",
+          "$description": "tags: additional, orange"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.orange.600}",
+          "$description": "tags: additional, orange"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.orange.700}",
+          "$description": "tags: additional, orange"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.orange.800}",
+          "$description": "tags: additional, orange"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.orange.900}",
+          "$description": "tags: additional, orange"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.orange.shade}",
+          "$description": "tags: additional, subtle, orange"
+        }
+      },
+      "red": {
+        "$description": "Some shades from this color are used as functional danger colors. When using red for other purposes make sure the user does not confuse danger/error states and other elements.",
+        "0": {
+          "$type": "color",
+          "$value": "{core.color.red.0}",
+          "$description": "tags: additional, red"
+        },
+        "100": {
+          "$type": "color",
+          "$value": "{core.color.red.100}",
+          "$description": "tags: additional, red"
+        },
+        "200": {
+          "$type": "color",
+          "$value": "{core.color.red.200}",
+          "$description": "tags: additional, red"
+        },
+        "300": {
+          "$type": "color",
+          "$value": "{core.color.red.300}",
+          "$description": "tags: additional, red"
+        },
+        "400": {
+          "$type": "color",
+          "$value": "{core.color.red.400}",
+          "$description": "tags: additional, red"
+        },
+        "500": {
+          "$type": "color",
+          "$value": "{core.color.red.500}",
+          "$description": "tags: additional, red"
+        },
+        "600": {
+          "$type": "color",
+          "$value": "{core.color.red.600}",
+          "$description": "tags: additional, red"
+        },
+        "700": {
+          "$type": "color",
+          "$value": "{core.color.red.700}",
+          "$description": "tags: additional, red"
+        },
+        "800": {
+          "$type": "color",
+          "$value": "{core.color.red.800}",
+          "$description": "tags: additional, red"
+        },
+        "900": {
+          "$type": "color",
+          "$value": "{core.color.red.900}",
+          "$description": "tags: additional, red"
+        },
+        "subtle": {
+          "$type": "color",
+          "$value": "{core.color.red.shade}",
+          "$description": "tags: additional, subtle, red"
+        }
+      }
+    }
+  }
+}
