@@ -346,11 +346,20 @@ sup {
 	}
 }
 
+starlight-menu-button,
+starlight-menu-button button {
+	background: transparent;
+	color: var(--aifs-color-text-body);
+}
+
 @media (max-width: 50rem) {
-	starlight-menu-button {
+	starlight-menu-button,
+	starlight-menu-button button,
+	site-search button,
+	.qp-bar :is(a, button) {
 		display: inline-grid;
 		place-items: center;
-		min-width: 44px;
-		min-height: 44px;
+		min-width: 40px;
+		min-height: 40px;
 	}
 }

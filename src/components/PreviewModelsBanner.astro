@@ -93,7 +93,8 @@ import Icon from './Icon.astro';
     /* Spans its row (.qp-stack in layout.css), which sets the gaps. */
     width: 100%;
     margin: 0;
-    padding: 0.45rem 0.75rem;
+    padding: 0.25rem 0.6rem;
+    min-height: 40px;
 
     background: var(--aifs-color-surface-chrome);
     color: var(--aifs-color-text-body);
@@ -132,8 +133,11 @@ import Icon from './Icon.astro';
 
   .qp-msg {
     flex: 1 1 auto;
+    min-width: 0;
     margin: 0;
     color: var(--sl-color-text);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
   .qp-msg :global(b) {
     color: var(--sl-color-accent-high);

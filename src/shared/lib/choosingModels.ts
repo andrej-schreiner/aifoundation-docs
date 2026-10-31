@@ -151,7 +151,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   },
   {
     id: 'reasoning',
-    useCase: { en: 'Reasoning and complex tasks', de: 'Reasoning und komplexe Aufgaben' },
+    useCase: { en: 'Reasoning and complex tasks', de: 'Komplexe Aufgaben' },
     recommended: 'GLM-5.3',
     alternative: 'GLM-5.2',
     notes: {
@@ -162,7 +162,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   },
   {
     id: 'coding',
-    useCase: { en: 'Coding and agents', de: 'Coding und Agents' },
+    useCase: { en: 'Coding and agents', de: 'Coding und Agenten' },
     recommended: 'GLM-5.3',
     alternative: 'GLM-5.3-Flash',
     also: 'Qwen3.8-27B-FP8',

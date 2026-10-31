@@ -28,7 +28,7 @@ mobile-starlight-toc nav {
 
 @media (min-width: 72rem) {
 	[data-has-toc] .right-sidebar-container {
-		order: 0;
+		order: 2;
 		flex: none;
 		width: var(--aifs-layout-toc-width);
 	}
@@ -62,7 +62,7 @@ mobile-starlight-toc nav {
 
 	/* The content takes the rest of the row and starts next to the table of
 	   contents. */
-	[data-has-sidebar][data-has-toc] .main-pane {
+	[data-has-sidebar] .main-pane {
 		--sl-content-margin-inline: 0 auto;
 		order: 1;
 		flex: 1;
@@ -141,10 +141,20 @@ mobile-starlight-toc nav {
 
 /* Notice banners live inside the content sheet (PreviewModelsBanner portals
    them to the top of <main>), so they share the sheet's left and right edges. */
+@media (max-width: 50rem) {
+	.main-pane > main {
+		padding-bottom: 64px;
+	}
+
+	.sl-markdown-content {
+		padding-inline-end: 48px;
+	}
+}
+
 .qp-stack {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: 6px;
 	width: 100%;
 	box-sizing: border-box;
 	margin: 0;

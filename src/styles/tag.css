@@ -111,28 +111,25 @@ a.hero-badge:hover {
 /* Plan tags: one fixed colour per plan. Test and the retired plans keep the
    standard colour. */
 
+/* Three looks: neutral (standard), brand (magenta), status (teal). */
 .aifs-tag--plan-essential,
 .tag-plan-essential {
-	background: var(--aifs-tag-plan-essential-background);
-	color: var(--aifs-tag-plan-essential-text);
+	background: var(--aifs-tag-standard-background);
+	color: var(--aifs-tag-standard-text);
 }
 
 .aifs-tag--plan-professional,
-.tag-plan-professional {
-	background: var(--aifs-tag-plan-professional-background);
-	color: var(--aifs-tag-plan-professional-text);
-}
-
+.tag-plan-professional,
 .aifs-tag--plan-agentic,
 .tag-plan-agentic {
-	background: var(--aifs-tag-plan-agentic-background);
-	color: var(--aifs-tag-plan-agentic-text);
+	background: var(--aifs-tag-teal-background);
+	color: var(--aifs-tag-teal-text);
 }
 
 .aifs-tag--plan-enterprise,
 .tag-plan-enterprise {
-	background: var(--aifs-tag-plan-enterprise-background);
-	color: var(--aifs-tag-plan-enterprise-text);
+	background: var(--aifs-tag-magenta-background);
+	color: var(--aifs-tag-magenta-text);
 }
 
 /* Tags that do something: links to a plan page, or buttons that filter a

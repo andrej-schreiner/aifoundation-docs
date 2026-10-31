@@ -956,7 +956,14 @@ const priceBuckets = [
 
       if (models.length === 0) {
         const row = document.createElement('tr');
-        row.innerHTML = `<td colspan="${totalColumns}" style="text-align:center;padding:1rem;">${translations.noModels || 'No models found.'}</td>`;
+        row.innerHTML = `<td colspan="${totalColumns}" style="text-align:start;padding:1rem;"><p class="models-empty-note">${translations.noModels || 'No models found.'}</p><button type="button" class="models-empty-reset">${translations.labelResetFilters || 'Reset filters'}</button></td>`;
+        row.querySelector('.models-empty-reset')?.addEventListener('click', () => {
+          section.querySelectorAll<HTMLInputElement>('input[type="search"], input[type="text"]').forEach((input) => {
+            input.value = '';
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+          });
+          section.querySelector<HTMLElement>('[data-reset]')?.click();
+        });
         tbody.appendChild(row);
       }
 
@@ -1957,7 +1964,7 @@ const priceBuckets = [
 
   /* Same cut as the rate plans: a 900px viewport with the sidebar still
      open has about 37rem of content, and the compact table fits there. */
-  @container models (max-width: 36rem) {
+  @container models (max-width: 52rem) {
     .models-table-section .mt-compact,
     .models-table-section .mt-compact tbody {
       display: block;

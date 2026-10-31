@@ -108,6 +108,20 @@ html:root[data-theme] .expressive-code {
 	display: none;
 }
 
+.expressive-code .frame pre,
+.expressive-code .frame .ec-line:first-child {
+	scroll-margin-top: 2rem;
+}
+
+.expressive-code .copy {
+	inset-block-start: 0.2rem !important;
+	z-index: 3;
+}
+
+.expressive-code .frame:not(.has-title) {
+	padding-top: 2.25rem;
+}
+
 @media (max-width: 50rem) {
 	.expressive-code .frame:not(.has-title):not(.is-terminal) {
 		padding-top: 2.25rem;

@@ -74,6 +74,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
 
 <p>{isDE ? 'Empfehlungen.' : 'Recommendations.'}</p>
 
+<div class="choose-root">
 <div class="choose-desktop">
   <div class="aifs-table-scroll">
     <table>
@@ -157,6 +158,7 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
     );
   })}
 </ul>
+</div>
 
 <h2>{t.migrate}</h2>
 
@@ -208,11 +210,10 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   .choose-desktop th:nth-child(6),
   .choose-desktop td:nth-child(6) { width: 24%; }
 
-  :global(:lang(de)) .choose-desktop td:first-child,
-  :global(:lang(de)) .choose-desktop td:last-child {
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphenate-limit-chars: 10 4 4;
+  :global(:lang(de)) .choose-desktop :global(td),
+  :global(:lang(de)) .choose-desktop :global(th) {
+    hyphens: manual;
+    -webkit-hyphens: manual;
     overflow-wrap: break-word;
   }
 
@@ -304,7 +305,12 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
     color: var(--aifs-color-text-muted, var(--sl-color-gray-3));
   }
 
-  @media (max-width: 767px) {
+  .choose-root {
+    container-type: inline-size;
+    container-name: choose;
+  }
+
+  @container choose (max-width: 52rem) {
     .choose-desktop {
       display: none;
     }

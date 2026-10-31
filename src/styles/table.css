@@ -36,6 +36,8 @@
 	min-width: 0;
 	overflow-x: visible;
 	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
+	container-type: inline-size;
+	container-name: mdtable;
 }
 
 @media (max-width: 50rem) {
@@ -71,36 +73,46 @@
 	overflow-wrap: anywhere;
 }
 
-@media (max-width: 767px) {
-	.sl-markdown-content .aifs-table-scroll > table,
-	.sl-markdown-content .aifs-table-scroll > table > thead,
-	.sl-markdown-content .aifs-table-scroll > table > tbody,
-	.sl-markdown-content .aifs-table-scroll > table tr,
-	.sl-markdown-content .aifs-table-scroll > table td {
+@container mdtable (max-width: 36rem) {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)),
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) > tbody,
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) tr,
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td {
 		display: block;
 		width: 100%;
 	}
 
-	.sl-markdown-content .aifs-table-scroll > table > thead {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) > thead {
 		display: none;
 	}
 
-	.sl-markdown-content .aifs-table-scroll > table td::before {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td::before {
 		content: attr(data-label);
 		display: block;
 		font-weight: 700;
 		font-size: 0.75rem;
 	}
 
-	.sl-markdown-content .aifs-table-scroll > table tr {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) tr {
 		border-bottom: var(--aifs-table-row-border-width) solid var(--aifs-table-row-border);
 		padding: 8px 0;
 	}
 
-	.sl-markdown-content .aifs-table-scroll > table td {
+	.sl-markdown-content .aifs-table-scroll > table:has(th:nth-child(3)) td {
 		border: 0;
 		padding: 2px 0;
+		hyphens: manual;
+		overflow-wrap: break-word;
 	}
+}
+
+:lang(de) .sl-markdown-content :is(td, th) {
+	hyphens: manual;
+	-webkit-hyphens: manual;
+}
+
+.sl-markdown-content sup a {
+	text-decoration: none;
 }
 
 /* Header */

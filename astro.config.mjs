@@ -259,7 +259,7 @@ export default defineConfig({
 					// The launcher lives in the widget's shadow root, so page CSS cannot
 					// reach it. On a phone it covers Details and copy buttons; shrink it.
 					tag: 'script',
-					content: `(function(){function shrink(){if(!matchMedia('(max-width: 40rem)').matches)return;var host=document.getElementById('tsystems-chat-widget');var root=host&&host.shadowRoot;if(!root||root.getElementById('aifs-launcher-size'))return;var style=document.createElement('style');style.id='aifs-launcher-size';style.textContent='.widget-launcher{width:40px!important;height:40px!important}.widget-launcher svg{width:20px!important;height:20px!important}.widget-container.bottom-right{right:8px;bottom:max(8px,env(safe-area-inset-bottom))}';root.appendChild(style);}var n=0;var t=setInterval(function(){shrink();if(++n>20)clearInterval(t);},250);})();`,
+					content: `(function(){function shrink(){if(!matchMedia('(max-width: 40rem)').matches)return;var host=document.getElementById('tsystems-chat-widget');var root=host&&host.shadowRoot;if(!root||root.getElementById('aifs-launcher-size'))return;var style=document.createElement('style');style.id='aifs-launcher-size';style.textContent='.widget-launcher{width:44px!important;height:44px!important}.widget-launcher svg{width:22px!important;height:22px!important}.widget-container.bottom-right{right:12px;bottom:max(12px,env(safe-area-inset-bottom))}';root.appendChild(style);}var n=0;var t=setInterval(function(){shrink();if(++n>20)clearInterval(t);},250);})();`,
 				},
 				{
 					// Language-aware Service Description PDF link, normalized at runtime.
@@ -387,7 +387,7 @@ export default defineConfig({
 					collapsed: false,
 					items: [
 						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
-						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
+						{ label: 'Dedicated serving', translations: { de: 'Dediziertes Serving' }, slug: 'plans/dedicated' },
 						{ label: 'Rate limits', translations: { de: 'Rate-Limits' }, slug: 'reference/rate-limits' },
 					],
 				},

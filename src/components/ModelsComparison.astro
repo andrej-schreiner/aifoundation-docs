@@ -1597,13 +1597,13 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table th:first-child {
-    background: var(--aifs-color-surface-chrome);
+    background: var(--aifs-table-head-background);
     z-index: 3;
   }
   .models-comparison-table thead th {
     overflow: visible;
     line-height: 1.15;
-    font-size: 11px;
+    font-size: 12px;
     vertical-align: bottom;
     hyphens: manual;
     -webkit-hyphens: manual;
@@ -1644,19 +1644,20 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison-table .mc-sort-header {
-    display: flex;
-    width: 100%;
+    display: inline-flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: auto;
     max-width: 100%;
     min-width: 0;
     white-space: normal;
-    flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
-    gap: 2px;
+    gap: 4px;
   }
 
   .models-comparison-table .mc-sort-header > span {
-    flex: 1 1 100%;
+    flex: 0 1 auto;
     min-width: 0;
     max-width: 100%;
     white-space: normal;
@@ -1700,7 +1701,7 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison-table td.mc-context {
     text-align: right;
     font-variant-numeric: tabular-nums;
-    white-space: nowrap;
+    white-space: normal;
     padding-inline: 1px;
     font-size: 12px;
   }
@@ -1712,8 +1713,9 @@ const rowDataPayload = allModels.map((m) => ({
   /* Each modality is one unbreakable item. The comma stays on that item, so the
      next line starts at the next word. */
   .models-comparison-table .mc-mod {
-    display: inline-block;
-    white-space: nowrap;
+    display: inline;
+    white-space: normal;
+    overflow-wrap: anywhere;
     max-width: 100%;
   }
 
@@ -1758,8 +1760,8 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison .mc-effort-values code {
-    white-space: nowrap;
-    overflow: visible;
+    white-space: normal;
+    overflow-wrap: anywhere;
     max-width: 100%;
     font-size: 12px;
   }
@@ -1900,7 +1902,7 @@ const rowDataPayload = allModels.map((m) => ({
     width: 12px;
     height: 12px;
     flex: 0 0 auto;
-    opacity: 0.4;
+    opacity: 0.65;
     transform: rotate(0deg);
     transition:
       transform 160ms ease,
@@ -1927,8 +1929,8 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--aifs-color-table-head-text);
   }
 
-  /* Compact list under ~40rem. The wide table stays above that and scrolls. */
-  @container comparison (max-width: 40rem) {
+  /* Stacked cards once the content column is under 52rem. */
+  @container comparison (max-width: 52rem) {
     .models-comparison,
     .models-comparison__scroll {
       padding-inline: 0;
