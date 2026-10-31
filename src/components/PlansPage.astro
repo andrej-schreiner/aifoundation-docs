@@ -567,7 +567,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                 <li class="plan-tile" data-plan={planTagKey(plan.label)}>
                   <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
                   <p class="plan-tile__price">{price}</p>
-                  <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
+                  <p class:list={['plan-tile__unit', { 'plan-tile__unit--empty': plan.basePrice === 'Custom' }]} aria-hidden={plan.basePrice === 'Custom' ? 'true' : undefined}>{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
                   <p class="plan-tile__for">{blurb}</p>
                   <a class="plan-meter" href={t.rateLimitsHref}>
                     <span class="plan-meter__label">{t.throughputLabel}</span>
@@ -595,7 +595,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                       </li>
                     ))}
                   </ul>
-                  <div class="plan-tile__action">
+                  <div class:list={['plan-tile__action', { 'plan-tile__action--empty': plan.basePrice !== 'Custom' }]}>
                     {plan.basePrice === 'Custom' && (
                       <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
                         {t.contactCta}
@@ -670,10 +670,11 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     align-items: stretch;
   }
 
+  /* One column: each tile is only as tall as its content. Side by side, the
+     tiles share row lines (subgrid) so prices and meters line up. */
   .plan-tile {
     display: grid;
-    grid-template-rows: subgrid;
-    grid-row: span 7;
+    align-content: start;
     gap: 8px;
     min-width: 0;
     margin: 0;
@@ -686,6 +687,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tile > .plans-tag {
     align-self: start;
     justify-self: start;
+  }
+
+  /* Placeholder that keeps the row line when tiles sit side by side. */
+  .plan-tile__unit--empty,
+  .plan-tile__action--empty {
+    display: none;
   }
 
   .plan-tile__price {
@@ -829,6 +836,16 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   @container rateplans (min-width: 34rem) {
     .plan-tiles {
       grid-template-columns: 1fr 1fr;
+    }
+
+    .plan-tile {
+      grid-template-rows: subgrid;
+      grid-row: span 7;
+    }
+
+    .plan-tile__unit--empty,
+    .plan-tile__action--empty {
+      display: block;
     }
   }
 
