@@ -2,6 +2,7 @@
 import reasoningEffortData from '../data/reasoning-effort.json';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 
 const RETIRING = new Set(
   [
@@ -63,7 +64,7 @@ const t = isDE
       {rows.map((row) => (
         <tr>
           <td>{row.name}</td>
-          <td><code>{row.id}</code></td>
+          <td><code set:html={withWrapPoints(row.id)} /></td>
           <td><code>{row.values}</code></td>
           <td>{row.fallback || t.none}</td>
         </tr>

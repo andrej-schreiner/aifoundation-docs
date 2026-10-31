@@ -1,6 +1,7 @@
 ---
 import { choiceById, modelFact, picksFor } from '../shared/lib/choosingModels';
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 
 interface Props {
   useCase: string;
@@ -72,7 +73,7 @@ function place(hosting: string): string {
             {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
           </div>
           <p class="model-pick__meta">
-            <code>{model.id}</code>
+            <code set:html={withWrapPoints(model.id)} />
             <a class="aifs-tag aifs-tag--small" href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
             {model.context && <span>{model.context}</span>}
           </p>
@@ -162,8 +163,11 @@ function place(hosting: string): string {
     line-height: 1.3;
   }
 
+  /* A long id wraps at its <wbr> points (after - . _), never mid-word. */
   .model-pick__meta code {
-    white-space: nowrap;
+    white-space: normal;
+    overflow-wrap: break-word;
+    word-break: normal;
   }
 
   .model-pick__meta :global(a.aifs-tag) {

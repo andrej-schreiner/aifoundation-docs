@@ -1,17 +1,12 @@
 // Expressive Code plugin: a wrapped code line may break only at spaces or at
 // punctuation boundaries, never between two letters or digits (code-block.css
 // no longer breaks inside tokens). It puts an empty <wbr> at each break point
-// that has a non-space character on both sides:
-//   - after  / . _ - , : ; = > ) ] }  and after the escapes \n and \t
-//   - before < ( [ {
+// that has a non-space character on both sides (rules in wrap-points.mjs).
 // So `api_key_here` can wrap as `api_` / `key_` / `here`, and
 // `{"location":"Hamburg"}` as `{"location":` / `"Hamburg"}`. The copy button
 // is unaffected: plugin-frames copies codeBlock.code (the source text), not
 // the rendered DOM.
-// Not inside operators such as => -> == >=, not before closing punctuation or
-// a separator (so `}},` never leaves a lone `,`), and not inside an escape like \( .
-const BREAK_AFTER = /(?:[/._,:;=>)\]}-]|\\[nt])(?=[^\s=>,;:)\]}])/g;
-const BREAK_BEFORE = /(?<=[^\s\\])[<([{]/g;
+import { wrapOffsets } from './wrap-points.mjs';
 
 function wbr() {
 	return { type: 'element', tagName: 'wbr', properties: {}, children: [] };
@@ -54,11 +49,8 @@ function textNodes(node, out = []) {
 function addWrapPoints(lineAst) {
 	const nodes = textNodes(lineAst);
 	const text = nodes.map((n) => n.node.value).join('');
-	const offsets = new Set();
-	for (const match of text.matchAll(BREAK_AFTER)) offsets.add(match.index + match[0].length);
-	for (const match of text.matchAll(BREAK_BEFORE)) offsets.add(match.index);
-	if (offsets.size === 0) return;
-	const sorted = [...offsets].sort((a, b) => a - b);
+	const sorted = wrapOffsets(text);
+	if (sorted.length === 0) return;
 	let base = 0;
 	for (const { parent, node } of nodes) {
 		const value = node.value;

@@ -21,6 +21,7 @@ import Icon from './Icon.astro';
 import reasoningEffortData from '../data/reasoning-effort.json';
 // Where each model reports its reasoning token count in `usage` (engine-dependent).
 import reasoningTokensUsageData from '../data/reasoning-tokens-usage.json';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 
 type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
@@ -892,7 +893,7 @@ const rowDataPayload = allModels.map((m) => ({
                       {reasoningTokens && (
                         <div>
                           <dt>{t.colReasoningTokensUsage}</dt>
-                          <dd><code>{reasoningTokens}</code></dd>
+                          <dd><code set:html={withWrapPoints(reasoningTokens)} /></dd>
                         </div>
                       )}
                       {!categoryFilter && (

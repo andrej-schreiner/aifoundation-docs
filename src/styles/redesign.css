@@ -45,9 +45,15 @@ body {
 	line-height: var(--aifs-line-height-prose);
 }
 
+/* Inline code wraps only at spaces and at the <wbr> points from
+   rehype-inline-code-breaks.mjs, not between two letters (Starlight's
+   overflow-wrap: anywhere on li would otherwise split `400` as `40` / `0`).
+   break-word still splits a piece that cannot fit at all, so nothing overflows. */
 .sl-markdown-content :not(pre) > code {
 	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
 	border-radius: var(--aifs-radius-control);
+	overflow-wrap: break-word;
+	word-break: normal;
 }
 
 .sl-markdown-content :is(h1, h2, h3, h4) {
@@ -313,7 +319,8 @@ sup {
 
 .sl-markdown-content .starlight-aside :not(pre) > code {
 	white-space: normal;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
+	word-break: normal;
 	background: transparent;
 	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-standard);
 }

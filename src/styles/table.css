@@ -72,9 +72,14 @@
 	overflow-wrap: break-word;
 }
 
-.sl-markdown-content :is(td, th) code {
+/* Inline code breaks only at its <wbr> points (rehype-inline-code-breaks.mjs),
+   so a column is at least as wide as the longest piece: `400` stays whole and
+   `/models/{model_id}` wraps before `{`. break-word is the last resort for a
+   piece that cannot fit at all. */
+.sl-markdown-content :is(td, th) :not(pre) > code {
 	white-space: normal;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
+	word-break: normal;
 }
 
 .sl-markdown-content .sr-only {

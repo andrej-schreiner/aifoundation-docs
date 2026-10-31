@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wri
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
+import rehypeInlineCodeBreaks from './src/plugins/rehype-inline-code-breaks.mjs';
 import { ecWrapPoints } from './src/plugins/ec-wrap-points.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
@@ -86,7 +87,7 @@ function rehypeMarkdownTables() {
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
-		rehypePlugins: [rehypeTableScroll],
+		rehypePlugins: [rehypeTableScroll, rehypeInlineCodeBreaks],
 	},
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
