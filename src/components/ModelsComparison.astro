@@ -12,6 +12,7 @@ import {
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
+import { resolvePrimaryCategory, type ModelCategory } from '../shared/lib/modelCategories';
 import { formatDecimalText, formatEuro, type NumberLocale } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
 import Button from './Button.astro';
@@ -43,47 +44,9 @@ const localePrefix = isDE ? '/de' : '';
 const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
 const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
 
-type Category = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
-
-// PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
-// models whose primary purpose is NOT general-purpose LLM appear here.
-// Everything else defaults to 'llms'.
-//
-// Additional category membership is *derived* from modalities — see
-// deriveCategories() below. So Qwen 3.6 35B (Text+Image in) is primary 'llms'
-// and gains 'vision' via derivation, surfacing on both /models/llms and
-// /models/vision. Gemini-class multimodal LLMs gain 'vision' AND 'audio'
-// the same way.
-//
-// Why some models need explicit non-llms primaries:
-//   - 'coding': no modality signals coding-specialisation; must be tagged.
-//   - 'audio': Whisper accepts Audio AND outputs Text — without an explicit
-//     primary it would be added to /models/llms (text-out default). Same
-//     logic for embeddings (text-in) and image-generation (image-out).
-const PRIMARY_CATEGORY: Record<string, Category> = {
-  // Coding-specialised (per OpenAI/Alibaba positioning).
-  'Qwen3-Coder-30B-A3B-Instruct': 'coding',
-  'gpt-5-codex': 'coding',
-  // Audio: speech-to-text. Primary 'audio' so they don't pollute /models/llms.
-  'whisper-large-v3': 'audio',
-  'whisper-large-v3-turbo': 'audio',
-  // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
-  'jina-embeddings-v2-base-de': 'embeddings',
-  'qwen3-embedding-8b': 'embeddings',
-  // OCR (document parsing): Image -> Text, served on chat completions.
-  'LightOnOCR-3-4B-Preview': 'llms',
-  'PaddleOCR-VL-1.6-Preview': 'llms',
-  'text-embedding-ada-002': 'embeddings',
-  'text-embedding-bge-m3': 'embeddings',
-  // Image generation: outputs Image. Primary 'image-generation' keeps them off
-  // /models/llms.
-  'gemini-3-pro-image': 'image-generation',
-  'gpt-image-2': 'image-generation',
-};
-
-function resolvePrimaryCategory(exactModelName: string): Category {
-  return PRIMARY_CATEGORY[exactModelName] ?? 'llms';
-}
+// Each model's primary category lives in shared/lib/modelCategories, which
+// cached-token pricing reads too.
+type Category = ModelCategory;
 
 // Multi-category derivation. A model's `categories` array is its primary
 // plus any modality-driven additions: any audio
@@ -366,11 +329,13 @@ for (const pkg of pricingData as Array<{
       reasoningTokensUsage: reasoningTokensUsageByName.get(exactModelName.toLowerCase()) ?? null,
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
+      // Archived pages keep their original output, so they skip the category check.
       cachedInputPricePerMillionTokens: cachedInputPrice(
         entry.inputPricePerMillionTokens as number | null,
         deploymentRegion,
+        isArchive ? null : category,
       ),
-      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion),
+      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion, isArchive ? null : category),
       plans: [pkg.packageName],
       modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,

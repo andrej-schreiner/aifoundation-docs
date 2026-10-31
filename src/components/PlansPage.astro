@@ -18,6 +18,7 @@ import {
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
+import { resolvePrimaryCategory } from '../shared/lib/modelCategories';
 import { EURO_SUFFIX_DE, formatDecimalText, formatInteger, type NumberLocale } from '../shared/lib/displayFormat';
 
 interface Props {
@@ -396,6 +397,8 @@ function mapModelRow(
 ) {
   const exactModelName = model.exactModelName ?? fallbackModel.exactModelName;
   const displayName = model.displayModelName || fallbackModel.displayModelName;
+  // Legacy and archived pages keep their original output: no category check.
+  const modelCategory = legacy || isArchive ? null : resolvePrimaryCategory(exactModelName);
 
   return {
     modelHost,
@@ -414,13 +417,15 @@ function mapModelRow(
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
     // Cached input tokens are a fixed fraction of the input price, and only
-    // priced for T-Cloud-hosted models — see shared/lib/cachedTokenPricing.
+    // priced for T-Cloud-hosted language models — see shared/lib/cachedTokenPricing.
     cachedInputPrice: cachedInputPrice(
       model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
       model.deploymentRegion ?? fallbackModel.deploymentRegion,
+      modelCategory,
     ),
     cachedPricingPublished: hasCachedTokenPricing(
       model.deploymentRegion ?? fallbackModel.deploymentRegion,
+      modelCategory,
     ),
     tpm: model.inputTokenPerMinuteLimit ?? fallbackModel.inputTokenPerMinuteLimit,
     contextWindow: model.contextWindow ?? fallbackModel.contextWindow ?? null,
@@ -595,13 +600,15 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             })}
           </ul>
         )}
-        {!showTokenPriceColumn && (
+        {/* One example price under the tiles reads as if it applied to every
+            plan, so only legacy and archived pages keep it and its footnote. */}
+        {(legacy || isArchive) && !showTokenPriceColumn && (
           <p class="token-price-note">
             {t.thTokenPrice}: {planConfigs[0].tokenPrice} <span class="nowrap">{t.thTokenPriceUnit}{'\u00A0'}†</span>
           </p>
         )}
         <p class="plan-spend">{t.spendNote}</p>
-        <small>{t.footnote}</small>
+        {(legacy || isArchive) && <small>{t.footnote}</small>}
       </section>
     )
   }
