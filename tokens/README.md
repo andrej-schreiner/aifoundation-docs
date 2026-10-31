@@ -20,6 +20,7 @@ and commit both.
 | `telekom.semantic.tokens.json` | Semantic, both modes | Typography, text styles, spacing, radius, line weight, motion, opacity, size |
 | `telekom.color.light.tokens.json` | Semantic, light | Text, background, primary, UI, functional and additional colours |
 | `telekom.color.dark.tokens.json` | Semantic, dark | The same names with dark values |
+| `aifs.dark.tokens.json` | Dark overrides | Dark backgrounds and hairlines taken from the live docs (docs.llmhub.t-systems.net), and the link and small-magenta text one step lighter to keep AA on them |
 | `aifs.docs.tokens.json` | Docs roles | What the docs need (link, action, table head, asides, current page, headings), each an alias of a Telekom semantic token |
 | `aifs.resolver.json` | Resolver | Loads the Telekom set, picks light or dark, then applies the docs layer |
 
