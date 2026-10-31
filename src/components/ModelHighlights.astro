@@ -76,6 +76,20 @@ function place(hosting: string): string {
     color: var(--aifs-color-text-muted, var(--sl-color-gray-3));
   }
 
+  /* Phones: the use case on one line, model and hosting together below it. */
+  @media (max-width: 50rem) {
+    .model-highlights li {
+      gap: 2px 12px;
+      padding: 6px 0;
+    }
+    .model-highlights__case {
+      flex: 1 1 100%;
+    }
+    .model-highlights__model,
+    .model-highlights__host {
+      flex: 0 1 auto;
+    }
+  }
   .model-highlights__mark {
     width: 20px;
     height: 20px;
