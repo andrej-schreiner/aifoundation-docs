@@ -158,6 +158,23 @@ html:root[data-theme] .expressive-code {
 	}
 }
 
+/* At 360px and below: 8px code padding (header title follows), quarter-width leading indentation. */
+@media (max-width: 22.5rem) {
+	html:root[data-theme] .expressive-code {
+		--ec-codePadInl: 8px;
+		--ec-uiPadInl: 8px;
+	}
+
+	html .expressive-code .ec-line .code {
+		padding-inline-start: calc(min(var(--ecIndent, 0ch) * 0.25 + 1ch, 6ch) + var(--ec-codePadInl) - var(--ecGtrBrdWd));
+		text-indent: calc(min(var(--ecIndent, 0ch) * 0.25 + 1ch, 6ch) * -1);
+	}
+
+	.expressive-code .ec-line .ec-lead {
+		letter-spacing: -0.75ch;
+	}
+}
+
 .expressive-code .frame pre,
 .expressive-code .frame .ec-line:first-child {
 	scroll-margin-top: 2rem;
