@@ -33,6 +33,22 @@ function markLeadingIndent(lineAst) {
 	}
 }
 
+// Browsers may break between a backslash and an opening bracket (`\(` in
+// LaTeX-style output), which splits the escape. Keep such pairs together in
+// a <span class="nowrap"> (layout.css); the text itself is unchanged.
+const ESCAPE_PAIR = /\\[()[\]{}]/g;
+function textParts(value) {
+	const out = [];
+	let from = 0;
+	for (const m of value.matchAll(ESCAPE_PAIR)) {
+		if (m.index > from) out.push({ type: 'text', value: value.slice(from, m.index) });
+		out.push({ type: 'element', tagName: 'span', properties: { className: ['nowrap'] }, children: [{ type: 'text', value: m[0] }] });
+		from = m.index + m[0].length;
+	}
+	if (from < value.length || out.length === 0) out.push({ type: 'text', value: value.slice(from) });
+	return out;
+}
+
 // Text nodes of a line in order, skipping gutters (line numbers, diff markers).
 function textNodes(node, out = []) {
 	const className = node.properties?.className;
@@ -61,11 +77,11 @@ function addWrapPoints(lineAst) {
 		if (atStart) parts.push(wbr());
 		let from = 0;
 		for (const o of inside) {
-			parts.push({ type: 'text', value: value.slice(from, o) }, wbr());
+			parts.push(...textParts(value.slice(from, o)), wbr());
 			from = o;
 		}
-		parts.push({ type: 'text', value: value.slice(from) });
-		if (parts.length > 1) parent.children.splice(parent.children.indexOf(node), 1, ...parts);
+		parts.push(...textParts(value.slice(from)));
+		if (parts.length > 1 || parts[0].type !== 'text') parent.children.splice(parent.children.indexOf(node), 1, ...parts);
 		base += value.length;
 	}
 }
