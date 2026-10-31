@@ -1222,7 +1222,7 @@ const priceBuckets = [
   }
 
   .models-table-section .mt-compact-wrap {
-    overflow: visible;
+    overflow-x: auto;
     max-height: none;
     container-type: inline-size;
     container-name: models;
@@ -2005,6 +2005,12 @@ const priceBuckets = [
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+    }
+
+    .models-table-section .mt-compact .mt-model__main { min-width: 0; }
+    .models-table-section .mt-compact .mt-model__main > strong {
+      white-space: normal; overflow: visible; text-overflow: clip;
+      overflow-wrap: anywhere; min-width: 0;
     }
 
     .models-table-section .mt-compact .mt-details-cell {
