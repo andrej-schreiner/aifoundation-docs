@@ -14,6 +14,11 @@ export function wrapOffsets(text) {
 	const offsets = new Set();
 	for (const match of text.matchAll(BREAK_AFTER)) offsets.add(match.index + match[0].length);
 	for (const match of text.matchAll(BREAK_BEFORE)) offsets.add(match.index);
+	// A URL scheme stays whole: no break inside `://` (never `https:/` + `/host`).
+	for (const match of text.matchAll(/:\/\//g)) {
+		offsets.delete(match.index + 1);
+		offsets.delete(match.index + 2);
+	}
 	return [...offsets].sort((a, b) => a - b);
 }
 

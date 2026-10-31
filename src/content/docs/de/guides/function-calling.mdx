@@ -119,7 +119,7 @@ print(response.output)
 ```
 
 
-## Strukturierte Ausgabe
+## Strukturierte Ausgaben
 
 JSON Schema auf der Responses API steht unter [Strukturierte Ausgaben](/de/guides/structured-outputs).
 
@@ -128,7 +128,7 @@ JSON Schema auf der Responses API steht unter [Strukturierte Ausgaben](/de/guide
 :::note
 Function Calling funktioniert mit einer breiten Auswahl an Modellen auf der Plattform — darunter Modelle von OpenAI, Google und Anthropic sowie viele Open-Source-Modelle. Die in diesem Guide verwendeten Modellnamen sind lediglich Beispiele und nicht die einzigen Modelle, die die Funktion unterstützen. Einige auf T-Cloud gehostete Open-Source-Modelle unterstützen Function Calling noch nicht; prüfen Sie den Eintrag des Modells unter [Verfügbare Modelle](/de/models), bevor Sie sich darauf verlassen.
 
-Auch die Responses API ist nicht auf OpenAI-Modelle beschränkt — Tool Calls darüber sind ebenso für Google-, Anthropic- und T-Cloud-gehostete Open-Source-Modelle bestätigt, einzelne Modelle weisen Responses-API-Anfragen allerdings noch zurück.
+Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten auf `client.responses.create` mit HTTP 400. Für diese Modelle [Chat Completions](/de/guides/chat-completions) verwenden.
 :::
 
 

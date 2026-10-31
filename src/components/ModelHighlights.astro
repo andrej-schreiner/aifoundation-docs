@@ -105,9 +105,10 @@ function place(hosting: string): string {
     background: var(--aifs-color-logo-background, #fff);
   }
 
+  /* Google's mark is mostly margin: scale it inside the tile, as in the catalog. */
   .model-highlights__mark--zoom {
-    padding: 2px;
-    overflow: visible;
+    padding: 0;
+    overflow: hidden;
   }
 
   .model-highlights__mark img {
@@ -117,9 +118,9 @@ function place(hosting: string): string {
   }
 
   .model-highlights__mark--zoom img {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    object-fit: contain;
+    flex: 0 0 auto;
+    width: 175%;
+    height: 175%;
+    max-width: none;
   }
 </style>
