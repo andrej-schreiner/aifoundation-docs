@@ -845,6 +845,7 @@ const priceBuckets = [
               ${creatorName.startsWith('Google') ? `<span class="creator-brand creator-brand--icon creator-brand--zoom" role="img" aria-label="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" style="background-image:url(&quot;${escapeHtml(creatorIcon)}&quot;)"></span>` : `<span class="creator-brand creator-brand--icon"><img class="creator-brand__icon" src="${escapeHtml(creatorIcon)}" alt="${escapeHtml(creatorName)}" title="${escapeHtml(creatorName)}" /></span>`}
               <strong>${escapeHtml(model.displayName)}</strong>
               ${modelTier.toLowerCase() === 'premium' ? `<span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>` : ''}
+              ${model.isNew ? `<span class="aifs-tag aifs-tag--small aifs-tag--magenta">${escapeHtml(translations.newTag || 'New')}</span>` : ''}
             </div>
           </td>
           <td class="mt-hosting">

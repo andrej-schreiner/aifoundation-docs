@@ -9,7 +9,7 @@ import { creatorNameFor, logos } from '../shared/lib/logos';
 import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
-import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { catalogRank } from '../shared/lib/modelCatalogOrder';
@@ -138,6 +138,7 @@ const t = {
   thContext: isDE ? 'Kontext' : 'Context',
   thDetails: 'Details',
   dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
+  newTag: isDE ? 'Neu' : 'New',
   dynamicQuota: isDE ? 'Dynamisches Kontingent' : 'Dynamic Shared Quota',
   labelSortBy: isDE ? 'Sortieren nach' : 'Sort by',
   labelSortCatalog: isDE ? 'Empfohlen' : 'Recommended',
@@ -419,6 +420,7 @@ function mapModelRow(
     subName: localizeSubName(model.modelLabel || ''),
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
+    isNew: isNewModel(exactModelName),
     // Embedding models return vectors, not tokens: they show an input price only.
     noOutputTokens: modelCategory === 'embeddings',
     // Cached input tokens are a fixed fraction of the input price, and only

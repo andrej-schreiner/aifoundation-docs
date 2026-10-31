@@ -3,7 +3,7 @@ import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/al
 import { creatorNameFor, getLogo } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
-import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
@@ -387,6 +387,7 @@ const t = {
   colStreaming: 'Streaming',
   colTools: 'Tools',
   colFeatures: isDE ? 'Funktionen' : 'Features',
+  newTag: isDE ? 'Neu' : 'New',
   colContext: isDE ? 'Kontext' : 'Context',
   colReasoningEffort: 'Reasoning',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
@@ -727,7 +728,7 @@ const rowDataPayload = allModels.map((m) => ({
           const reasoningTokens = reasoningTokensDetail(m);
           return (
             <tr data-key={m.exactModelName}>
-              <td data-label={t.colModel}><strong>{m.displayModelName}</strong></td>
+              <td data-label={t.colModel}><strong>{m.displayModelName}</strong>{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span></>}</td>
               {!categoryFilter && (
                 <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
               )}
@@ -810,7 +811,7 @@ const rowDataPayload = allModels.map((m) => ({
                     <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
                       {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
                     </span>
-                    <strong class="mc-m__name">{m.displayModelName}</strong>
+                    <strong class="mc-m__name">{m.displayModelName}{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta mc-m__new">{t.newTag}</span></>}</strong>
                     <Button
                       variant="ghost"
                       size="small"
@@ -2118,6 +2119,11 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
     line-height: 1.3;
+  }
+
+  /* The New tag sits on the name line without making it taller. */
+  .mc-m__new {
+    vertical-align: top;
   }
 
   .mc-m__facts {

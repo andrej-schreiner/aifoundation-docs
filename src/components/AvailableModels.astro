@@ -7,7 +7,7 @@ import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
-import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
@@ -26,6 +26,7 @@ const t = {
   showLess: isDE ? 'Weniger anzeigen' : 'Show less',
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
   preview: isDE ? 'Vorschau' : 'Preview',
+  newTag: isDE ? 'Neu' : 'New',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
@@ -215,6 +216,7 @@ const cardModels = featured ? sortedModels.slice(0, INITIAL_COUNT) : sortedModel
             <span class="model-card__title">
               {model.name}
               {model.preview && <span class="status-badge status-badge--preview">{t.preview}</span>}
+              {isNewModel(model.modelId) && <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span>}
             </span>
           </h3>
           {model.showHosting !== false && model.provider && (
