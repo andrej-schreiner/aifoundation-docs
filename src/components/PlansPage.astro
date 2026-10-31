@@ -35,8 +35,8 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const t = {
   ratePlansTitle: isDE ? 'Tarife' : 'Our Rate Plans',
   subtitle: isDE
-    ? 'Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude sind in Professional und Agentic enthalten, nicht in Essential. <a href="/de/reference/rate-limits/">Rate-Limits</a>.'
-    : 'Plans differ by throughput (TPM and RPM) and by Premium model access. Premium models such as Claude are included on Professional and Agentic, not on Essential. <a href="/reference/rate-limits/">Rate limits</a>.',
+    ? 'Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude Opus sind in Professional und Agentic enthalten, nicht in Essential. <a href="/de/reference/rate-limits/">Rate-Limits</a>.'
+    : 'Plans differ by throughput (TPM and RPM) and by Premium model access. Premium models such as Claude Opus are included on Professional and Agentic, not on Essential. <a href="/reference/rate-limits/">Rate limits</a>.',
   thPlan: isDE ? 'Tarif' : 'Rate Plan',
   thCommitment: isDE ? 'Mindest-Tokenumsatz' : 'Minimum token commitment',
   thCommitmentUnit: isDE ? '€ / Monat' : '€ / month',
