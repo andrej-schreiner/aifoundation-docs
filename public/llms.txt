@@ -1,6 +1,6 @@
 # AI Foundation Services (T-Systems)
 
-> Sovereign, GDPR-compliant LLM inference API. OpenAI-compatible. Hosted in Germany and the EU. 30+ open-source and proprietary models on a single endpoint.
+> OpenAI-compatible LLM inference API by T-Systems. 30+ open-source and proprietary models on a single endpoint. Open-source models run on T-Cloud in Germany with GDPR-compliant EU hosting; proprietary models are forwarded to Microsoft Azure or Google Cloud, where processing may take place worldwide.
 
 ## Get started
 

@@ -461,14 +461,14 @@ const t = {
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
       'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
-      Azure:   'Gehostet auf Microsoft Azure (EU-Regionen).',
-      GCP:     'Gehostet auf Google Cloud Platform (EU-Regionen).',
+      Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab.',
+      GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab.',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
       'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
-      Azure:   'Hosted on Microsoft Azure (EU regions).',
-      GCP:     'Hosted on Google Cloud Platform (EU regions).',
+      Azure:   'Hosted on Microsoft Azure. The region depends on the model.',
+      GCP:     'Hosted on Google Cloud Platform. The region depends on the model.',
       Other:   'Hosted by a third-party provider.',
     };
 

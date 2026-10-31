@@ -65,6 +65,15 @@ models:
       - chat
       - edit
       - apply
+  - name: GLM-5.3
+    model: GLM-5.3
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
   - name: GLM-5.3-Flash
     model: GLM-5.3-Flash
     provider: openai
