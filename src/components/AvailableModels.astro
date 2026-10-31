@@ -272,20 +272,10 @@ const INITIAL_COUNT = 6;
   .models-grid {
     display: grid;
     gap: 8px;
-    grid-template-columns: 1fr;
+    /* As many ~15rem cards as the column holds: three in a wide column, two
+       beside the table of contents, one on phones. */
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
     align-items: stretch;
-  }
-
-  @media (min-width: 640px) {
-    .models-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-
-  @media (min-width: 960px) {
-    .models-grid {
-      grid-template-columns: repeat(3, 1fr);
-    }
   }
 
   .model-card {
