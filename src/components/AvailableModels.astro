@@ -222,8 +222,8 @@ const cardModels = featured ? featuredModels : sortedModels;
             )}
             <span class="model-card__title">
               {model.name}
-              {model.preview && <span class="status-badge status-badge--preview">{t.preview}</span>}
               {isNewModel(model.modelId) && <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span>}
+              {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
             </span>
           </h3>
           {model.showHosting !== false && model.provider && (

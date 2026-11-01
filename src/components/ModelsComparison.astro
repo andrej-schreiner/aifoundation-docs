@@ -728,7 +728,7 @@ const rowDataPayload = allModels.map((m) => ({
           const reasoningTokens = reasoningTokensDetail(m);
           return (
             <tr data-key={m.exactModelName}>
-              <td data-label={t.colModel}><strong>{m.displayModelName}</strong>{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span></>}</td>
+              <td data-label={t.colModel}><strong>{m.displayModelName}</strong>{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span></>}{previewCatalog(m) && <> <span class="aifs-tag aifs-tag--small">{t.planPreview}</span></>}</td>
               {!categoryFilter && (
                 <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
               )}
@@ -811,7 +811,7 @@ const rowDataPayload = allModels.map((m) => ({
                     <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
                       {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
                     </span>
-                    <strong class="mc-m__name">{m.displayModelName}{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta mc-m__new">{t.newTag}</span></>}</strong>
+                    <strong class="mc-m__name">{m.displayModelName}{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta mc-m__new">{t.newTag}</span></>}{previewCatalog(m) && <> <span class="aifs-tag aifs-tag--small mc-m__new">{t.planPreview}</span></>}</strong>
                     <Button
                       variant="ghost"
                       size="small"
@@ -2121,7 +2121,7 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1.3;
   }
 
-  /* The New tag sits on the name line without making it taller. */
+  /* The New and Preview tags sit on the name line without making it taller. */
   .mc-m__new {
     vertical-align: top;
   }
