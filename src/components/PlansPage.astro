@@ -26,8 +26,10 @@ interface Props {
   sectionTitle?: string;
   modelsSectionTitle?: string;
   legacy?: boolean;
+  /** Overview: only the Essential, Professional and Agentic tiles, each with price, throughput and Premium access. */
+  compact?: boolean;
 }
-const { selectedPlanId = '', sectionTitle = '', modelsSectionTitle = '', legacy = false } = Astro.props;
+const { selectedPlanId = '', sectionTitle = '', modelsSectionTitle = '', legacy = false, compact = false } = Astro.props;
 
 const allPricing = legacy ? legacyPricing : currentPricing;
 
@@ -495,9 +497,9 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 <div class="plans-page">
   {
     showRatePlans && (
-      <section class="rate-plans-section">
-        <h2>{t.ratePlansTitle}</h2>
-        <p class="par-description" set:html={t.subtitle} />
+      <section class:list={['rate-plans-section', { 'rate-plans-section--compact': compact }]}>
+        {!compact && <h2>{t.ratePlansTitle}</h2>}
+        {!compact && <p class="par-description" set:html={t.subtitle} />}
         {legacy ? (
           <div class="table-wrapper">
             <table class="plans-table">
@@ -548,8 +550,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             </table>
           </div>
         ) : (
-          <ul class="plan-tiles">
-            {planConfigs.map((plan) => {
+          <ul class:list={['plan-tiles', { 'plan-tiles--compact': compact }]}>
+            {(compact ? planConfigs.filter((plan) => plan.basePrice !== 'Custom') : planConfigs).map((plan) => {
               const price = plan.basePrice === 'Custom' ? t.priceCustom : plan.basePrice;
               const meter =
                 plan.label === 'Essential' ? 1 : plan.label === 'Professional' ? 2 : plan.label === 'Agentic' ? 3 : 0;
@@ -567,13 +569,13 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                 plan.label === 'Enterprise'
                   ? { on: false, dash: true, label: t.premiumCustom }
                   : { on: plan.modelTier.includes('Premium'), label: t.checkPremium },
-              ];
+              ].slice(compact ? -1 : 0);
               return (
                 <li class="plan-tile" data-plan={planTagKey(plan.label)}>
                   <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
                   <p class="plan-tile__price">{price}</p>
                   <p class:list={['plan-tile__unit', { 'plan-tile__unit--empty': plan.basePrice === 'Custom' }]} aria-hidden={plan.basePrice === 'Custom' ? 'true' : undefined}>{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
-                  <p class="plan-tile__for">{blurb}</p>
+                  {!compact && <p class="plan-tile__for">{blurb}</p>}
                   <a class="plan-meter" href={t.rateLimitsHref}>
                     <span class="plan-meter__label">{t.throughputLabel}</span>
                     <span class="plan-meter__track">
@@ -600,13 +602,15 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                       </li>
                     ))}
                   </ul>
-                  <div class:list={['plan-tile__action', { 'plan-tile__action--empty': plan.basePrice !== 'Custom' }]}>
-                    {plan.basePrice === 'Custom' && (
-                      <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
-                        {t.contactCta}
-                      </Button>
-                    )}
-                  </div>
+                  {!compact && (
+                    <div class:list={['plan-tile__action', { 'plan-tile__action--empty': plan.basePrice !== 'Custom' }]}>
+                      {plan.basePrice === 'Custom' && (
+                        <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
+                          {t.contactCta}
+                        </Button>
+                      )}
+                    </div>
+                  )}
                 </li>
               );
             })}
@@ -619,13 +623,13 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
             {t.thTokenPrice}: {planConfigs[0].tokenPrice} <span class="nowrap">{t.thTokenPriceUnit}{'\u00A0'}†</span>
           </p>
         )}
-        <p class="plan-spend">{t.spendNote}</p>
+        {!compact && <p class="plan-spend">{t.spendNote}</p>}
         {(legacy || isArchive) && <small>{t.footnote}</small>}
       </section>
     )
   }
 
-  <ModelsTable
+  {!compact && <ModelsTable
     plansData={plansData}
     effectiveIndex={initialPlanIndex}
     locked={Boolean(selectedPlanId)}
@@ -636,7 +640,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     creatorTooltips={creatorTooltips}
     testModelsSectionTitle={modelsSectionTitle}
     legacy={legacy}
-  />
+  />}
 </div>
 
 <style is:global>
@@ -858,6 +862,22 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     .plan-tiles {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
+  }
+
+  /* Overview: three tiles (tag, price, unit, meter, Premium) side by side once
+     each has room for "Throughput (TPM / RPM)" on one line. */
+  @container rateplans (min-width: 34rem) {
+    .plan-tiles--compact {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .plan-tiles--compact .plan-tile {
+      grid-row: span 5;
+    }
+  }
+
+  .rate-plans-section--compact {
+    margin-block: 12px 0;
   }
 
   .content-panel .rate-plans-section > * + * {
