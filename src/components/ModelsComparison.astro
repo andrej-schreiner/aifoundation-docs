@@ -1800,14 +1800,19 @@ const rowDataPayload = allModels.map((m) => ({
     text-align: center;
   }
 
-  /* Plan tags are links too, but keep their colours from tag.css. */
+  /* Text links look like running-text links (redesign.css): blue, always
+     underlined. Plan tags are links too, but keep their look from tag.css. */
   .models-comparison-table a:not(.plans-tag) {
-    color: var(--sl-color-text-accent);
-    text-decoration: none;
+    color: var(--aifs-color-link-standard);
+    font-weight: 500;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-thickness: var(--aifs-border-width-standard);
   }
 
   .models-comparison-table a:not(.plans-tag):hover {
-    text-decoration: underline;
+    color: var(--aifs-color-link-hovered);
+    text-decoration-thickness: 2px;
   }
 
   .mc-no-results__cell {
