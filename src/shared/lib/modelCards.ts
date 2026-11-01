@@ -141,3 +141,11 @@ export function localPlace(hosting: string, isDE: boolean): string {
 
 /** The featured cards on /models/: the first six overview cards, same order. */
 export const FEATURED_MODEL_IDS: readonly string[] = OVERVIEW_CARDS.slice(0, 6).map((c) => c.id);
+
+export type ModelPrices = Pick<ModelCard, 'cached' | 'input' | 'output'>;
+
+/** Per-1M token prices for a featured card, from the same lookup as the overview cards. */
+export function modelPrices(id: string): ModelPrices {
+  const { cached, input, output } = modelCard(id, 'chat', false);
+  return { cached, input, output };
+}

@@ -8,15 +8,18 @@ import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
 import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
-import { FEATURED_MODEL_IDS } from '../shared/lib/modelCards';
+import { FEATURED_MODEL_IDS, modelPrices } from '../shared/lib/modelCards';
+import { formatEuro } from '../shared/lib/displayFormat';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
   showHeading?: boolean;
   /** Only the first few cards, no "Show more": the full catalog follows on the page. */
   featured?: boolean;
+  /** Per-1M token prices on each card (the overview); no copy button. */
+  pricing?: boolean;
 }
-const { showHeading = true, featured = false } = Astro.props;
+const { showHeading = true, featured = false, pricing = false } = Astro.props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
 const t = {
@@ -28,6 +31,11 @@ const t = {
   sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available models',
   preview: isDE ? 'Vorschau' : 'Preview',
   newTag: isDE ? 'Neu' : 'New',
+  premium: 'Premium',
+  cached: isDE ? 'Gecacht/1M' : 'Cached/1M',
+  input: isDE ? 'Eingabe/1M' : 'Input/1M',
+  output: isDE ? 'Ausgabe/1M' : 'Output/1M',
+  free: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
@@ -133,13 +141,14 @@ interface ModelCard {
   dataProcessing: string;
   dataProcessingCode: string;
   preview?: boolean;
+  premium?: boolean;
   showHosting?: boolean;
 }
 
 // Build model cards from pricing data (filtering out offline models)
 const pricingModels: ModelCard[] = configs
   .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName) && !isRetiringModel(c.exactModelName))
-  .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; isPreview: boolean }) => {
+  .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; modelTier?: string; isPreview: boolean }) => {
     const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
       c.deploymentRegion,
     );
@@ -155,6 +164,7 @@ const pricingModels: ModelCard[] = configs
       dataProcessing,
       dataProcessingCode,
       preview: c.isPreview,
+      premium: (c.modelTier ?? '').toLowerCase() === 'premium',
       showHosting: !hostingUnconfirmed(c.exactModelName) && Boolean(c.deploymentRegion),
     };
   });
@@ -192,8 +202,8 @@ const cardModels = featured ? featuredModels : sortedModels;
   <div class="models-grid" id="models-grid">
     {
       cardModels.map((model, index) => (
-        <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
-          <Button
+        <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT, 'model-card--priced': pricing }]} data-index={index}>
+          {!pricing && <Button
             variant="ghost"
             size="small"
             iconOnly
@@ -204,7 +214,7 @@ const cardModels = featured ? featuredModels : sortedModels;
             ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}>
             <Icon name="action-copy-paste" size={16} class="icon-copy" />
             <Icon name="action-checkmark" size={16} class="icon-check" />
-          </Button>
+          </Button>}
           <h3 class="model-card__name">
             {model.creator.startsWith('Google') ? (
               <span class="model-card__mark model-card__mark--zoom" style={`background-image:url("${model.logo}")`} role="img" aria-label={model.creator} title={model.creator} />
@@ -224,6 +234,7 @@ const cardModels = featured ? featuredModels : sortedModels;
               {model.name}
               {isNewModel(model.modelId) && <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span>}
               {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
+              {model.premium && <span class="aifs-tag aifs-tag--small">{t.premium}</span>}
             </span>
           </h3>
           {model.showHosting !== false && model.provider && (
@@ -241,6 +252,19 @@ const cardModels = featured ? featuredModels : sortedModels;
               <span>{model.dataProcessing}</span>
             </p>
           )}
+          {pricing && (model.preview ? (
+            <p class="model-card__prices model-card__free">{t.free}</p>
+          ) : (() => {
+            const p = modelPrices(model.modelId);
+            const euro = (value: number | null, digits = 2) => formatEuro(value, digits, isDE ? 'de' : 'en');
+            return (
+              <dl class="model-card__prices">
+                {p.cached != null && <div><dt>{t.cached}</dt><dd>{euro(p.cached, 4)}</dd></div>}
+                <div><dt>{t.input}</dt><dd>{euro(p.input)}</dd></div>
+                {p.output != null && <div><dt>{t.output}</dt><dd>{euro(p.output)}</dd></div>}
+              </dl>
+            );
+          })())}
         </div>
       ))
     }
@@ -400,6 +424,49 @@ const cardModels = featured ? featuredModels : sortedModels;
 
   .model-card__k {
     color: var(--aifs-color-text-muted);
+  }
+
+  /* Overview: no copy button, so the name and host lines use the full width;
+     prices sit at the foot of the card so they line up across a row. */
+  .model-card--priced .model-card__name,
+  .model-card--priced .model-card__where {
+    padding-right: 0;
+  }
+
+  .model-card__prices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px 14px;
+    margin: auto 0 0 26px;
+    padding-top: 6px;
+  }
+
+  .model-card__prices > div {
+    display: grid;
+    margin: 0;
+  }
+
+  .model-card__prices dt {
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: var(--aifs-color-text-muted);
+    white-space: nowrap;
+  }
+
+  .model-card__prices dd {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .model-card__free {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 700;
   }
 
   .model-card__preview-tag {
