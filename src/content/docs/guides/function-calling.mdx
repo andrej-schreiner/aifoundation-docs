@@ -110,7 +110,7 @@ tools = [
 ]
 
 response = client.responses.create(
-    model="GLM-5.2",
+    model="gpt-oss-120b",
     input=[{"role": "user", "content": "What is the weather like in Paris today?"}],
     tools=tools,
 )
