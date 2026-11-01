@@ -564,12 +564,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                       ? t.blurbAgentic
                       : t.blurbEnterprise;
               const checks = [
-                { on: plan.modelHost.includes('T-Cloud'), label: t.checkTCloud },
-                { on: plan.modelHost.includes('External'), label: t.checkHyperscaler },
+                { key: 'tcloud', on: plan.modelHost.includes('T-Cloud'), label: t.checkTCloud },
+                { key: 'hyperscaler', on: plan.modelHost.includes('External'), label: t.checkHyperscaler },
                 plan.label === 'Enterprise'
-                  ? { on: false, dash: true, label: t.premiumCustom }
-                  : { on: plan.modelTier.includes('Premium'), label: t.checkPremium },
-              ].slice(compact ? -1 : 0);
+                  ? { key: 'premium', on: false, dash: true, label: t.premiumCustom }
+                  : { key: 'premium', on: plan.modelTier.includes('Premium'), label: t.checkPremium },
+              ].filter((item) => !compact || item.key === 'premium');
               return (
                 <li class="plan-tile" data-plan={planTagKey(plan.label)}>
                   <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>

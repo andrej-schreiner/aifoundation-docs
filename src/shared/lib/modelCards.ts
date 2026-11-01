@@ -37,22 +37,25 @@ export interface ModelPrices {
   output: number | null;
 }
 
-/** Per-1M token prices from the pricing data; a paid plan's entry wins over the Test plan's. */
-export function modelPrices(id: string): ModelPrices {
-  let found: Quota | undefined;
-  let paid = false;
+/** The model's entry in a paid plan (anything but Test), if it has one. */
+function paidQuota(id: string): Quota | undefined {
   for (const pkg of pricingData as Package[]) {
-    for (const q of pkg.modelQuotaConfigs ?? []) {
-      if (q.exactModelName !== id) continue;
-      if (pkg.packageName !== 'Test') {
-        if (!paid) found = q;
-        paid = true;
-      } else if (!found) {
-        found = q;
-      }
-    }
+    if (pkg.packageName === 'Test') continue;
+    const q = (pkg.modelQuotaConfigs ?? []).find((c) => c.exactModelName === id);
+    if (q) return q;
   }
-  if (!found) throw new Error(`modelCards: ${id} is not in the pricing data`);
+  return undefined;
+}
+
+/** Free in preview: the model has no paid-plan pricing entry (only the Test plan lists it). */
+export function isPreviewOnly(id: string): boolean {
+  return paidQuota(id) === undefined;
+}
+
+/** Per-1M token prices from the model's first paid-plan entry; preview-only models have none (see isPreviewOnly). */
+export function modelPrices(id: string): ModelPrices {
+  const found = paidQuota(id);
+  if (!found) throw new Error(`modelCards: ${id} has no paid-plan entry in the pricing data`);
   const primary = resolvePrimaryCategory(id);
   return {
     cached: cachedInputPrice(found.inputPricePerMillionTokens, found.deploymentRegion, primary),

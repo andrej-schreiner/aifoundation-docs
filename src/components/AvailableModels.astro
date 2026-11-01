@@ -8,7 +8,7 @@ import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
 import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
-import { FEATURED_MODEL_IDS, modelPrices } from '../shared/lib/modelCards';
+import { FEATURED_MODEL_IDS, isPreviewOnly, modelPrices } from '../shared/lib/modelCards';
 import { formatEuro } from '../shared/lib/displayFormat';
 
 // Locale detection (mirrors PlansPage.astro pattern)
@@ -234,7 +234,7 @@ const cardModels = featured ? featuredModels : sortedModels;
               {model.name}
               {isNewModel(model.modelId) && <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span>}
               {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
-              {model.premium && <span class="aifs-tag aifs-tag--small">{t.premium}</span>}
+              {pricing && model.premium && <span class="aifs-tag aifs-tag--small">{t.premium}</span>}
             </span>
           </h3>
           {model.showHosting !== false && model.provider && (
@@ -252,7 +252,7 @@ const cardModels = featured ? featuredModels : sortedModels;
               <span>{model.dataProcessing}</span>
             </p>
           )}
-          {pricing && (model.preview ? (
+          {pricing && (isPreviewOnly(model.modelId) ? (
             <p class="model-card__prices model-card__free">{t.free}</p>
           ) : (() => {
             const p = modelPrices(model.modelId);
@@ -260,7 +260,7 @@ const cardModels = featured ? featuredModels : sortedModels;
             return (
               <dl class="model-card__prices">
                 {p.cached != null && <div><dt>{t.cached}</dt><dd>{euro(p.cached, 4)}</dd></div>}
-                <div><dt>{t.input}</dt><dd>{euro(p.input)}</dd></div>
+                {p.input != null && <div><dt>{t.input}</dt><dd>{euro(p.input)}</dd></div>}
                 {p.output != null && <div><dt>{t.output}</dt><dd>{euro(p.output)}</dd></div>}
               </dl>
             );
