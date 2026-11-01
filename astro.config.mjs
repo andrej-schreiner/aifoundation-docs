@@ -6,6 +6,7 @@ import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
 import rehypeInlineCodeBreaks from './src/plugins/rehype-inline-code-breaks.mjs';
 import rehypeNowrapTerms from './src/plugins/rehype-nowrap-terms.mjs';
 import { ecWrapPoints } from './src/plugins/ec-wrap-points.mjs';
+import { ecUntitledFrame } from './src/plugins/ec-untitled-frame.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
@@ -323,8 +324,9 @@ export default defineConfig({
 					hangingIndent: 2,
 				},
 				// Wrapped lines break only at spaces or at punctuation boundaries,
-				// never between two letters or digits (adds <wbr>).
-				plugins: [ecWrapPoints()],
+				// never between two letters or digits (adds <wbr>). Untitled
+				// blocks get no header bar (ec-untitled-frame.mjs).
+				plugins: [ecWrapPoints(), ecUntitledFrame()],
 			},
 			plugins: [
 				starlightVersions({
