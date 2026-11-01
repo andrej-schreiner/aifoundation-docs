@@ -14,9 +14,9 @@ const { cards = OVERVIEW_CARDS } = Astro.props;
 const models = cards.map((c) => modelCard(c.id, c.category, isDE));
 
 const t = {
-  cached: isDE ? 'Cached/1M' : 'Cached/1M',
-  input: isDE ? 'Input/1M' : 'Input/1M',
-  output: isDE ? 'Output/1M' : 'Output/1M',
+  cached: isDE ? 'Gecacht/1M' : 'Cached/1M',
+  input: isDE ? 'Eingabe/1M' : 'Input/1M',
+  output: isDE ? 'Ausgabe/1M' : 'Output/1M',
   free: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
   isNew: isDE ? 'Neu' : 'New',
   preview: isDE ? 'Vorschau' : 'Preview',
