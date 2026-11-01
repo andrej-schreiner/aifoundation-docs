@@ -826,6 +826,9 @@ const priceBuckets = [
       const cloudProvider = model.cloudProviderLabel || normalizeCloudProvider(model.cloudProvider);
       const cloudProviderFullName = model.cloudProviderFullName || getCloudProviderFullName(model.cloudProvider);
       const hostTooltip = hostTooltips[model.modelHost] || '';
+      const hostLabel = model.modelHost === 'External' ? translations.hostExternal || 'External' : model.modelHost || '';
+      // Same convention as the catalog: T-Cloud, or just the cloud ("Azure") for external hosts.
+      const hostingTag = hostClass === 'tag-tcloud' ? model.modelHost : cloudProvider || hostLabel;
       const tierTooltip = tierTooltips[modelTier] || '';
       const creatorName = model.creator || '';
       const creatorIcon = logos[creatorName] || logos.Other || '';
@@ -851,8 +854,8 @@ const priceBuckets = [
           <td class="mt-hosting">
             <span class="mt-card-label">${escapeHtml(translations.thHosting || 'Hosting')}</span>
               <div class="mt-hosting__main">
-              ${model.modelHost ? `<span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost)}</span>` : `<span class="mt-muted">${emptyMark()}</span>`}
-              ${cloudProvider && cloudProvider.toLowerCase() !== String(model.modelHost || '').toLowerCase() ? `<span class="mt-cloud">${escapeHtml(cloudProvider)}</span>` : ''}
+              ${model.modelHost ? `<span class="plans-tag ${hostClass}">${escapeHtml(hostingTag)}</span>` : `<span class="mt-muted">${emptyMark()}</span>`}
+              ${hostClass === 'tag-tcloud' && cloudProvider && cloudProvider.toLowerCase() !== String(model.modelHost || '').toLowerCase() ? `<span class="mt-cloud">${escapeHtml(cloudProvider)}</span>` : ''}
             </div>
             <div class="mt-muted loc-wrapper">${loc}</div>
           </td>
@@ -883,7 +886,7 @@ const priceBuckets = [
           <td colspan="7">
             <dl class="mt-details">
               ${modelTier.toLowerCase() === 'premium' ? `<div><dt>${escapeHtml(translations.thModelTier || 'Model tier')}</dt><dd><span class="aifs-tag aifs-tag--small">${escapeHtml(modelTier)}</span>${tierTooltip ? ` <span class="mt-explain">${escapeHtml(tierTooltip)}</span>` : ''}</dd></div>` : ''}
-              <div><dt>${escapeHtml(translations.thModelHost || 'Model host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(model.modelHost || '')}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
+              <div><dt>${escapeHtml(translations.thModelHost || 'Model host')}</dt><dd><span class="plans-tag ${hostClass}">${escapeHtml(hostLabel)}</span>${hostTooltip ? ` <span class="mt-explain">${escapeHtml(hostTooltip)}</span>` : ''}</dd></div>
               <div><dt>${escapeHtml(translations.thCloudProvider || 'Cloud provider')}</dt><dd>${escapeHtml(cloudProviderFullName)}</dd></div>
               <div><dt>${escapeHtml(translations.thServerLocation || 'Server location')}</dt><dd class="loc-wrapper">${loc}</dd></div>
               <div><dt>${escapeHtml(translations.thCachedInputPrice || 'Cached input token price')}${cachedDagger(model)}</dt><dd>${formatCachedPrice(model)}${model.cachedPricingPublished || !translations.cachedDaggerPricedOnly ? ' <span class="mt-muted">€ / M Tokens</span>' : ''}</dd></div>

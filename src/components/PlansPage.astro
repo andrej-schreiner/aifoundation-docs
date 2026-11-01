@@ -139,6 +139,8 @@ const t = {
   thDetails: 'Details',
   dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
   newTag: isDE ? 'Neu' : 'New',
+  // Display label for the 'External' host key (tooltips and filters stay keyed by 'External').
+  hostExternal: isDE ? 'Extern' : 'External',
   dynamicQuota: isDE ? 'Dynamisches Kontingent' : 'Dynamic Shared Quota',
   labelSortBy: isDE ? 'Sortieren nach' : 'Sort by',
   labelSortCatalog: isDE ? 'Empfohlen' : 'Recommended',
@@ -534,7 +536,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                         <>
                           {i > 0 && ' '}
                           <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
-                            <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud}</span>
+                            <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud === 'External' ? t.hostExternal : cloud}</span>
                           </Tooltip>
                         </>
                       ))}
