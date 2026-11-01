@@ -4,7 +4,12 @@ description: "Bildgenerierungs-Modelle auf AI Foundation Services, die Textpromp
 ---
 
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
+import ModelPick from '../../../../components/ModelPick.astro';
 
-Erzeugen Bilder aus Textprompts und optionalen Referenzbildern. Verfügbar über den Endpunkt `POST /images/generations`.
+Erzeugen Sie Bilder aus Textprompts und optionalen Referenzbildern. Das sind Partnermodelle. Verfügbar über `POST /images/generations`.
+
+Weiter: [Bildgenerierung](/de/guides/image-generation) · [Alle Modelle](/de/models) · [Tarife](/de/plans)
+
+<ModelPick useCase="image" />
 
 <ModelsComparison category="image-generation" />

@@ -1,0 +1,96 @@
+{
+  "$description": "AIFS dark surfaces: overrides Telekom's dark background and hairline steps so dark mode matches the darkness and blue-grey tint of the live docs. Text, link, action, tag and status colours stay Telekom's. Text: only the link and small-magenta text steps move, one step lighter on Telekom's scales, to keep AA on the new surfaces.",
+  "color": {
+    "background": {
+      "canvas": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.0902,
+            0.0941,
+            0.1098
+          ],
+          "alpha": 1,
+          "hex": "#17181c"
+        },
+        "$description": "Page, content sheet and header. Live docs page background (--sl-color-bg, hsl(224 10% 10%)). Dark-mode backgrounds of the live docs at docs.llmhub.t-systems.net (Starlight --sl-color-* computed in dark mode, 2026-10-31), which Andrej prefers over Telekom's near-black."
+      },
+      "surface": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.1373,
+            0.149,
+            0.1843
+          ],
+          "alpha": 1,
+          "hex": "#23262f"
+        },
+        "$description": "Sidebar and cards. Live docs header and sidebar (--sl-color-bg-nav, hsl(224 14% 16%))."
+      },
+      "surface-subtle": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2078,
+            0.2196,
+            0.2549
+          ],
+          "alpha": 1,
+          "hex": "#353841"
+        },
+        "$description": "Inline code, table heads; mixed into the layout backdrop. Live docs inline code background (--sl-color-gray-5, hsl(224 10% 23%))."
+      }
+    },
+    "ui": {
+      "faint": {
+        "$type": "color",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [
+            0.2078,
+            0.2196,
+            0.2549
+          ],
+          "alpha": 1,
+          "hex": "#353841"
+        },
+        "$description": "Hairlines and card borders. Live docs card border (--sl-color-hairline-light, hsl(224 10% 23%))."
+      }
+    },
+    "text-&-icon": {
+      "link": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.blue.100}",
+          "$description": "Dark links are #aabcfd (hover #d9e2ff), one step lighter on Telekom's own blue scale: #7d94f9 measured only 4.17:1 on inline code in links and table heads (#353841), below WCAG AA (4.5:1); #aabcfd is 6.3:1 there."
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.blue.0}",
+          "$description": "#d9e2ff on Telekom's blue scale: lighter than the standard link (9.1:1 on #353841) and paired with a 2px underline, so hover stays distinct."
+        },
+        "visited": {
+          "$type": "color",
+          "$value": "{core.color.violet.200}",
+          "$description": "One step lighter on Telekom's own scale so text stays at WCAG AA (4.5:1) on the lighter dark surfaces above: the old value measured below 4.5:1 (#9a75f8) on #353841; now 4.7:1."
+        }
+      },
+      "primary": {
+        "standard": {
+          "$type": "color",
+          "$value": "{core.color.brand.light}",
+          "$description": "One step lighter on Telekom's own scale so text stays at WCAG AA (4.5:1) on the lighter dark surfaces above: the old value measured 3.87:1 (#f61488) for the current sidebar entry on the sidebar (#23262f); now 4.7:1."
+        },
+        "hovered": {
+          "$type": "color",
+          "$value": "{core.color.brand.lighter}",
+          "$description": "Stays lighter than the standard."
+        }
+      }
+    }
+  }
+}

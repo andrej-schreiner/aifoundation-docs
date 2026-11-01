@@ -1,0 +1,29 @@
+---
+// A plan's tag: fixed colour and fixed wording per plan, the same on every
+// page. Plan names are product names, so they read the same in English and
+// German. Styles live in src/styles/tag.css.
+import { planTags } from '../shared/lib/planTags';
+
+interface Props {
+	/** essential, professional, agentic, enterprise or test. */
+	plan: string;
+	size?: 'default' | 'small';
+	/** Links the tag to the plan's page. */
+	href?: string;
+}
+
+const { plan, size = 'default', href } = Astro.props;
+const key = plan.toLowerCase();
+const label = planTags[key]?.label ?? plan;
+const classes = ['aifs-tag', `aifs-tag--plan-${key}`, size === 'small' && 'aifs-tag--small'];
+---
+
+{
+	href ? (
+		<a class:list={classes} href={href}>
+			{label}
+		</a>
+	) : (
+		<span class:list={classes}>{label}</span>
+	)
+}

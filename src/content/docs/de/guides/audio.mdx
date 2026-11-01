@@ -1,5 +1,5 @@
 ---
-title: "Audio (Sprache-zu-Text)"
+title: "Audio (Spracherkennung)"
 description: "Audio-Dateien mit Whisper-basierten Modellen auf AI Foundation Services transkribieren und übersetzen, kompatibel mit der OpenAI Audio API."
 ---
 
@@ -10,7 +10,7 @@ AI Foundation Services bietet Whisper-basierte Audiomodelle fuer Transkription u
 
 :::note[Voraussetzungen]
 - Ein API-Schluessel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 - Eine Audiodatei (MP3, WAV, M4A, etc.)
 :::
 
@@ -133,13 +133,19 @@ Die Uebersetzungs-API uebersetzt Audio aus beliebigen Sprachen ins Englische.
 
 ## Wichtige Funktionen
 
-1. **Automatische Spracherkennung** — Erkennt die Eingabesprache aus den ersten 30 Sekunden
+1. **Automatische Erkennung der Sprache** — Erkennt die Eingabesprache aus den ersten 30 Sekunden
 2. **Anpassbare Ausgabe** — Verhalten mit `language`- und `temperature`-Parametern anpassen
 3. **Effiziente Verarbeitung** — Geringe Latenz fuer Transkription und Uebersetzung
 
 
+## Grenzen und Fehlersuche
+
+Der Endpunkt nimmt `model`, `file`, `language` und `temperature` an. Die automatische Erkennung der Eingabesprache nutzt die ersten 30 Sekunden der Aufnahme.
+
+{/* TODO(andrej): maximale Dateigröße und maximale Dauer über diese 30-Sekunden-Notiz hinaus stehen auf dieser Seite nicht. */}
+
 ## Naechste Schritte
 
 - [Chat Completions](/de/guides/chat-completions) — Transkribierten Text mit LLMs verarbeiten
-- [Queued Requests](/de/guides/queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
+- [Queued Requests](/de/guides/reliability#queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
 - [API-Endpunkte](/de/reference/api-endpoints) — Vollstaendige Endpunkt-Referenz

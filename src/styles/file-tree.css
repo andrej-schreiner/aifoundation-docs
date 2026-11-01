@@ -1,0 +1,132 @@
+/* File trees, modelled on Vercel Geist's File Tree
+   (https://vercel.com/geist/file-tree) and applied to Starlight's FileTree:
+   28px rows with a hover background, grey folder and file icons, names in
+   the code font, no guide lines, and the same frame as a code block. Every
+   value is an --aifs-file-tree-* token from tokens.css.
+
+   Starlight's markup and its open/close behaviour stay. Its coloured
+   file-type icons are hidden; a Telekom folder or file icon (from Scale,
+   src/assets/icons/scale/) is drawn in their place, the filled folder for an
+   open folder. */
+
+starlight-file-tree {
+	--x-space: var(--aifs-file-tree-indent);
+	padding: var(--aifs-file-tree-padding);
+	border: var(--aifs-file-tree-border-width) solid var(--aifs-file-tree-border);
+	border-radius: var(--aifs-file-tree-radius);
+	background: var(--aifs-file-tree-background);
+	color: var(--aifs-file-tree-text);
+	font-family: var(--aifs-font-code);
+	font-size: var(--aifs-file-tree-font-size);
+}
+
+starlight-file-tree ul,
+starlight-file-tree > ul {
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+
+starlight-file-tree li,
+starlight-file-tree .file {
+	margin: 0;
+	padding: 0;
+	color: var(--aifs-file-tree-text);
+}
+
+starlight-file-tree .directory > details {
+	padding-inline-start: var(--x-space);
+}
+
+starlight-file-tree .directory > details > summary {
+	display: block;
+	margin-inline-start: calc(-1 * var(--x-space));
+	padding: 0;
+	color: var(--aifs-file-tree-text);
+	list-style: none;
+	cursor: pointer;
+}
+
+starlight-file-tree .directory > details > summary::-webkit-details-marker {
+	display: none;
+}
+
+starlight-file-tree .file {
+	margin-inline-start: 0;
+}
+
+/* One row: icon, name, optional comment. */
+starlight-file-tree .tree-entry {
+	display: flex;
+	align-items: center;
+	max-width: none;
+	min-height: var(--aifs-file-tree-row-height);
+	padding: 0 var(--aifs-file-tree-row-padding-x);
+	border-radius: var(--aifs-file-tree-row-radius);
+}
+
+starlight-file-tree .tree-entry > span:first-child {
+	display: inline-flex;
+	align-items: center;
+	gap: var(--aifs-file-tree-icon-gap);
+}
+
+starlight-file-tree .directory > details > summary:hover .tree-entry,
+starlight-file-tree .file > .tree-entry:hover {
+	background: var(--aifs-file-tree-hover-background);
+	color: var(--aifs-file-tree-text);
+}
+
+starlight-file-tree .directory > details > summary:focus-visible {
+	outline: none;
+}
+
+starlight-file-tree .directory > details > summary:focus-visible .tree-entry {
+	outline: 2px solid var(--aifs-file-tree-focus);
+	outline-offset: -2px;
+}
+
+/* Icons: Starlight's are hidden, a Telekom folder or file icon replaces them. */
+starlight-file-tree svg {
+	display: none;
+}
+
+starlight-file-tree .tree-entry > span:first-child > span:first-child {
+	display: inline-flex;
+}
+
+starlight-file-tree .tree-entry > span:first-child > span:first-child::before {
+	content: '';
+	flex: none;
+	width: var(--aifs-file-tree-icon-size);
+	height: var(--aifs-file-tree-icon-size);
+	background: var(--aifs-file-tree-icon);
+	mask: url('../assets/icons/scale/user_file/file/default.svg') center / contain no-repeat;
+}
+
+starlight-file-tree .directory > details > summary .tree-entry > span:first-child > span:first-child::before {
+	mask-image: url('../assets/icons/scale/content/folder/default.svg');
+}
+
+starlight-file-tree .directory > details[open] > summary .tree-entry > span:first-child > span:first-child::before {
+	mask-image: url('../assets/icons/scale/content/folder/selected.svg');
+}
+
+/* A highlighted entry (**name** in Markdown) and comments after a name. */
+starlight-file-tree .highlight {
+	padding: 0 var(--aifs-file-tree-row-padding-x);
+	margin-inline-start: calc(-1 * var(--aifs-file-tree-row-padding-x));
+	border-radius: var(--aifs-file-tree-row-radius);
+	background: var(--aifs-file-tree-highlight-background);
+	color: var(--aifs-file-tree-text);
+}
+
+starlight-file-tree .comment {
+	padding-inline-start: var(--aifs-file-tree-icon-gap);
+	color: var(--aifs-file-tree-comment);
+	font-family: var(--aifs-font-body);
+}
+
+starlight-file-tree .empty {
+	color: var(--aifs-file-tree-comment);
+}

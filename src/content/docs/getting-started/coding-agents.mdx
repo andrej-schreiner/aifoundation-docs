@@ -1,0 +1,41 @@
+---
+title: "Coding agent setup"
+description: "Connect a coding agent or IDE plugin to AI Foundation Services with an API key, the coding base URL, and a coding model."
+---
+
+import ModelPick from '../../../components/ModelPick.astro';
+
+Every coding tool below connects to AI Foundation Services the same way: an API key, the coding base URL, and a model ID.
+
+## What you need
+
+- An API key: see [Get an API key](/getting-started/quickstart#1-get-an-api-key) or generate one in [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard).
+- The coding base URL: `https://llm-server.llmhub.t-systems.net/v2/coding`
+- A model ID: the recommendation is below; all options are on [Coding models](/models/coding).
+
+<ModelPick useCase="coding" />
+
+## Pick your tool
+
+| Tool | Where it runs | Setup page |
+| --- | --- | --- |
+| OpenCode | Terminal, alongside any editor or IDE | [OpenCode](/plugins/opencode) |
+| Cline for AI Engineer | Visual Studio Code | [Cline](/plugins/cline) |
+| Continue for AI Engineer | Visual Studio Code | [Continue for VS Code](/plugins/continue-vscode) |
+| Continue for AI Engineer | JetBrains IDEs | [Continue for JetBrains](/plugins/continue-jetbrains) |
+| AI Engineer | IDE integrations, command-line tools, plugins, and MCP integrations | [AI Engineer](/aie/overview) |
+
+Download the plugins from [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins).
+
+## Shared settings
+
+Each tool names these fields a little differently (`baseURL` in OpenCode, `apiBase` in Continue), but the values are the same:
+
+```text
+API Provider = OpenAI Compatible
+Base URL     = https://llm-server.llmhub.t-systems.net/v2/coding
+API Key      = your_api_key_here
+Model        = GLM-5.3
+```
+
+Next: [Recommended models](/getting-started/choosing-a-model) · [Coding models](/models/coding) · [Function calling](/guides/function-calling)

@@ -1,10 +1,15 @@
 ---
-title: "Audio (Sprache-zu-Text)"
+title: "Audio (Spracherkennung)"
 description: "Whisper-basierte Sprache-zu-Text-Modelle auf AI Foundation Services für Transkription und Übersetzung. Filtern nach Cloud, Tarif und Funktionen."
 ---
 
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
+import ModelPick from '../../../../components/ModelPick.astro';
 
-Whisper-basierte Modelle für Transkription und Übersetzung. Verfügbar über die Endpunkte `POST /audio/transcriptions` und `POST /audio/translations`.
+Whisper-basierte Modelle für Transkription und Übersetzung. Verfügbar über `POST /audio/transcriptions` und `POST /audio/translations`.
+
+Weiter: [Spracherkennung](/de/guides/audio) · [Alle Modelle](/de/models)
+
+<ModelPick useCase="audio" />
 
 <ModelsComparison category="audio" />

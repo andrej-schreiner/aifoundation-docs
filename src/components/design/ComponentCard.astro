@@ -1,0 +1,41 @@
+---
+// The card around one component on the design-system page: its description,
+// examples and props, on a raised surface with a subtle outline.
+---
+
+<section class="component-card">
+	<slot />
+</section>
+
+<style>
+	.component-card {
+		margin-block: var(--aifs-design-system-label-gap) var(--aifs-design-system-card-gap);
+		padding: var(--aifs-design-system-card-padding);
+		background: var(--aifs-design-system-card-background);
+		border: var(--aifs-design-system-card-border-width) solid var(--aifs-design-system-card-border);
+		border-radius: var(--aifs-design-system-card-radius);
+	}
+
+	/* The card's padding already spaces its first and last child from the edge.
+	   The first child is the component's name (an h4 heading, wrapped by Starlight
+	   for its anchor link). */
+	.component-card > :global(:first-child) {
+		margin-top: 0;
+	}
+
+	.component-card > :global(:last-child) {
+		margin-bottom: 0;
+	}
+
+	/* Prose inside the card keeps the row rhythm: description, examples and the
+	   props table sit one row gap apart. */
+	.component-card > :global(table) {
+		margin-top: var(--aifs-design-system-row-gap);
+	}
+
+	@media (max-width: 50rem) {
+		.component-card {
+			padding: var(--aifs-design-system-card-padding-compact);
+		}
+	}
+</style>

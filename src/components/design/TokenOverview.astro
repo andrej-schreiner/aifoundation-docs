@@ -1,0 +1,227 @@
+---
+// Shows the draft design tokens in tokens/ for both colour modes, resolved the
+// way tokens/aifs.resolver.json describes: Telekom set, then the light or dark
+// colour file, then the docs layer.
+import core from '../../../tokens/telekom.core.tokens.json';
+import semantic from '../../../tokens/telekom.semantic.tokens.json';
+import light from '../../../tokens/telekom.color.light.tokens.json';
+import dark from '../../../tokens/telekom.color.dark.tokens.json';
+import docs from '../../../tokens/aifs.docs.tokens.json';
+
+interface Props {
+	/** Which part of the docs layer to show. */
+	group: 'color' | 'text' | 'font' | 'radius' | 'border-width';
+}
+
+const { group } = Astro.props;
+
+type Token = { type?: string; value: unknown; description?: string; css?: string[] };
+
+function flatten(doc: Record<string, any>, path: string[] = [], type?: string, out: Record<string, Token> = {}) {
+	const groupType = doc.$type ?? type;
+	for (const [key, node] of Object.entries(doc)) {
+		if (key.startsWith('$') || typeof node !== 'object') continue;
+		const name = [...path, key];
+		if ('$value' in node) {
+			out[name.join('.')] = {
+				type: node.$type ?? groupType,
+				value: node.$value,
+				description: node.$description,
+				css: node.$extensions?.['net.t-systems.aifs']?.css,
+			};
+		} else {
+			flatten(node, name, groupType, out);
+		}
+	}
+	return out;
+}
+
+const ALIAS = /^\{([^{}]+)\}$/;
+
+function resolver(mode: Record<string, any>) {
+	const tokens = { ...flatten(core), ...flatten(semantic), ...flatten(mode), ...flatten(docs) };
+	const resolve = (value: unknown): any => {
+		if (typeof value === 'string' && ALIAS.test(value)) {
+			return resolve(tokens[value.match(ALIAS)![1]].value);
+		}
+		if (value && typeof value === 'object' && !Array.isArray(value) && !('colorSpace' in value)) {
+			return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, resolve(v)]));
+		}
+		return value;
+	};
+	return { tokens, resolve };
+}
+
+const lightMode = resolver(light);
+const darkMode = resolver(dark);
+
+type Color = { components: number[]; alpha?: number; hex: string };
+
+function cssColor(c: Color) {
+	if (c.alpha === undefined || c.alpha === 1) return c.hex;
+	const [r, g, b] = c.components.map((x) => Math.round(x * 255));
+	return `rgb(${r} ${g} ${b} / ${c.alpha})`;
+}
+
+// Short label for the table: the hex value, plus the opacity when there is one.
+const colorLabel = (c: Color) => (c.alpha === undefined || c.alpha === 1 ? c.hex : `${c.hex} ${Math.round(c.alpha * 100)}%`);
+
+const dim = (d: { value: number; unit: string }) => `${d.value}${d.unit}`;
+
+const rows = Object.entries(lightMode.tokens)
+	.filter(([name]) => name.startsWith(`aifs.${group}.`))
+	.map(([name, token]) => ({
+		name: name.replace(`aifs.${group}.`, ''),
+		alias: typeof token.value === 'string' ? token.value.replace(/[{}]/g, '') : '',
+		description: token.description,
+		css: token.css ?? [],
+		light: lightMode.resolve(token.value),
+		dark: darkMode.resolve(token.value),
+	}));
+---
+
+{
+	group === 'color' && (
+		<table class="token-table" tabindex="0" aria-label={`Design tokens: ${group}`}>
+			<thead>
+				<tr>
+					<th scope="col">Token, source and CSS variables</th>
+					<th scope="col">Light</th>
+					<th scope="col">Dark</th>
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map((row) => (
+					<tr>
+						<td class="token-css">
+							<code>{row.name}</code>
+							<span class="token-alias">{row.alias}</span>
+							{row.css.map((v) => <code>{v}</code>)}
+						</td>
+						{[row.light, row.dark].map((value) => (
+							<td>
+								<span class="token-swatch" style={`background: ${cssColor(value)}`} aria-hidden="true" />
+								<code>{colorLabel(value)}</code>
+							</td>
+						))}
+					</tr>
+				))}
+			</tbody>
+		</table>
+	)
+}
+
+{
+	group === 'text' && (
+		<table class="token-table" tabindex="0" aria-label={`Design tokens: ${group}`}>
+			<thead>
+				<tr>
+					<th scope="col">Token</th>
+					<th scope="col">Sample</th>
+					<th scope="col">Size / weight / line height</th>
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map((row) => (
+					<tr>
+						<td>
+							<code>{row.name}</code>
+							<br />
+							<span class="token-alias">{row.alias}</span>
+						</td>
+						<td>
+							<span
+								class="token-type-sample"
+								style={`font-size: ${dim(row.light.fontSize)}; font-weight: ${row.light.fontWeight}; line-height: ${row.light.lineHeight}`}
+							>
+								Model serving
+							</span>
+						</td>
+						<td>
+							<code>
+								{dim(row.light.fontSize)} / {row.light.fontWeight} / {row.light.lineHeight}
+							</code>
+						</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	)
+}
+
+{
+	group !== 'color' && group !== 'text' && (
+		<table class="token-table" tabindex="0" aria-label={`Design tokens: ${group}`}>
+			<thead>
+				<tr>
+					<th scope="col">Token</th>
+					<th scope="col">Value</th>
+					<th scope="col">Fills</th>
+				</tr>
+			</thead>
+			<tbody>
+				{rows.map((row) => (
+					<tr>
+						<td>
+							<code>{row.name}</code>
+							<br />
+							<span class="token-alias">{row.alias}</span>
+						</td>
+						<td>
+							<code>{Array.isArray(row.light) ? row.light.join(', ') : dim(row.light)}</code>
+						</td>
+						<td class="token-css">{row.css.map((v) => <code>{v}</code>)}</td>
+					</tr>
+				))}
+			</tbody>
+		</table>
+	)
+}
+
+<style>
+	/* The table scrolls sideways on narrow screens; tabindex lets keyboard users
+	   reach it, and the outline shows where they are. */
+	.token-table:focus-visible {
+		outline: 2px solid var(--aifs-color-focus);
+		outline-offset: 2px;
+	}
+
+	.token-alias {
+		color: var(--sl-color-gray-3);
+		font-size: var(--sl-text-sm);
+		white-space: normal;
+		overflow-wrap: anywhere;
+	}
+
+	.token-swatch {
+		display: inline-block;
+		inline-size: 1.25rem;
+		block-size: 1.25rem;
+		margin-inline-end: 0.5rem;
+		vertical-align: middle;
+		border: 1px solid var(--sl-color-hairline-shade);
+		border-radius: 0.25rem;
+	}
+
+	.token-table td {
+		white-space: nowrap;
+	}
+
+	/* Name, source and CSS variables stacked, one per line. */
+	.token-css {
+		white-space: normal;
+	}
+
+	.token-css > * {
+		display: block;
+		inline-size: fit-content;
+	}
+
+	.token-css > * + * {
+		margin-block-start: 0.25rem;
+	}
+
+	.token-type-sample {
+		white-space: nowrap;
+	}
+</style>

@@ -4,14 +4,17 @@ description: "Typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder e
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
+import ModelPick from '../../../../components/ModelPick.astro';
 
 Der Endpunkt `/decisions` beantwortet Fragen zu einem Zustand mit **typisierten Werten statt Text**: einer Wahrscheinlichkeit, einer Option aus einer Liste oder einer Stufe auf einer Skala. Es gibt keinen Freitext zu parsen, und ein Aufruf dauert in der Regel weniger als eine Sekunde.
 
 Nutzen Sie Decisions in einem Agenten für die kleinen Bewertungsschritte (welches Tool aufgerufen wird, ob ein Mensch freigeben muss, ob die Aufgabe erledigt ist, ob eine Antwort belegt ist) und Chat Completions für das Schreiben von Text.
 
+<ModelPick useCase="decisions" />
+
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/getting-started/quickstart)
+- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/)
 - Für die OpenAI-SDK-Beispiele: `openai>=3.26.0` (`client.decisions` fehlt in älteren Versionen). Die nativen Beispiele benötigen nur `httpx`.
 :::
 
@@ -34,7 +37,7 @@ Nutzen Sie Decisions in einem Agenten für die kleinen Bewertungsschritte (welch
 
 DiffusionGemma 26B A4B bedient beide Endpunkte mit einer Modell-ID, sodass ein einziges Modell die Entscheidungen treffen und die Antworten schreiben kann.
 
-Beide Modelle sind in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
+Beide Modelle sind in [Test / Vorschau](/de/models/preview): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
 
 
 ## Fragetypen
@@ -52,7 +55,7 @@ Jede Anfrage enthält einen Zustand und eine oder mehrere benannte Fragen. Jede 
 
 Der Endpunkt akzeptiert zwei Anfrageformen und erkennt, welche Sie gesendet haben. Beide liefern dieselben Antworten.
 
-| | Nativ | OpenAI-kompatibel |
+| <span class="sr-only">Aspekt</span> | Nativ | OpenAI-kompatibel |
 |---|---|---|
 | Client | Beliebiger HTTP-Client | OpenAI SDK, `client.decisions.create` |
 | Was bewertet wird | `state`: Text oder ein JSON-Objekt | `input`: Text oder User-Nachrichten mit `input_text`-Teilen |
@@ -737,7 +740,7 @@ Mit Thinking antwortet das Modell korrekt mit 1254,26 EUR. Ohne Thinking kann es
 - **Klare Anweisungen und Optionsbeschreibungen schreiben.** Das Modell wählt zwischen Ihren Beschreibungen, formulieren Sie sie daher konkret und ohne Überschneidungen. Bei `score` listen Sie die Stufen von niedrig nach hoch.
 - **Schwellenwerte statt exakter Werte.** Wahrscheinlichkeiten können zwischen identischen Anfragen leicht abweichen. Vergleichen Sie mit einem Schwellenwert (zum Beispiel `> 0.5`) statt mit einer exakten Zahl.
 - **`samples` (optional).** Legt fest, wie viele interne Samples das Modell pro Antwort mittelt. Der Standardwert passt für die meisten Anfragen. Zum Ändern setzen Sie `samples` im Request-Body; im OpenAI SDK über `extra_body={"samples": 1}`.
-- **Preview-Modelle.** d3 und DiffusionGemma 26B A4B unterliegen den Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
+- **Vorschau-Modelle.** d3 und DiffusionGemma 26B A4B unterliegen den Bedingungen für [Test / Vorschau](/de/models/preview): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
 
 
 ## Nächste Schritte
@@ -745,4 +748,4 @@ Mit Thinking antwortet das Modell korrekt mit 1254,26 EUR. Ohne Thinking kann es
 - [Function Calling](/de/guides/function-calling) — Das Modell das gewählte Tool aufrufen lassen
 - [Chat Completions](/de/guides/chat-completions) — Die Textschritte Ihres Agenten generieren
 - [Multimodal](/de/guides/multimodal) — Bilder an Chat-Modelle senden
-- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle
+- [Test-/Vorschau-Modelle](/de/models/preview) — Limits und Bedingungen für Vorschau-Modelle

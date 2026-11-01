@@ -1,0 +1,702 @@
+{
+  "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
+  "$description": "AI Foundation Services docs: the roles the docs site needs, each an alias of a Telekom semantic token. Mode-independent: light and dark come from the Telekom colour file the resolver selects. $extensions name the Starlight or site CSS variable each token fills.",
+  "aifs": {
+    "color": {
+      "$type": "color",
+      "text": {
+        "body": {
+          "$value": "{color.text-&-icon.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-text", "--sl-color-white"] } }
+        },
+        "muted": {
+          "$value": "{color.text-&-icon.additional}",
+          "$description": "Secondary text: captions, table of contents, footer.",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-3"] } }
+        },
+        "inverted": {
+          "$value": "{color.text-&-icon.inverted.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-text-invert"] } }
+        }
+      },
+      "link": {
+        "$description": "Telekom uses blue for text links and keeps magenta for primary actions.",
+        "standard": {
+          "$value": "{color.text-&-icon.link.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-text-accent"] } }
+        },
+        "hovered": { "$value": "{color.text-&-icon.link.hovered}" },
+        "visited": { "$value": "{color.text-&-icon.link.visited}" }
+      },
+      "action": {
+        "$description": "Primary actions such as the Get API key button. The only large magenta areas on the page.",
+        "background": {
+          "$value": "{core.color.brand.standard}",
+          "$description": "Brand magenta in both modes. Telekom's dark-mode primary (#f61488) gives white text only 3.9:1; #e20074 gives 4.7:1 and passes AA.",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-accent", "--sl-color-bg-accent"] } }
+        },
+        "background-hovered": {
+          "$value": "{color.primary.hovered}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-accent-high"] } }
+        },
+        "background-pressed": { "$value": "{color.primary.pressed}" },
+        "text": {
+          "$value": "{color.text-&-icon.white.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-banner-text"] } }
+        }
+      },
+      "brand-text": {
+        "$value": "{color.text-&-icon.primary.standard}",
+        "$description": "Magenta for small text and icons (current table-of-contents entry, link-card icons). Telekom lightens it in dark mode so it stays readable on black."
+      },
+      "scale": {
+        "$description": "Starlight's grey scale, from strongest text (1) to page tint (7). Telekom's tokens flip between modes, so one mapping serves both.",
+        "1": {
+          "$value": "{color.text-&-icon.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-1"] } }
+        },
+        "2": {
+          "$value": "{color.text-&-icon.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-2"] } }
+        },
+        "4": {
+          "$value": "{color.ui.regular}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-4"] } }
+        },
+        "5": {
+          "$value": "{color.ui.faint}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-5"] } }
+        },
+        "6": {
+          "$value": "{color.background.surface-subtle}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-6", "--sl-color-accent-low"] } }
+        },
+        "7": {
+          "$value": "{color.background.canvas-subtle}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-7"] } }
+        }
+      },
+      "tooltip": {
+        "background": { "$value": "{color.background.surface-highlight}" },
+        "text": { "$value": "{color.text-&-icon.white.standard}" }
+      },
+      "media-outline": {
+        "$value": "{color.ui.border.disabled}",
+        "$description": "Hairline ring around flags and logos: pure black at 14% in light mode, white at 21% in dark mode, so white areas keep an edge on a white or black page."
+      },
+      "logo-background": {
+        "$value": "{color.ui.white}",
+        "$description": "White in both modes: model logos are drawn for a white background."
+      },
+      "success": {
+        "$value": "{color.text-&-icon.functional.success}",
+        "$description": "Confirmation icons, e.g. the tick after copying a model ID."
+      },
+      "category": {
+        "$description": "Telekom's additional colours for things that are told apart but not ranked: plan tags, capability chips. Subtle background with its matching text colour.",
+        "green": {
+          "background": { "$value": "{color.additional.green.subtle}" },
+          "text": { "$value": "{color.text-&-icon.on-subtle.green}" }
+        },
+        "teal": {
+          "background": { "$value": "{color.additional.teal.subtle}" },
+          "text": { "$value": "{color.text-&-icon.on-subtle.teal}" }
+        },
+        "cyan": {
+          "background": { "$value": "{color.additional.cyan.subtle}" },
+          "text": { "$value": "{color.text-&-icon.on-subtle.cyan}" }
+        },
+        "blue": {
+          "background": { "$value": "{color.additional.blue.subtle}" },
+          "text": { "$value": "{color.text-&-icon.on-subtle.blue}" }
+        },
+        "violet": {
+          "background": { "$value": "{color.additional.violet.subtle}" },
+          "text": { "$value": "{color.text-&-icon.on-subtle.violet}" }
+        }
+      },
+      "status": {
+        "$description": "Model status badges: Active, Preview, Deprecated.",
+        "active-background": { "$value": "{color.background.surface}" },
+        "active-text": { "$value": "{color.text-&-icon.standard}" },
+        "preview-background": { "$value": "{color.functional.informational.subtle}" },
+        "preview-text": { "$value": "{color.text-&-icon.on-subtle.informational}" },
+        "deprecated-background": { "$value": "{color.functional.danger.subtle}" },
+        "deprecated-text": { "$value": "{color.text-&-icon.on-subtle.danger}" },
+        "premium-text": {
+          "$value": "{color.text-&-icon.on-subtle.cyan}",
+          "$description": "Premium tag in the plans table."
+        }
+      },
+      "surface": {
+        "page": {
+          "$value": "{color.background.canvas}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-bg", "--sl-color-black"] } }
+        },
+        "chrome": {
+          "$value": "{color.background.surface}",
+          "$description": "Header and sidebar.",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-bg-nav", "--sl-color-bg-sidebar"] } }
+        },
+        "subtle": {
+          "$value": "{color.background.surface-subtle}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-bg-inline-code"] } }
+        }
+      },
+      "border": {
+        "subtle": {
+          "$value": "{color.ui.faint}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-hairline", "--sl-color-hairline-light"] } }
+        },
+        "standard": {
+          "$value": "{color.ui.border.standard}",
+          "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-hairline-shade"] } }
+        }
+      },
+      "focus": { "$value": "{color.functional.focus.standard}" },
+      "backdrop": {
+        "$value": "{color.background.backdrop}",
+        "$description": "Dimmed page behind dialogs and the filter panel.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-backdrop-overlay"] } }
+      },
+      "table": {
+        "head-background": { "$value": "{color.background.surface-subtle}" },
+        "head-text": { "$value": "{color.text-&-icon.standard}" },
+        "row-border": { "$value": "{color.ui.faint}" }
+      },
+      "nav": {
+        "current-background": { "$value": "{color.ui.state-fill.hovered}" },
+        "current-text": { "$value": "{color.text-&-icon.standard}" },
+        "current-indicator": {
+          "$value": "{color.primary.standard}",
+          "$description": "3px bar on the current sidebar entry."
+        },
+        "hover-background": { "$value": "{color.ui.state-fill.hovered}" }
+      }
+    },
+    "font": {
+      "$type": "fontFamily",
+      "body": {
+        "$value": ["TeleNeoWeb", "system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"],
+        "$description": "Telekom's TeleNeoWeb first, as in typography.font-family.sans. The docs add the system font stack as fallback, because no licensed TeleNeo webfont is served yet and Telekom's own fallback is only sans-serif.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-font", "--sl-font-system"] } }
+      },
+      "code": {
+        "$value": ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "Liberation Mono", "Courier New", "monospace"],
+        "$description": "Telekom's typography.font-family.mono is only the generic monospace, which browsers render as Courier: wider, so code blocks overflow. The docs use the system monospace stack, as Starlight does.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-font-mono"] } }
+      }
+    },
+    "text": {
+      "$type": "typography",
+      "$description": "Docs headings sit one step below Telekom's marketing scale: page titles use heading-2 (42px), not heading-1 (54px).",
+      "h1": {
+        "$value": { "fontFamily": "{typography.font-family.sans}", "fontSize": "{typography.font-size.headline-2}", "fontWeight": "{typography.font-weight.bold}", "letterSpacing": "{typography.letter-spacing.standard}", "lineHeight": "{typography.line-spacing.tight}" },
+        "$description": "Page title, 32px. Telekom's heading styles are all extra-bold (800) and one step larger; the docs use bold and one step smaller, because pages carry many headings and the system font fallback runs heavy.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-h1"], "property": "fontSize" } }
+      },
+      "h2": {
+        "$value": { "fontFamily": "{typography.font-family.sans}", "fontSize": "{typography.font-size.headline-3}", "fontWeight": "{typography.font-weight.bold}", "letterSpacing": "{typography.letter-spacing.standard}", "lineHeight": "{typography.line-spacing.tight}" },
+        "$description": "Section heading, 24px bold.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-h2"], "property": "fontSize" } }
+      },
+      "h3": {
+        "$value": { "fontFamily": "{typography.font-family.sans}", "fontSize": "{typography.font-size.callout}", "fontWeight": "{typography.font-weight.bold}", "letterSpacing": "{typography.letter-spacing.standard}", "lineHeight": "{typography.line-spacing.moderate}" },
+        "$description": "Subsection heading, 20px bold.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-h3"], "property": "fontSize" } }
+      },
+      "h4": {
+        "$value": "{text-style.heading-6}",
+        "$description": "Minor heading, 16px bold: Telekom's heading-6.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-h4"], "property": "fontSize" } }
+      },
+      "body": {
+        "$value": "{text-style.body}",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-base"], "property": "fontSize" } }
+      },
+      "small": {
+        "$value": "{text-style.caption}",
+        "$description": "Table of contents, footer, badges. 14px; nothing in the docs goes below this.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-sm"], "property": "fontSize" } }
+      }
+    },
+    "header": {
+      "$description": "Spacing in the site header.",
+      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px between the logo, the search and the tools." },
+      "tools-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between the selects and the button: their hover backgrounds stay apart." },
+      "mark-size": { "$type": "dimension", "$value": "{spacing.composition.space-09}", "$description": "28px Telekom T, in magenta, left of the site name." },
+      "search-width": { "$type": "dimension", "$value": { "value": 28, "unit": "rem" }, "$description": "Widest the search field gets, 448px (Starlight: 22rem)." }
+    },
+    "layout": {
+      "$type": "dimension",
+      "$description": "Page layout under the header, from left to right: site navigation, table of contents, content. Telekom has no layout widths; these are the docs' own.",
+      "sidebar-width": {
+        "$value": { "value": 17.5, "unit": "rem" },
+        "$description": "Site navigation, 280px.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-sidebar-width"] } }
+      },
+      "toc-width": {
+        "$value": { "value": 14, "unit": "rem" },
+        "$description": "Table of contents (On this page), 224px. Next to the site navigation, so both lists sit where the pointer already is."
+      },
+      "content-width": {
+        "$value": { "value": 50, "unit": "rem" },
+        "$description": "Widest the content column gets, 800px: room for code blocks and tables.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-content-width"] } }
+      },
+      "measure": {
+        "$value": { "value": 35, "unit": "rem" },
+        "$description": "Widest running text gets, 560px: about 75 characters a line at 16px in the system font, inside the 45 to 80 that read comfortably. Measured on the guides; TeleNeo is wider, so fewer."
+      },
+      "divider": {
+        "$type": "color",
+        "$value": "{color.ui.faint}",
+        "$description": "The lines between the header, site navigation, table of contents and content: the same colour as the lines between navigation rows, so every line in the frame matches."
+      },
+      "backdrop": {
+        "$type": "color",
+        "$value": "{color.background.surface-subtle}",
+        "$description": "The tint around the content sheet and behind the table of contents, wide screens only. Mixed with the sheet colour by backdrop-strength: Telekom has no step between canvas-subtle (#fbfbfb, too close to white to see) and this one (#efeff0, heavier than needed)."
+      },
+      "backdrop-strength": {
+        "$type": "number",
+        "$value": 0.5,
+        "$description": "Share of the backdrop colour in the tint: 0.5 gives #f7f7f8 in light mode and #121213 in dark mode."
+      },
+      "sheet": {
+        "$type": "color",
+        "$value": "{color.background.canvas}",
+        "$description": "The content: a sheet from just under the header to the bottom of the page. The page colour, so every contrast checked against it still holds."
+      },
+      "sheet-border": { "$type": "color", "$value": "{color.ui.faint}" },
+      "sheet-radius": { "$value": "{radius.large}", "$description": "Top corners of the sheet." },
+      "sheet-padding": { "$value": "{spacing.composition.space-12}", "$description": "40px on all four sides of the content on the sheet (left and right through Starlight's --sl-content-pad-x)." },
+      "frame-padding": {
+        "$value": "{spacing.composition.space-10}",
+        "$description": "32px around the row that holds the table of contents and the sheet: above it, left and right. The sheet runs off the bottom."
+      },
+      "frame-padding-x-wide": {
+        "$value": "{spacing.composition.space-17}",
+        "$description": "64px left and right of that row from 1440px (90rem) wide: more air between the site navigation, the table of contents and the sheet once there is room."
+      },
+      "frame-gap": {
+        "$value": "{spacing.composition.space-10}",
+        "$description": "32px between the table of contents and the sheet."
+      }
+    },
+    "rhythm": {
+      "$type": "dimension",
+      "$description": "Vertical spacing in the content, on Telekom's 8px scale. Gaps grow with the size of the break: within running text, around a block, before a heading.",
+      "panel-padding-y": { "$value": "{spacing.composition.space-10}", "$description": "32px above and below the title area and the content area." },
+      "stack": { "$value": "{spacing.composition.space-08}", "$description": "24px between the parts of a panel: banners, title, content, pagination, footer." },
+      "flow": {
+        "$value": "{spacing.composition.space-06}",
+        "$description": "16px between paragraphs and lists.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-content-gap-y"] } }
+      },
+      "block": { "$value": "{spacing.composition.space-08}", "$description": "24px before and after a code block, table, aside, tabs, cards or steps." },
+      "heading-2": { "$value": "{spacing.composition.space-14}", "$description": "48px before a section heading." },
+      "heading-3": { "$value": "{spacing.composition.space-10}", "$description": "32px before a subsection heading." },
+      "heading-4": { "$value": "{spacing.composition.space-08}", "$description": "24px before a minor heading." },
+      "after-heading": { "$value": "{spacing.composition.space-05}", "$description": "12px between a heading and what it introduces, so it sits with its section." }
+    },
+    "sidebar-nav": {
+      "$description": "Site navigation, aligned with Scale's sidebar navigation (telekom/scale@e90165a, sidebar-nav*.css). Each first- and second-level entry is a row with a line under it; the third level is condensed, with a line on its left and a bar on the current page.",
+      "row-border": { "$type": "color", "$value": "{color.ui.faint}" },
+      "nested-border": { "$type": "color", "$value": "{color.ui.faint}", "$description": "The line left of third-level entries and of On this page. Lighter than Scale's ui-strong, the same grey as every other line in the frame: it only groups the entries; the text and the bar carry the meaning." },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
+      "text-hovered": { "$type": "color", "$value": "{color.text-&-icon.primary.hovered}" },
+      "text-pressed": { "$type": "color", "$value": "{color.text-&-icon.primary.pressed}" },
+      "text-current": { "$type": "color", "$value": "{color.text-&-icon.primary.standard}", "$description": "The current page: magenta text and a bar in the same colour." },
+      "toc-text-current": { "$type": "color", "$value": "{color.text-&-icon.primary.hovered}", "$description": "The current section in On this page. It sits on the tint, where the standard magenta at 14px gives only 4.4:1; this deeper one gives 5.7:1 (light) and 5.8:1 (dark)." },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" },
+      "focus-width": { "$type": "dimension", "$value": "{line-weight.highlight}" },
+      "indicator-width": { "$type": "dimension", "$value": "{line-weight.highlight}", "$description": "The bar on the current page, 2px." },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.body}" },
+      "font-weight-group": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}", "$description": "First-level entries." },
+      "line-height": { "$type": "number", "$value": "{typography.line-spacing.tight}" },
+      "radius": { "$type": "dimension", "$value": "{radius.small}" },
+      "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px above and below a row." },
+      "padding-start": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px before first-level text." },
+      "padding-end": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px after the chevron of a group." },
+      "nested-indent": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px more before second-level text." },
+      "condensed-padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px above and below a third-level entry." },
+      "condensed-padding-start": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px between the line and the text." },
+      "condensed-gap": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px above a third-level list; twice that below it." },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px chevron." }
+    },
+    "line-height": {
+      "$type": "number",
+      "prose": {
+        "$value": "{typography.line-spacing.loose}",
+        "$description": "Running text in the docs. Telekom's body style uses 1.4; long technical pages read better at 1.5.",
+        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-line-height"] } }
+      }
+    },
+    "radius": {
+      "$type": "dimension",
+      "card": {
+        "$value": "{radius.standard}",
+        "$description": "Cards, tables, asides, code blocks."
+      },
+      "control": { "$value": "{radius.small}", "$description": "Buttons, inputs, inline code." },
+      "media": { "$value": "{radius.standard}", "$description": "Logos: rounded tiles with the media outline around them." }
+    },
+    "code-block": {
+      "$description": "Component tokens for code blocks (Expressive Code), modelled on Vercel Geist's Code Block: a light frame with an 8px radius, a quiet header bar with the file name, a plain body, and tinted lines for highlights and diffs. Values come from Telekom's tokens; Telekom's type scale has no 13px, so code is 14px.",
+      "radius": { "$type": "dimension", "$value": "{radius.standard}" },
+      "border-width": { "$type": "dimension", "$value": "{line-weight.standard}" },
+      "border": { "$type": "color", "$value": "{color.ui.faint}" },
+      "background": { "$type": "color", "$value": "{color.background.surface}", "$description": "The code area: white in light mode, as in Geist." },
+      "header-background": { "$type": "color", "$value": "{color.background.canvas-subtle}", "$description": "The bar with the file name (and the terminal title bar), a shade off the code area." },
+      "header-text": { "$type": "color", "$value": "{color.text-&-icon.additional}" },
+      "header-font-size": { "$type": "dimension", "$value": "{typography.font-size.caption}" },
+      "header-padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "header-line-height": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "With 8px above and below, the header is 40px high, as in Geist." },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.caption}" },
+      "line-height": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px per line, as in Geist." },
+      "padding-block": { "$type": "dimension", "$value": "{spacing.composition.space-06}" },
+      "padding-inline": { "$type": "dimension", "$value": "{spacing.composition.space-06}" },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}", "$description": "Text outside syntax colours, and the copy button." },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" },
+      "highlight-background": { "$type": "color", "$value": "{color.functional.informational.subtle}", "$description": "A highlighted line ({1,4} in Markdown)." },
+      "highlight-accent": { "$type": "color", "$value": "{color.functional.informational.standard}" },
+      "inserted-background": { "$type": "color", "$value": "{color.functional.success.subtle}" },
+      "inserted-indicator": { "$type": "color", "$value": "{color.text-&-icon.functional.success}" },
+      "deleted-background": { "$type": "color", "$value": "{color.functional.danger.subtle}" },
+      "deleted-indicator": { "$type": "color", "$value": "{color.text-&-icon.functional.danger}" },
+      "line-tint-opacity": {
+        "$type": "number",
+        "$value": 0.4,
+        "$description": "Highlighted, inserted and deleted lines show their colour at 40%, so the tint stays in the background like Geist's. DTCG has no alias-with-alpha, so the CSS mixes it (code-block.css)."
+      }
+    },
+    "file-tree": {
+      "$description": "Component tokens for file trees (Starlight's FileTree), modelled on Vercel Geist's File Tree: 28px rows with a hover background, grey folder and file icons, names in the code font, and the same frame as a code block.",
+      "border": { "$type": "color", "$value": "{aifs.code-block.border}" },
+      "border-width": { "$type": "dimension", "$value": "{aifs.code-block.border-width}" },
+      "radius": { "$type": "dimension", "$value": "{aifs.code-block.radius}" },
+      "background": { "$type": "color", "$value": "{aifs.code-block.background}" },
+      "padding": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px around the rows; each row brings 8px of its own." },
+      "row-height": { "$type": "dimension", "$value": "{spacing.composition.space-09}", "$description": "28px, as in Geist." },
+      "row-padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "row-radius": { "$type": "dimension", "$value": "{radius.small}" },
+      "indent": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px per level (Geist: about 23px)." },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px." },
+      "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "font-size": { "$type": "dimension", "$value": "{aifs.code-block.font-size}", "$description": "The code size, 14px (Geist: 13px; Telekom's scale has none)." },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
+      "icon": { "$type": "color", "$value": "{color.text-&-icon.additional}" },
+      "comment": { "$type": "color", "$value": "{color.text-&-icon.additional}" },
+      "hover-background": { "$type": "color", "$value": "{color.ui.state-fill.hovered}" },
+      "highlight-background": { "$type": "color", "$value": "{aifs.code-block.highlight-background}", "$description": "A highlighted entry (**name** in Markdown), tinted like a highlighted code line." },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" }
+    },
+    "design-system": {
+      "$description": "Tokens for the design-system page itself: the card around each component and the rows of examples in it.",
+      "card-background": { "$type": "color", "$value": "{color.background.surface}", "$description": "White in light mode, Telekom's raised surface in dark mode." },
+      "card-border": { "$type": "color", "$value": "{color.ui.faint}" },
+      "card-border-width": { "$type": "dimension", "$value": "{line-weight.standard}" },
+      "card-radius": { "$type": "dimension", "$value": "{radius.large}", "$description": "12px: the 8px radius of the buttons and tables inside plus a step, so the card reads as their container." },
+      "card-padding": { "$type": "dimension", "$value": "{spacing.composition.space-12}", "$description": "40px inside the card on wide screens." },
+      "card-padding-compact": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px inside the card below 50rem, where width is scarce." },
+      "card-gap": { "$type": "dimension", "$value": "{spacing.composition.space-14}", "$description": "48px between two component cards: more than the padding inside one, so each card holds together." },
+      "label-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between a row's label and its examples: the label belongs to the row." },
+      "example-gap": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px between the examples in one row, the same as the gap between paragraphs." },
+      "row-gap": { "$type": "dimension", "$value": "{spacing.composition.space-10}", "$description": "32px between two rows of examples, and between the description, the examples and the props table." }
+    },
+    "select": {
+      "$description": "Component tokens for dropdown selects, mirroring Scale's scale-dropdown-select (telekom/scale@e90165a, dropdown-select.css) on a native <select>: the label sits inside the field, above the value. Plus a ghost variant without border, for the header.",
+      "height": { "$type": "dimension", "$value": "{spacing.composition.space-13}", "$description": "44px, Scale's --height." },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px, Scale's --spacing-x." },
+      "padding-top-with-label": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "Room for the label above the value (Scale: 18px, here 20px less the 1px border on the 4px grid)." },
+      "padding-bottom-with-label": { "$type": "dimension", "$value": "{spacing.composition.space-03}" },
+      "label-top": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "The label's distance from the field's top edge." },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px chevron, Scale's --height-icon." },
+      "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "border-width": { "$type": "dimension", "$value": "{spacing.composition.space-01}" },
+      "border-width-invalid": { "$type": "dimension", "$value": "{spacing.composition.space-02}" },
+      "radius": { "$type": "dimension", "$value": "{radius.standard}" },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.body}" },
+      "label-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}", "$description": "Scale's text-style small-bold." },
+      "label-font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "helper-gap": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "Between field and helper text, Scale's --spacing-y-meta." },
+      "helper-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}" },
+      "transition-duration": { "$type": "duration", "$value": "{motion.duration.transition}" },
+      "transition-easing": { "$type": "cubicBezier", "$value": "{motion.easing.standard}" },
+      "background": { "$type": "color", "$value": "{color.ui.state-fill.standard}" },
+      "background-hovered": { "$type": "color", "$value": "{color.ui.state-fill.hovered}" },
+      "border": { "$type": "color", "$value": "{color.ui.border.standard}" },
+      "border-hovered": { "$type": "color", "$value": "{color.ui.border.hovered}" },
+      "border-disabled": { "$type": "color", "$value": "{color.ui.border.disabled}" },
+      "border-invalid": { "$type": "color", "$value": "{color.functional.danger.hovered}" },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
+      "text-disabled": { "$type": "color", "$value": "{color.text-&-icon.disabled}" },
+      "label": { "$type": "color", "$value": "{color.text-&-icon.additional}" },
+      "icon": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
+      "helper-invalid": { "$type": "color", "$value": "{color.text-&-icon.functional.danger}" },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" }
+    },
+    "table": {
+      "$description": "Component tokens for tables, mirroring Scale's scale-table (telekom/scale@e90165a, table.css): a grey header with bold small text and rounded top corners, no outer frame, a line under each row, a hover fill, and sortable headers. Two densities as in Scale: default (Markdown tables) and compact (the dense model and plan tables). Deviation: cell text wraps, because docs tables hold descriptions.",
+      "radius": { "$type": "dimension", "$value": "{radius.standard}", "$description": "Top corners of the header only." },
+      "head-background": { "$type": "color", "$value": "{color.background.surface-subtle}" },
+      "head-text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
+      "head-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}" },
+      "head-font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "head-padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "head-line-height": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "With 8px above and below, a one-line header is 32px, as Scale's line-height: 32px; longer headers wrap." },
+      "cell-padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "cell-padding-end": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px after the last column." },
+      "cell-padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px, Scale's default size." },
+      "cell-padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px, Scale's base (small) size." },
+      "row-border-width": { "$type": "dimension", "$value": "{spacing.composition.space-01}" },
+      "row-border": { "$type": "color", "$value": "{color.ui.faint}" },
+      "row-hover": { "$type": "color", "$value": "{color.ui.state-fill.hovered}" },
+      "row-striped": { "$type": "color", "$value": "{color.ui.subtle}" },
+      "sortable-hover": { "$type": "color", "$value": "{color.ui.subtle}" },
+      "sortable-pressed": { "$type": "color", "$value": "{color.ui.faint}" },
+      "footer-border": { "$type": "color", "$value": "{color.ui.extra-strong}" },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" }
+    },
+    "tabs": {
+      "$description": "Component tokens for tabs, mirroring Scale's scale-tab-nav, scale-tab-header and scale-tab-panel (telekom/scale@e90165a). Applied to Starlight's Tabs.",
+      "height": { "$type": "dimension", "$value": "{spacing.composition.space-14}", "$description": "48px, Scale's --tab-height (3rem)." },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-05}" },
+      "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px next to 16px bold text." },
+      "panel-gap": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px between the tabs and their content, Scale's tab-panel --spacing-top." },
+      "radius": { "$type": "dimension", "$value": "{radius.small}", "$description": "Rounds the focus ring." },
+      "line-width": { "$type": "dimension", "$value": "{line-weight.standard}", "$description": "The line under all tabs, and the hover bar." },
+      "line-width-selected": {
+        "$type": "dimension",
+        "$value": { "value": 3, "unit": "px" },
+        "$description": "Scale sets the selected bar as a literal 3px, overriding its own line-weight.highlight."
+      },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.body}", "$description": "Scale's text-style ui-bold." },
+      "font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" },
+      "line": { "$type": "color", "$value": "{color.ui.subtle}" },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
+      "text-hovered": { "$type": "color", "$value": "{color.text-&-icon.primary.hovered}" },
+      "text-pressed": { "$type": "color", "$value": "{color.text-&-icon.primary.pressed}" },
+      "text-selected": { "$type": "color", "$value": "{color.text-&-icon.primary.standard}" }
+    },
+    "tag": {
+      "$description": "Component tokens for tags, mirroring Scale's scale-tag (telekom/scale@e90165a, tag.css) in its standard type and all ten of its colours, plus a filled magenta variant and plan tags. No dismissible variant: nothing on the site removes a tag.",
+      "height": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px, as Scale's --height." },
+      "height-small": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px, as Scale's --height-small." },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "padding-x-small": {
+        "$type": "dimension",
+        "$value": { "value": 6, "unit": "px" },
+        "$description": "Scale sets this one as a literal 6px, not a token."
+      },
+      "radius": { "$type": "dimension", "$value": "{radius.small}" },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.caption}", "$description": "Scale's text-style caption-bold." },
+      "font-size-small": { "$type": "dimension", "$value": "{typography.font-size.small}" },
+      "font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" },
+      "standard": {
+        "$type": "color",
+        "background": { "$value": "{color.ui.faint}" },
+        "text": { "$value": "{color.text-&-icon.standard}" }
+      },
+      "cyan": {
+        "$type": "color",
+        "background": { "$value": "{color.additional.cyan.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.cyan}" }
+      },
+      "yellow": {
+        "$type": "color",
+        "background": { "$value": "{color.additional.yellow.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.yellow}" }
+      },
+      "green": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.success.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.success}" }
+      },
+      "orange": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.warning.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.warning}" }
+      },
+      "red": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.danger.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.danger}" }
+      },
+      "violet": {
+        "$type": "color",
+        "background": { "$value": "{color.additional.violet.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.violet}" }
+      },
+      "brown": {
+        "$type": "color",
+        "background": { "$value": "{color.additional.brown.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.brown}" }
+      },
+      "olive": {
+        "$type": "color",
+        "background": { "$value": "{color.additional.olive.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.olive}" }
+      },
+      "teal": {
+        "$type": "color",
+        "background": { "$value": "{color.additional.teal.subtle}" },
+        "text": { "$value": "{color.text-&-icon.on-subtle.teal}" }
+      },
+      "magenta": {
+        "$type": "color",
+        "$description": "For the few things that should stand out: T-Cloud, new and notice labels.",
+        "background": { "$value": "{aifs.color.action.background}" },
+        "text": { "$value": "{color.text-&-icon.white.standard}" }
+      },
+      "plan": {
+        "$type": "color",
+        "$description": "One fixed colour per plan, the same on every page, taken from the colour tags. Plans without a colour of their own (Test, the retired Basic and Standard plans) use the standard tag.",
+        "essential-background": { "$value": "{aifs.tag.cyan.background}" },
+        "essential-text": { "$value": "{aifs.tag.cyan.text}" },
+        "professional-background": { "$value": "{aifs.tag.violet.background}" },
+        "professional-text": { "$value": "{aifs.tag.violet.text}" },
+        "agentic-background": { "$value": "{aifs.tag.green.background}" },
+        "agentic-text": { "$value": "{aifs.tag.green.text}" },
+        "enterprise-background": { "$value": "{aifs.tag.teal.background}" },
+        "enterprise-text": { "$value": "{aifs.tag.teal.text}" }
+      }
+    },
+    "notification": {
+      "$description": "Component tokens for the InlineNotification component, mirroring Scale's scale-notification of type inline (telekom/scale@e90165a, notification.css): informational, success, warning and danger.",
+      "radius": { "$type": "dimension", "$value": "{radius.standard}" },
+      "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px above and below, Scale's --spacing-y." },
+      "icon-column": { "$type": "dimension", "$value": "{spacing.composition.space-14}", "$description": "48px column for the icon, Scale's --spacing-x-aside." },
+      "padding-end": { "$type": "dimension", "$value": "{spacing.composition.space-14}", "$description": "48px on the right, as Scale keeps for its close button." },
+      "text-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between heading and text, Scale's --spacing-y-inner." },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px, Scale's ICON_SIZE." },
+      "heading-font-size": { "$type": "dimension", "$value": "{typography.font-size.body}", "$description": "Scale's text-style heading-6." },
+      "heading-font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "heading-line-height": { "$type": "number", "$value": "{typography.line-spacing.tight}" },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}", "$description": "Heading, text and links: the standard text colour on every variant." },
+      "informational": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.informational.subtle}" },
+        "icon": { "$value": "{color.text-&-icon.functional.informational}" }
+      },
+      "success": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.success.subtle}" },
+        "icon": { "$value": "{color.text-&-icon.functional.success}" }
+      },
+      "warning": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.warning.subtle}" },
+        "icon": { "$value": "{color.text-&-icon.functional.warning}" }
+      },
+      "danger": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.danger.subtle}" },
+        "icon": { "$value": "{color.text-&-icon.functional.danger}" }
+      }
+    },
+    "aside": {
+      "$description": "Component tokens for asides (:::note, :::tip, :::caution, :::danger): a lighter take on the inline notification, styled like the tags. A tinted background, the heading and icon in the matching text colour, the body in the normal text colour. Starlight's note, tip, caution and danger use Telekom's informational, success, warning and danger colours. For a full notification, use InlineNotification.",
+      "radius": { "$type": "dimension", "$value": "{radius.standard}" },
+      "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px above and below." },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px left and right." },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px, next to the 16px heading." },
+      "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "text-gap": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between heading and text." },
+      "heading-font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "tint-opacity": {
+        "$type": "number",
+        "$value": "{aifs.code-block.line-tint-opacity}",
+        "$description": "The same tint as highlighted code lines (40%), mixed in CSS (DTCG has no alias-with-alpha), so a page full of asides stays calm. Change it there, and both follow."
+      },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.standard}", "$description": "Body text and links." },
+      "note": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.informational.subtle}" },
+        "accent": { "$value": "{color.text-&-icon.on-subtle.informational}", "$description": "Heading and icon." }
+      },
+      "tip": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.success.subtle}" },
+        "accent": { "$value": "{color.text-&-icon.on-subtle.success}" }
+      },
+      "caution": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.warning.subtle}" },
+        "accent": { "$value": "{color.text-&-icon.on-subtle.warning}" }
+      },
+      "danger": {
+        "$type": "color",
+        "background": { "$value": "{color.functional.danger.subtle}" },
+        "accent": { "$value": "{color.text-&-icon.on-subtle.danger}" }
+      }
+    },
+    "button": {
+      "$description": "Component tokens for buttons, mirroring Scale's scale-button (telekom/scale@e90165a, button.css) variable for variable. One deviation: the primary background is aifs.color.action.background, so white text passes AA in dark mode too.",
+      "min-height": { "$type": "dimension", "$value": "{spacing.composition.space-13}", "$description": "44px, also the touch target." },
+      "min-height-small": { "$type": "dimension", "$value": "{spacing.composition.space-10}" },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-07}" },
+      "padding-x-small": { "$type": "dimension", "$value": "{spacing.composition.space-06}" },
+      "padding-x-ghost": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "padding-x-icon-only": { "$type": "dimension", "$value": "{spacing.composition.space-05}" },
+      "padding-x-icon-only-small": { "$type": "dimension", "$value": "{spacing.composition.space-00}" },
+      "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "icon-gap-small": { "$type": "dimension", "$value": "{spacing.composition.space-03}" },
+      "border-width": { "$type": "dimension", "$value": "{spacing.composition.space-01}" },
+      "radius": { "$type": "dimension", "$value": "{radius.standard}" },
+      "focus-width": { "$type": "dimension", "$value": "{line-weight.highlight}" },
+      "focus-offset": { "$type": "dimension", "$value": "{spacing.composition.space-01}" },
+      "font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.body}" },
+      "font-size-small": { "$type": "dimension", "$value": "{typography.font-size.caption}" },
+      "line-height": { "$type": "number", "$value": "{typography.line-spacing.tight}" },
+      "line-height-small": {
+        "$type": "dimension",
+        "$value": { "value": 1.125, "unit": "rem" },
+        "$description": "Scale sets this one as a literal 1.125rem, not a token."
+      },
+      "transition-duration": { "$type": "duration", "$value": "{motion.duration.transition}" },
+      "transition-easing": { "$type": "cubicBezier", "$value": "{motion.easing.standard}" },
+      "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" },
+      "primary": {
+        "$type": "color",
+        "background": { "$value": "{aifs.color.action.background}" },
+        "background-hovered": { "$value": "{color.primary.hovered}" },
+        "background-pressed": { "$value": "{color.primary.pressed}" },
+        "background-disabled": { "$value": "{color.ui.disabled}" },
+        "text": { "$value": "{color.text-&-icon.white.standard}" },
+        "text-disabled": { "$value": "{color.text-&-icon.disabled}" }
+      },
+      "secondary": {
+        "$type": "color",
+        "background": { "$value": "{color.ui.state-fill.standard}" },
+        "background-hovered": { "$value": "{color.ui.state-fill.hovered}" },
+        "background-pressed": { "$value": "{color.ui.state-fill.pressed}" },
+        "border": { "$value": "{color.ui.border.standard}" },
+        "border-hovered": { "$value": "{color.ui.border.hovered}" },
+        "border-pressed": { "$value": "{color.ui.border.pressed}" },
+        "border-disabled": { "$value": "{color.ui.border.disabled}" },
+        "text": { "$value": "{color.text-&-icon.standard}" },
+        "text-disabled": { "$value": "{color.text-&-icon.disabled}" }
+      },
+      "ghost": {
+        "$type": "color",
+        "background-hovered": { "$value": "{color.ui.state-fill.hovered}" },
+        "background-pressed": { "$value": "{color.ui.state-fill.pressed}" },
+        "text": { "$value": "{color.text-&-icon.link.standard}" },
+        "text-hovered": { "$value": "{color.text-&-icon.link.hovered}" },
+        "text-pressed": { "$value": "{color.text-&-icon.link.active}" },
+        "text-disabled": { "$value": "{color.text-&-icon.disabled}" }
+      }
+    },
+    "border-width": {
+      "$type": "dimension",
+      "standard": { "$value": "{line-weight.standard}" },
+      "indicator": { "$value": "{line-weight.bold}", "$description": "Current-page bar and aside accent line." }
+    }
+  }
+}

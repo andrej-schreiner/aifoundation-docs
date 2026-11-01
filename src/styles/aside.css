@@ -1,0 +1,90 @@
+/* Asides (:::note, :::tip, :::caution, :::danger): a lighter take on the
+   inline notification, styled like the tags, because guides use many of
+   them. A tinted background, the heading and the Telekom icon in the
+   matching text colour on one line, the body in the normal text colour and
+   aligned with the heading. Every value is an --aifs-aside-* token from
+   tokens.css. For a full notification, use InlineNotification
+   (notification.css).
+
+   Starlight's markup stays: its own icon inside the title is hidden, and the
+   Telekom icon from Scale (src/assets/icons/notification/) is drawn before the
+   heading. */
+
+.starlight-aside {
+	padding: var(--aifs-aside-padding-y) var(--aifs-aside-padding-x);
+	border: 0;
+	border-radius: var(--aifs-aside-radius);
+	background: color-mix(in srgb, var(--_aside-background) calc(var(--aifs-aside-tint-opacity) * 100%), transparent);
+	box-shadow: none;
+	color: var(--aifs-aside-text);
+}
+
+.starlight-aside--note {
+	--_aside-background: var(--aifs-aside-note-background);
+	--_aside-accent: var(--aifs-aside-note-accent);
+	--_aside-icon-image: url('../assets/icons/notification/information.svg');
+}
+
+.starlight-aside--tip {
+	--_aside-background: var(--aifs-aside-tip-background);
+	--_aside-accent: var(--aifs-aside-tip-accent);
+	--_aside-icon-image: url('../assets/icons/notification/success.svg');
+}
+
+.starlight-aside--caution {
+	--_aside-background: var(--aifs-aside-caution-background);
+	--_aside-accent: var(--aifs-aside-caution-accent);
+	--_aside-icon-image: url('../assets/icons/notification/warning.svg');
+}
+
+.starlight-aside--danger {
+	--_aside-background: var(--aifs-aside-danger-background);
+	--_aside-accent: var(--aifs-aside-danger-accent);
+	--_aside-icon-image: url('../assets/icons/notification/error.svg');
+}
+
+/* Heading line: icon, then the heading, both in the accent colour. */
+.starlight-aside__title {
+	display: flex;
+	align-items: center;
+	gap: var(--aifs-aside-icon-gap);
+	margin: 0;
+	color: var(--_aside-accent);
+	font-size: inherit;
+	font-weight: var(--aifs-aside-heading-font-weight);
+}
+
+.starlight-aside__title::before {
+	content: '';
+	flex: none;
+	width: var(--aifs-aside-icon-size);
+	height: var(--aifs-aside-icon-size);
+	background: currentColor;
+	mask: var(--_aside-icon-image) center / contain no-repeat;
+}
+
+.starlight-aside__title .starlight-aside__icon {
+	display: none;
+}
+
+/* Body: normal text colour, aligned with the heading. */
+.starlight-aside__content {
+	margin-top: var(--aifs-aside-text-gap);
+	padding-inline-start: calc(var(--aifs-aside-icon-size) + var(--aifs-aside-icon-gap));
+}
+
+.starlight-aside__content > :first-child {
+	margin-top: 0;
+}
+
+.starlight-aside a {
+	color: var(--aifs-aside-text);
+	text-decoration: underline;
+}
+
+/* Windows high contrast removes backgrounds; a border keeps the box. */
+@media (forced-colors: active) {
+	.starlight-aside {
+		border: 1px solid CanvasText;
+	}
+}

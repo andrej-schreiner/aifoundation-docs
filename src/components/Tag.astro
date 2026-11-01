@@ -1,0 +1,47 @@
+---
+// Tag with Scale's API (scale-tag): its standard type in all ten colours,
+// plus magenta. Styles live in src/styles/tag.css.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = {
+	/** Scale's colours, plus `magenta` (filled). */
+	color?:
+		| 'standard'
+		| 'cyan'
+		| 'yellow'
+		| 'green'
+		| 'orange'
+		| 'red'
+		| 'violet'
+		| 'brown'
+		| 'olive'
+		| 'teal'
+		| 'magenta';
+	/** Scale's sizes: default (24px) and small (20px). */
+	size?: 'default' | 'small';
+	/** Renders a link instead of a label. */
+	href?: string;
+	class?: string;
+} & Omit<HTMLAttributes<'span'> & HTMLAttributes<'a'>, 'class' | 'color'>;
+
+const { color = 'standard', size = 'default', href, class: className, ...rest } = Astro.props;
+
+const classes = [
+	'aifs-tag',
+	color !== 'standard' && `aifs-tag--${color}`,
+	size === 'small' && 'aifs-tag--small',
+	className,
+];
+---
+
+{
+	href ? (
+		<a class:list={classes} href={href} {...rest}>
+			<slot />
+		</a>
+	) : (
+		<span class:list={classes} {...rest}>
+			<slot />
+		</span>
+	)
+}

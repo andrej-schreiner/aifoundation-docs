@@ -1,0 +1,29 @@
+---
+// Inline notification with Scale's API (scale-notification, type inline):
+// variant, heading, and the message in the slot. For notices that need
+// attention on a page; for short notes in running text, use an aside
+// (:::note …). Styles live in src/styles/notification.css.
+import Icon from './Icon.astro';
+
+interface Props {
+	variant?: 'informational' | 'success' | 'warning' | 'danger';
+	heading: string;
+	/** Heading level for screen readers; Scale's headingLevel. */
+	headingLevel?: 2 | 3 | 4 | 5 | 6;
+}
+
+const { variant = 'informational', heading, headingLevel = 3 } = Astro.props;
+
+const icons = {
+	informational: 'alert-information',
+	success: 'action-success',
+	warning: 'alert-warning',
+	danger: 'alert-error',
+} as const;
+---
+
+<div class:list={['aifs-notification', `aifs-notification--${variant}`, 'not-content']}>
+	<span class="aifs-notification__icon" aria-hidden="true"><Icon name={icons[variant]} size={20} /></span>
+	<div class="aifs-notification__heading" role="heading" aria-level={headingLevel}>{heading}</div>
+	<div class="aifs-notification__text"><slot /></div>
+</div>

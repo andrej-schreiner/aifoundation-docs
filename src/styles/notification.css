@@ -1,0 +1,82 @@
+/* Inline notifications, aligned with Scale's notification of type inline
+   (telekom/scale@e90165a, notification.css): a full subtle background in the
+   functional colour, no border, the icon in its own 48px column, a bold
+   heading and the text below it. Every value is an --aifs-notification-*
+   token from tokens.css. Use the InlineNotification component.
+
+   For the many short notes in guides, asides (:::note …) are lighter; see
+   aside.css. */
+
+.aifs-notification {
+	position: relative;
+	padding: var(--aifs-notification-padding-y) var(--aifs-notification-padding-end) var(--aifs-notification-padding-y)
+		var(--aifs-notification-icon-column);
+	border-radius: var(--aifs-notification-radius);
+	background: var(--_notification-background);
+	color: var(--aifs-notification-text);
+}
+
+.aifs-notification--informational {
+	--_notification-background: var(--aifs-notification-informational-background);
+	--_notification-icon: var(--aifs-notification-informational-icon);
+}
+
+.aifs-notification--success {
+	--_notification-background: var(--aifs-notification-success-background);
+	--_notification-icon: var(--aifs-notification-success-icon);
+}
+
+.aifs-notification--warning {
+	--_notification-background: var(--aifs-notification-warning-background);
+	--_notification-icon: var(--aifs-notification-warning-icon);
+}
+
+.aifs-notification--danger {
+	--_notification-background: var(--aifs-notification-danger-background);
+	--_notification-icon: var(--aifs-notification-danger-icon);
+}
+
+.aifs-notification__icon {
+	position: absolute;
+	top: var(--aifs-notification-padding-y);
+	left: calc((var(--aifs-notification-icon-column) - var(--aifs-notification-icon-size)) / 2);
+	display: flex;
+	color: var(--_notification-icon);
+}
+
+.aifs-notification__heading {
+	display: block;
+	margin: 0;
+	font-size: var(--aifs-notification-heading-font-size);
+	font-weight: var(--aifs-notification-heading-font-weight);
+	line-height: var(--aifs-notification-heading-line-height);
+}
+
+.aifs-notification__text {
+	margin-top: var(--aifs-notification-text-gap);
+}
+
+.aifs-notification__text > :first-child {
+	margin-top: 0;
+}
+
+.aifs-notification__text > :last-child {
+	margin-bottom: 0;
+}
+
+.aifs-notification a {
+	color: var(--aifs-notification-text);
+	text-decoration: underline;
+}
+
+@media (forced-colors: active) {
+	.aifs-notification {
+		border: 1px solid CanvasText;
+	}
+}
+
+/* `not-content` keeps Starlight's prose spacing out; paragraphs in the text
+   get it back. */
+.aifs-notification__text > * + * {
+	margin-top: var(--aifs-notification-text-gap);
+}

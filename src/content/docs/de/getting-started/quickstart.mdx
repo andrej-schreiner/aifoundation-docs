@@ -1,72 +1,40 @@
 ---
 title: "Quickstart"
-description: "OpenAI SDK installieren, API-Schlüssel konfigurieren und in unter fünf Minuten die erste Anfrage an AI Foundation Services senden."
+description: "API-Schlüssel holen, zwei Umgebungsvariablen setzen und die erste Anfrage an AI Foundation Services senden, in drei Schritten."
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-Starten Sie in wenigen Minuten mit den AI Foundation Services. Diese Anleitung führt Sie durch die Installation des SDK, die Einrichtung der Authentifizierung und Ihren ersten API-Aufruf.
+Die erste Anfrage in drei Schritten. Lieber eine Oberfläche? Nutzen Sie den [Playground](https://playground.llmhub.t-systems.net/).
 
+## 1. API-Schlüssel holen
 
-## Schritt 1: OpenAI-Paket installieren
+Einen kostenlosen Test-Schlüssel erstellen Sie im [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/). Ein Test-Schlüssel schaltet alle Modelle frei, einschließlich Premium-Modelle. Für einen Produktivtarif [kontaktieren Sie uns](mailto:ai@t-systems.com).
 
-AI Foundation Services verwendet eine OpenAI-kompatible API, sodass Sie die offiziellen OpenAI-SDKs nutzen können.
-
-<Tabs>
-  <TabItem value="python" label="Python" default>
-    ```bash
-    pip install openai
-    ```
-  </TabItem>
-  <TabItem value="node" label="Node.js">
-    ```bash
-    npm install openai
-    ```
-  </TabItem>
-</Tabs>
-
-
-## Schritt 2: API-Schlüssel erhalten
-
-### Kostenloser Test-Schlüssel
-
-Starten Sie sofort mit einem kostenlosen Test-Schlüssel:
-
-1. Besuchen Sie das [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/)
-2. Erstellen Sie ein Konto und generieren Sie Ihren API-Schlüssel
-3. Ihr Test-Schlüssel gibt Ihnen Zugang zu allen verfügbaren Modellen
-
-### Produktionsschlüssel
-
-Für produktive Workloads kaufen Sie über den [T-Cloud Marketplace](https://marketplace.otc.t-systems.com/).
-
-
-## Schritt 3: Umgebungsvariablen setzen
+## 2. Zwei Umgebungsvariablen setzen
 
 <Tabs>
-  <TabItem value="mac" label="macOS / Linux" default>
+  <TabItem value="mac" label="macOS/Linux" default>
     ```bash
     export OPENAI_API_KEY="your_api_key_here"
-    export OPENAI_BASE_URL="https://llm-server.llmhub.t-systems.net/v2"
+    export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
     ```
   </TabItem>
-  <TabItem value="windows-ps" label="Windows (PowerShell)">
+  <TabItem value="windows-ps" label="PowerShell">
     ```powershell
-    [System.Environment]::SetEnvironmentVariable('OPENAI_API_KEY', 'your_api_key_here', 'User')
-    [System.Environment]::SetEnvironmentVariable('OPENAI_BASE_URL', 'https://llm-server.llmhub.t-systems.net/v2', 'User')
+    $env:OPENAI_API_KEY = "your_api_key_here"
+    $env:OPENAI_BASE_URL = "https://llm-server.ai.t-systems.net/v1"
     ```
-    Öffnen Sie ein neues PowerShell-Fenster, damit die Variablen wirksam werden. (`$env:VAR = '...'` setzt eine Variable nur für die aktuelle Session.)
   </TabItem>
-  <TabItem value="windows-cmd" label="Windows (CMD)">
+  <TabItem value="windows-cmd" label="CMD">
     ```bash
     setx OPENAI_API_KEY "your_api_key_here"
-    setx OPENAI_BASE_URL "https://llm-server.llmhub.t-systems.net/v2"
+    setx OPENAI_BASE_URL "https://llm-server.ai.t-systems.net/v1"
     ```
   </TabItem>
 </Tabs>
 
-
-## Schritt 4: Ersten API-Aufruf durchführen
+## 3. Anfrage senden
 
 <Tabs>
   <TabItem value="curl" label="curl" default>
@@ -76,106 +44,36 @@ Für produktive Workloads kaufen Sie über den [T-Cloud Marketplace](https://mar
       -H "Content-Type: application/json" \
       -d '{
         "model": "gpt-oss-120b",
-        "messages": [
-          {"role": "system", "content": "You are a helpful assistant."},
-          {"role": "user", "content": "What is quantum computing in simple terms?"}
-        ],
-        "temperature": 0.5,
-        "max_tokens": 150
+        "messages": [{"role": "user", "content": "Hello from AIFS"}]
       }'
     ```
   </TabItem>
   <TabItem value="python" label="Python">
     ```python
+    # pip install openai
     from openai import OpenAI
 
-    client = OpenAI()  # Reads OPENAI_API_KEY and OPENAI_BASE_URL from env
-
+    client = OpenAI()
     response = client.chat.completions.create(
         model="gpt-oss-120b",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": "What is quantum computing in simple terms?"},
-        ],
-        temperature=0.5,
-        max_tokens=150,
+        messages=[{"role": "user", "content": "Hello from AIFS"}],
     )
-
     print(response.choices[0].message.content)
     ```
   </TabItem>
   <TabItem value="node" label="Node.js">
     ```javascript
+    // npm install openai
     import OpenAI from "openai";
 
-    const client = new OpenAI(); // Reads OPENAI_API_KEY and OPENAI_BASE_URL from env
-
+    const client = new OpenAI();
     const response = await client.chat.completions.create({
       model: "gpt-oss-120b",
-      messages: [
-        { role: "system", content: "You are a helpful assistant." },
-        { role: "user", content: "What is quantum computing in simple terms?" },
-      ],
-      temperature: 0.5,
-      max_tokens: 150,
+      messages: [{ role: "user", content: "Hello from AIFS" }],
     });
-
     console.log(response.choices[0].message.content);
     ```
   </TabItem>
 </Tabs>
 
-
-## Weitere Beispiele
-
-### Embeddings erstellen
-
-```python
-from openai import OpenAI
-
-client = OpenAI()
-
-texts = ["The quick brown fox jumps over the lazy dog", "Data science is fun!"]
-result = client.embeddings.create(input=texts, model="jina-embeddings-v2-base-de")
-
-print(f"Embedding dimension: {len(result.data[0].embedding)}")
-print(f"Token usage: {result.usage}")
-```
-
-### Vision / Multimodal
-
-```python
-from openai import OpenAI
-
-client = OpenAI()
-
-response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
-    messages=[
-        {
-            "role": "user",
-            "content": [
-                {"type": "text", "text": "What's in this image?"},
-                {
-                    "type": "image_url",
-                    "image_url": {
-                        "url": "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400"
-                    },
-                },
-            ],
-        }
-    ],
-    max_tokens=300,
-)
-
-print(response.choices[0].message.content)
-```
-
-
-## Nächste Schritte
-
-- **[Authentifizierung](/de/getting-started/authentication)** — API-Schlüssel-Verwaltung und Best Practices
-- **[Verfügbare Modelle](/de/getting-started/models)** — Alle unterstützten Modelle durchsuchen
-- **[Chat Completions](/de/guides/chat-completions)** — Detaillierte Anleitung mit Streaming, Parametern und mehr
-- **[LangChain](/de/integrations/langchain)** — AIFS mit LangChain für RAG verwenden
-- **[Llama Index](/de/integrations/llama-index)** — AIFS mit LlamaIndex für RAG verwenden
+Weiter: [Authentifizierung](/de/getting-started/authentication) · [Coding-Agenten einrichten](/de/getting-started/coding-agents) · [Empfohlene Modelle](/de/getting-started/choosing-a-model) · [Umstieg von OpenAI](/de/guides/migrate-from-openai) · [API-Referenz](/de/reference/api-endpoints)

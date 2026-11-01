@@ -1,0 +1,177 @@
+/* Buttons, aligned with Scale's scale-button (telekom/scale@e90165a,
+   packages/components/src/components/button/button.css): same variants,
+   sizes, states and spacing. Every value is a --aifs-button-* token from
+   tokens.css, so light and dark follow the theme.
+
+   Use the Button component (src/components/Button.astro), which sets these
+   classes. Starlight's LinkButton is mapped onto the same styles below:
+   primary → primary, secondary → secondary, minimal → ghost. */
+
+.aifs-button,
+.sl-link-button {
+	box-sizing: border-box;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: var(--aifs-button-icon-gap);
+	position: relative;
+	min-height: var(--aifs-button-min-height);
+	min-width: var(--aifs-button-min-height);
+	margin: 0;
+	padding-block: 0;
+	padding-inline: var(--aifs-button-padding-x);
+	border: var(--aifs-button-border-width) solid transparent;
+	border-radius: var(--aifs-button-radius);
+	font-family: inherit;
+	font-size: var(--aifs-button-font-size);
+	font-weight: var(--aifs-button-font-weight);
+	line-height: var(--aifs-button-line-height);
+	text-align: center;
+	text-decoration: none;
+	white-space: nowrap;
+	vertical-align: middle;
+	cursor: pointer;
+	user-select: none;
+	/* Only the state colours animate. Scale uses `all`, which also fades the
+	   focus outline in from 3px currentColor, so keyboard focus showed late. */
+	transition-property: background-color, border-color, color;
+	transition-duration: var(--aifs-button-transition-duration);
+	transition-timing-function: var(--aifs-button-transition-easing);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aifs-button,
+	.sl-link-button {
+		transition: none;
+	}
+}
+
+.aifs-button:focus-visible,
+.sl-link-button:focus-visible {
+	outline: var(--aifs-button-focus-width) solid var(--aifs-button-focus);
+	outline-offset: var(--aifs-button-focus-offset);
+}
+
+.aifs-button > svg,
+.sl-link-button > svg {
+	flex: none;
+}
+
+/* Size: small */
+
+.aifs-button--small {
+	gap: var(--aifs-button-icon-gap-small);
+	min-height: var(--aifs-button-min-height-small);
+	min-width: var(--aifs-button-min-height-small);
+	padding-inline: var(--aifs-button-padding-x-small);
+	font-size: var(--aifs-button-font-size-small);
+	line-height: var(--aifs-button-line-height-small);
+}
+
+/* Small buttons look as in Scale (32px) but are hit like large ones (44px):
+   an invisible layer reaches past the edges. Neighbours sit at least 8px
+   apart, so two hit areas never overlap. */
+.aifs-button--small::before {
+	content: '';
+	position: absolute;
+	inset: calc((var(--aifs-button-min-height-small) - var(--aifs-button-min-height)) / 2) 0;
+}
+
+.aifs-button--small.aifs-button--icon-only::before {
+	inset: calc((var(--aifs-button-min-height-small) - var(--aifs-button-min-height)) / 2);
+}
+
+/* Icon only: a square button; its label goes into aria-label. */
+
+.aifs-button--icon-only {
+	padding-inline: var(--aifs-button-padding-x-icon-only);
+}
+
+.aifs-button--icon-only.aifs-button--small {
+	padding-inline: var(--aifs-button-padding-x-icon-only-small);
+}
+
+/* Variant: primary */
+
+.aifs-button--primary,
+.sl-link-button.primary {
+	background: var(--aifs-button-primary-background);
+	color: var(--aifs-button-primary-text);
+}
+
+.aifs-button--primary:hover,
+.sl-link-button.primary:hover {
+	background: var(--aifs-button-primary-background-hovered);
+	color: var(--aifs-button-primary-text);
+}
+
+.aifs-button--primary:active,
+.sl-link-button.primary:active {
+	background: var(--aifs-button-primary-background-pressed);
+}
+
+/* Variant: secondary */
+
+.aifs-button--secondary,
+.sl-link-button.secondary {
+	background: var(--aifs-button-secondary-background);
+	border-color: var(--aifs-button-secondary-border);
+	color: var(--aifs-button-secondary-text);
+}
+
+.aifs-button--secondary:hover,
+.sl-link-button.secondary:hover {
+	background: var(--aifs-button-secondary-background-hovered);
+	border-color: var(--aifs-button-secondary-border-hovered);
+	color: var(--aifs-button-secondary-text);
+}
+
+.aifs-button--secondary:active,
+.sl-link-button.secondary:active {
+	background: var(--aifs-button-secondary-background-pressed);
+	border-color: var(--aifs-button-secondary-border-pressed);
+}
+
+/* Variant: ghost */
+
+.aifs-button--ghost,
+.sl-link-button.minimal {
+	background: transparent;
+	color: var(--aifs-button-ghost-text);
+	padding-inline: var(--aifs-button-padding-x-ghost);
+}
+
+.aifs-button--ghost:hover,
+.sl-link-button.minimal:hover {
+	background: var(--aifs-button-ghost-background-hovered);
+	color: var(--aifs-button-ghost-text-hovered);
+}
+
+.aifs-button--ghost:active,
+.sl-link-button.minimal:active {
+	background: var(--aifs-button-ghost-background-pressed);
+	color: var(--aifs-button-ghost-text-pressed);
+}
+
+/* Disabled: <button disabled>, or aria-disabled on a link. No hover or
+   pressed state, and the pointer says why. */
+
+.aifs-button:is(:disabled, [aria-disabled='true']) {
+	cursor: not-allowed;
+}
+
+.aifs-button--primary:is(:disabled, [aria-disabled='true']) {
+	background: var(--aifs-button-primary-background-disabled);
+	color: var(--aifs-button-primary-text-disabled);
+}
+
+.aifs-button--secondary:is(:disabled, [aria-disabled='true']) {
+	background: transparent;
+	border-color: var(--aifs-button-secondary-border-disabled);
+	color: var(--aifs-button-secondary-text-disabled);
+}
+
+.aifs-button--ghost:is(:disabled, [aria-disabled='true']) {
+	background: transparent;
+	color: var(--aifs-button-ghost-text-disabled);
+}

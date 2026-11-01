@@ -1,0 +1,123 @@
+---
+title: "Continue für VS Code"
+description: "Das Continue-Plugin für Visual Studio Code installieren und einrichten: Chat, Inline-Bearbeitung, Autovervollständigung und Coding-Agenten auf AI Foundation Services."
+---
+
+Continue for AI Engineer ist eine angepasste Fassung der Continue-Erweiterung für Visual Studio Code. Sie bringt Chat, Inline-Bearbeitung, Autovervollständigung und Coding-Agenten in den Editor, sodass Sie im selben Ablauf mit den Modellen arbeiten. Die Einrichtung für JetBrains steht unter [Continue für JetBrains](/de/plugins/continue-jetbrains).
+
+## Funktionen
+
+- Chat für Fragen, Erklärungen zum Code und Unterstützung bei der Entwicklung
+- Inline-Bearbeitung für gezielte Änderungen, ohne die Datei zu verlassen
+- Autovervollständigung für schnelle Vorschläge während der Eingabe
+- Coding-Agenten für mehrschrittige Aufgaben wie Dateien lesen, Befehle ausführen und Änderungen anwenden
+
+## Installation
+
+1. Laden Sie die *Continue*-VSIX unter [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins) herunter.
+2. Öffnen Sie in VS Code **Extensions**, dann das Dreipunkt-Menü, und wählen Sie **Install from VSIX**.
+3. Wählen Sie die heruntergeladene Plugin-Datei und laden Sie VS Code neu.
+
+## Konfigurationsdatei
+
+Nach der ersten Installation öffnen Sie das Continue-Plugin für AI Engineer und wählen **Local config**. Dadurch öffnet sich eine leere `config.yaml`, in die Sie Modell, Basis-URL und API-Schlüssel eintragen.
+
+1. Wählen Sie eine Modell-ID aus [Verfügbare Modelle](/de/models):
+
+```yaml
+model: gpt-oss-120b
+```
+
+2. Stellen Sie die Basis-URL ein:
+
+```yaml
+apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+```
+
+3. Erzeugen Sie einen API-Schlüssel unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard) und verweisen Sie aus einem Continue-Secret darauf:
+
+```yaml
+apiKey: ${{ secrets.OPENAI_API_KEY }}
+```
+
+   Wie Sie den Wert bereitstellen, steht unter [Umgebungsvariable verwenden](#umgebungsvariable-verwenden).
+
+4. Weisen Sie dem Modell eine oder mehrere Rollen zu, zum Beispiel `chat`, `edit`, `apply`, `autocomplete` oder `embed`:
+
+```yaml
+roles:
+  - chat
+```
+
+### Beispiel `config.yaml`
+
+```yaml
+name: Local Config
+version: 1.0.0
+schema: v1
+models:
+  - name: gpt-oss-120b
+    model: gpt-oss-120b
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+  - name: GLM-5.3
+    model: GLM-5.3
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+  - name: GLM-5.3-Flash
+    model: GLM-5.3-Flash
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+```
+
+Sobald die Konfiguration gespeichert ist, können Sie einen Chat starten und Continue in VS Code verwenden.
+
+### Umgebungsvariable verwenden
+
+Die Referenz `${{ secrets.OPENAI_API_KEY }}` löst den Wert zur Laufzeit auf, statt den API-Schlüssel fest in die `config.yaml` zu schreiben. Continue sucht die Quellen in dieser Reihenfolge:
+
+1. Eine `.env`-Datei im Wurzelverzeichnis des Workspace
+2. `.continue/.env` im Workspace
+3. `~/.continue/.env` im Home-Verzeichnis
+4. Die Prozessumgebung
+
+:::caution[VS Code übernimmt die Shell-Umgebung oft nicht]
+Unter macOS und Windows übernimmt VS Code Shell-Variablen in der Regel **nicht**. Auch wenn Sie `OPENAI_API_KEY` im Terminal exportiert haben, wie im [Schnellstart](/de/), sieht Continue innerhalb von VS Code den Wert oft nicht. Der verlässliche Weg ist eine `.env`-Datei.
+:::
+
+Legen Sie `~/.continue/.env` mit Ihrem Schlüssel an:
+
+```dotenv
+OPENAI_API_KEY=gen-************************************************
+```
+
+Starten Sie VS Code neu. Continue löst `${{ secrets.OPENAI_API_KEY }}` aus der `.env`-Datei auf, und Sie setzen den Wert einmal für jedes Modell in der `config.yaml`.
+
+## Aktualisieren
+
+Nach der Einrichtung kann das Plugin neu veröffentlichte Versionen automatisch laden. Wenn Sie VS Code starten oder neu laden und ein Update vorliegt, erscheint ein Hinweis.
+
+1. Klicken Sie auf **Update Now**, um die aktuelle Version herunterzuladen.
+
+![Update-Hinweis von Continue für VS Code mit der Schaltfläche „Update Now“ zum Herunterladen der aktuellen Version](/img/continue_vscode_auto_update_1.png)
+
+2. Wenn der Download fertig ist, klicken Sie auf **Reload Window**.
+
+![Hinweis nach dem Update von Continue für VS Code mit der Schaltfläche „Reload Window“ zum Übernehmen der neuen Version](/img/continue_vscode_auto_update_2.png)
+
+Nach dem Neustart von Visual Studio Code ist die aktuelle Continue-Version einsatzbereit.

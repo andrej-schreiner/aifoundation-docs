@@ -5,7 +5,7 @@ description: "AI Foundation Services mit gängigen KI-Frameworks wie LangChain u
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-AI Foundation Services stellt eine OpenAI-kompatible API bereit. Das bedeutet, dass die meisten Frameworks und Werkzeuge, die für OpenAI entwickelt wurden, sofort einsatzbereit sind — passen Sie einfach die Basis-URL auf `https://llmhub.t-systems.net/v2` an und geben Sie Ihren API-Schlüssel an. Die folgenden Seiten beschreiben die gängigsten Framework-Integrationen mit funktionsfähigen Einrichtungsbeispielen.
+AI Foundation Services stellt eine OpenAI-kompatible API bereit. Das bedeutet, dass die meisten Frameworks und Werkzeuge, die für OpenAI entwickelt wurden, sofort einsatzbereit sind — passen Sie einfach die Basis-URL auf `https://llm-server.ai.t-systems.net/v1` an und geben Sie Ihren API-Schlüssel an. Die folgenden Seiten beschreiben die gängigsten Framework-Integrationen mit funktionsfähigen Einrichtungsbeispielen.
 
 <CardGrid>
   <LinkCard
@@ -17,5 +17,25 @@ AI Foundation Services stellt eine OpenAI-kompatible API bereit. Das bedeutet, d
     title="Llama Index"
     href="/de/integrations/llama-index/"
     description="RAG-Anwendungen und Chat-Engines mit LlamaIndex erstellen, indem der OpenAI-kompatible Client auf AI Foundation Services zeigt."
+  />
+  <LinkCard
+    title="Cline"
+    href="/de/plugins/cline/"
+    description="Cline for AI Engineer in Visual Studio Code installieren und konfigurieren – ein agentisches Coding-Plugin, verbunden mit AI Foundation Services."
+  />
+  <LinkCard
+    title="Continue (VS Code)"
+    href="/de/plugins/continue-vscode/"
+    description="Das Continue-Plugin für Visual Studio Code installieren und konfigurieren: Chat, Inline-Edits, Autovervollständigung und Coding-Agenten auf AI Foundation Services."
+  />
+  <LinkCard
+    title="Continue (JetBrains)"
+    href="/de/plugins/continue-jetbrains/"
+    description="Das Continue-Plugin für JetBrains-IDEs installieren und konfigurieren: Chat, Inline-Edits, Autovervollständigung und Coding-Agenten auf AI Foundation Services."
+  />
+  <LinkCard
+    title="OpenCode"
+    href="/de/plugins/opencode/"
+    description="OpenCode installieren, einen quelloffenen, terminalbasierten KI-Coding-Agenten, und mit AI Foundation Services verbinden."
   />
 </CardGrid>

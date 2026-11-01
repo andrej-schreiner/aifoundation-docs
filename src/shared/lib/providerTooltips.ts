@@ -1,6 +1,6 @@
 // Tooltip content for the brand logo on the plans and comparison pages.
 // Minimal: just the maker's company name. Keys must match the `creator`
-// strings used by modelBrandIcons (so the same dictionary works for any
+// strings used by logos (src/shared/lib/logos.ts) (so the same dictionary works for any
 // component that already has a creator string).
 
 export type CreatorKey =
@@ -17,6 +17,7 @@ export type CreatorKey =
   | 'BAAI'
   | 'Jina AI'
   | 'T-Systems'
+  | 'DeepSeek'
   | 'Other';
 
 const PROVIDER_NAMES: Record<CreatorKey, string> = {
@@ -33,6 +34,7 @@ const PROVIDER_NAMES: Record<CreatorKey, string> = {
   BAAI: 'BAAI',
   'Jina AI': 'Jina AI',
   'T-Systems': 'T-Systems',
+  DeepSeek: 'DeepSeek',
   Other: 'Independent maker',
 };
 

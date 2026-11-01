@@ -1,0 +1,46 @@
+---
+// One labelled row of examples on the design-system page. `not-content`
+// keeps Starlight's prose spacing and link styles off the examples.
+interface Props {
+	label: string;
+	/** Full width, one example under the other, for wide examples such as tabs. */
+	block?: boolean;
+}
+
+const { label, block = false } = Astro.props;
+---
+
+<div class="showcase not-content">
+	<p class="showcase__label">{label}</p>
+	<div class:list={['showcase__items', { 'showcase__items--block': block }]}><slot /></div>
+</div>
+
+<style>
+	.showcase {
+		margin-block: var(--aifs-design-system-row-gap);
+	}
+
+	.showcase__label {
+		margin: 0 0 var(--aifs-design-system-label-gap);
+		color: var(--aifs-color-text-muted);
+		font-size: var(--aifs-text-small-font-size);
+	}
+
+	/* Top-aligned, so examples of different heights (a field with helper text
+	   next to one without) line up at their top edge. */
+	.showcase__items {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-start;
+		gap: var(--aifs-design-system-example-gap);
+	}
+
+	.showcase__items--block {
+		display: block;
+	}
+
+	/* `not-content` drops Starlight's spacing between blocks; restore it. */
+	.showcase__items--block > :global(* + *) {
+		margin-top: var(--aifs-design-system-example-gap);
+	}
+</style>

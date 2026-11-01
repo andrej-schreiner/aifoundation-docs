@@ -1,0 +1,59 @@
+---
+// Button with Scale's API (scale-button): variant, size, icon only, link or
+// button. Styles live in src/styles/button.css.
+import type { HTMLAttributes } from 'astro/types';
+
+type Props = {
+	variant?: 'primary' | 'secondary' | 'ghost';
+	/** Scale's sizes: large (44px, the default) and small (32px). */
+	size?: 'large' | 'small';
+	/** Only an icon in the slot: the label must then come from ariaLabel. */
+	iconOnly?: boolean;
+	/** Renders a link instead of a button. */
+	href?: string;
+	disabled?: boolean;
+	type?: 'button' | 'submit' | 'reset';
+	ariaLabel?: string;
+	class?: string;
+} & Omit<HTMLAttributes<'button'> & HTMLAttributes<'a'>, 'type' | 'class' | 'disabled'>;
+
+const {
+	variant = 'primary',
+	size = 'large',
+	iconOnly = false,
+	href,
+	disabled = false,
+	type = 'button',
+	ariaLabel,
+	class: className,
+	...rest
+} = Astro.props;
+
+const classes = [
+	'aifs-button',
+	`aifs-button--${variant}`,
+	size === 'small' && 'aifs-button--small',
+	iconOnly && 'aifs-button--icon-only',
+	className,
+];
+---
+
+{
+	href ? (
+		// A disabled link has no href, so it cannot be followed or focused by Tab.
+		<a
+			class:list={classes}
+			href={disabled ? undefined : href}
+			aria-disabled={disabled ? 'true' : undefined}
+			aria-label={ariaLabel}
+			role={disabled ? 'link' : undefined}
+			{...rest}
+		>
+			<slot />
+		</a>
+	) : (
+		<button class:list={classes} type={type} disabled={disabled} aria-label={ariaLabel} {...rest}>
+			<slot />
+		</button>
+	)
+}
