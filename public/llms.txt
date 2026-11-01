@@ -1,6 +1,6 @@
 # AI Foundation Services (T-Systems)
 
-> OpenAI-compatible LLM inference API by T-Systems. 30+ open-source and proprietary models on a single endpoint. Open-source models run on T-Cloud in Germany with GDPR-compliant EU hosting; proprietary models are forwarded to Microsoft Azure or Google Cloud, where processing may take place worldwide.
+> OpenAI-compatible LLM inference API by T-Systems. 30+ open-source and proprietary models on a single endpoint. Open-source models run on the GDPR-compliant T-Cloud in Germany, within the EU; proprietary models are forwarded to Microsoft Azure or Google Cloud, where processing may take place worldwide.
 
 ## Get started
 
@@ -15,8 +15,8 @@
 
 - [Catalog](https://docs.llmhub.t-systems.net/models): Hosted LLMs, embeddings, audio, and image models.
 - GLM 5.3 (`GLM-5.3`) on T-Cloud, in the shared rate plans, from 2 November 2026. Input €1.40 / output €4.40 per 1M tokens.
-- DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash`) is in the preview catalog from 2 November 2026, with pricing to be announced.
-- [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR and decision models are free on any active plan; DeepSeek 4.1 Flash pricing is to be announced.
+- DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash-preview`) is a preview model from 2 November 2026, hosted on T-Cloud in Germany, within the EU, free on any active plan.
+- [Preview models](https://docs.llmhub.t-systems.net/models/preview): OCR, decision and DeepSeek 4.1 Flash preview models are free on any active plan.
 - [Deprecations](https://docs.llmhub.t-systems.net/models/deprecations): Upcoming retirements and models already retired.
 
 ## Guides
