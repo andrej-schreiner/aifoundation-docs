@@ -37,9 +37,10 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
 const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
 
-/** Monthly plan price: "1,000 €" on English pages, "1.000 €" (no-break space) on German pages. */
+/** Monthly plan price: "€1,000" on English pages, "1.000 €" (no-break space) on German pages. Archived pages keep their original "1,000 €". */
 function planPrice(amount: number): string {
-  return numberLocale === 'de' ? `${formatInteger(amount, 'de')}${EURO_SUFFIX_DE}` : `${formatInteger(amount, 'en')} €`;
+  if (isArchive) return `${formatInteger(amount, 'en')} €`;
+  return numberLocale === 'de' ? `${formatInteger(amount, 'de')}${EURO_SUFFIX_DE}` : `€${formatInteger(amount, 'en')}`;
 }
 
 /** Token prices as written in English ("0.20 / 0.65"); German pages get decimal commas ("0,20 / 0,65"). */
