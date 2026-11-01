@@ -516,12 +516,13 @@ response = client.models.list()
 
 </Showcase>
 
-<Showcase label="Inserted and deleted lines: ins={3} del={2}" block>
+<Showcase label="Inserted and deleted lines: ins={4} del={3}" block>
 
-```js ins={3} del={2}
+```js ins={4} del={3}
 const client = new OpenAI({
-  baseURL: "https://llm-server.llmhub.t-systems.net/v1",
   baseURL: "https://llm-server.ai.t-systems.net/v1",
+  apiKey: "YOUR_API_KEY",
+  apiKey: process.env.API_KEY,
 });
 ```
 
