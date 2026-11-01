@@ -26,10 +26,12 @@
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
 const label = isDE ? 'Ankündigungen' : 'Announcements';
-const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
+const close = isDE ? 'Ankündigungen schließen' : 'Dismiss announcements';
 
-// `short` on every screen; a row with a `msg` shows that instead where the
-// column has room for it on one line (see the container query).
+// `short` on phones; a row with a `msg` shows that instead where the column
+// has room for it on one line (see the container query). A `split` row's
+// `msg` is two lines (a <br> between its sentences) on every screen but a
+// phone, so the box keeps one height as the column narrows.
 const rows = isDE
   ? [
       {
@@ -44,6 +46,8 @@ const rows = isDE
         key: 'apiTransitionBannerDismissed',
         badge: 'Hinweis',
         tag: 'standard',
+        split: true,
+        msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. <br>Prüfen Sie, was sich ändert und was Sie tun müssen.',
         short: '<b>API-Änderungen</b>: Was ist zu tun?',
         href: `${prefix}/api-transition`,
       },
@@ -61,6 +65,8 @@ const rows = isDE
         key: 'apiTransitionBannerDismissed',
         badge: 'Notice',
         tag: 'standard',
+        split: true,
+        msg: 'We are making a few <b>API changes</b>. <br>See what changes and what you need to do.',
         short: '<b>API changes</b>: what to do',
         href: `${prefix}/api-transition`,
       },
@@ -74,7 +80,7 @@ import Icon from './Icon.astro';
   <div class="qp-box" role="region" aria-label={label}>
     <ul class="qp-rows">
       {rows.map((r) => (
-        <li class="qp-row" data-key={r.key}>
+        <li class:list={['qp-row', r.split && 'qp-row--split']} data-key={r.key}>
           <a class="qp-link" href={r.href}>
             <Tag color={r.tag as 'standard' | 'magenta'} size="small" class="qp-badge">{r.badge}</Tag>
             <span class="qp-text">
@@ -152,10 +158,23 @@ import Icon from './Icon.astro';
     transition: left 0.15s ease;
   }
 
-  .qp-link:hover .qp-text :is(.qp-msg, .qp-short),
-  .qp-link:focus-visible .qp-text :is(.qp-msg, .qp-short) {
+  /* The message is a link in running text (redesign.css): blue, 500,
+     underlined; the bold parts stay bold. */
+  .qp-text :is(.qp-msg, .qp-short) {
+    color: var(--aifs-color-link-standard);
+    font-weight: 500;
     text-decoration: underline;
+    text-decoration-thickness: var(--aifs-border-width-standard);
     text-underline-offset: 2px;
+  }
+
+  .qp-link:hover .qp-text :is(.qp-msg, .qp-short) {
+    color: var(--aifs-color-link-hovered);
+    text-decoration-thickness: 2px;
+  }
+
+  .qp-link:hover .qp-arrow {
+    color: var(--aifs-color-link-hovered);
   }
 
   .qp-link:hover .qp-arrow {
@@ -185,10 +204,19 @@ import Icon from './Icon.astro';
   }
 
   @container qp-stack (max-width: 38.74rem) {
-    .qp-msg {
+    .qp-row:not(.qp-row--split) .qp-msg {
       display: none;
     }
-    .qp-short--alt {
+    .qp-row:not(.qp-row--split) .qp-short--alt {
+      display: inline;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .qp-row--split .qp-msg {
+      display: none;
+    }
+    .qp-row--split .qp-short--alt {
       display: inline;
     }
   }
@@ -218,7 +246,7 @@ import Icon from './Icon.astro';
 
 <script>
   // Closes every row: stores each key and sets its qp-off-<key> class, which
-  // hides the box (layout.css).
+  // hides the box (layout.css). Focus then goes to the page title, not <body>.
   function dismiss() {
     const root = document.documentElement;
     document.querySelectorAll<HTMLElement>('.qp-row[data-key]').forEach((row) => {
@@ -229,6 +257,11 @@ import Icon from './Icon.astro';
       } catch {}
       root.classList.add('qp-off-' + key);
     });
+    const h1 = document.querySelector<HTMLElement>('main h1');
+    if (h1) {
+      if (!h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
+      h1.focus();
+    }
   }
 
   function initPreviewModelsBanner() {
@@ -236,15 +269,11 @@ import Icon from './Icon.astro';
       if (box.dataset.qpBound === '1') return;
       box.dataset.qpBound = '1';
       box.querySelector('.qp-close')?.addEventListener('click', dismiss);
-    });
-    if (!(window as any).__previewModelsBannerEscBound) {
-      (window as any).__previewModelsBannerEscBound = true;
-      document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-        const el = document.querySelector<HTMLElement>('.qp-stack');
-        if (el && getComputedStyle(el).display !== 'none') dismiss();
+      // Escape only while focus is inside the box.
+      box.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') dismiss();
       });
-    }
+    });
   }
 
   document.addEventListener('astro:page-load', initPreviewModelsBanner);
