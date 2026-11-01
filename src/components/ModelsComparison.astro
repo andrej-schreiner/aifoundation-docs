@@ -140,9 +140,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3.8-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemma-4-31B-it-FP8':            { inputModalities: ['Text', 'Image'] },
-  // TODO(andrej): confirm id DeepSeek-V4.1-Flash. Text and image in, text out.
+  // DeepSeek 4.1 Flash: text and image in, text out.
   // Tool calling and streaming are not in the repo data, so both stay unset.
-  'DeepSeek-V4.1-Flash':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: null },
+  'DeepSeek-V4.1-Flash-preview':   { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: null },
   // Mistral Small 4 is multimodal (Text+Image in). Keys match the GA ids in the
   // pricing catalog (the earlier `-Preview`/`-preview` suffixes are retired).
   'Mistral-Small-4-119B-2603':     { inputModalities: ['Text', 'Image'] },

@@ -3529,7 +3529,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "DeepSeek-V4.1-Flash",
+        "exactModelName": "DeepSeek-V4.1-Flash-preview",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": "dynamic",
