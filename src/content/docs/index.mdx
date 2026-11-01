@@ -5,7 +5,8 @@ tableOfContents: true
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
-import ModelCardGrid from '../../components/ModelCardGrid.astro';
+import AvailableModels from '../../components/AvailableModels.astro';
+import PlansPage from '../../components/PlansPage.astro';
 
 The sovereign AI platform from <span class="nowrap">T-Systems</span>: 30+ open-source and proprietary models behind one OpenAI-compatible API.
 
@@ -18,9 +19,9 @@ The sovereign AI platform from <span class="nowrap">T-Systems</span>: 30+ open-s
 
 When a T-Cloud model fits the job, start there. Partner models from OpenAI, Anthropic, and Google are on the same API.
 
-<ModelCardGrid />
+<AvailableModels showHeading={false} featured pricing />
 
-[All models](/models) · [Plans & pricing](/plans) · [Recommended models](/getting-started/choosing-a-model)
+[All models](/models) · [Recommended models](/getting-started/choosing-a-model)
 
 
 ## Quickstart
@@ -47,14 +48,13 @@ They do not cover partner models, which run on the provider's own infrastructure
 
 ## Plans
 
-The minimum is a monthly token revenue commitment. Usage above it is billed at list prices. Plans differ by throughput (TPM and RPM) and by Premium model access. Premium models such as Claude Opus are included on Professional and Agentic, not on Essential.
+Each plan sets a minimum monthly token revenue commitment; usage above it is billed at list prices.
 
-- **Essential** — €1,000 / month. Standard catalog. Lower throughput.
-- **Professional** — €3,000 / month. Premium models included. Medium throughput.
-- **Agentic** — €5,000 / month. Premium models included. Highest best-effort throughput.
-- **Enterprise** — Custom token commitment and custom rate limits.
+<PlansPage compact />
 
-[Compare plans](/plans) · [Rate limits](/reference/rate-limits) · [Dedicated serving](/plans/dedicated)
+**Enterprise:** custom token commitment and custom rate limits. [Contact us](mailto:ai@t-systems.com).
+
+[Plans & pricing](/plans) · [Rate limits](/reference/rate-limits) · [Dedicated serving](/plans/dedicated)
 
 
 ## Integrations

@@ -5,7 +5,8 @@ tableOfContents: true
 ---
 
 import { LinkCard } from '@astrojs/starlight/components';
-import ModelCardGrid from '../../../components/ModelCardGrid.astro';
+import AvailableModels from '../../../components/AvailableModels.astro';
+import PlansPage from '../../../components/PlansPage.astro';
 
 Die souveräne KI-Plattform von <span class="nowrap">T-Systems</span>: über 30 Open-Source- und proprietäre Modelle hinter einer OpenAI-kompatiblen API.
 
@@ -18,9 +19,9 @@ Die souveräne KI-Plattform von <span class="nowrap">T-Systems</span>: über 30 
 
 Wenn ein T-Cloud-Modell zur Aufgabe passt, beginnen Sie dort. Partnermodelle von OpenAI, Anthropic und Google liegen auf derselben API.
 
-<ModelCardGrid />
+<AvailableModels showHeading={false} featured pricing />
 
-[Alle Modelle](/de/models) · [Tarife & Preise](/de/plans) · [Empfohlene Modelle](/de/getting-started/choosing-a-model)
+[Alle Modelle](/de/models) · [Empfohlene Modelle](/de/getting-started/choosing-a-model)
 
 
 ## Quickstart
@@ -47,14 +48,13 @@ Sie gelten nicht für Partnermodelle, die auf der Infrastruktur des Anbieters la
 
 ## Tarife
 
-Das Minimum ist ein monatlicher Token-Umsatz. Darüber hinaus wird zu den Listenpreisen abgerechnet. Die Tarife unterscheiden sich im Durchsatz (TPM und RPM) und im Zugang zu Premium-Modellen. Premium-Modelle wie Claude Opus sind in Professional und Agentic enthalten, nicht in Essential.
+Jeder Tarif legt einen monatlichen Mindest-Tokenumsatz fest; darüber wird zu den Listenpreisen abgerechnet.
 
-- **Essential** — 1.000 € / Monat. Standardkatalog. Niedrigerer Durchsatz.
-- **Professional** — 3.000 € / Monat. Premium-Modelle enthalten. Mittlerer Durchsatz.
-- **Agentic** — 5.000 € / Monat. Premium-Modelle enthalten. Höchster Best-Effort-Durchsatz.
-- **Enterprise** — Individueller Token-Umsatz und individuelle Rate-Limits.
+<PlansPage compact />
 
-[Tarife vergleichen](/de/plans) · [Rate-Limits](/de/reference/rate-limits) · [Dedicated Serving](/de/plans/dedicated)
+**Enterprise:** individueller Token-Umsatz und individuelle Rate-Limits. [Kontaktieren Sie uns](mailto:ai@t-systems.com).
+
+[Tarife & Preise](/de/plans) · [Rate-Limits](/de/reference/rate-limits) · [Dedicated Serving](/de/plans/dedicated)
 
 
 ## Integrationen
