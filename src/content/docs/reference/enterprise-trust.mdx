@@ -3,7 +3,7 @@ title: "Enterprise Trust"
 description: "Security, compliance, data sovereignty, and AI Act alignment for AI Foundation Services as defined in the Service Description."
 ---
 
-AI Foundation Services gives you a single OpenAI-compatible API across two clearly separated categories of models — those operated by Telekom in the EU/EEA, and those forwarded to third-party providers under their own terms. This page summarizes the trust and compliance posture; the [Service Description (PDF)](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf) is the binding source.
+AI Foundation Services gives you a single OpenAI-compatible API across two clearly separated categories of models — those operated by Telekom in Germany, within the EU, and those forwarded to third-party providers under their own terms. This page summarizes the trust and compliance posture; the [Service Description (PDF)](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf) is the binding source.
 
 :::tip[No training on customer data]
 For every model hosted by Telekom, **customer prompts and responses are not permanently stored and are never used to train or fine-tune any model**. Prefix caching keeps processed requests for a limited time so repeat requests are answered faster; it is on by default and can be switched off. See [Prefix caching](/guides/prefix-caching).
@@ -14,7 +14,7 @@ For every model hosted by Telekom, **customer prompts and responses are not perm
 
 | Aspect | Category 1 (EU-operated) | Category 2 (Third-party) |
 |---|---|---|
-| **Processing location** | EU/EEA or adequacy-decision country | Determined by third-party provider; may be worldwide |
+| **Processing location** | Germany&nbsp;(EU) | Determined by third-party provider; may be worldwide |
 | **Storage** | Not permanently stored (short-lived prefix cache, can be switched off) | Per third-party provider's terms |
 | **Visibility** | Not viewable by Telekom or third parties | Per third-party provider's terms |
 | **Training use** | Not used for model training | Per third-party provider's terms |
@@ -47,7 +47,7 @@ These documents cover Telekom-operated infrastructure only. They do not cover Ca
 
 The Service Description splits the catalog into two categories with materially different data-sovereignty profiles. **Selecting a model is selecting its data-handling regime.**
 
-### Category 1 — EU/EEA & adequacy-decision processing
+### Category 1 — processing in Germany, within the EU
 
 Operated by Telekom on T-Cloud Public. Examples:
 
@@ -65,7 +65,7 @@ Operated by Telekom on T-Cloud Public. Examples:
 
 For these models:
 
-- Data processing happens **inside the EU/EEA or in countries with an EU adequacy decision**
+- Data processing happens **in Germany, within the EU**
 - Customer prompts and returned results are **not permanently stored** and **not viewable** by Telekom or third parties
 
 ### Category 2 — third-party providers, sub-processors worldwide

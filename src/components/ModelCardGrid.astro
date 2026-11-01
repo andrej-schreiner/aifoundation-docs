@@ -75,7 +75,7 @@ function price(value: number | null, digits = 2): string {
           {m.tcloud ? (
             <>
               <span class="plans-tag tag-tcloud">T-Cloud</span>
-              <span>{isDE ? 'Deutschland' : 'Germany'}</span>
+              <span>{isDE ? 'Deutschland\u00a0(EU)' : 'Germany\u00a0(EU)'}</span>
             </>
           ) : (
             <span>{localPlace(m.hosting, isDE)}</span>

@@ -132,7 +132,7 @@ export function modelCard(id: string, category: CardCategory, isDE: boolean): Mo
 export function localPlace(hosting: string, isDE: boolean): string {
   if (!isDE) return hosting;
   return hosting
-    .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
+    .replaceAll('T-Cloud Germany\u00a0(EU)', 'T-Cloud Deutschland\u00a0(EU)')
     .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
     .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
     .replaceAll('Azure (worldwide)', 'Azure (Weltweit)')

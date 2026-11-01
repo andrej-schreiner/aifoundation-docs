@@ -100,11 +100,13 @@ function parseRegion(region: string): {
   if (isDE && regionDe[country]) country = regionDe[country];
   // A worldwide region resolves to the globe glyph rather than a country flag.
   const countryCode = getCountryCode(country);
+  // T-Cloud data stays in Germany, within the EU.
+  if (raw === 'otc') country = isDE ? 'Deutschland\u00a0(EU)' : 'Germany\u00a0(EU)';
 
   // A `worldwide` region means the third-party provider may run the model —
   // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
   const dataProcessing = raw === 'otc'
-    ? (isDE ? 'Deutschland' : 'Germany')
+    ? country
     : isWorldwide
       ? (isDE ? 'Weltweit' : 'Worldwide')
       : 'EU';

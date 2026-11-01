@@ -59,7 +59,7 @@ export interface ModelFact {
   name: string;
   /** Catalog context string, or a "not published" label when the field is empty. */
   context: string;
-  /** T-Cloud Germany, an Azure region, or a GCP region. */
+  /** T-Cloud Germany (EU), an Azure region, or a GCP region. */
   hosting: string;
   tcloud: boolean;
   preview: boolean;
@@ -105,7 +105,7 @@ function hostingFor(id: string, region: string): string {
     if (normalized.startsWith('gcp-europe-west')) return 'GCP europe-west1 / Azure';
     return 'GCP / Azure';
   }
-  if (normalized === 'otc-germany' || normalized.startsWith('otc')) return 'T-Cloud Germany';
+  if (normalized === 'otc-germany' || normalized.startsWith('otc')) return 'T-Cloud Germany\u00a0(EU)';
   if (normalized === 'azure-sweden-central') return 'Azure Sweden Central';
   if (normalized === 'azure-france-central') return 'Azure France Central';
   if (normalized === 'azure-worldwide') return 'Azure (worldwide)';
