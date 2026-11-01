@@ -320,13 +320,15 @@
    while the description column has space to spare. Narrower, they wrap only
    at their <wbr> points: after `://`, after a dot between host labels, or
    before a `/`. Chrome still breaks at a <wbr> inside nowrap, so those are
-   hidden while the chip is nowrap. */
+   hidden while the chip is nowrap. Only a cell that holds just the path:
+   the api-transition overview labels its hostnames (**Neu** `llm-server…`),
+   and those keep their breaks after the dots so the table fits. */
 @container mdtable (min-width: 36rem) {
-	.sl-markdown-content .aifs-table-scroll td:is([data-label='Endpoint'], [data-label='Endpunkt']) > code {
+	.sl-markdown-content .aifs-table-scroll td:is([data-label='Endpoint'], [data-label='Endpunkt']) > code:only-child {
 		white-space: nowrap;
 	}
 
-	.sl-markdown-content .aifs-table-scroll td:is([data-label='Endpoint'], [data-label='Endpunkt']) > code > wbr {
+	.sl-markdown-content .aifs-table-scroll td:is([data-label='Endpoint'], [data-label='Endpunkt']) > code:only-child > wbr {
 		display: none;
 	}
 }
