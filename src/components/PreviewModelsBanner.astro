@@ -1,76 +1,68 @@
 ---
-// Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
-// PaddleOCR-VL-1.6 (linking to /guides/ocr).
-// It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
-// which replaced the DiffusionGemma 26B A4B
-// preview bar, which replaced the
-// GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
-// Footer.astro so it appears on every page (there are no splash pages, so the
-// Footer override is truly global).
+// Site-wide announcement: one compact box above the page title, one row per
+// announcement (Tag + a linked message + an arrow), and one close button for
+// the whole box. Currently the GLM 5.3 / DeepSeek 4.1 Flash launch (linking
+// to the LLM list) and the API transition notice (linking to /api-transition).
+// Rendered from ArchiveBanner.astro (Starlight's Banner slot), so it appears
+// on every page, as the first child of <main>.
 //
 // Named generically (it was QwenPreviewBanner) because the copy is swapped
-// whenever the preview catalog changes. Bars stack in the order of the
-// `bars` array below; each one is dismissed on its own. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
-// replaced GlmBanner.
+// whenever the catalog changes. Each row keeps its own storage key, and the
+// key changes with each announcement, so visitors who dismissed the previous
+// one still see this one.
 //
-// Kept deliberately compact: a slim bar rendered in the page, above the title,
-// so it takes its space on the first paint and scrolls away with the page.
+// In-flow, not fixed: it takes its space on the first paint and scrolls away
+// with the page. .qp-stack is a panel with the title panel's insets, so the
+// box shares the content column's left edge; layout.css sets the gaps.
 //
-// Dismiss semantics are unchanged: this site navigates via full page loads, so
-// the closed state lives in sessionStorage (survives navigation between docs
-// pages). A hard reload clears it (detected via PerformanceNavigationTiming
-// "reload"), and a new tab starts a fresh session — so the announcement
-// returns. Each bar has its own storage key, and the key changes with each
-// announcement, so visitors who dismissed the previous one still see this one.
+// Dismiss semantics: this site navigates via full page loads, so the closed
+// state lives in sessionStorage (survives navigation between docs pages). A
+// hard reload clears it (detected via PerformanceNavigationTiming "reload"),
+// and a new tab starts a fresh session — so the announcement returns. An
+// inline head script (astro.config.mjs) turns each stored key into a
+// qp-off-<key> class on <html> before the first paint; layout.css hides the
+// matching row, and the whole box once every row is off.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
+const label = isDE ? 'Ankündigungen' : 'Announcements';
 const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
 
-const bars = isDE
+// `short` on every screen; a row with a `msg` shows that instead where the
+// column has room for it on one line (see the container query).
+const rows = isDE
   ? [
       {
-        key: 'apiTransitionBannerDismissed',
-        label: 'Hinweis: API-Änderungen',
-        badge: 'Hinweis',
-        tag: 'standard',
-        msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
-        cta: 'Zur API-Umstellung',
-        short: 'API-Änderungen: Was ist zu tun?',
-        href: `${prefix}/api-transition`,
-      },
-      {
         key: 'glm53DeepseekLaunchDismissed',
-        label: 'Neue Modelle',
         badge: 'Neu',
         tag: 'magenta',
         msg: '<b>GLM 5.3</b> (T-Cloud) und <b>DeepSeek 4.1 Flash</b> (T-Cloud, Vorschau) ab 2.\u00a0Nov.',
-        cta: 'Modelle ansehen',
-        short: 'GLM 5.3, DeepSeek 4.1 Flash ab 2.\u00a0Nov.',
+        short: '<b>GLM 5.3</b>, <b>DeepSeek 4.1 Flash</b> ab 2.\u00a0Nov.',
         href: `${prefix}/models/llms`,
+      },
+      {
+        key: 'apiTransitionBannerDismissed',
+        badge: 'Hinweis',
+        tag: 'standard',
+        short: '<b>API-Änderungen</b>: Was ist zu tun?',
+        href: `${prefix}/api-transition`,
       },
     ]
   : [
       {
-        key: 'apiTransitionBannerDismissed',
-        label: 'Notice: API changes',
-        badge: 'Notice',
-        tag: 'standard',
-        msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
-        cta: 'View API changes',
-        short: 'API changes: what to do',
-        href: `${prefix}/api-transition`,
-      },
-      {
         key: 'glm53DeepseekLaunchDismissed',
-        label: 'New models',
         badge: 'New',
         tag: 'magenta',
         msg: '<b>GLM 5.3</b> (T-Cloud) and <b>DeepSeek 4.1 Flash</b> (T-Cloud, preview) from 2\u00a0Nov',
-        cta: 'View models',
-        short: 'GLM 5.3, DeepSeek 4.1 Flash from 2\u00a0Nov',
+        short: '<b>GLM 5.3</b>, <b>DeepSeek 4.1 Flash</b> from 2\u00a0Nov',
         href: `${prefix}/models/llms`,
+      },
+      {
+        key: 'apiTransitionBannerDismissed',
+        badge: 'Notice',
+        tag: 'standard',
+        short: '<b>API changes</b>: what to do',
+        href: `${prefix}/api-transition`,
       },
     ];
 import Button from './Button.astro';
@@ -78,169 +70,179 @@ import Tag from './Tag.astro';
 import Icon from './Icon.astro';
 ---
 
-<div class="qp-stack">
-{bars.map((b) => (
-  <div class="qp-bar" data-key={b.key} role="region" aria-label={b.label}>
-    <Tag color={b.tag as 'standard' | 'magenta'} size="small" class="qp-badge">{b.badge}</Tag>
-    <p class="qp-msg" set:html={b.msg}></p>
-    <a class="qp-cta" href={b.href}>{b.cta}</a>
-    <a class="qp-short" href={b.href}>{b.short}</a>
+<div class="qp-stack" data-pagefind-ignore>
+  <div class="qp-box" role="region" aria-label={label}>
+    <ul class="qp-rows">
+      {rows.map((r) => (
+        <li class="qp-row" data-key={r.key}>
+          <a class="qp-link" href={r.href}>
+            <Tag color={r.tag as 'standard' | 'magenta'} size="small" class="qp-badge">{r.badge}</Tag>
+            <span class="qp-text">
+              {/* No whitespace between the parts: the one no-break space keeps
+                  the arrow on the last word's line. */}
+              {r.msg && <span class="qp-msg" set:html={r.msg} />}<span class:list={['qp-short', r.msg && 'qp-short--alt']} set:html={r.short} />{'\u00a0'}<span class="qp-arrow" aria-hidden="true">{'\u2192'}</span>
+            </span>
+          </a>
+        </li>
+      ))}
+    </ul>
     <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={close}>
       <Icon name="action-close" size={16} />
     </Button>
   </div>
-))}
 </div>
 
 <style>
-  .qp-bar {
-    /* In-flow (not fixed): the bar occupies real layout space above the page
-       title, so it can never cover content, and it scrolls away with the
-       page. See the portal logic in the script below. */
-    position: relative;
-    z-index: 1;
-
+  /* One box for all rows: the card border and radius, no fill of its own,
+     as wide as its text (never wider than the column). */
+  .qp-box {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    /* Spans its row (.qp-stack in layout.css), which sets the gaps. */
-    width: 100%;
-    margin: 0;
-    padding: 0.25rem 0.6rem;
-    min-height: 40px;
-
-    background: var(--aifs-color-surface-chrome);
-    color: var(--aifs-color-text-body);
+    gap: 8px;
+    width: fit-content;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: 4px 4px 4px 12px;
     border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-    border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
-    border-radius: 8px;
-    box-shadow: none;
-    font-size: 0.875rem;
-    line-height: 1.35;
-  }
-
-  :global(html.qp-off-apiTransitionBannerDismissed) .qp-bar[data-key='apiTransitionBannerDismissed'],
-  :global(html.qp-off-glm53DeepseekLaunchDismissed) .qp-bar[data-key='glm53DeepseekLaunchDismissed'] {
-    display: none;
-  }
-  :global(:root[data-theme='dark']) .qp-bar {
-    background: var(--aifs-color-surface-chrome);
+    border-radius: var(--aifs-radius-card);
     color: var(--aifs-color-text-body);
-    border-color: var(--aifs-color-border-subtle);
-    border-inline-start-color: var(--aifs-color-action-background);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 20px;
   }
 
-  :global(:root[data-theme='dark']) .qp-msg :global(b) {
-    color: var(--aifs-color-text-body);
-  }
-
-  :global(:root[data-theme='dark']) .qp-cta {
-    color: var(--aifs-color-link-standard);
-  }
-
-  .qp-bar[hidden] {
-    display: none;
-  }
-
-  /* Drawn by the Tag component (small): neutral for notices, magenta for news. */
-  .qp-bar :global(.qp-badge) {
-    flex-shrink: 0;
-  }
-
-  .qp-msg {
+  .qp-rows {
     flex: 1 1 auto;
     min-width: 0;
     margin: 0;
-    color: var(--sl-color-text);
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-  .qp-msg :global(b) {
-    color: var(--aifs-color-text-body);
-    font-weight: 600;
+    padding: 0;
+    list-style: none;
   }
 
-  .qp-cta {
-    flex-shrink: 0;
+  /* Tag and text in two columns: a wrapped line starts under the text, and the
+     20px tag lines up with the first 20px line. */
+  .qp-link {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    column-gap: 8px;
+    padding-block: 4px;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .qp-link :global(.qp-badge) {
+    margin: 0;
+  }
+
+  .qp-text {
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+
+  .qp-text :global(b) {
+    font-weight: 700;
+  }
+
+  /* Inline, so it can't break away from the text. */
+  .qp-arrow {
+    position: relative;
+    left: 0;
     color: var(--aifs-color-link-standard);
-    font-weight: 600;
+    font-weight: 700;
+    transition: left 0.15s ease;
+  }
+
+  .qp-link:hover .qp-text :is(.qp-msg, .qp-short),
+  .qp-link:focus-visible .qp-text :is(.qp-msg, .qp-short) {
     text-decoration: underline;
     text-underline-offset: 2px;
-    white-space: nowrap;
-  }
-  .qp-cta:hover,
-  .qp-cta:focus-visible {
-    color: var(--aifs-color-text-body);
   }
 
-  /* Drawn by the Button component (ghost, small, icon only). */
-  .qp-bar :global(.qp-close) {
+  .qp-link:hover .qp-arrow {
+    left: 2px;
+  }
+
+  .qp-link:focus-visible {
+    outline: 2px solid var(--aifs-color-focus);
+    outline-offset: 2px;
+    border-radius: var(--aifs-radius-control);
+  }
+
+  /* Drawn by the Button component (ghost, small, icon only), centred on the
+     rows. */
+  .qp-box :global(.qp-close) {
     flex-shrink: 0;
   }
 
-  .qp-bar :focus-visible {
-    outline: 2px solid var(--aifs-color-focus);
-    outline-offset: 2px;
-    border-radius: 6px;
-  }
-
-  .qp-bar a.qp-short {
+  .qp-short--alt {
     display: none;
   }
 
-  /* Phones: each bar is one short line: badge, a short linked message, close. */
-  @media (max-width: 40rem) {
-    .qp-bar {
-      gap: 6px;
-      min-height: 36px;
-      padding: 2px 2px 2px 6px;
-      font-size: 0.8125rem;
-    }
-    .qp-bar .qp-msg,
-    .qp-bar a.qp-cta {
+  /* The long message where it fits on one line (every column on the sheet);
+     a narrower column (phones) gets the short one. */
+  .qp-stack {
+    container: qp-stack / inline-size;
+  }
+
+  @container qp-stack (max-width: 38.74rem) {
+    .qp-msg {
       display: none;
     }
-    .qp-bar a.qp-short {
-      display: block;
-      min-height: 0;
-      place-items: initial;
-      flex: 1 1 auto;
-      min-width: 0;
-      color: var(--aifs-color-link-standard);
-      font-weight: 600;
-      text-decoration: underline;
-      text-underline-offset: 2px;
+    .qp-short--alt {
+      display: inline;
     }
   }
 
+  /* Phones: 40px rows and close button to tap. */
+  @media (max-width: 40rem) {
+    .qp-box {
+      align-items: flex-start;
+    }
+    .qp-link {
+      min-height: 40px;
+      box-sizing: border-box;
+      align-content: center;
+    }
+    .qp-box :global(.qp-close) {
+      min-width: 40px;
+      min-height: 40px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .qp-arrow {
+      transition: none;
+    }
+  }
 </style>
 
 <script>
-  function dismiss(bar: HTMLElement) {
-    const key = bar.dataset.key;
-    if (key) {
+  // Closes every row: stores each key and sets its qp-off-<key> class, which
+  // hides the box (layout.css).
+  function dismiss() {
+    const root = document.documentElement;
+    document.querySelectorAll<HTMLElement>('.qp-row[data-key]').forEach((row) => {
+      const key = row.dataset.key;
+      if (!key) return;
       try {
         sessionStorage.setItem(key, '1');
       } catch {}
-      document.documentElement.classList.add('qp-off-' + key);
-    }
-    const stack = bar.parentElement;
-    bar.remove();
-    if (stack?.classList.contains('qp-stack') && !stack.querySelector('.qp-bar')) stack.remove();
+      root.classList.add('qp-off-' + key);
+    });
   }
 
   function initPreviewModelsBanner() {
-    document.querySelectorAll<HTMLElement>('.qp-bar[data-key]').forEach((bar) => {
-      if (bar.dataset.qpBound === '1') return;
-      bar.dataset.qpBound = '1';
-      bar.querySelector('.qp-close')?.addEventListener('click', () => dismiss(bar));
+    document.querySelectorAll<HTMLElement>('.qp-box').forEach((box) => {
+      if (box.dataset.qpBound === '1') return;
+      box.dataset.qpBound = '1';
+      box.querySelector('.qp-close')?.addEventListener('click', dismiss);
     });
     if (!(window as any).__previewModelsBannerEscBound) {
       (window as any).__previewModelsBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape') return;
-        const el = document.querySelector<HTMLElement>('.qp-bar[data-key]');
-        if (el && getComputedStyle(el).display !== 'none') dismiss(el);
+        const el = document.querySelector<HTMLElement>('.qp-stack');
+        if (el && getComputedStyle(el).display !== 'none') dismiss();
       });
     }
   }

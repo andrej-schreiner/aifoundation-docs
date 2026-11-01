@@ -202,10 +202,12 @@ export default defineConfig({
 			head: [
 				{
 					// Puts "On this page" on the same baseline as the page title.
-					// The title's height above the fold varies (notice banners, which
-					// can be closed; a title over two lines), so CSS can't know the
-					// offset. Measures both baselines and sets --aifs-toc-offset on the
-					// root; layout.css applies it as a margin on the sticky column.
+					// The title's height above the fold varies (the announcement box
+					// above it, which can be closed; a title over two lines), so CSS
+					// can't know the offset. Measures both baselines and sets
+					// --aifs-toc-offset on the root; layout.css applies it as a margin
+					// on the sticky column. The ResizeObserver on the title panel
+					// re-measures when the box is closed (the panel's padding changes).
 					tag: 'script',
 					content: `(() => {
 	const wide = matchMedia('(min-width: 72rem)');

@@ -287,11 +287,6 @@ textarea {
 	width: min(100%, 46rem);
 }
 
-main:is(:has(.plans-page), :has(.models-comparison), :has(.models-table-section)) .qp-bar {
-	width: 100% !important;
-	max-width: none !important;
-}
-
 sup {
 	font-size: max(0.75em, 12px);
 	line-height: 0;
@@ -363,8 +358,7 @@ starlight-menu-button {
 
 @media (max-width: 50rem) {
 	starlight-menu-button button,
-	site-search button,
-	.qp-bar :is(a, button) {
+	site-search button {
 		display: inline-grid;
 		place-items: center;
 		min-width: 40px;

@@ -136,8 +136,6 @@ mobile-starlight-toc nav {
 	}
 }
 
-/* Notice banners live inside the content sheet (PreviewModelsBanner portals
-   them to the top of <main>), so they share the sheet's left and right edges. */
 @media (max-width: 50rem) {
 	.main-pane > main {
 		padding-bottom: 64px;
@@ -147,35 +145,54 @@ mobile-starlight-toc nav {
 		padding-inline-end: 0;
 	}
 
-	.qp-stack {
-		gap: 4px;
-		padding-top: 8px;
-		padding-bottom: 0;
-	}
-
-	main > .content-panel:nth-child(1 of .content-panel) {
-		padding-top: 8px;
-	}
-
 	mobile-starlight-toc {
 		display: none;
 	}
 }
 
-html.qp-off-apiTransitionBannerDismissed .qp-bar[data-key='apiTransitionBannerDismissed'],
-html.qp-off-glm53DeepseekLaunchDismissed .qp-bar[data-key='glm53DeepseekLaunchDismissed'] {
+/* The announcement (PreviewModelsBanner) is the first child of <main>. Its
+   panel takes the title panel's insets: the same space under the top of the
+   sheet (or the header, on phones) that the title has without it, and the
+   content column's left edge. The title then follows 24px below (16px on
+   phones), without its own top margin. A dismissed row is hidden by its
+   qp-off-<key> class (set before the first paint, see astro.config.mjs); with
+   both off, the whole panel goes and the title moves back up. */
+.qp-stack {
+	box-sizing: border-box;
+	padding: var(--aifs-layout-sheet-padding) var(--sl-content-pad-x) 0;
+}
+
+.qp-stack > .qp-box {
+	max-width: min(100%, var(--sl-content-width));
+}
+
+html.qp-off-apiTransitionBannerDismissed .qp-row[data-key='apiTransitionBannerDismissed'],
+html.qp-off-glm53DeepseekLaunchDismissed .qp-row[data-key='glm53DeepseekLaunchDismissed'],
+html.qp-off-apiTransitionBannerDismissed.qp-off-glm53DeepseekLaunchDismissed .qp-stack {
 	display: none;
 }
 
-.qp-stack {
-	display: flex;
-	flex-direction: column;
-	gap: 6px;
-	width: 100%;
-	box-sizing: border-box;
-	margin: 0;
-	/* Same inset as the content column, so the bars share its left edge. */
-	padding: 0 var(--sl-content-pad-x, 1rem) 8px;
+html:not(.qp-off-apiTransitionBannerDismissed.qp-off-glm53DeepseekLaunchDismissed)
+	main > .qp-stack ~ .content-panel:nth-child(1 of .content-panel) {
+	padding-top: var(--aifs-rhythm-stack);
+}
+
+html:not(.qp-off-apiTransitionBannerDismissed.qp-off-glm53DeepseekLaunchDismissed)
+	main > .qp-stack ~ .content-panel:nth-child(1 of .content-panel) .sl-container > h1:first-child {
+	margin-top: 0;
+}
+
+/* Phones: the title panel's 12px under the header, 16px to the title. Up to
+   49.99rem, because the sheet (and its 40px inset) starts at 50rem. */
+@media (max-width: 49.99rem) {
+	.qp-stack {
+		padding-top: 12px;
+	}
+
+	html:not(.qp-off-apiTransitionBannerDismissed.qp-off-glm53DeepseekLaunchDismissed)
+		main > .qp-stack ~ .content-panel:nth-child(1 of .content-panel) {
+		padding-top: var(--aifs-rhythm-flow);
+	}
 }
 
 /* Below the desktop sheet, the content column was flush with the window.
@@ -369,7 +386,7 @@ footer.sl-flex .meta:not(:has(*)) {
 	margin-top: var(--aifs-rhythm-heading-4);
 }
 
-/* Phones: the title starts right under the notice bars. This comes after the
+/* Phones: the title starts 12px under the header. This comes after the
    sheet-padding rule above, which would otherwise win. */
 @media (max-width: 50rem) {
 	main > .content-panel:nth-child(1 of .content-panel) {
