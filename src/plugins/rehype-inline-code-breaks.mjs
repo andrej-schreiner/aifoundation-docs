@@ -5,10 +5,19 @@
 // overflow-wrap: break-word (table.css, redesign.css) a token's min-content
 // width is its longest piece between wrap points, so table columns size to it.
 // Code blocks are left to the Expressive Code plugin (ec-wrap-points.mjs).
-import { wrapOffsets } from './wrap-points.mjs';
+import { noBreakRanges, splitNoBreak, wrapOffsets } from './wrap-points.mjs';
 
 function wbr() {
 	return { type: 'element', tagName: 'wbr', properties: {}, children: [] };
+}
+
+// Text for one piece; a hyphenated URL host label goes in a nowrap span.
+function pieces(value, start, ranges) {
+	return splitNoBreak(value, start, ranges).map((seg) =>
+		seg.nowrap
+			? { type: 'element', tagName: 'span', properties: { className: ['nowrap'] }, children: [{ type: 'text', value: seg.text }] }
+			: { type: 'text', value: seg.text },
+	);
 }
 
 function textNodes(node, out = []) {
@@ -26,7 +35,8 @@ function addWrapPoints(code) {
 	const text = nodes.map((n) => n.node.value).join('');
 	// An ellipsis (`/v1/...`) stays whole: no break between two dots.
 	const sorted = wrapOffsets(text).filter((o) => !(text[o - 1] === '.' && text[o] === '.'));
-	if (sorted.length === 0) return;
+	const ranges = noBreakRanges(text);
+	if (sorted.length === 0 && ranges.length === 0) return;
 	let base = 0;
 	for (const { parent, node } of nodes) {
 		const value = node.value;
@@ -35,11 +45,11 @@ function addWrapPoints(code) {
 		const parts = sorted.includes(base) && base > 0 ? [wbr()] : [];
 		let from = 0;
 		for (const o of inside) {
-			parts.push({ type: 'text', value: value.slice(from, o) }, wbr());
+			parts.push(...pieces(value.slice(from, o), base + from, ranges), wbr());
 			from = o;
 		}
-		parts.push({ type: 'text', value: value.slice(from) });
-		if (parts.length > 1) parent.children.splice(parent.children.indexOf(node), 1, ...parts);
+		parts.push(...pieces(value.slice(from), base + from, ranges));
+		if (parts.length > 1 || parts[0].type !== 'text') parent.children.splice(parent.children.indexOf(node), 1, ...parts);
 		base += value.length;
 	}
 }

@@ -314,3 +314,29 @@
 		font-weight: 700;
 	}
 }
+
+/* Endpoint paths and API hosts stay on one line once the table has room
+   (api-endpoints), so `/audio/transcriptions` and the hostnames do not wrap
+   while the description column has space to spare. Narrower, they wrap only
+   at their <wbr> points: after `://`, after a dot between host labels, or
+   before a `/`. Chrome still breaks at a <wbr> inside nowrap, so those are
+   hidden while the chip is nowrap. */
+@container mdtable (min-width: 36rem) {
+	.sl-markdown-content .aifs-table-scroll td:is([data-label='Endpoint'], [data-label='Endpunkt']) > code {
+		white-space: nowrap;
+	}
+
+	.sl-markdown-content .aifs-table-scroll td:is([data-label='Endpoint'], [data-label='Endpunkt']) > code > wbr {
+		display: none;
+	}
+}
+
+@container mdtable (min-width: 38rem) {
+	.sl-markdown-content .aifs-table-scroll td[data-label='Host'] > code {
+		white-space: nowrap;
+	}
+
+	.sl-markdown-content .aifs-table-scroll td[data-label='Host'] > code > wbr {
+		display: none;
+	}
+}

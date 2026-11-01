@@ -6,7 +6,7 @@
 // `{"location":"Hamburg"}` as `{"location":` / `"Hamburg"}`. The copy button
 // is unaffected: plugin-frames copies codeBlock.code (the source text), not
 // the rendered DOM.
-import { wrapOffsets } from './wrap-points.mjs';
+import { noBreakRanges, splitNoBreak, wrapOffsets } from './wrap-points.mjs';
 
 function wbr() {
 	return { type: 'element', tagName: 'wbr', properties: {}, children: [] };
@@ -66,7 +66,15 @@ function addWrapPoints(lineAst) {
 	const nodes = textNodes(lineAst);
 	const text = nodes.map((n) => n.node.value).join('');
 	const sorted = wrapOffsets(text);
-	if (sorted.length === 0) return;
+	const ranges = noBreakRanges(text);
+	if (sorted.length === 0 && ranges.length === 0) return;
+	// Escape pairs, plus hyphenated URL host labels (`t-systems`) kept whole.
+	const pieces = (value, start) =>
+		splitNoBreak(value, start, ranges).flatMap((seg) =>
+			seg.nowrap
+				? [{ type: 'element', tagName: 'span', properties: { className: ['nowrap'] }, children: [{ type: 'text', value: seg.text }] }]
+				: textParts(seg.text),
+		);
 	let base = 0;
 	for (const { parent, node } of nodes) {
 		const value = node.value;
@@ -77,10 +85,10 @@ function addWrapPoints(lineAst) {
 		if (atStart) parts.push(wbr());
 		let from = 0;
 		for (const o of inside) {
-			parts.push(...textParts(value.slice(from, o)), wbr());
+			parts.push(...pieces(value.slice(from, o), base + from), wbr());
 			from = o;
 		}
-		parts.push(...textParts(value.slice(from)));
+		parts.push(...pieces(value.slice(from), base + from));
 		if (parts.length > 1 || parts[0].type !== 'text') parent.children.splice(parent.children.indexOf(node), 1, ...parts);
 		base += value.length;
 	}
