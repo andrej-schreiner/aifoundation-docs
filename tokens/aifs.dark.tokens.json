@@ -66,12 +66,12 @@
         "standard": {
           "$type": "color",
           "$value": "{core.color.blue.100}",
-          "$description": "One step lighter on Telekom's own scale so text stays at WCAG AA (4.5:1) on the lighter dark surfaces above: the old value measured 4.17:1 (#7d94f9) on inline code in links and table heads (#353841); now 6.3:1."
+          "$description": "Dark links are #aabcfd (hover #d9e2ff), one step lighter on Telekom's own blue scale: #7d94f9 measured only 4.17:1 on inline code in links and table heads (#353841), below WCAG AA (4.5:1); #aabcfd is 6.3:1 there."
         },
         "hovered": {
           "$type": "color",
           "$value": "{core.color.blue.0}",
-          "$description": "Stays lighter than the standard link."
+          "$description": "#d9e2ff on Telekom's blue scale: lighter than the standard link (9.1:1 on #353841) and paired with a 2px underline, so hover stays distinct."
         },
         "visited": {
           "$type": "color",

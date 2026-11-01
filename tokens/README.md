@@ -62,8 +62,10 @@ the composite goes into the variable.
 Decisions made in the draft:
 
 - **Links are blue, actions are magenta.** Telekom's semantic link colour is
-  blue (`#2238df` light, `#7d94f9` dark). Magenta is kept for primary actions
-  and the current-page bar.
+  blue (`#2238df` light). Dark links are `#aabcfd`, hover `#d9e2ff`, one
+  step lighter than Telekom's `#7d94f9`, which is only 4.17:1 on `#353841`
+  (inline code in links, table heads) and fails AA. Magenta is kept for
+  primary actions and the current-page bar.
 - **Table heads are grey**: `background.surface-subtle` with standard text.
 - **Asides use the functional colours**: note = informational (blue), tip =
   success (green), caution = warning (orange), danger = danger (red).

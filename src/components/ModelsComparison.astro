@@ -1800,8 +1800,11 @@ const rowDataPayload = allModels.map((m) => ({
     text-align: center;
   }
 
-  /* Text links look like running-text links (redesign.css): blue, always
-     underlined. Plan tags are links too, but keep their look from tag.css. */
+  /* Text links look like running-text links (Patrick's spec §7): blue, always
+     underlined. Mirrors the body-link rule in src/styles/redesign.css; keep
+     the two in sync. Also the fallback when this component renders outside
+     markdown content. Plan tags are links too, but keep their look from
+     tag.css. */
   .models-comparison-table a:not(.plans-tag) {
     color: var(--aifs-color-link-standard);
     font-weight: 500;
