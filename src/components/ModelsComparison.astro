@@ -402,6 +402,8 @@ const t = {
   priceIn: isDE ? 'Ein' : 'In',
   priceOut: isDE ? 'Aus' : 'Out',
   planPreview: isDE ? 'Vorschau' : 'Preview',
+  // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
+  previewPlans: isDE ? 'Kostenlos in jedem aktiven Tarif' : 'Free on any active plan',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
   showing: isDE ? 'Zeige' : 'Showing',
   of: isDE ? 'von' : 'of',
@@ -508,6 +510,12 @@ function blankContext(raw: string | null | undefined): boolean {
 
 function previewCatalog(m: CompiledModel): boolean {
   return m.plans.includes('Test');
+}
+
+/** Plans column tags. The name already carries the Preview tag, so Test gets no second one.
+ *  Archived pages keep their original output. */
+function shownPlans(m: CompiledModel): string[] {
+  return isArchive ? m.plans : m.plans.filter((p) => p !== 'Test');
 }
 
 /** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
@@ -800,9 +808,10 @@ const rowDataPayload = allModels.map((m) => ({
               <td class="num" data-label={t.colCachedPrice}>{formatCachedPrice(m)}</td>
               <td data-label={t.colPlans}>
                 <span class="mc-plans">
-                  {m.plans.map((p) => (
+                  {shownPlans(m).map((p) => (
                     <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
                   ))}
+                  {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
                 </span>
               </td>
               <td class="mc-mobile-cell">
@@ -874,9 +883,10 @@ const rowDataPayload = allModels.map((m) => ({
                       <div>
                         <dt>{t.colPlans}</dt>
                         <dd class="mc-plans">
-                          {m.plans.map((p) => (
+                          {shownPlans(m).map((p) => (
                             <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
                           ))}
+                          {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
                         </dd>
                       </div>
                     </dl>
