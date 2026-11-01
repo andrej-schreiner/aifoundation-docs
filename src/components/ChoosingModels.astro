@@ -306,9 +306,11 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean; label:
     container-name: choose;
   }
 
-  /* Cards below 46rem of content width: the table's narrowest layout (longest
-     word per column, EN and DE) needs about 45rem. Wide desktops show the table. */
-  @container choose (max-width: 46rem) {
+  /* Cards below 49rem of content width: the table's narrowest layout (longest
+     word per column, EN and DE) needs about 48.75rem, set by DE ("T-Cloud
+     Deutschland (EU)" keeps "Deutschland (EU)" whole). Wide desktops show the
+     table. */
+  @container choose (max-width: 49rem) {
     .choose-desktop {
       display: none;
     }
