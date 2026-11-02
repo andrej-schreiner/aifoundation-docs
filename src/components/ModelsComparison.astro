@@ -140,7 +140,7 @@ interface Capabilities {
   creator: string;
   inputModalities: InputModality[];
   outputModalities: OutputModality[];
-  /** null: not in the repo data. The table shows an em dash and the mobile row hides it. */
+  /** null: not in the repo data. The table shows an em dash. */
   streaming: boolean | null;
   toolCalling: boolean | null;
 }
@@ -539,22 +539,21 @@ const t = {
   colCachedPrice: isDE ? 'Cache €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
   // Table headers: the unit goes under the label, so the cells hold plain
-  // numbers (the mobile details keep the €/M labels above).
+  // numbers (the cards repeat the unit in their labels).
   headInputPrice: isDE ? 'Eingabe' : 'Input',
   headOutputPrice: isDE ? 'Ausgabe' : 'Output',
   headCachedPrice: isDE ? 'Cache-Eingabe' : 'Cached input',
   unitPrice: isDE ? '€ / 1 Mio. Tokens' : '€ / 1M tokens',
   unitContext: isDE ? 'Tokens' : 'tokens',
   sortBy: isDE ? 'Nach {label} sortieren' : 'Sort by {label}',
+  sortLabel: isDE ? 'Sortieren nach' : 'Sort by',
+  sortDefault: isDE ? 'Empfohlene Reihenfolge' : 'Recommended order',
+  // A toggle: pressed sorts from the highest (or last) value down.
+  sortDescending: isDE ? 'Absteigend sortieren' : 'Sort descending',
   supported: isDE ? 'Unterstützt' : 'Supported',
   notSupported: isDE ? 'Nicht unterstützt' : 'Not supported',
   details: 'Details',
-  freeInPreview: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
   priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
-  free: isDE ? 'Kostenlos' : 'Free',
-  perMillion: isDE ? 'pro 1M' : 'per 1M',
-  priceIn: isDE ? 'Ein' : 'In',
-  priceOut: isDE ? 'Aus' : 'Out',
   planPreview: isDE ? 'Vorschau' : 'Preview',
   // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
   previewPlans: isDE ? 'Kostenlos in jedem aktiven Tarif' : 'Free on any active plan',
@@ -709,40 +708,6 @@ function shownPlans(m: CompiledModel): string[] {
   return isArchive ? m.plans : m.plans.filter((p) => p !== 'Test');
 }
 
-/** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
-function isEmbeddingOnly(m: CompiledModel): boolean {
-  return m.categories.length === 1 && m.categories[0] === 'embeddings';
-}
-
-function mobilePriceLine(m: CompiledModel): string | null {
-  const input = m.inputPricePerMillionTokens;
-  // Embedding models return vectors, not tokens: input price only, as on the plans page.
-  const output = isEmbeddingOnly(m) ? null : m.outputPricePerMillionTokens;
-  if (input == null && output == null) return t.priceTba;
-  const inputFree = input == null || input === 0;
-  const outputFree = output == null || output === 0;
-  if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
-  const bits: string[] = [];
-  if (input != null && input !== 0) bits.push(formatEuro(input, 2, numberLocale));
-  if (output != null && output !== 0) bits.push(formatEuro(output, 2, numberLocale));
-  if (bits.length === 0) return null;
-  return `${bits.join(' / ')} ${t.perMillion}`;
-}
-
-function cachedDetail(m: CompiledModel): string | null {
-  if (!m.cachedPricingPublished) return null;
-  const value = m.cachedInputPricePerMillionTokens;
-  if (value == null || value === 0) return null;
-  return formatEuro(value, 4, numberLocale);
-}
-
-function reasoningTokensDetail(m: CompiledModel): string | null {
-  if (m.reasoningTokensUsage === 'completion_tokens_details') return 'completion_tokens_details.reasoning_tokens';
-  if (m.reasoningTokensUsage === 'usage') return 'usage.reasoning_tokens';
-  if (m.reasoningTokensUsage === 'none') return t.reasoningTokensNotReported;
-  return null;
-}
-
 function detailsIdFor(key: string): string {
   const scope = categoryFilter || capabilityFilter || preset;
   return `mc-d-${scope}-${key.replace(/[^a-zA-Z0-9_-]+/g, '-')}`;
@@ -807,6 +772,33 @@ const columns: Column[] = ([
   { key: 'links', label: t.colLinks, cls: '', sortable: false, presets: ['plan'] },
 ] as Column[]).filter((c) => c.presets.includes(preset));
 const show = (key: string) => columns.some((c) => c.key === key);
+
+// The table fits the content column: it shows the columns below as cells
+// (the model cell carries the provider's logo) and every other column in a
+// details row under each model. Below 36rem the rows become cards, their
+// cells label–value rows, the details below a Details button.
+const PRIMARY_COLUMNS: Record<ColumnPreset, string[]> = {
+  catalog: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
+  useCase: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
+  plan: ['model', 'inputPrice', 'outputPrice', 'rpm', 'tpm'],
+};
+const tableColumns = columns.filter((c) => PRIMARY_COLUMNS[preset].includes(c.key));
+// The provider is the model cell's logo; its name is in the logo's tooltip
+// and in the details. Output (no column) is in the details on model pages.
+const detailColumns: Column[] = columns.filter((c) => !PRIMARY_COLUMNS[preset].includes(c.key));
+if (show('input')) {
+  detailColumns.splice(detailColumns.findIndex((c) => c.key === 'input') + 1, 0, {
+    key: 'output',
+    label: t.colOutput,
+    cls: '',
+    presets: MODEL_PAGES,
+  });
+}
+/** A card's row label: the column's label with its unit ("Input (€ / 1M tokens)"). */
+const cardLabel = (c: Column) => `${c.label}${c.unit ? ` (${c.unit})` : ''}${c.mark ? ` ${c.mark}` : ''}`;
+// The sort field lists every sortable column, so the details' values and the
+// cards (no header to click) can be sorted too.
+const sortOptions = columns.filter((c) => c.sortable !== false).map((c) => ({ key: c.key, label: cardLabel(c) }));
 
 // ---------------- Filter values (unique sets) ----------------
 
@@ -933,7 +925,7 @@ const rowDataPayload = rows.map((m) => ({
   </p>
 ) : (
 <div
-  class:list={['models-comparison', `models-comparison--${preset}`, 'aifs-breakout']}
+  class:list={['models-comparison', `models-comparison--${preset}`]}
   data-plan={activePlan || undefined}
   data-rows={JSON.stringify(rowDataPayload)}
   data-t={JSON.stringify(scriptText)}>
@@ -1018,25 +1010,41 @@ const rowDataPayload = rows.map((m) => ({
     </div>
   </dialog>
 
-  <div class="models-comparison__status" aria-live="polite">
+  <!-- The count, then the sort field: the headers sort too, but the
+       details and the cards have no header to click. -->
+  <div class="models-comparison__status not-content">
     {/* Explicit spaces: Astro's compressHTML drops the plain whitespace
         between an expression and an element ("Showing39of39models"). */}
-    <span data-status-text>
+    <span class="models-comparison__count" aria-live="polite" data-status-text>
       {t.showing}{' '}<span data-visible-count>{activeRowCount}</span>{' '}{t.of}{' '}<span data-total-count>{activeRowCount}</span>{' '}{t.models}
+    </span>
+    <span class="mc-sort">
+      <Selector id={`mc-sort-${categoryFilter || capabilityFilter || preset}`} label={t.sortLabel}>
+        <option value="" selected>{t.sortDefault}</option>
+        {sortOptions.map((c) => (
+          <option value={c.key}>{c.label}</option>
+        ))}
+      </Selector>
+      <Button variant="secondary" iconOnly class="mc-sort-dir" ariaLabel={t.sortDescending} data-sort-dir aria-pressed="false" disabled>
+        <Icon name="content-sort-indicator-up" size={20} class="mc-sort-dir__up" />
+        <Icon name="content-sort-indicator-down" size={20} class="mc-sort-dir__down" />
+      </Button>
     </span>
   </div>
 
   <!-- A copy of the header row, filled and shown by the script once the
-       real one scrolls under the filters (the scroll area below keeps
-       position: sticky from working vertically). Screen readers use the
-       real header. -->
+       real one scrolls under the filters. Screen readers use the real
+       header. -->
   <div class="aifs-head-float" aria-hidden="true"></div>
 
+  <!-- One table. From 36rem of width: the main columns, and per row a
+       details row with the others. Narrower: each row is a card, its cells
+       label–value rows, the details below a Details button. -->
   <div class="models-comparison__scroll">
     <table class="models-comparison-table aifs-data-table">
       <thead>
         <tr>
-          {columns.map((h) => {
+          {tableColumns.map((h) => {
             // Label, then the arrow on its first line; the unit, if any, below.
             if (h.sortable === false) {
               return (
@@ -1071,6 +1079,7 @@ const rowDataPayload = rows.map((m) => ({
               </th>
             );
           })}
+          <th class="mc-more"><span class="sr-only">{t.details}</span></th>
         </tr>
       </thead>
       <tbody>
@@ -1078,54 +1087,22 @@ const rowDataPayload = rows.map((m) => ({
           const fullCloud = cloudFullName(m.cloud);
           const cloudLabel = cloudLabelFor(m.exactModelName, m.cloud);
           const detailsId = detailsIdFor(m.key);
-          const priceLine = mobilePriceLine(m);
-          const factParts = [
-            blankContext(m.contextWindow) ? '' : formatContextLabel(m.contextWindow),
-            isPlanPreset ? m.location : m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', '),
-          ].filter(Boolean);
-          const cached = cachedDetail(m);
-          const reasoningTokens = reasoningTokensDetail(m);
           const hasLinks = Boolean(m.termsOfUseUrl || m.dataProtectionUrl);
-          // A function: the row and the phone panel each render their own copy.
-          const renderLinks = () => (
-            <span class="mc-links">
-              {m.termsOfUseUrl && (
-                <a class="mc-link" href={m.termsOfUseUrl} target="_blank" rel="noreferrer noopener">
-                  {t.linkTermsOfUse}<span class="sr-only"> {t.opensInNewTab}</span>
-                  <Icon name="navigation-external-link" size={16} />
-                </a>
-              )}
-              {m.dataProtectionUrl && (
-                <a class="mc-link" href={m.dataProtectionUrl} target="_blank" rel="noreferrer noopener">
-                  {t.linkDataProtection}<span class="sr-only"> {t.opensInNewTab}</span>
-                  <Icon name="navigation-external-link" size={16} />
-                </a>
-              )}
-            </span>
-          );
           const capCell = (value: boolean | null) =>
             value == null
               ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
               : value
               ? <span class="mc-cap mc-cap--yes" aria-label={t.supported}>✓</span>
               : <span class="mc-cap mc-cap--no" aria-label={t.notSupported}>✗</span>;
-          return (
-            <tr data-key={m.key} data-plan={m.plan ?? undefined} hidden={isPlanPreset && m.plan !== activePlan}>
-              <td data-label={t.colModel}>
-                <strong>{m.displayModelName}</strong>
-                {isNewModel(m.exactModelName) && <> <Tag color="magenta" size="small">{t.newTag}</Tag></>}{previewCatalog(m) && <> <Tag size="small">{t.planPreview}</Tag></>}
-                {m.modelTier === 'premium' && <> <Tag size="small">Premium</Tag></>}
-              </td>
-              {show('category') && (
-                <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
-              )}
-              <td data-label={t.colProvider}>
-                <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
-                  <Logo name={m.capabilities.creator} />
-                </Tooltip>
-              </td>
-              <td data-label={t.colCloud}>
-                {!hostingUnconfirmed(m.exactModelName) && (
+          // A column's value, the same in a table cell and in the details.
+          const value = (key: string) => {
+            switch (key) {
+              case 'category':
+                return m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ');
+              case 'provider':
+                return m.capabilities.creator;
+              case 'cloud':
+                return hostingUnconfirmed(m.exactModelName) ? <span class="mc-muted">—</span> : (
                   <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem" focusable={false}>
                     <button
                       type="button"
@@ -1136,178 +1113,135 @@ const rowDataPayload = rows.map((m) => ({
                       {cloudLabel}
                     </button>
                   </Tooltip>
-                )}
-              </td>
-              <td class="mc-location" data-label={t.colLocation}>
-                {m.location
+                );
+              case 'location':
+                return m.location
                   ? <span class="mc-location__value">{m.locationCode && <Flag code={m.locationCode} size={16} decorative />}{m.location}</span>
-                  : <span class="mc-muted">—</span>}
-              </td>
-              {show('input') && (
-                <td data-label={t.colInput}>
-                  {m.capabilities.inputModalities.map((mod, index) => (
-                    <>
-                      {index > 0 ? ' ' : ''}
-                      <span class="mc-mod">{MODALITY_LABELS[mod]}{index < m.capabilities.inputModalities.length - 1 ? ',' : ''}</span>
-                    </>
-                  ))}
-                </td>
-              )}
-              {show('streaming') && <td class="center" data-label={t.colStreaming}>{capCell(m.capabilities.streaming)}</td>}
-              {show('tools') && <td class="center" data-label={t.colTools}>{capCell(m.capabilities.toolCalling)}</td>}
-              <td class="num mc-context" data-label={t.colContext}>{formatContextLabel(m.contextWindow)}</td>
-              {show('reasoningEffort') && (
-                <td class="mc-reasoning-effort" data-label={t.colReasoningEffort}>
-                  {m.reasoningEffort.length > 0
-                    ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
-                    : <span aria-label={t.noEffortValues}>{t.reasoningEffortNone}</span>}
-                </td>
-              )}
-              {show('reasoningTokensUsage') && (
-                <td class="mc-usage-field" data-label={t.colReasoningTokensUsage}>
-                  {m.reasoningTokensUsage === 'completion_tokens_details' && (
-                    <span title="completion_tokens_details.reasoning_tokens">details</span>
-                  )}
-                  {m.reasoningTokensUsage === 'usage' && (
-                    <span title="usage.reasoning_tokens">usage</span>
-                  )}
-                  {m.reasoningTokensUsage === 'none' && (
-                    <span class="mc-usage-field__none" title={t.reasoningTokensNotReported}>{t.reasoningTokensNotReported}</span>
-                  )}
-                  {m.reasoningTokensUsage === null && (
-                    <span aria-label={t.notDocumented}>{t.reasoningTokensUnknown}</span>
-                  )}
-                </td>
-              )}
-              <td class="num" data-label={t.colInputPrice} title={m.inputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.inputPricePerMillionTokens == null ? '—' : tableNumber(formatPrice(m.inputPricePerMillionTokens))}</td>
-              <td class="num" data-label={t.colOutputPrice} title={m.outputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.outputPricePerMillionTokens == null ? '—' : tableNumber(formatPrice(m.outputPricePerMillionTokens))}</td>
-              <td class="num" data-label={t.colCachedPrice}>{tableNumber(formatCachedPrice(m))}</td>
-              {show('rpm') && <td class="num" data-label={t.colRequests}>{formatLimit(m.rpm)}</td>}
-              {show('tpm') && <td class="num" data-label={t.colTokensPerMinute}>{formatLimit(m.tpm)}</td>}
-              {show('plans') && (
-                <td data-label={t.colPlans}>
+                  : <span class="mc-muted">—</span>;
+              case 'input':
+              case 'output': {
+                const mods = key === 'input' ? m.capabilities.inputModalities : m.capabilities.outputModalities;
+                return mods.length === 0 ? <span class="mc-muted">—</span> : mods.map((mod, index) => (
+                  <>
+                    {index > 0 ? ' ' : ''}
+                    <span class="mc-mod">{MODALITY_LABELS[mod]}{index < mods.length - 1 ? ',' : ''}</span>
+                  </>
+                ));
+              }
+              case 'streaming':
+                return capCell(m.capabilities.streaming);
+              case 'tools':
+                return capCell(m.capabilities.toolCalling);
+              case 'context':
+                return formatContextLabel(m.contextWindow);
+              case 'reasoningEffort':
+                return m.reasoningEffort.length > 0
+                  ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
+                  : <span aria-label={t.noEffortValues}>{t.reasoningEffortNone}</span>;
+              case 'reasoningTokensUsage':
+                return (
+                  <span class="mc-usage-field">
+                    {m.reasoningTokensUsage === 'completion_tokens_details' && <code set:html={withWrapPoints('completion_tokens_details.reasoning_tokens')} />}
+                    {m.reasoningTokensUsage === 'usage' && <code set:html={withWrapPoints('usage.reasoning_tokens')} />}
+                    {m.reasoningTokensUsage === 'none' && <span class="mc-usage-field__none">{t.reasoningTokensNotReported}</span>}
+                    {m.reasoningTokensUsage === null && <span aria-label={t.notDocumented}>{t.reasoningTokensUnknown}</span>}
+                  </span>
+                );
+              case 'inputPrice':
+                return m.inputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : tableNumber(formatPrice(m.inputPricePerMillionTokens));
+              case 'outputPrice':
+                return m.outputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : tableNumber(formatPrice(m.outputPricePerMillionTokens));
+              case 'cachedInputPrice':
+                return tableNumber(formatCachedPrice(m));
+              case 'rpm':
+                return formatLimit(m.rpm);
+              case 'tpm':
+                return formatLimit(m.tpm);
+              case 'plans':
+                return (
                   <span class="mc-plans">
                     {shownPlans(m).map((p) => (
                       <PlanTag plan={p} size="small" href={planHref(p)} />
                     ))}
                     {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
+                    {shownPlans(m).length === 0 && !previewCatalog(m) && <span class="mc-muted">—</span>}
                   </span>
+                );
+              case 'links':
+                return hasLinks ? (
+                  <span class="mc-links">
+                    {m.termsOfUseUrl && (
+                      <a class="mc-link" href={m.termsOfUseUrl} target="_blank" rel="noreferrer noopener">
+                        {t.linkTermsOfUse}<span class="sr-only"> {t.opensInNewTab}</span>
+                        <Icon name="navigation-external-link" size={16} />
+                      </a>
+                    )}
+                    {m.dataProtectionUrl && (
+                      <a class="mc-link" href={m.dataProtectionUrl} target="_blank" rel="noreferrer noopener">
+                        {t.linkDataProtection}<span class="sr-only"> {t.opensInNewTab}</span>
+                        <Icon name="navigation-external-link" size={16} />
+                      </a>
+                    )}
+                  </span>
+                ) : <span class="mc-muted">—</span>;
+              default:
+                return null;
+            }
+          };
+          return (
+            <>
+              <tr data-key={m.key} data-plan={m.plan ?? undefined} hidden={isPlanPreset && m.plan !== activePlan}>
+                {tableColumns.map((c) => c.key === 'model' ? (
+                  <td class="mc-model" data-label={t.colModel}>
+                    <span class="mc-model__inner">
+                      <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
+                        <Logo name={m.capabilities.creator} />
+                      </Tooltip>
+                      <span class="mc-model__text">
+                        <strong class="mc-model__name">{m.displayModelName}</strong>
+                        {(isNewModel(m.exactModelName) || previewCatalog(m) || m.modelTier === 'premium') && (
+                          <span class="mc-model__tags">
+                            {isNewModel(m.exactModelName) && <Tag color="magenta" size="small">{t.newTag}</Tag>}
+                            {previewCatalog(m) && <Tag size="small">{t.planPreview}</Tag>}
+                            {m.modelTier === 'premium' && <Tag size="small">Premium</Tag>}
+                          </span>
+                        )}
+                      </span>
+                    </span>
+                  </td>
+                ) : (
+                  <td class={c.cls} data-label={cardLabel(c)}>{value(c.key)}</td>
+                ))}
+                <td class="mc-more">
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    class="mc-more__btn"
+                    aria-expanded="false"
+                    aria-controls={detailsId}
+                  >
+                    <span class="mc-more__label">{t.details}<span class="sr-only">: {m.displayModelName}</span></span>
+                    <svg class="mc-more__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                  </Button>
                 </td>
-              )}
-              {show('links') && (
-                <td data-label={t.colLinks}>{hasLinks ? renderLinks() : <span class="mc-muted">—</span>}</td>
-              )}
-              <td class="mc-mobile-cell">
-                <div class="mc-m">
-                  <div class="mc-m__top">
-                    <Logo name={m.capabilities.creator} />
-                    <strong class="mc-m__name">{m.displayModelName}{isNewModel(m.exactModelName) && <> <Tag color="magenta" size="small">{t.newTag}</Tag></>}{previewCatalog(m) && <> <Tag size="small">{t.planPreview}</Tag></>}</strong>
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      iconOnly
-                      class="mc-m__details"
-                      ariaLabel={t.details}
-                      aria-expanded="false"
-                      aria-controls={detailsId}
-                    >
-                      <svg class="mc-m__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </Button>
-                  </div>
-                  <div class="mc-m__meta">
-                    {!hostingUnconfirmed(m.exactModelName) && <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>}
-                    {m.modelTier === 'premium' && <Tag size="small">Premium</Tag>}
-                    {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
-                    {priceLine && <span class:list={['mc-m__price', { 'mc-m__price--wrap': priceLine === t.priceTba }]}>{priceLine}</span>}
-                  </div>
-                  <div class="mc-m__panel" id={detailsId} hidden="until-found">
-                    <dl class="mc-m__dl">
-                      {isPlanPreset && (
-                        <>
-                          <div>
-                            <dt>{t.colRequests} {t.unitPerMinute}</dt>
-                            <dd>{formatLimit(m.rpm)}</dd>
-                          </div>
-                          <div>
-                            <dt>{t.colTokensPerMinute} {t.unitPerMinute}</dt>
-                            <dd>{formatLimit(m.tpm)}</dd>
-                          </div>
-                        </>
-                      )}
-                      {!isPlanPreset && m.location && (
-                        <div>
-                          <dt>{t.colLocation}</dt>
-                          <dd>{m.location}</dd>
-                        </div>
-                      )}
-                      {!isPlanPreset && m.capabilities.outputModalities.length > 0 && (
-                        <div>
-                          <dt>{t.colOutput}</dt>
-                          <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
-                        </div>
-                      )}
-                      {!isPlanPreset && m.capabilities.streaming === true && (
-                        <div>
-                          <dt>{t.colStreaming}</dt>
-                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
-                        </div>
-                      )}
-                      {!isPlanPreset && m.capabilities.toolCalling === true && (
-                        <div>
-                          <dt>{t.colTools}</dt>
-                          <dd>{isDE ? 'Ja' : 'Yes'}</dd>
-                        </div>
-                      )}
-                      {cached && (
-                        <div>
-                          <dt>{t.colCachedPrice}</dt>
-                          <dd>{cached}</dd>
-                        </div>
-                      )}
-                      {!isPlanPreset && m.reasoningEffort.length > 0 && (
-                        <div>
-                          <dt>{t.colReasoningEffort}</dt>
-                          <dd class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</dd>
-                        </div>
-                      )}
-                      {!isPlanPreset && reasoningTokens && (
-                        <div>
-                          <dt>{t.colReasoningTokensUsage}</dt>
-                          <dd><code set:html={withWrapPoints(reasoningTokens)} /></dd>
-                        </div>
-                      )}
-                      {show('category') && (
-                        <div>
-                          <dt>{t.colCategory}</dt>
-                          <dd>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</dd>
-                        </div>
-                      )}
-                      {show('plans') && (
-                        <div>
-                          <dt>{t.colPlans}</dt>
-                          <dd class="mc-plans">
-                            {shownPlans(m).map((p) => (
-                              <PlanTag plan={p} size="small" href={planHref(p)} />
-                            ))}
-                            {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
-                          </dd>
-                        </div>
-                      )}
-                      {show('links') && hasLinks && (
-                        <div>
-                          <dt>{t.colLinks}</dt>
-                          <dd>{renderLinks()}</dd>
-                        </div>
-                      )}
-                    </dl>
-                  </div>
-                </div>
-              </td>
-            </tr>
+              </tr>
+              <tr class="mc-detail" id={detailsId} data-detail-for={m.key} hidden>
+                <td colspan={tableColumns.length + 1}>
+                  <dl class="mc-dl">
+                    {detailColumns.map((c) => (
+                      <div class:list={['mc-dl__item', `mc-dl__item--${c.key}`]}>
+                        <dt>{c.label}{c.unit && <span class="mc-dl__unit"> ({c.unit})</span>}{c.mark && <span aria-hidden="true">{` ${c.mark}`}</span>}</dt>
+                        <dd class={c.cls}>{value(c.key)}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </td>
+              </tr>
+            </>
           );
         })}
         <tr class="mc-no-results" hidden>
-          <td colspan={columns.length} class="mc-no-results__cell">{t.noResults}</td>
+          <td colspan={tableColumns.length + 1} class="mc-no-results__cell">{t.noResults}</td>
         </tr>
       </tbody>
     </table>
@@ -1364,6 +1298,14 @@ const rowDataPayload = rows.map((m) => ({
       const key = tr.dataset.key;
       if (key) tableRowsByKey.set(key, tr);
     });
+    // Each row's details row comes right after it, wherever sorting puts it.
+    const detailRowsByKey = new Map<string, HTMLTableRowElement>();
+    root.querySelectorAll<HTMLTableRowElement>('tbody tr[data-detail-for]').forEach((tr) => {
+      const key = tr.dataset.detailFor;
+      if (key) detailRowsByKey.set(key, tr);
+    });
+    const isOpen = (tr: HTMLTableRowElement) =>
+      tr.querySelector('.mc-more__btn')?.getAttribute('aria-expanded') === 'true';
 
     const noResultsRow = root.querySelector<HTMLTableRowElement>('.mc-no-results');
     const visibleCountEl = root.querySelector<HTMLElement>('[data-visible-count]');
@@ -1627,7 +1569,16 @@ const rowDataPayload = rows.map((m) => ({
       return 0;
     }
 
+    const sortField = root.querySelector<HTMLSelectElement>('.mc-sort select');
+    const sortDir = root.querySelector<HTMLButtonElement>('[data-sort-dir]');
+
     function updateSortIndicators() {
+      if (sortField) sortField.value = sortKey;
+      if (sortDir) {
+        sortDir.disabled = !sortKey;
+        sortDir.setAttribute('aria-pressed', sortKey && !sortAsc ? 'true' : 'false');
+        sortDir.classList.toggle('mc-sort-dir--desc', Boolean(sortKey) && !sortAsc);
+      }
       root.querySelectorAll<HTMLElement>('th[data-sort]').forEach((th) => {
         const icon = th.querySelector<SVGElement>('.mc-sort-icon');
         const isActive = th.dataset.sort === sortKey;
@@ -1652,6 +1603,8 @@ const rowDataPayload = rows.map((m) => ({
         for (const row of ordered) {
           const tr = tableRowsByKey.get(row.key);
           if (tr) tbody.appendChild(tr);
+          const detail = detailRowsByKey.get(row.key);
+          if (detail) tbody.appendChild(detail);
         }
         if (noResultsRow) tbody.appendChild(noResultsRow);
       }
@@ -1663,9 +1616,14 @@ const rowDataPayload = rows.map((m) => ({
         const passes = rowPasses(row, state);
         tr.hidden = !passes;
         tr.classList.remove('mc-last-visible');
+        const detail = detailRowsByKey.get(row.key);
+        if (detail) {
+          detail.hidden = !passes || !isOpen(tr);
+          detail.classList.remove('mc-last-visible');
+        }
         if (passes) {
           visible += 1;
-          lastVisible = tr;
+          lastVisible = detail && !detail.hidden ? detail : tr;
         }
       }
       // The table's bottom edge and corners go on the last row shown, which
@@ -1828,6 +1786,19 @@ const rowDataPayload = rows.map((m) => ({
       });
     }
 
+    // The sort field: a column, or the recommended order (no key). The
+    // button beside it flips the direction.
+    sortField?.addEventListener('change', () => {
+      sortKey = sortField.value;
+      sortAsc = true;
+      apply();
+    });
+    sortDir?.addEventListener('click', () => {
+      if (!sortKey) return;
+      sortAsc = !sortAsc;
+      apply();
+    });
+
     // The header row follows the page (src/scripts/floatingTableHead.ts).
     const scrollArea = root.querySelector<HTMLElement>('.models-comparison__scroll');
     const floatHead = root.querySelector<HTMLElement>('.aifs-head-float');
@@ -1849,28 +1820,26 @@ const rowDataPayload = rows.map((m) => ({
     // synthetic 'change' event so the existing change listener handles both
     // the apply() call AND the zero-selection auto-revert (uncheck the last
     // remaining cloud → all three snap back to checked).
-    function setMobileDetails(btn: HTMLButtonElement, open: boolean) {
-      const id = btn.getAttribute('aria-controls');
-      if (!id) return;
-      const panel = root.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-      if (!panel) return;
-      if (open) panel.removeAttribute('hidden');
-      else panel.setAttribute('hidden', 'until-found');
+    // Details: the row's other columns, in the row under it.
+    function setDetails(btn: HTMLButtonElement, open: boolean) {
+      const tr = btn.closest<HTMLTableRowElement>('tr[data-key]');
+      const detail = tr?.dataset.key ? detailRowsByKey.get(tr.dataset.key) : null;
+      if (!tr || !detail) return;
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      tr.classList.toggle('mc-open', open);
+      detail.hidden = !open || tr.hidden;
+      // The table's bottom edge follows the last row shown.
+      if (tr.classList.contains('mc-last-visible') || detail.classList.contains('mc-last-visible')) {
+        tr.classList.toggle('mc-last-visible', !open);
+        detail.classList.toggle('mc-last-visible', open);
+      }
     }
 
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
-      const detailsBtn = target?.closest('button.mc-m__details') as HTMLButtonElement | null;
-      if (!detailsBtn || !root.contains(detailsBtn)) return;
-      setMobileDetails(detailsBtn, detailsBtn.getAttribute('aria-expanded') !== 'true');
-    });
-
-    root.addEventListener('beforematch', (evt) => {
-      const panel = evt.target;
-      if (!(panel instanceof HTMLElement) || !panel.classList.contains('mc-m__panel')) return;
-      const btn = root.querySelector<HTMLButtonElement>(`button.mc-m__details[aria-controls="${CSS.escape(panel.id)}"]`);
-      if (btn) setMobileDetails(btn, true);
+      const btn = target?.closest('button.mc-more__btn') as HTMLButtonElement | null;
+      if (!btn || !root.contains(btn)) return;
+      setDetails(btn, btn.getAttribute('aria-expanded') !== 'true');
     });
 
     // On a narrow column the chip row scrolls, which would clip an absolute
@@ -2111,98 +2080,233 @@ const rowDataPayload = rows.map((m) => ({
     border-top: var(--aifs-border-width-standard) solid var(--aifs-filter-panel-border);
   }
 
-  .mc-mobile-cell {
-    display: none;
-  }
-
   /* The filter fields: .aifs-filter (select.css). */
 
+  /* The count at the start, the sort field at the end; on a narrow
+     column the sort field goes under the count. */
   .models-comparison__status {
-    margin-bottom: var(--aifs-filter-panel-option-gap);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--aifs-filter-panel-option-gap) var(--aifs-layout-grid-gap);
+    margin-bottom: var(--aifs-layout-grid-gap);
+  }
+
+  .models-comparison__count {
     font-size: var(--aifs-text-small-font-size);
     color: var(--aifs-color-text-muted);
   }
 
+  .mc-sort {
+    display: flex;
+    align-items: center;
+    gap: var(--aifs-filter-panel-option-gap);
+    min-width: 0;
+  }
+
+  .mc-sort :global(.aifs-select) {
+    min-width: 0;
+    width: 15rem;
+    max-width: 100%;
+  }
+
+  .mc-sort :global(.mc-sort-dir) {
+    flex: 0 0 auto;
+  }
+
+  /* One arrow at a time: up while ascending, down while descending. */
+  .mc-sort :global(.mc-sort-dir__down),
+  .mc-sort :global(.mc-sort-dir--desc .mc-sort-dir__up) {
+    display: none;
+  }
+
+  .mc-sort :global(.mc-sort-dir--desc .mc-sort-dir__down) {
+    display: inline-block;
+  }
+
   /* Counts that change with every filter click: equal-width digits, so
      the line and the button labels do not shift. */
-  .models-comparison__status,
+  .models-comparison__count,
   .models-comparison :global([data-filter-count]),
   .mc-panel :global([data-show-results]) {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Positioned, so absolutely placed content in the cells (the links'
-     screen-reader text) is clipped here instead of widening the page. */
+  /* The table fits the column: no scroll area. Positioned, so absolutely
+     placed content in the cells (the links' screen-reader text) stays
+     inside. */
   .models-comparison__scroll {
     position: relative;
     max-width: 100%;
-    overflow-x: auto;
-    margin-bottom: 8px;
   }
 
   /* Shared design and behaviour: src/styles/data-table.css. Here only what
-     is this table's own: which columns wrap and how wide some get. */
-  .models-comparison-table tbody td:is(
-      [data-label='Category'], [data-label='Kategorie'],
-      [data-label='Input'], [data-label='Eingabe'],
-      [data-label='Plans'], [data-label='Tarife']
-    ) {
-    white-space: normal;
+     is this table's own. Every column wraps at spaces, so the table takes
+     the column's width; numbers and tags stay whole. */
+  .models-comparison-table {
+    width: 100%;
   }
 
-  /* The model name wraps, but never narrower than this. */
-  .models-comparison-table td[data-label='Model'],
-  .models-comparison-table td[data-label='Modell'] {
-    min-width: 11rem;
-    white-space: normal;
-  }
-
-  /* Values that list several items wrap, two or three to a line. */
-  .models-comparison-table td.mc-reasoning-effort {
-    min-width: 10rem;
-    white-space: normal;
-  }
-
-  .models-comparison-table td.mc-usage-field {
-    white-space: normal;
+  /* The cell padding of the site's other tables (table.css), not the wider
+     data-table one: six columns fit a 36rem column. */
+  .models-comparison-table.aifs-data-table :is(th, td),
+  .models-comparison-table.aifs-data-table :is(th, td):first-child {
+    padding-inline: var(--aifs-table-cell-padding-x) var(--aifs-table-cell-padding-end);
   }
 
   .models-comparison-table tbody td {
     vertical-align: top;
+    white-space: normal;
   }
 
-  .models-comparison-table td[data-label='Category'],
-  .models-comparison-table td[data-label='Kategorie'] {
-    hyphens: manual;
-    -webkit-hyphens: manual;
+  .models-comparison-table tbody td.num {
+    white-space: nowrap;
   }
 
-  .models-comparison-table td[data-label='Model'] strong,
-  .models-comparison-table td[data-label='Modell'] strong {
+  /* Header units wrap at their spaces ("€ / 1 Mio." / "Tokens"): the
+     headers stay at most three short lines. */
+  .models-comparison-table :global(.mc-sort-unit) {
+    white-space: normal;
+  }
+
+  /* The model: the provider's logo, then the name with its tags under it. */
+  .mc-model__inner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--aifs-models-list-gap);
+    min-width: 0;
+  }
+
+  .mc-model__inner > :global(.ui-tooltip) {
+    flex: 0 0 auto;
+  }
+
+  .mc-model__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aifs-models-list-meta-gap-y);
+    min-width: 0;
+  }
+
+  .mc-model__name {
     overflow-wrap: normal;
     word-break: normal;
+    hyphens: manual;
   }
 
+  .mc-model__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aifs-models-list-meta-gap-y);
+  }
 
-  /* Each modality is one unbreakable item. The comma stays on that item, so the
-     next line starts at the next word. */
+  /* The Details button: its own narrow column; the word is for screen
+     readers here and shows on the cards. */
+  .models-comparison-table :is(th, td).mc-more {
+    width: 1%;
+    padding-inline: var(--aifs-table-cell-padding-x);
+    text-align: end;
+  }
+
+  .models-comparison-table td.mc-more {
+    padding-block: calc(var(--aifs-table-cell-padding-y-compact) / 2);
+  }
+
+  .mc-more__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .mc-more__chevron {
+    display: block;
+    flex: 0 0 auto;
+    transition: transform var(--aifs-button-transition-duration) var(--aifs-button-transition-easing);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mc-more__chevron {
+      transition: none;
+    }
+  }
+
+  .models-comparison :global(.mc-more__btn[aria-expanded='true']) .mc-more__chevron {
+    transform: rotate(180deg);
+  }
+
+  .models-comparison :global(.mc-more__btn[aria-expanded='true']) {
+    background: var(--aifs-button-ghost-background-pressed);
+    color: var(--aifs-button-ghost-text-pressed);
+  }
+
+  /* An open row and its details read as one: no line between them, no
+     hover fill on the details. */
+  .models-comparison-table tr.mc-open > td {
+    border-bottom-color: transparent;
+  }
+
+  .models-comparison .models-comparison-table tbody tr.mc-detail:hover {
+    background: transparent;
+  }
+
+  .models-comparison-table tr.mc-detail > td {
+    padding-block: 0 var(--aifs-table-cell-padding-y);
+  }
+
+  /* The details: label above value, as many to a line as fit. */
+  .mc-dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: var(--aifs-layout-grid-gap) var(--aifs-models-list-panel-gap-x);
+    margin: 0;
+    padding: var(--aifs-models-list-panel-padding) var(--aifs-filter-panel-option-gap);
+    border-radius: var(--aifs-radius-control);
+    background: var(--aifs-color-surface-subtle);
+  }
+
+  .mc-dl__item {
+    min-width: 0;
+  }
+
+  .models-comparison .mc-dl :is(.mc-dl__item, dt, dd) {
+    margin: 0;
+  }
+
+  .mc-dl dt {
+    margin-bottom: var(--aifs-models-list-label-gap);
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-models-list-label-font-size);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .mc-dl__unit {
+    font-weight: var(--aifs-text-body-font-weight);
+  }
+
+  .models-comparison .mc-dl dd {
+    padding: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: 1.4;
+  }
+
+  /* Lists of values take a whole line of the details. */
+  .mc-dl__item:is(.mc-dl__item--plans, .mc-dl__item--links, .mc-dl__item--reasoningTokensUsage) {
+    grid-column: 1 / -1;
+  }
+
   .models-comparison-table .mc-mod {
     display: inline-block;
     white-space: nowrap;
     max-width: 100%;
-  }
-
-  .models-comparison-table td[data-label='Model'] strong,
-  .models-comparison-table td[data-label='Modell'] strong {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: normal;
-    hyphens: manual;
-  }
-
-  .models-comparison-table td[data-label='Input'],
-  .models-comparison-table td[data-label='Eingabe'] {
-    text-align: start;
   }
 
   /* Capability cells (Streaming output, Tool calling): give the tick/cross a
@@ -2213,12 +2317,6 @@ const rowDataPayload = rows.map((m) => ({
     line-height: 1;
     display: inline-block;
   }
-  /* Values flow inline and wrap onto a second line once they exceed the cap,
-     so six levels take two short lines instead of one long row. */
-  .models-comparison-table td.mc-reasoning-effort {
-    white-space: normal;
-  }
-
   .models-comparison .mc-effort-values {
     display: flex;
     flex-wrap: wrap;
@@ -2317,34 +2415,20 @@ const rowDataPayload = rows.map((m) => ({
   }
 
 
-  /* Column-header click-to-sort. Mirrors the plans-table .sort-* pattern but
-     scoped with .mc- prefixes so the two components stay independent. */
-  /* Compact list under ~40rem. The wide table stays above that and scrolls. */
-  @container comparison (max-width: 40rem) {
-    .models-comparison,
-    .models-comparison__scroll {
-      padding-inline: 0;
-      margin-inline: 0;
-    }
-
+  /* Cards under 36rem: each model a card; its cells label–value rows, the
+     value at the end edge (as on the featured model cards); the details
+     under a Details button, in the same rows. */
+  @container comparison (max-width: 36rem) {
     .models-comparison__filterbar {
-      flex-wrap: nowrap;
       align-items: center;
-      gap: 8px;
-    }
-
-    /* The plan field (plans overview) takes its own line; the Filters
-       button goes on the next. */
-    .models-comparison__filterbar--plan {
-      flex-wrap: wrap;
     }
 
     .models-comparison__filterbar > :global(.aifs-select) {
       flex: 1 0 100%;
     }
 
-    /* Phones: no fields in the row, only the Filters button (beside the
-       plan field's line). Applied chips scroll sideways in one line. */
+    /* No fields in the row, only the Filters button (beside the plan
+       field's line). Applied chips wrap. */
     .models-comparison__chips {
       display: none;
     }
@@ -2357,30 +2441,26 @@ const rowDataPayload = rows.map((m) => ({
       display: inline;
     }
 
-    .mc-applied {
-      flex-wrap: nowrap;
-      overflow-x: auto;
-      overscroll-behavior-x: contain;
-      scrollbar-width: none;
-    }
-
     .mc-applied :global(.aifs-button) {
-      flex: 0 0 auto;
       white-space: nowrap;
     }
 
-    .models-comparison__scroll {
-      overflow: visible;
-      box-shadow: none;
-      scrollbar-gutter: auto;
+    /* The sort field takes the line under the count. */
+    .mc-sort {
+      flex: 1 1 100%;
+    }
+
+    .mc-sort :global(.aifs-select) {
+      flex: 1 1 auto;
+      width: auto;
     }
 
     .models-comparison-table,
-    .models-comparison-table:has(th[data-sort='category']),
     .models-comparison-table tbody {
       display: block;
       width: 100%;
       min-width: 0;
+      border: 0;
     }
 
     .models-comparison-table thead {
@@ -2391,183 +2471,168 @@ const rowDataPayload = rows.map((m) => ({
       display: none !important;
     }
 
-    /* Touch can leave :hover stuck on the last row. The list has no hover fill. */
-    .models-comparison .models-comparison-table tbody tr[data-key]:hover {
-      background: transparent;
-    }
-
-    .models-comparison-table tr[data-key] {
-      display: block;
-      width: 100%;
-      box-sizing: border-box;
-      margin: 0;
-      padding: var(--aifs-models-list-meta-gap-y) 0;
-      border: 0;
-      border-bottom: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-      border-radius: 0;
-      background: transparent;
-    }
-
-    .models-comparison-table tr[data-key]:first-child {
-      border-top: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-    }
-
-    .models-comparison-table td:not(.mc-mobile-cell) {
-      display: none;
-    }
-
     /* As blocks, the table parts would get Starlight's flow margin (16px
-       between siblings) and its definition indent; the list sets its own. */
-    .models-comparison .models-comparison-table tbody,
-    .models-comparison .mc-m__dl > div,
-    .models-comparison .mc-m__dl :is(dt, dd) {
+       between siblings); the cards set their own. */
+    .models-comparison .models-comparison-table :is(tbody, tr, td) {
       margin-top: 0;
     }
 
-    .models-comparison .mc-m__dl dd {
-      padding-inline-start: 0;
+    /* tbody: above table.css's row reset (zebra stripes off). */
+    .models-comparison .models-comparison-table tbody tr[data-key] {
+      display: block;
+      box-sizing: border-box;
+      margin-bottom: var(--aifs-layout-grid-gap);
+      padding: var(--aifs-filter-panel-card-padding);
+      border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+      border-radius: var(--aifs-radius-card);
+      background: var(--aifs-card-background);
     }
 
-    .models-comparison .models-comparison-table td.mc-mobile-cell {
-      margin: 0;
+    /* Touch can leave :hover stuck on the last card. Cards have no hover fill. */
+    .models-comparison .models-comparison-table tbody tr:hover {
+      background: var(--aifs-card-background);
+    }
+
+    /* Open: the card goes on in the details row below it. */
+    .models-comparison .models-comparison-table tbody tr[data-key].mc-open {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+      border-end-start-radius: 0;
+      border-end-end-radius: 0;
+    }
+
+    .models-comparison .models-comparison-table tbody tr.mc-detail {
       display: block;
-      min-width: 0 !important;
+      box-sizing: border-box;
+      margin-bottom: var(--aifs-layout-grid-gap);
+      padding: 0 var(--aifs-filter-panel-card-padding) var(--aifs-filter-panel-card-padding);
+      border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+      border-top: 0;
+      border-radius: 0 0 var(--aifs-radius-card) var(--aifs-radius-card);
+      background: var(--aifs-card-background);
+    }
+
+    .models-comparison .models-comparison-table td {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--aifs-models-list-meta-gap-y) var(--aifs-layout-grid-gap);
+      box-sizing: border-box;
       width: 100%;
-      padding: 0 !important;
+      min-width: 0;
+      padding: var(--aifs-models-list-meta-gap-y) 0;
       border: 0;
-      position: static;
-      white-space: normal;
+      box-shadow: none;
       background: transparent;
+      text-align: end;
+      font-size: var(--aifs-text-small-font-size);
+    }
+
+    .models-comparison .models-comparison-table td::before {
+      content: attr(data-label);
+      flex: 0 1 auto;
+      color: var(--aifs-color-text-muted);
+      text-align: start;
+    }
+
+    /* The model: the card's head. */
+    .models-comparison .models-comparison-table td.mc-model {
+      display: block;
+      padding: 0 0 var(--aifs-models-list-gap);
+      text-align: start;
+      font-size: var(--aifs-text-body-font-size);
+    }
+
+    .models-comparison .models-comparison-table td:is(.mc-model, .mc-more)::before,
+    .models-comparison .models-comparison-table tr.mc-detail > td::before {
+      content: none;
+    }
+
+    .mc-model__name {
+      font-size: var(--aifs-text-h4-font-size);
+      line-height: var(--aifs-text-h4-line-height);
+    }
+
+    .models-comparison .models-comparison-table td.mc-more {
+      display: block;
+      padding: var(--aifs-models-list-gap) 0 0;
+      text-align: start;
+    }
+
+    /* The word lines up with the labels above it. Open, the turned
+       chevron and the rows below say so; no pressed fill. */
+    .models-comparison :global(.mc-more__btn) {
+      gap: var(--aifs-button-icon-gap-small);
+      margin-inline-start: calc(-1 * var(--aifs-button-padding-x-ghost));
+    }
+
+    .models-comparison :global(.mc-more__btn[aria-expanded='true']:not(:hover, :active)) {
+      background: transparent;
+      color: var(--aifs-button-ghost-text);
+    }
+
+    .mc-more__label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+    }
+
+    .models-comparison .models-comparison-table tr.mc-detail > td {
+      display: block;
+      padding: 0;
+      text-align: start;
+    }
+
+    /* The details: label–value rows like the card's own. */
+    .mc-dl {
+      display: block;
+      padding: 0;
+      background: transparent;
+    }
+
+    .mc-dl__item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--aifs-models-list-meta-gap-y) var(--aifs-layout-grid-gap);
+      padding: var(--aifs-models-list-meta-gap-y) 0;
+    }
+
+    .mc-dl dt {
+      margin: 0;
+      font-size: var(--aifs-text-small-font-size);
+      font-weight: var(--aifs-text-body-font-weight);
+      line-height: var(--aifs-text-small-line-height);
+    }
+
+    .models-comparison .mc-dl dd {
+      min-width: 0;
+      text-align: end;
+    }
+
+    .models-comparison .mc-dl dd :is(.mc-plans, .mc-effort-values) {
+      justify-content: flex-end;
+    }
+
+    .models-comparison .mc-dl dd .mc-links {
+      align-items: flex-end;
     }
 
     .models-comparison-table .mc-no-results {
       display: block;
-      border: 0;
-      background: transparent;
-      padding: 8px 0;
     }
 
-    .models-comparison-table .mc-no-results td {
+    .models-comparison .models-comparison-table .mc-no-results td {
       display: block;
-      padding: 8px 0;
-      border: 0;
+      padding: var(--aifs-models-list-gap) 0;
+      text-align: start;
     }
-  }
-
-  /* The meta line and the details panel start under the name, past the
-     logo and its gap. */
-  .mc-m {
-    --mc-m-indent: calc(var(--aifs-logo-size-default) + var(--aifs-models-list-gap));
-  }
-
-  .mc-m__top {
-    display: flex;
-    align-items: center;
-    gap: var(--aifs-models-list-gap);
-    min-width: 0;
-    min-height: var(--aifs-button-min-height-small);
-  }
-
-  .mc-m__name {
-    flex: 1 1 auto;
-    min-width: 0;
-    font-size: var(--aifs-text-h4-font-size);
-    font-weight: var(--aifs-text-h4-font-weight);
-    line-height: var(--aifs-text-h4-line-height);
-    overflow-wrap: break-word;
-  }
-
-  .mc-m__details {
-    flex: 0 0 auto;
-    align-self: flex-start;
-  }
-
-  .mc-m__chevron {
-    display: block;
-    transition: transform var(--aifs-button-transition-duration) var(--aifs-button-transition-easing);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .mc-m__chevron {
-      transition: none;
-    }
-  }
-
-  .mc-m__details[aria-expanded='true'] .mc-m__chevron {
-    transform: rotate(180deg);
-  }
-
-  .mc-m__details[aria-expanded='true'] {
-    background: var(--aifs-button-ghost-background-pressed);
-    color: var(--aifs-button-ghost-text-pressed);
-  }
-
-  .mc-m__meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--aifs-models-list-meta-gap-y) var(--aifs-models-list-gap);
-    margin: 0 0 0 var(--mc-m-indent);
-    min-width: 0;
-    color: var(--aifs-color-text-muted);
-    font-size: var(--aifs-text-small-font-size);
-    line-height: 1.3;
-  }
-
-  .mc-m__facts {
-    min-width: 0;
-  }
-
-  .mc-m__price {
-    white-space: nowrap;
-  }
-
-  .mc-m__price--wrap {
-    white-space: normal;
-  }
-
-  .mc-m__panel:not([hidden]) {
-    /* The panel's text starts where the meta line's text does. */
-    margin: var(--aifs-models-list-gap) 0 0 calc(var(--mc-m-indent) - var(--aifs-models-list-panel-padding));
-    padding: var(--aifs-models-list-panel-padding);
-    border-radius: var(--aifs-radius-control);
-    background: var(--aifs-color-surface-subtle);
-  }
-
-  /* until-found keeps the panel searchable, but its box must not paint a bar. */
-  .models-comparison .mc-m__panel[hidden] {
-    height: 0;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: transparent;
-    border: 0;
-    content-visibility: hidden;
-  }
-
-  .mc-m__dl {
-    display: grid;
-    gap: var(--aifs-models-list-gap) var(--aifs-models-list-panel-gap-x);
-    margin: 0;
-  }
-
-  .mc-m__dl div {
-    min-width: 0;
-  }
-
-  .mc-m__dl dt {
-    margin: 0 0 var(--aifs-models-list-label-gap);
-    color: var(--aifs-color-text-muted);
-    font-size: var(--aifs-models-list-label-font-size);
-    font-weight: 700;
-    line-height: 1.2;
-  }
-
-  .mc-m__dl dd {
-    margin: 0;
-    font-size: var(--aifs-text-small-font-size);
-    line-height: 1.3;
   }
 
 </style>

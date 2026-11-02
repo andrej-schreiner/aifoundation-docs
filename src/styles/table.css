@@ -74,11 +74,12 @@
 	container-name: mdtable;
 }
 
-/* The models and plans tables scroll in an area that runs to the sheet's
-   end edge: at rest it starts where the text starts; scrolled to the end, it
-   stops the sheet's padding short of the edge. (Markdown tables don't
-   scroll: below 36rem they stack, see @container mdtable.) */
-.sl-markdown-content :is(.models-comparison__scroll, .rate-plans-section .table-wrapper) {
+/* The plans table scrolls in an area that runs to the sheet's end edge: at
+   rest it starts where the text starts; scrolled to the end, it stops the
+   sheet's padding short of the edge. (Markdown tables don't scroll: below
+   36rem they stack, see @container mdtable. The models table fits the
+   column: ModelsComparison.) */
+.sl-markdown-content :is(.rate-plans-section .table-wrapper) {
 	box-sizing: border-box;
 	/* No bounce at the ends: it slid the table under the sticky first
 	   column's backing and broke the rounded corners. */
