@@ -376,12 +376,13 @@
 	}
 }
 
-/* API paths (api-endpoints, Paths) never break: `/v2/coding` is one value,
-   and at about ten characters the longest fits the narrowest column. */
-.sl-markdown-content .aifs-table-scroll td:is([data-label='Path'], [data-label='Pfad']) > code {
+/* A cell that is only a short API path (.md-path, set by
+   rehype-table-scroll.mjs; api-endpoints, Paths) never breaks: `/v2/coding`
+   is one value, and at 16 characters at most it fits the narrowest column. */
+.sl-markdown-content .aifs-table-scroll td.md-path > code {
 	white-space: nowrap;
 }
 
-.sl-markdown-content .aifs-table-scroll td:is([data-label='Path'], [data-label='Pfad']) > code > wbr {
+.sl-markdown-content .aifs-table-scroll td.md-path > code > wbr {
 	display: none;
 }
