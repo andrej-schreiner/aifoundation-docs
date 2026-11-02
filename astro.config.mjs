@@ -395,9 +395,6 @@ export default defineConfig({
 					items: [
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
-						{ label: 'Cline', translations: { de: 'Cline' }, slug: 'plugins/cline' },
-						{ label: 'Continue', translations: { de: 'Continue' }, slug: 'plugins/continue-vscode' },
-						{ label: 'OpenCode', translations: { de: 'OpenCode' }, slug: 'plugins/opencode' },
 						{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
 					],
 				},

@@ -1,12 +1,12 @@
 ---
 title: "API endpoints"
-description: "REST endpoints for the AI Foundation Services API: chat completions, embeddings, audio, images, decisions, and paths that still use the previous host."
+description: "REST endpoints for the AI Foundation Services API: chat completions, embeddings, audio, images, decisions, queue and Visual RAG paths."
 ---
 
 AI Foundation Services provides an OpenAI-compatible REST API. All endpoints use the base URL:
 
 ```
-https://llm-server.ai.t-systems.net/v1
+https://llm-server.llmhub.t-systems.net/v2
 ```
 
 For the complete OpenAPI specification, see the [interactive API docs (Redoc)](https://llm-server.llmhub.t-systems.net/redoc).
@@ -32,11 +32,11 @@ For the complete OpenAPI specification, see the [interactive API docs (Redoc)](h
 | `GET` | `/files` | List uploaded files |
 | `DELETE` | `/files/{id}` | Delete a file |
 
-Paths above are relative to `https://llm-server.ai.t-systems.net/v1`, so the chat route is `/v1/chat/completions`.
+Paths above are relative to `https://llm-server.llmhub.t-systems.net/v2`, so the chat route is `/v2/chat/completions`.
 
 ### Queue endpoints
 
-Queue endpoints are served on the previous host, `https://llm-server.llmhub.t-systems.net`. They wait up to two minutes when you are over your rate limit instead of returning `429` immediately. See [Queued requests](/guides/reliability#queued-requests).
+Queue endpoints are on the same host, `https://llm-server.llmhub.t-systems.net`, under `/queue` instead of `/v2`. They wait up to two minutes when you are over your rate limit instead of returning `429` immediately. See [Queued requests](/guides/reliability#queued-requests).
 
 | Method | Endpoint | Description |
 |---|---|---|
@@ -50,17 +50,18 @@ Queue endpoints are served on the previous host, `https://llm-server.llmhub.t-sy
 | `GET` | `/queue/models` | List models (queue) |
 
 
-## Hosts
+## Paths
 
-The new API base is `https://llm-server.ai.t-systems.net/v1`. Standard calls use `/v1/...` on that host. A few paths are not on the new host yet and stay on the previous host:
+All paths are on `https://llm-server.llmhub.t-systems.net`. Standard calls use `/v2/...`:
 
-| Host | Used for |
+| Path | Used for |
 |---|---|
-| `https://llm-server.ai.t-systems.net/v1` | Chat, completions, responses, embeddings, audio, images, decisions, files, models, Visual RAG vector stores (`/v1/vector_stores`) |
-| `https://llm-server.llmhub.t-systems.net/v2/coding` | Cline, Continue, and OpenCode |
-| `https://llm-server.llmhub.t-systems.net/queue` | Queue variants such as `/queue/chat/completions` and `/queue/images/edits` |
+| `/v2` | Chat, completions, responses, embeddings, audio, images, decisions, files, models |
+| `/v2/coding` | Cline, Continue, and OpenCode |
+| `/v1` | Visual RAG files and vector stores (`/v1/files`, `/v1/vector_stores`) |
+| `/queue` | Queue variants such as `/queue/chat/completions` and `/queue/images/edits` |
 
-The [Migrate to the new API](/api-transition) page describes moving from the previous endpoint to `https://llm-server.ai.t-systems.net/v1`.
+The [Migrate to the new API](/api-transition) page describes the upcoming move to the New API.
 
 
 ## Authentication
@@ -79,7 +80,7 @@ See [Authentication](/getting-started/authentication) for setup details.
 All POST requests use JSON:
 
 ```bash
-curl -X POST "https://llm-server.ai.t-systems.net/v1/chat/completions" \
+curl -X POST "https://llm-server.llmhub.t-systems.net/v2/chat/completions" \
   -H "Authorization: Bearer $OPENAI_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"model": "gpt-oss-120b", "messages": [{"role": "user", "content": "Hello"}]}'

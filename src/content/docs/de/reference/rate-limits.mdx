@@ -98,7 +98,7 @@ import httpx
 
 # Use httpx directly to inspect response headers
 response = httpx.post(
-    "https://llm-server.ai.t-systems.net/v1/chat/completions",
+    "https://llm-server.llmhub.t-systems.net/v2/chat/completions",
     headers={"Authorization": f"Bearer {os.getenv('OPENAI_API_KEY')}"},
     json={
         "model": "gpt-6.1-sol",
