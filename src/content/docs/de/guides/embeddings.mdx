@@ -163,7 +163,7 @@ Für Diagramme und Scans [Visual RAG](/de/guides/embeddings#visual-rag) und [OCR
 Visual RAG indiziert Ihre Dateien sowohl als Text als auch als Bild und kombiniert die Stabilität der Textindizierung mit der Flexibilität der visuellen Indizierung. Es kann Informationen aus Grafiken, Diagrammen und komplexen Tabellenlayouts abrufen, die textbasierte RAG-Systeme übersehen.
 
 :::note[Voraussetzungen]
-- Ein API-Schlüssel mit Visual RAG-Zugang (kontaktieren Sie **AlFoundation@t-systems.com**)
+- Ein API-Schlüssel mit Visual RAG-Zugang (kontaktieren Sie **ai@t-systems.com**)
 - OpenAI SDK installiert ([Quickstart](/de/))
 - Zu indizierende Dokumente (PDF, PPTX, DOCX, HTML oder PNG)
 :::
@@ -184,6 +184,7 @@ Visual RAG indiziert Ihre Dateien sowohl als Text als auch als Bild und kombinie
 ### Einrichtung
 
 ```python
+import os
 
 from openai import OpenAI
 
@@ -314,6 +315,7 @@ for result in results:
 Kombinieren Sie den Abruf mit LLM-Inferenz für eine vollständige Visual RAG-Pipeline:
 
 ```python
+import os
 
 from openai import OpenAI
 
