@@ -56,6 +56,19 @@ body {
 	word-break: normal;
 }
 
+/* A URL or hostname (inline code or link text, class from
+   rehype-inline-code-breaks.mjs; not in table cells) is one value: it moves
+   to the next line whole, never splitting at a dot, slash or hyphen. Only one
+   wider than the column (a long URL on a phone) breaks, anywhere, so nothing
+   scrolls. */
+.sl-markdown-content :not(pre) > code.aifs-url,
+.sl-markdown-content a.aifs-url {
+	display: inline-block;
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	word-break: normal;
+}
+
 .sl-markdown-content :is(h1, h2, h3, h4) {
 	letter-spacing: 0;
 	text-wrap: balance;

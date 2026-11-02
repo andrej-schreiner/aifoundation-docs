@@ -5,6 +5,13 @@
 // overflow-wrap: break-word (table.css, redesign.css) a token's min-content
 // width is its longest piece between wrap points, so table columns size to it.
 // Code blocks are left to the Expressive Code plugin (ec-wrap-points.mjs).
+//
+// Inline code or link text that is just a URL or hostname gets no wrap points
+// and the class aifs-url instead (redesign.css): it stays on one line, and
+// breaks only when it is wider than the column. Table cells keep the wrap
+// points: a column sizes to its longest piece, and two URLs side by side do
+// not fit a 720px table, so there a URL breaks only after a dot between host
+// labels or before a `/`. Archived pages (paths under /v1…) keep them too.
 import { noBreakRanges, splitNoBreak, wrapOffsets } from './wrap-points.mjs';
 
 function wbr() {
@@ -18,6 +25,27 @@ function pieces(value, start, ranges) {
 			? { type: 'element', tagName: 'span', properties: { className: ['nowrap'] }, children: [{ type: 'text', value: seg.text }] }
 			: { type: 'text', value: seg.text },
 	);
+}
+
+// `https://llm-server.llmhub.t-systems.net/v2`, `llm-server.ai.t-systems.net`.
+// A bare host in code needs a known top-level domain (so `main.py` is not
+// one); link text may end in any (`paddlepaddle.org.cn`).
+const URL_TEXT = /^[a-z][a-z0-9+.-]*:\/\/[^\s<>"'`]+$/i;
+const CODE_HOST = /^(?:[a-z0-9-]+\.)+(?:net|com|de|org|io|dev|eu|ai)(?::\d+)?(?:\/[^\s<>"'`]*)?$/i;
+const LINK_HOST = /^(?:[a-z0-9-]+\.)+[a-z]{2,}(?::\d+)?(?:\/[^\s<>"'`]*)?$/i;
+
+function textOf(node) {
+	if (node.type === 'text') return node.value;
+	return (node.children ?? []).map(textOf).join('');
+}
+
+function markUrl(node, host) {
+	const text = textOf(node).trim();
+	if (!URL_TEXT.test(text) && !host.test(text)) return false;
+	const current = node.properties?.className;
+	const list = Array.isArray(current) ? current : current ? [current] : [];
+	node.properties = { ...node.properties, className: [...list, 'aifs-url'] };
+	return true;
 }
 
 function textNodes(node, out = []) {
@@ -55,12 +83,22 @@ function addWrapPoints(code) {
 }
 
 export default function rehypeInlineCodeBreaks() {
-	const walk = (node) => {
+	let archived = false;
+	const walk = (node, inCell) => {
 		for (const child of node.children ?? []) {
 			if (child.type !== 'element' || child.tagName === 'pre') continue;
-			if (child.tagName === 'code') addWrapPoints(child);
-			else walk(child);
+			const keep = archived || inCell;
+			if (child.tagName === 'code') {
+				if (keep || !markUrl(child, CODE_HOST)) addWrapPoints(child);
+			} else {
+				if (child.tagName === 'a' && !keep) markUrl(child, LINK_HOST);
+				walk(child, inCell || child.tagName === 'td' || child.tagName === 'th');
+			}
 		}
 	};
-	return (tree) => walk(tree);
+	return (tree, file) => {
+		const path = String(file?.path ?? '').replaceAll('\\', '/');
+		archived = /\/content\/docs\/(?:de\/)?v1[^/]*\//.test(path);
+		walk(tree, false);
+	};
 }
