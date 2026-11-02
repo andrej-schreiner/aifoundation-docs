@@ -45,3 +45,19 @@
 	mask-repeat: no-repeat;
 	opacity: 0.85;
 }
+
+/* Mobile On this page: a long current heading wraps instead of ending in
+   an ellipsis. The bar keeps its height for one or two lines (two short
+   lines fit the 3rem bar) and grows only past that. */
+#starlight__on-this-page--mobile {
+	height: auto;
+	min-height: var(--sl-mobile-toc-height);
+}
+
+#starlight__on-this-page--mobile .display-current {
+	min-width: 0;
+	white-space: normal;
+	overflow: visible;
+	text-overflow: clip;
+	line-height: 1.2;
+}
