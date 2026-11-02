@@ -9,9 +9,9 @@
 // Inline code or link text that is just a URL or hostname gets no wrap points
 // and the class aifs-url instead (redesign.css): it stays on one line, and
 // breaks only when it is wider than the column. Table cells keep the wrap
-// points: a column sizes to its longest piece, and two URLs side by side do
-// not fit a 720px table, so there a URL breaks only after a dot between host
-// labels or before a `/`. Archived pages (paths under /v1…) keep them too.
+// points: a column sizes to its longest piece, and two URLs side by side may
+// not fit the fluid column on a narrow window, so there a URL breaks only
+// after a dot between host labels or before a `/`. Archived pages (paths under /v1…) keep them too.
 import { noBreakRanges, splitNoBreak, wrapOffsets } from './wrap-points.mjs';
 
 function wbr() {

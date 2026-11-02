@@ -456,7 +456,7 @@
       "padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px above and below on phones." },
       "padding-x-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px at the sides on phones." },
       "row-gap-compact": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the text and the link on phones." },
-      "enter-duration": { "$type": "duration", "$value": "{motion.duration.transition}", "$description": "200ms fade-in, the first time the box appears in a session. Off with reduced motion." },
+      "enter-duration": { "$type": "duration", "$value": "{motion.duration.transition}", "$description": "200ms fade-in, the first time a banner appears in a session. Off with reduced motion." },
       "enter-easing": { "$type": "cubicBezier", "$value": "{motion.easing.enter}", "$description": "Telekom's enter (ease-out) curve: no overshoot." },
       "new-accent": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Accent line of a New banner: brand magenta, as the New tag beside it." },
       "new-tint": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Mixed into the sheet colour by new-tint-strength for a New banner's background." },

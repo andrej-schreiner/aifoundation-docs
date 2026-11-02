@@ -1,7 +1,7 @@
 ---
-// Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
-// PaddleOCR-VL-1.6 (linking to /guides/ocr).
+// Site-wide announcement banners — currently the GLM 5.3 / DeepSeek launch
+// (New) first, then the API transition notice (Notice, linking to
+// /api-transition).
 // It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
@@ -27,8 +27,8 @@
 // "reload"), and a new tab starts a fresh session, so the banner returns.
 // Each banner has its own close button and storage key, and the key changes
 // with each announcement, so visitors who dismissed the previous one still
-// see this one. After a close, focus moves to the next banner, or to the
-// page title when none is left.
+// see this one. After a close, focus moves to the remaining banner's close
+// button, or to the page title when none is left.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
@@ -276,8 +276,9 @@ import Icon from './Icon.astro';
       sessionStorage.setItem(bar.dataset.key!, '1');
     } catch {}
     const stack = bar.parentElement;
-    // Focus was in the banner: it goes to the next banner's close button,
-    // or to the page title, not to <body>, so keyboard users keep their place.
+    // Focus was in the banner: it goes to the remaining banner's close
+    // button, or to the page title, not to <body>, so keyboard users keep
+    // their place.
     const hadFocus = bar.contains(document.activeElement);
     const next = (bar.nextElementSibling ?? bar.previousElementSibling)?.querySelector<HTMLElement>('.qp-close');
     bar.remove();
@@ -294,6 +295,8 @@ import Icon from './Icon.astro';
     }
     // The last banner gone: drop the row, so its spacing goes too.
     if (stack?.classList.contains('qp-stack') && !stack.querySelector('.qp-bar')) stack.remove();
+    // The title moved up: On this page re-aligns with it (astro.config.mjs).
+    document.dispatchEvent(new Event('aifs:banner-dismissed'));
   }
 
   function initPreviewModelsBanner() {
