@@ -412,10 +412,6 @@ textarea {
 	max-width: 100%;
 }
 
-/* The data tables scroll inside these. The table draws its own rounded
-   outline (table.css); the scroll area has no radius, or it would round the
-   table where it is cut off at the sheet's edge, not at its last column. */
-
 /* Page-QA rules Patrick's layout does not set. */
 
 

@@ -225,11 +225,11 @@
 }
 
 /* In a breakout band (layout.css) the sticky parts take the band's colour;
-   the table stays white on it. */
-.aifs-breakout :is(.aifs-data-filterbar, .aifs-head-float__clip) {
+   the table stays white on it. Not in a design-system Showcase (no band). */
+.aifs-breakout:not(.showcase *) :is(.aifs-data-filterbar, .aifs-head-float__clip) {
 	background-color: var(--aifs-layout-tint);
 }
 
-.aifs-breakout .aifs-data-table {
+.aifs-breakout:not(.showcase *) .aifs-data-table {
 	background-color: var(--aifs-layout-sheet);
 }

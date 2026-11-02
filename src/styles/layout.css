@@ -190,8 +190,9 @@ mobile-starlight-toc nav {
 }
 
 @media (min-width: 72rem) {
-	/* .sl-markdown-content: above a component's own width rules. */
-	[data-has-sidebar] .sl-markdown-content .aifs-breakout {
+	/* .sl-markdown-content: above a component's own width rules. Not in a
+	   design-system Showcase: there it stays in the Showcase's frame. */
+	[data-has-sidebar] .sl-markdown-content .aifs-breakout:not(.showcase *) {
 		--aifs-breakout-clearance: 0px;
 		--aifs-breakout-out: max(
 			100cqw - var(--sl-content-width) - 2 * var(--sl-content-pad-x),
@@ -209,7 +210,7 @@ mobile-starlight-toc nav {
 	/* Without On this page (this draft's design-system page and the
 	   archive) the column is centred: the band spans the pane, its content
 	   keeps to the column. */
-	[data-has-sidebar]:not([data-has-toc]) .sl-markdown-content .aifs-breakout {
+	[data-has-sidebar]:not([data-has-toc]) .sl-markdown-content .aifs-breakout:not(.showcase *) {
 		--aifs-breakout-out: calc((100cqw - min(100cqw, var(--sl-content-width) + 2 * var(--sl-content-pad-x))) / 2);
 		margin-inline: calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
 		padding-inline: calc(var(--aifs-breakout-out) + var(--sl-content-pad-x));
@@ -219,7 +220,7 @@ mobile-starlight-toc nav {
 /* The chat launcher is shown from 80rem (below): the column keeps a
    clearance at its end edge, and so does the band's content. */
 @media (min-width: 80rem) {
-	[data-has-sidebar][data-has-toc] .sl-markdown-content .aifs-breakout {
+	[data-has-sidebar][data-has-toc] .sl-markdown-content .aifs-breakout:not(.showcase *) {
 		--aifs-breakout-clearance: var(--aifs-layout-launcher-clearance);
 	}
 }
