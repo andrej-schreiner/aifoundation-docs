@@ -321,6 +321,16 @@ export default defineConfig({
 					content: `(function(){var r=document.documentElement;new MutationObserver(function(){r.setAttribute('data-theme-switching','');requestAnimationFrame(function(){requestAnimationFrame(function(){r.removeAttribute('data-theme-switching');});});}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();`,
 				},
 				{
+					// Sidebar groups start open. Starlight keeps the groups a visitor
+					// closed in sessionStorage ('sl-sidebar-state') and restores them on
+					// the next page; a state stored before the groups opened by default
+					// (when every group started closed) would still close them, so it is
+					// dropped once per session, marked by a versioned key. Runs in <head>,
+					// before the sidebar restores its state.
+					tag: 'script',
+					content: `(function(){try{var v='aifsSidebarDefaultOpen1';if(sessionStorage.getItem(v)!=='1'){sessionStorage.removeItem('sl-sidebar-state');sessionStorage.setItem(v,'1');}}catch(e){}})();`,
+				},
+				{
 					// Sidebar groups are collapsible (Starlight's <details>, state kept in
 					// sessionStorage). The group holding the current page is always open,
 					// even if it was closed earlier in the session.
@@ -368,11 +378,11 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
-				// Every group starts closed; Starlight opens the one with the current page.
+				// Every group starts open (Starlight's default, no `collapsed`); the
+				// chevrons still close them. See the sidebar-state script in `head`.
 				{
 					label: 'Get started',
 					translations: { de: 'Erste Schritte' },
-					collapsed: true,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
@@ -385,7 +395,6 @@ export default defineConfig({
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
-					collapsed: true,
 					items: [
 						{ label: 'All models', translations: { de: 'Alle Modelle' }, slug: 'models' },
 						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
@@ -399,7 +408,6 @@ export default defineConfig({
 				{
 					label: 'API usage',
 					translations: { de: 'API-Nutzung' },
-					collapsed: true,
 					items: [
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 						{ label: 'Chat', translations: { de: 'Chat' }, slug: 'guides/chat-completions' },
@@ -419,7 +427,6 @@ export default defineConfig({
 				{
 					label: 'Integrations',
 					translations: { de: 'Integrationen' },
-					collapsed: true,
 					items: [
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
@@ -429,7 +436,6 @@ export default defineConfig({
 				{
 					label: 'Trust & compliance',
 					translations: { de: 'Vertrauen & Compliance' },
-					collapsed: true,
 					items: [
 						{ label: 'Enterprise Trust & certifications', translations: { de: 'Enterprise Trust & Zertifizierungen' }, slug: 'reference/enterprise-trust' },
 						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
@@ -438,7 +444,6 @@ export default defineConfig({
 				{
 					label: 'Plans & pricing',
 					translations: { de: 'Tarife & Preise' },
-					collapsed: true,
 					items: [
 						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
 						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
@@ -448,7 +453,6 @@ export default defineConfig({
 				{
 					label: 'Resources',
 					translations: { de: 'Ressourcen' },
-					collapsed: true,
 					items: [
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
