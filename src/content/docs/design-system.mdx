@@ -917,7 +917,7 @@ Used in: the guides and API reference, mostly for code in several languages (90 
 
 Aligned with Scale's [Tooltip](https://telekom.github.io/scale/?path=/docs/components-tooltip--standard): a dark box with white body text, the small radius and a 12px arrow, faded in and out. Tokens: `aifs.tooltip.*`, styles in `tooltip.css`. It never grows wider than `maxWidth` or its container, so long text breaks instead of leaving the screen.
 
-- **Hover tooltip** (`Tooltip`): explains a term, a column or a tag. Shows on hover and on keyboard focus, can itself be hovered, and Escape hides it. Its text is linked to the trigger with `aria-describedby`.
+- **Hover tooltip** (`Tooltip`): explains a term, a column or a tag. Shows on hover and on keyboard focus, can itself be hovered, and Escape hides it. Its text is linked to the trigger with `aria-describedby`. "T-Cloud" in it never breaks at its hyphen: it is put in a `.nowrap` span (`keepWholeParts`, `src/shared/lib/displayFormat.ts`), as in the plans page's notes and the announcement box.
 - **Success tooltip** (Button's `successTooltip`): says what an action did, such as what was copied. See Button and Model card.
 
 <Showcase label="Above (top, the default), below (bottom, for table headers) and beside (right-center, for table rows)">

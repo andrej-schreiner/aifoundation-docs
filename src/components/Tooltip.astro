@@ -1,4 +1,6 @@
 ---
+import { keepWholeParts } from '../shared/lib/displayFormat';
+
 // Hover and focus tooltip, styled as Scale's scale-tooltip. Styles live in
 // src/styles/tooltip.css, shared with Button's successTooltip and the model
 // table's rows.
@@ -38,7 +40,8 @@ const tipId = Math.random().toString(36).slice(2, 10);
     ]}
     id={`ui-tooltip-${tipId}`}
     role="tooltip">
-    {text}
+    {/* "T-Cloud" in a .nowrap span, so it never breaks at its hyphen. */}
+    {keepWholeParts(text).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}
   </span>
 </span>
 

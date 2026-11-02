@@ -573,8 +573,8 @@ const t = {
     ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
     : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
   tooltipCachedPrice: isDE
-    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T\u2011Cloud-gehostete Modelle.`
-    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T\u2011Cloud-hosted models only.`,
+    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle.`
+    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only.`,
   cachedPriceUnavailable: '—',
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
@@ -626,13 +626,13 @@ const t = {
 
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
-      'T\u2011Cloud': 'Gehostet auf T\u2011Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland, innerhalb der EU.',
+      'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland, innerhalb der EU.',
       Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab, siehe Standort.',
       GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab, siehe Standort.',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
-      'T\u2011Cloud': "Hosted on T\u2011Cloud Public — Telekom's sovereign infrastructure in Germany, within the EU.",
+      'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany, within the EU.",
       Azure:   'Hosted on Microsoft Azure. The region depends on the model; see Location.',
       GCP:     'Hosted on Google Cloud Platform. The region depends on the model; see Location.',
       Other:   'Hosted by a third-party provider.',

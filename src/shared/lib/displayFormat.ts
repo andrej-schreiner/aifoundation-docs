@@ -32,3 +32,18 @@ export function formatInteger(value: number, locale: NumberLocale = 'en'): strin
 export function formatDecimalText(text: string, locale: NumberLocale = 'en'): string {
   return localizeDigits(text, locale);
 }
+
+/**
+ * Names that must never break at their hyphen ("T-" / "Cloud"). Text that
+ * shows them goes through `keepWholeParts` and puts each `whole` part in a
+ * `.nowrap` span (src/styles/layout.css), so the text itself keeps the plain
+ * ASCII hyphen: find-in-page, copy and lookups by "T-Cloud" still work.
+ */
+const KEEP_WHOLE = /(T-Cloud)/;
+
+export function keepWholeParts(text: string): { text: string; whole: boolean }[] {
+  return text
+    .split(KEEP_WHOLE)
+    .filter((part) => part !== '')
+    .map((part) => ({ text: part, whole: KEEP_WHOLE.test(part) }));
+}
