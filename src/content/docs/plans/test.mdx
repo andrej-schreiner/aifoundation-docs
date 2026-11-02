@@ -8,6 +8,10 @@ import PlansPage from '../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
+:::tip[New in preview: Qwen3-Reranker-4B]
+**Qwen3-Reranker-4B** (`Qwen3-Reranker-4B-Preview`) from Qwen (Alibaba Cloud) scores how well each document answers a query and returns the documents sorted by relevance. Use it after embedding or keyword search, so only the best documents reach your chat model. It is multilingual and is called through `/rerank`, which is compatible with the Cohere and Jina rerank APIs. See [Reranking](/guides/reranking).
+:::
+
 :::tip[New in preview: two OCR models]
 **LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris (made in Europe), and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) turn scanned documents, PDFs and photos into Markdown, HTML tables and LaTeX. LightOnOCR reads a whole page per request, including handwriting; PaddleOCR-VL reads page elements and works best with the PaddleOCR pipeline. Both take image input through `/chat/completions`. See [OCR](/guides/ocr).
 :::

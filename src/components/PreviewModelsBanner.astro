@@ -1,8 +1,9 @@
 ---
 // Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
-// PaddleOCR-VL-1.6 (linking to /guides/ocr).
-// It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
+// to /api-transition) above the Qwen3-Reranker-4B preview model (linking to
+// /guides/reranking).
+// It replaced the OCR preview bar (LightOnOCR-3-4B / PaddleOCR-VL-1.6), which
+// replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
 // GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
@@ -39,11 +40,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'ocrPreviewBannerDismissed',
+        key: 'rerankerPreviewBannerDismissed',
         badge: 'Neu',
-        msg: 'Neu in der Preview: <b>LightOnOCR-3-4B</b> (Made in Europe) und <b>PaddleOCR-VL-1.6</b> — verwandeln Sie Dokumente, PDFs und Handschrift in bearbeitbares Markdown und Tabellen. Kostenlos testbar.',
-        cta: 'OCR ausprobieren',
-        href: `${prefix}/guides/ocr`,
+        msg: 'Neu in der Preview: <b>Qwen3-Reranker-4B</b> — sortiert Suchergebnisse nach Relevanz, damit Ihre RAG-Pipeline die richtigen Dokumente findet. Kostenlos testbar.',
+        cta: 'Reranking ausprobieren',
+        href: `${prefix}/guides/reranking`,
       },
     ]
   : [
@@ -55,11 +56,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'ocrPreviewBannerDismissed',
+        key: 'rerankerPreviewBannerDismissed',
         badge: 'New',
-        msg: 'New in preview: <b>LightOnOCR-3-4B</b> (made in Europe) and <b>PaddleOCR-VL-1.6</b> — turn documents, PDFs and handwriting into editable Markdown and tables. Free to try.',
-        cta: 'Try OCR',
-        href: `${prefix}/guides/ocr`,
+        msg: 'New in preview: <b>Qwen3-Reranker-4B</b> — sorts search results by relevance, so your RAG pipeline finds the right documents. Free to try.',
+        cta: 'Try reranking',
+        href: `${prefix}/guides/reranking`,
       },
     ];
 ---

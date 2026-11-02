@@ -1,0 +1,246 @@
+---
+title: "Reranking"
+description: "Suchergebnisse mit dem Preview-Modell Qwen3-Reranker-4B nach Relevanz für eine Anfrage sortieren und so RAG und Suche verbessern."
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+Ein Reranker bewertet, wie gut jedes Dokument eine Anfrage beantwortet, und gibt die Dokumente nach dieser Bewertung sortiert zurück. Setzen Sie ihn als zweiten Schritt einer Such- oder RAG-Pipeline ein: Holen Sie zuerst schnell 20 bis 100 Kandidaten mit [Embeddings](/de/guides/embeddings) oder einer Stichwortsuche, und lassen Sie dann den Reranker die wenigen auswählen, die die Frage wirklich beantworten, bevor Sie sie an ein Chat-Modell übergeben.
+
+Der Reranker liest die Anfrage und jedes Dokument gemeinsam. Er erkennt so Relevanz, die der Embedding-Ähnlichkeit entgeht, braucht dafür aber einen Modellaufruf pro Paar aus Anfrage und Dokument.
+
+:::note[Voraussetzungen]
+- Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
+- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/getting-started/quickstart)
+:::
+
+**Was Sie lernen werden:**
+- Wie Sie Dokumente mit curl, Python und Node.js neu sortieren
+- Wie Sie den Endpunkt mit dem Cohere SDK aufrufen
+- Wie Sie Reranking in eine Pipeline aus Suche und Generierung einbauen
+
+
+## Unterstütztes Modell
+
+| | **Qwen3-Reranker-4B** |
+|---|---|
+| Modell-ID | `Qwen3-Reranker-4B-Preview` |
+| Hersteller | [Qwen](https://huggingface.co/Qwen/Qwen3-Reranker-4B) (Alibaba Cloud) |
+| Endpunkt | `POST /v2/rerank` (auch `/v1/rerank`) |
+| Sprachen | über 100 Sprachen. Von uns getestet auf Deutsch sowie mit deutschen und chinesischen Anfragen an englische Dokumente |
+| Kontextfenster | 40.960 Tokens pro Paar aus Anfrage und Dokument |
+| Lizenz | Apache 2.0 |
+
+Das Modell ist in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate Limits. Es wird auf T-Cloud Public in Deutschland gehostet.
+
+
+## Grundlegende Verwendung
+
+Senden Sie eine `query` und eine Liste von `documents`. Die Antwort listet die Dokumente vom relevantesten zum am wenigsten relevanten, jeweils mit seiner Position in Ihrer Liste (`index`) und einem `relevance_score` zwischen 0 und 1.
+
+<Tabs>
+  <TabItem value="curl" label="curl" default>
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/rerank" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "Qwen3-Reranker-4B-Preview",
+        "query": "What is the capital of Germany?",
+        "documents": [
+          "Paris is the capital of France.",
+          "Berlin is the capital and largest city of Germany.",
+          "Bananas are rich in potassium."
+        ],
+        "top_n": 2
+      }'
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python showLineNumbers
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    documents = [
+        "Paris is the capital of France.",
+        "Berlin is the capital and largest city of Germany.",
+        "Bananas are rich in potassium.",
+    ]
+
+    # Rerank is not part of the OpenAI API, so call it with the client's generic post().
+    response = client.post(
+        "/rerank",
+        body={
+            "model": "Qwen3-Reranker-4B-Preview",
+            "query": "What is the capital of Germany?",
+            "documents": documents,
+            "top_n": 2,
+        },
+        cast_to=object,  # return the JSON body as a dict
+    )
+
+    for result in response["results"]:
+        print(f"{result['relevance_score']:.4f}  [{result['index']}] {result['document']['text']}")
+    print("Token usage:", response["usage"])
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```javascript showLineNumbers
+    const response = await fetch(`${process.env.OPENAI_BASE_URL}/rerank`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "Qwen3-Reranker-4B-Preview",
+        query: "What is the capital of Germany?",
+        documents: [
+          "Paris is the capital of France.",
+          "Berlin is the capital and largest city of Germany.",
+          "Bananas are rich in potassium.",
+        ],
+        top_n: 2,
+      }),
+    });
+    if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+
+    const { results, usage } = await response.json();
+    for (const r of results) {
+      console.log(r.relevance_score.toFixed(4), `[${r.index}]`, r.document.text);
+    }
+    console.log("Token usage:", usage);
+    ```
+  </TabItem>
+</Tabs>
+
+**Beispielausgabe (Python):**
+```
+0.9830  [1] Berlin is the capital and largest city of Germany.
+0.0000  [0] Paris is the capital of France.
+Token usage: {'prompt_tokens': 258, 'total_tokens': 258, 'completion_tokens': 0}
+```
+
+**Antwort (curl):**
+```json
+{
+  "id": "score-283f1d15-f206-4d7c-b55f-9d0c31141ae8",
+  "model": "Qwen3-Reranker-4B-Preview",
+  "usage": {"prompt_tokens": 258, "total_tokens": 258, "completion_tokens": 0},
+  "results": [
+    {"index": 1, "document": {"text": "Berlin is the capital and largest city of Germany.", "multi_modal": null}, "relevance_score": 0.9829727411270142},
+    {"index": 0, "document": {"text": "Paris is the capital of France.", "multi_modal": null}, "relevance_score": 1.0335657862015069e-05}
+  ]
+}
+```
+
+### Anfrageparameter
+
+| Parameter | Typ | Beschreibung |
+|---|---|---|
+| `model` | String | `Qwen3-Reranker-4B-Preview` |
+| `query` | String | Die Suchanfrage oder Frage |
+| `documents` | Array von Strings | Die zu bewertenden Kandidaten. Senden Sie mindestens einen |
+| `top_n` | Integer | Optional. Gibt nur die besten `n` Dokumente zurück. Lassen Sie es weg oder senden Sie `0`, um alle zu erhalten |
+| `truncate_prompt_tokens` | Integer | Optional. Kürzt jedes Paar aus Anfrage und Dokument auf diese Anzahl Tokens, für lange Dokumente (siehe [Tipps und Grenzen](#tipps-und-grenzen)) |
+
+
+## Mit dem Cohere SDK
+
+Der Endpunkt ist kompatibel mit den Rerank-APIs von Cohere und Jina, das Cohere SDK funktioniert also ohne Anpassungen. `cohere.ClientV2` ruft `/v2/rerank` auf und `cohere.Client` ruft `/v1/rerank` auf; beide hängen den Pfad selbst an, übergeben Sie die Basis-URL daher **ohne** `/v2`.
+
+```python showLineNumbers
+import os
+
+import cohere
+
+# The Cohere SDK adds /v2/rerank itself, so pass the base URL without /v2.
+co = cohere.ClientV2(
+    api_key=os.environ["OPENAI_API_KEY"],
+    base_url=os.environ["OPENAI_BASE_URL"].removesuffix("/v2"),
+)
+
+response = co.rerank(
+    model="Qwen3-Reranker-4B-Preview",
+    query="What is the capital of Germany?",
+    documents=[
+        "Paris is the capital of France.",
+        "Berlin is the capital and largest city of Germany.",
+        "Bananas are rich in potassium.",
+    ],
+    top_n=2,
+)
+
+for result in response.results:
+    print(f"{result.relevance_score:.4f}  [{result.index}]")
+```
+
+Andere Tools, die einen Cohere- oder Jina-kompatiblen Rerank-Endpunkt unterstützen, können dasselbe Modell nutzen: Richten Sie sie auf `https://llm-server.llmhub.t-systems.net/v2/rerank` mit Ihrem API-Schlüssel aus.
+
+
+## Erst suchen, dann neu sortieren
+
+Eine typische RAG-Pipeline erstellt ein Embedding der Anfrage, behält die nächstgelegenen Kandidaten und sortiert sie neu, sodass nur die relevantesten beim Chat-Modell ankommen. Dieses Beispiel nutzt [Qwen3 Embedding 8B](/de/guides/embeddings) für die Suche (`pip install openai numpy`).
+
+```python showLineNumbers
+import numpy as np
+from openai import OpenAI
+
+client = OpenAI()
+
+query = "How many vacation days do part-time employees get?"
+documents = [
+    "Full-time employees receive 30 vacation days per calendar year.",
+    "Part-time employees receive vacation days in proportion to their working days per week.",
+    "Vacation requests must be submitted in the HR portal at least two weeks in advance.",
+    "The canteen is open from 11:30 to 14:00 on working days.",
+    "Employees working four days a week receive 24 vacation days per year.",
+    "Sick days do not count as vacation days if a doctor's note is submitted.",
+]
+
+# 1. Retrieve: embed the query and the documents, keep the closest candidates.
+emb = client.embeddings.create(model="qwen3-embedding-8b", input=[query] + documents)
+vectors = np.array([d.embedding for d in emb.data])
+vectors /= np.linalg.norm(vectors, axis=1, keepdims=True)
+similarity = vectors[1:] @ vectors[0]
+candidates = [documents[i] for i in np.argsort(-similarity)[:4]]
+
+# 2. Rerank: score each candidate against the query, keep the best two.
+reranked = client.post(
+    "/rerank",
+    body={"model": "Qwen3-Reranker-4B-Preview", "query": query, "documents": candidates, "top_n": 2},
+    cast_to=object,
+)
+for r in reranked["results"]:
+    print(f"{r['relevance_score']:.4f}  {r['document']['text']}")
+
+# 3. Pass these documents to your chat model as context.
+context = [r["document"]["text"] for r in reranked["results"]]
+```
+
+**Beispielausgabe:**
+```
+0.9972  Part-time employees receive vacation days in proportion to their working days per week.
+0.9938  Employees working four days a week receive 24 vacation days per year.
+```
+
+In der Produktion speichern Sie die Embeddings der Dokumente in einem Vector Store, statt sie bei jeder Anfrage neu zu berechnen.
+
+
+## Tipps und Grenzen
+
+- **Jedes Dokument wird abgerechnet, auch mit `top_n`.** `top_n` kürzt nur die Antwort. Jedes Paar aus Anfrage und Dokument ist eine eigene Modelleingabe: die Anfrage, das Dokument und etwa 70 Tokens Prompt-Vorlage des Modells. Sortieren Sie einige Dutzend Kandidaten neu, nicht Ihren ganzen Bestand.
+- **Scores dienen der Reihenfolge.** Sie sind innerhalb einer Anfrage vergleichbar. Wenn Sie nach einem Schwellenwert filtern, wählen Sie ihn anhand Ihrer eigenen Daten.
+- **Lange Dokumente werden gekürzt, nicht abgelehnt.** Ein Paar mit mehr als 40.960 Tokens wird auf 40.960 Tokens gekürzt und nur dieser Teil bewertet; `usage` zeigt 40.960. Senden Sie `truncate_prompt_tokens` (zum Beispiel 4096), um lange Paare früher und schneller zu kürzen, oder teilen Sie lange Dokumente in Abschnitte.
+- **Viele Dokumente pro Anfrage sind kein Problem.** 100 Dokumente kommen in unter zwei Sekunden zurück, 500 in etwa drei.
+- **Dokumente kommen immer mit zurück.** Jedes Ergebnis enthält `document.text`; der Cohere-Parameter `return_documents` wird ignoriert.
+- **Keine Queue-Variante.** `/queue/rerank` gibt es nicht; wiederholen Sie die Anfrage stattdessen bei `429`.
+- **Preview-Modell.** Es gelten die Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate Limits, kein SLA, nicht für Produktions-Workloads.
+
+
+## Nächste Schritte
+
+- [Embeddings](/de/guides/embeddings) — Kandidaten für das Reranking finden
+- [Visual RAG](/de/guides/visual-rag) — Dokumente anhand ihrer Seitenbilder durchsuchen
+- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle

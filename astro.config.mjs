@@ -102,6 +102,7 @@ export default defineConfig({
 						{ label: 'Prefix Caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },
 						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'guides/embeddings' },
+						{ label: 'Reranking', translations: { de: 'Reranking' }, slug: 'guides/reranking' },
 						{ label: 'Multimodal', translations: { de: 'Multimodal' }, slug: 'guides/multimodal' },
 						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr' },
 						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'guides/audio' },
