@@ -390,3 +390,13 @@
 		display: none;
 	}
 }
+
+/* API paths (api-endpoints, Paths) never break: `/v2/coding` is one value,
+   and at about ten characters the longest fits the narrowest column. */
+.sl-markdown-content .aifs-table-scroll td:is([data-label='Path'], [data-label='Pfad']) > code {
+	white-space: nowrap;
+}
+
+.sl-markdown-content .aifs-table-scroll td:is([data-label='Path'], [data-label='Pfad']) > code > wbr {
+	display: none;
+}
