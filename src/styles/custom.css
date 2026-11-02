@@ -47,8 +47,8 @@
 }
 
 /* Mobile On this page: a long current heading wraps instead of ending in
-   an ellipsis. The bar keeps its height for one or two lines (two short
-   lines fit the 3rem bar) and grows only past that. */
+   an ellipsis. The bar keeps its height for one or two lines and grows
+   only past that, over the page that scrolls under it. */
 #starlight__on-this-page--mobile {
 	height: auto;
 	min-height: var(--sl-mobile-toc-height);
@@ -60,4 +60,19 @@
 	overflow: visible;
 	text-overflow: clip;
 	line-height: 1.2;
+}
+
+/* More room for the heading: the toggle keeps its label, with less space
+   inside it. */
+#starlight__on-this-page--mobile .toggle {
+	gap: var(--aifs-button-icon-gap-small);
+	padding-inline: var(--aifs-button-padding-x-ghost) var(--aifs-button-icon-gap-small);
+}
+
+/* A jump to a heading lands below the bar even when the bar has grown to
+   two more lines for a long heading. */
+@media (max-width: 71.99rem) {
+	html {
+		scroll-padding-top: calc(1.5rem + var(--sl-nav-height) + var(--sl-mobile-toc-height) + 2rem);
+	}
 }
