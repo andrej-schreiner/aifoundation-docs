@@ -289,6 +289,14 @@ mobile-starlight-toc nav {
 	}
 }
 
+/* With the chat launcher shown, the column keeps a clearance at its end
+   edge (below); the box ends where the column does. */
+@media (min-width: 80rem) {
+	[data-has-sidebar][data-has-toc] .main-frame > .qp-stack > * {
+		margin-inline-end: var(--aifs-layout-launcher-clearance);
+	}
+}
+
 /* Starlight draws a hairline between the title panel and the body. The title
    is only as wide as the measure, so the line reads as a stray rule across
    the sheet. */
@@ -498,6 +506,19 @@ footer.sl-flex .meta:not(:has(*)) {
 	#tsystems-chat-widget,
 	.widget-container {
 		display: none !important;
+	}
+}
+
+/* From 80rem the launcher is shown, 12px from the window's bottom-right
+   corner. Until the column reaches its full width, the column ends just
+   short of the window (the sheet padding only), so the launcher would sit
+   over its last characters and links: the column keeps a clearance at its
+   end edge. Once the column is full width the clearance is spare room, and
+   the column keeps its width. */
+@media (min-width: 80rem) {
+	[data-has-sidebar] .main-pane > main {
+		padding-inline-end: var(--aifs-layout-launcher-clearance);
+		max-width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x) + var(--aifs-layout-launcher-clearance));
 	}
 }
 

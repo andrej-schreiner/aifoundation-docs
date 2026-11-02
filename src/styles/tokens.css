@@ -98,6 +98,7 @@
 	--aifs-layout-content-width: 45rem;
 	--aifs-layout-grid-gap: 16px;
 	--aifs-layout-grid-action-gap: 24px;
+	--aifs-layout-launcher-clearance: 48px;
 	--aifs-layout-content-width-wide: 85rem;
 	--aifs-layout-measure: 45rem;
 	--aifs-layout-divider: #dfdfe1;
@@ -609,6 +610,7 @@
 	--aifs-layout-content-width: 45rem;
 	--aifs-layout-grid-gap: 16px;
 	--aifs-layout-grid-action-gap: 24px;
+	--aifs-layout-launcher-clearance: 48px;
 	--aifs-layout-content-width-wide: 85rem;
 	--aifs-layout-measure: 45rem;
 	--aifs-layout-divider: #353841;
