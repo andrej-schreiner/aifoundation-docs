@@ -553,12 +553,15 @@ const t = {
   supported: isDE ? 'Unterstützt' : 'Supported',
   notSupported: isDE ? 'Nicht unterstützt' : 'Not supported',
   details: 'Details',
+  showDetails: isDE ? 'Details anzeigen' : 'Show details',
+  hideDetails: isDE ? 'Details ausblenden' : 'Hide details',
   priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
   planPreview: isDE ? 'Vorschau' : 'Preview',
   // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
   previewPlans: isDE ? 'Kostenlos in jedem aktiven Tarif' : 'Free on any active plan',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
-  showing: isDE ? 'Zeige' : 'Showing',
+  // German counts without a verb: "39 von 39 Modellen".
+  showing: isDE ? '' : 'Showing',
   of: isDE ? 'von' : 'of',
   models: isDE ? 'Modellen' : 'models',
   selected: isDE ? 'ausgewählt' : 'selected',
@@ -570,8 +573,8 @@ const t = {
     ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
     : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
   tooltipCachedPrice: isDE
-    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle.`
-    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only.`,
+    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T\u2011Cloud-gehostete Modelle.`
+    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T\u2011Cloud-hosted models only.`,
   cachedPriceUnavailable: '—',
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
@@ -623,13 +626,13 @@ const t = {
 
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
-      'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland, innerhalb der EU.',
+      'T\u2011Cloud': 'Gehostet auf T\u2011Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland, innerhalb der EU.',
       Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab, siehe Standort.',
       GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab, siehe Standort.',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
-      'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany, within the EU.",
+      'T\u2011Cloud': "Hosted on T\u2011Cloud Public — Telekom's sovereign infrastructure in Germany, within the EU.",
       Azure:   'Hosted on Microsoft Azure. The region depends on the model; see Location.',
       GCP:     'Hosted on Google Cloud Platform. The region depends on the model; see Location.',
       Other:   'Hosted by a third-party provider.',
@@ -730,7 +733,7 @@ function limitNumber(value: number | string | null): number | null {
 
 function formatLimit(value: number | string | null): string {
   const n = limitNumber(value);
-  if (n != null) return n.toLocaleString('en-US');
+  if (n != null) return n.toLocaleString(numberLocale);
   if (value == null || value === '') return '—';
   return t.dynamicLimit;
 }
@@ -773,27 +776,45 @@ const columns: Column[] = ([
 ] as Column[]).filter((c) => c.presets.includes(preset));
 const show = (key: string) => columns.some((c) => c.key === key);
 
-// The table fits the content column: it shows the columns below as cells
-// (the model cell carries the provider's logo) and every other column in a
-// details row under each model. Below 36rem the rows become cards, their
-// cells label–value rows, the details below a Details button.
+// The table fits its room: it shows the columns below as cells (the model
+// cell carries the provider's logo) and every other column in a details row
+// under each model. Below 36rem the rows become cards, their cells
+// label–value rows, the details below a Details button.
 const PRIMARY_COLUMNS: Record<ColumnPreset, string[]> = {
   catalog: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
   useCase: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
   plan: ['model', 'inputPrice', 'outputPrice', 'rpm', 'tpm'],
 };
-const tableColumns = columns.filter((c) => PRIMARY_COLUMNS[preset].includes(c.key));
-// The provider is the model cell's logo; its name is in the logo's tooltip
-// and in the details. Output (no column) is in the details on model pages.
-const detailColumns: Column[] = columns.filter((c) => !PRIMARY_COLUMNS[preset].includes(c.key));
+// On wide screens the table is in a breakout band (layout.css), wider than
+// the column. Each step of width (container queries below: 1 from 48rem,
+// 2 from 63rem, 3 from 77rem) moves these columns out of the details into
+// the row; the details keep the rest. The reasoning columns (long code
+// values) and the legal links stay in the details.
+const EXTRA_COLUMNS: Record<ColumnPreset, Record<string, 1 | 2 | 3>> = {
+  catalog: { input: 1, output: 1, plans: 2, cachedInputPrice: 2, location: 3, streaming: 3, tools: 3 },
+  useCase: { input: 1, output: 1, plans: 2, cachedInputPrice: 2, location: 3, streaming: 3, tools: 3 },
+  plan: { cloud: 1, context: 1, cachedInputPrice: 2, location: 2, provider: 3 },
+};
+const extraStep = (key: string) => EXTRA_COLUMNS[preset][key];
+// Every column the rows can show; on model pages Output (not filterable as
+// a column of its own) follows Input.
+const rowColumns: Column[] = [...columns];
 if (show('input')) {
-  detailColumns.splice(detailColumns.findIndex((c) => c.key === 'input') + 1, 0, {
+  rowColumns.splice(rowColumns.findIndex((c) => c.key === 'input') + 1, 0, {
     key: 'output',
     label: t.colOutput,
     cls: '',
+    sortable: false,
     presets: MODEL_PAGES,
   });
 }
+// Cells in the row: the main columns, then the wide-screen ones (hidden
+// until there is room). The provider is the model cell's logo; its name is
+// in the logo's tooltip and in the details.
+const tableColumns = rowColumns
+  .filter((c) => PRIMARY_COLUMNS[preset].includes(c.key) || extraStep(c.key))
+  .map((c) => (extraStep(c.key) ? { ...c, cls: `${c.cls} mc-x mc-x${extraStep(c.key)}`.trim() } : c));
+const detailColumns: Column[] = rowColumns.filter((c) => !PRIMARY_COLUMNS[preset].includes(c.key));
 /** A card's row label: the column's label with its unit ("Input (€ / 1M tokens)"). */
 const cardLabel = (c: Column) => `${c.label}${c.unit ? ` (${c.unit})` : ''}${c.mark ? ` ${c.mark}` : ''}`;
 // The sort field lists every sortable column, so the details' values and the
@@ -872,6 +893,8 @@ const scriptText = {
   showResults: t.showResults,
   removeFilter: t.removeFilter,
   nSelected: t.nSelected,
+  showDetails: t.showDetails,
+  hideDetails: t.hideDetails,
 };
 
 // Build the row-data payload consumed by the client script. We render the
@@ -925,7 +948,7 @@ const rowDataPayload = rows.map((m) => ({
   </p>
 ) : (
 <div
-  class:list={['models-comparison', `models-comparison--${preset}`]}
+  class:list={['models-comparison', `models-comparison--${preset}`, 'aifs-breakout']}
   data-plan={activePlan || undefined}
   data-rows={JSON.stringify(rowDataPayload)}
   data-t={JSON.stringify(scriptText)}>
@@ -1016,7 +1039,7 @@ const rowDataPayload = rows.map((m) => ({
     {/* Explicit spaces: Astro's compressHTML drops the plain whitespace
         between an expression and an element ("Showing39of39models"). */}
     <span class="models-comparison__count" aria-live="polite" data-status-text>
-      {t.showing}{' '}<span data-visible-count>{activeRowCount}</span>{' '}{t.of}{' '}<span data-total-count>{activeRowCount}</span>{' '}{t.models}
+      {t.showing && `${t.showing} `}<span data-visible-count>{activeRowCount}</span>{' '}{t.of}{' '}<span data-total-count>{activeRowCount}</span>{' '}{t.models}
     </span>
     <span class="mc-sort">
       <Selector id={`mc-sort-${categoryFilter || capabilityFilter || preset}`} label={t.sortLabel}>
@@ -1220,8 +1243,8 @@ const rowDataPayload = rows.map((m) => ({
                     aria-expanded="false"
                     aria-controls={detailsId}
                   >
-                    <span class="mc-more__label">{t.details}<span class="sr-only">: {m.displayModelName}</span></span>
-                    <svg class="mc-more__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    <span class="mc-more__label"><span data-more-text>{t.showDetails}</span><span class="sr-only">: {m.displayModelName}</span></span>
+                    <Icon name="navigation-collapse-down" size={16} class="mc-more__chevron" />
                   </Button>
                 </td>
               </tr>
@@ -1229,7 +1252,7 @@ const rowDataPayload = rows.map((m) => ({
                 <td colspan={tableColumns.length + 1}>
                   <dl class="mc-dl">
                     {detailColumns.map((c) => (
-                      <div class:list={['mc-dl__item', `mc-dl__item--${c.key}`]}>
+                      <div class:list={['mc-dl__item', `mc-dl__item--${c.key}`, extraStep(c.key) && `mc-x${extraStep(c.key)}`]}>
                         <dt>{c.label}{c.unit && <span class="mc-dl__unit"> ({c.unit})</span>}{c.mark && <span aria-hidden="true">{` ${c.mark}`}</span>}</dt>
                         <dd class={c.cls}>{value(c.key)}</dd>
                       </div>
@@ -1800,15 +1823,13 @@ const rowDataPayload = rows.map((m) => ({
     });
 
     // The header row follows the page (src/scripts/floatingTableHead.ts).
-    const scrollArea = root.querySelector<HTMLElement>('.models-comparison__scroll');
     const floatHead = root.querySelector<HTMLElement>('.aifs-head-float');
-    const dataTable = scrollArea?.querySelector<HTMLTableElement>('table');
-    if (scrollArea && floatHead && dataTable) {
+    const dataTable = root.querySelector<HTMLTableElement>('table.models-comparison-table');
+    if (floatHead && dataTable) {
       setupFloatingHead({
         root,
         float: floatHead,
         bar: root.querySelector<HTMLElement>('.models-comparison__filterbar'),
-        scroller: scrollArea,
         table: dataTable,
         sortControl: '.mc-sort-header',
       });
@@ -1826,6 +1847,8 @@ const rowDataPayload = rows.map((m) => ({
       const detail = tr?.dataset.key ? detailRowsByKey.get(tr.dataset.key) : null;
       if (!tr || !detail) return;
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      const label = btn.querySelector<HTMLElement>('[data-more-text]');
+      if (label) label.textContent = open ? text.hideDetails : text.showDetails;
       tr.classList.toggle('mc-open', open);
       detail.hidden = !open || tr.hidden;
       // The table's bottom edge follows the last row shown.
@@ -1842,8 +1865,8 @@ const rowDataPayload = rows.map((m) => ({
       setDetails(btn, btn.getAttribute('aria-expanded') !== 'true');
     });
 
-    // On a narrow column the chip row scrolls, which would clip an absolute
-    // menu. Pin the open menu to the viewport instead.
+    // An open filter menu stays inside the window: near the end edge it
+    // moves back, and it is never wider than the window.
     function placeFilterMenu(details: HTMLDetailsElement) {
       const menu = details.querySelector<HTMLElement>('.mc-filter__menu');
       const summary = details.querySelector<HTMLElement>('summary');
@@ -1876,11 +1899,6 @@ const rowDataPayload = rows.map((m) => ({
         placeFilterMenu(details);
       }
     }, true);
-
-    root.querySelector('.models-comparison__chips')?.addEventListener('scroll', () => {
-      const open = root.querySelector<HTMLDetailsElement>('details.mc-filter[open]');
-      if (open) placeFilterMenu(open);
-    }, { passive: true });
 
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
@@ -1929,7 +1947,6 @@ const rowDataPayload = rows.map((m) => ({
     /* "datatable": the shared table behaviour (data-table.css). */
     container-name: comparison datatable;
     min-width: 0;
-    max-width: 100%;
   }
 
   /* Sticky under the site header: .aifs-data-filterbar (data-table.css). */
@@ -2107,7 +2124,7 @@ const rowDataPayload = rows.map((m) => ({
 
   .mc-sort :global(.aifs-select) {
     min-width: 0;
-    width: 15rem;
+    width: var(--aifs-models-table-sort-width);
     max-width: 100%;
   }
 
@@ -2146,13 +2163,6 @@ const rowDataPayload = rows.map((m) => ({
      the column's width; numbers and tags stay whole. */
   .models-comparison-table {
     width: 100%;
-  }
-
-  /* The cell padding of the site's other tables (table.css), not the wider
-     data-table one: six columns fit a 36rem column. */
-  .models-comparison-table.aifs-data-table :is(th, td),
-  .models-comparison-table.aifs-data-table :is(th, td):first-child {
-    padding-inline: var(--aifs-table-cell-padding-x) var(--aifs-table-cell-padding-end);
   }
 
   .models-comparison-table tbody td {
@@ -2226,19 +2236,19 @@ const rowDataPayload = rows.map((m) => ({
     border: 0;
   }
 
-  .mc-more__chevron {
+  .models-comparison :global(.mc-more__chevron) {
     display: block;
     flex: 0 0 auto;
     transition: transform var(--aifs-button-transition-duration) var(--aifs-button-transition-easing);
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .mc-more__chevron {
+    .models-comparison :global(.mc-more__chevron) {
       transition: none;
     }
   }
 
-  .models-comparison :global(.mc-more__btn[aria-expanded='true']) .mc-more__chevron {
+  .models-comparison :global(.mc-more__btn[aria-expanded='true'] .mc-more__chevron) {
     transform: rotate(180deg);
   }
 
@@ -2264,7 +2274,7 @@ const rowDataPayload = rows.map((m) => ({
   /* The details: label above value, as many to a line as fit. */
   .mc-dl {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--aifs-models-table-detail-min-column), 1fr));
     gap: var(--aifs-layout-grid-gap) var(--aifs-models-list-panel-gap-x);
     margin: 0;
     padding: var(--aifs-models-list-panel-padding) var(--aifs-filter-panel-option-gap);
@@ -2284,8 +2294,8 @@ const rowDataPayload = rows.map((m) => ({
     margin-bottom: var(--aifs-models-list-label-gap);
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-models-list-label-font-size);
-    font-weight: 700;
-    line-height: 1.3;
+    font-weight: var(--aifs-table-head-font-weight);
+    line-height: var(--aifs-text-small-line-height);
   }
 
   .mc-dl__unit {
@@ -2295,7 +2305,46 @@ const rowDataPayload = rows.map((m) => ({
   .models-comparison .mc-dl dd {
     padding: 0;
     font-size: var(--aifs-text-small-font-size);
-    line-height: 1.4;
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  /* Wide-screen columns (EXTRA_COLUMNS): hidden in the row, their values
+     in the details, until the breakout band (layout.css) gives the table
+     room. Each step shows its cells and hides the same values in the
+     details. The steps are what the widest preset needs in German, so the
+     table never grows wider than the band. */
+  .models-comparison .models-comparison-table :is(th, td).mc-x {
+    display: none;
+  }
+
+  @container comparison (min-width: 48rem) {
+    .models-comparison .models-comparison-table :is(th, td).mc-x1 {
+      display: table-cell;
+    }
+
+    .models-comparison .mc-dl .mc-x1 {
+      display: none;
+    }
+  }
+
+  @container comparison (min-width: 63rem) {
+    .models-comparison .models-comparison-table :is(th, td).mc-x2 {
+      display: table-cell;
+    }
+
+    .models-comparison .mc-dl .mc-x2 {
+      display: none;
+    }
+  }
+
+  @container comparison (min-width: 77rem) {
+    .models-comparison .models-comparison-table :is(th, td).mc-x3 {
+      display: table-cell;
+    }
+
+    .models-comparison .mc-dl .mc-x3 {
+      display: none;
+    }
   }
 
   /* Lists of values take a whole line of the details. */

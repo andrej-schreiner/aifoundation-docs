@@ -60,14 +60,6 @@ mobile-starlight-toc nav {
 		border-inline-start: 0;
 	}
 
-	/* On a page with a breakout band, On this page scrolls away with the
-	   page instead: the band runs under its column, so a sticky list would
-	   be covered while the band passes. */
-	[data-has-toc]:has(.aifs-breakout) .right-sidebar {
-		position: static;
-		height: auto;
-	}
-
 	/* The table of contents sits on the sheet, with the sheet's padding on
 	   its start side; the content's own padding separates the two. Its look
 	   is in sidebar-nav.css. */
@@ -174,8 +166,7 @@ mobile-starlight-toc nav {
 
 /* Pages without On this page (this draft's design-system page and the
    archived v1.2.0 pages; every current page has it) keep the wider column,
-   aifs.layout.content-width-wide. Wide elements elsewhere use the breakout
-   band below. Text still stops at the measure.
+   aifs.layout.content-width-wide. Text still stops at the measure.
    Starlight derives the content's centring and the header search's alignment
    from --sl-content-width, so the variable is all that changes. [data-theme]
    lifts this above the token mapping in tokens.css. */
@@ -183,53 +174,53 @@ mobile-starlight-toc nav {
 	--sl-content-width: var(--aifs-layout-content-width-wide);
 }
 
-/* Wide elements (the models table): a band that leaves the text column. It
-   starts where the column starts (with the column's padding inside it) and
-   runs to the sheet's end edge, on the subtle backdrop, so the sheet seems
-   to stop above and below it. The pane is a size container, so the band can
-   measure it.
+/* Wide elements (the models table): on wide screens, a band that leaves
+   the text column. It starts where the column's padding starts (its content
+   lines up with the text) and runs to the window's edge, on the subtle
+   backdrop, so the sheet seems to stop above and below it. It stays out of
+   On this page's column, so that list stays sticky beside it. The band's
+   content keeps the launcher's clearance at its end (from 80rem), so the
+   chat launcher covers nothing in it. Below 72rem (On this page is a menu
+   above the content) there is no band: the element fits the column.
+   The pane is a size container, so the band can measure it.
    --aifs-breakout-out: how far the column stops short of the pane's edge. */
 [data-has-sidebar] .main-pane {
 	container-type: inline-size;
 	container-name: sheetpane;
 }
 
-/* .sl-markdown-content: above a component's own max-width: 100%. The
-   column is left-aligned in the pane (beside On this page, and on narrower
-   screens): the band reaches from its start to the pane's end edge. */
-.sl-markdown-content .aifs-breakout {
-	--aifs-breakout-out: calc(100cqw - min(100cqw, var(--sl-content-width) + 2 * var(--sl-content-pad-x)));
-	box-sizing: border-box;
-	width: auto;
-	max-width: none;
-	margin-inline: calc(-1 * var(--sl-content-pad-x)) calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
-	padding: var(--aifs-rhythm-block) var(--sl-content-pad-x);
-	background-color: var(--aifs-layout-tint);
-}
-
-/* Beside On this page the band starts at the sheet's start edge, under the
-   On this page column, so the table has that room too; its content starts
-   where On this page's text does. On these pages the list is not sticky
-   (above), so it has scrolled away before the band arrives; the band is
-   still painted above the column in case a long list reaches it. */
 @media (min-width: 72rem) {
-	[data-has-sidebar][data-has-toc] .sl-markdown-content .aifs-breakout {
-		position: relative;
-		z-index: 1;
-		margin-inline-start: calc(
-			-1 * (var(--sl-content-pad-x) + var(--aifs-layout-toc-width) + var(--aifs-layout-sheet-padding))
+	/* .sl-markdown-content: above a component's own width rules. */
+	[data-has-sidebar] .sl-markdown-content .aifs-breakout {
+		--aifs-breakout-clearance: 0px;
+		--aifs-breakout-out: max(
+			100cqw - var(--sl-content-width) - 2 * var(--sl-content-pad-x),
+			var(--aifs-breakout-clearance)
 		);
-		padding-inline-start: var(--aifs-layout-sheet-padding);
+		box-sizing: border-box;
+		width: auto;
+		max-width: none;
+		margin-inline: calc(-1 * var(--sl-content-pad-x)) calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
+		padding: var(--aifs-rhythm-block) calc(var(--sl-content-pad-x) + var(--aifs-breakout-clearance)) var(--aifs-rhythm-block)
+			var(--sl-content-pad-x);
+		background-color: var(--aifs-layout-tint);
 	}
-}
 
-/* Wide screens without On this page centre the column: the band spans the
-   pane, its content keeps to the column. */
-@media (min-width: 72rem) {
+	/* Without On this page (this draft's design-system page and the
+	   archive) the column is centred: the band spans the pane, its content
+	   keeps to the column. */
 	[data-has-sidebar]:not([data-has-toc]) .sl-markdown-content .aifs-breakout {
 		--aifs-breakout-out: calc((100cqw - min(100cqw, var(--sl-content-width) + 2 * var(--sl-content-pad-x))) / 2);
 		margin-inline: calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
 		padding-inline: calc(var(--aifs-breakout-out) + var(--sl-content-pad-x));
+	}
+}
+
+/* The chat launcher is shown from 80rem (below): the column keeps a
+   clearance at its end edge, and so does the band's content. */
+@media (min-width: 80rem) {
+	[data-has-sidebar][data-has-toc] .sl-markdown-content .aifs-breakout {
+		--aifs-breakout-clearance: var(--aifs-layout-launcher-clearance);
 	}
 }
 
@@ -503,11 +494,11 @@ footer.sl-flex .meta:not(:has(*)) {
 	}
 }
 
-/* From 80rem the launcher is shown, 12px from the window's bottom-right
-   corner. Until the column reaches its full width, the column ends just
-   short of the window (the sheet padding only), so the launcher would sit
-   over its last characters and links: the column keeps a clearance at its
-   end edge. Once the column is full width the clearance is spare room, and
+/* From 80rem the launcher is shown, 20px from the window's bottom-right
+   corner (its own placement). Until the column reaches its full width, the
+   column ends just short of the window (the sheet padding only), so the
+   launcher would sit over its last characters and links: the column keeps
+   a clearance at its end edge (the breakout band's content too, above). Once the column is full width the clearance is spare room, and
    the column keeps its width. */
 @media (min-width: 80rem) {
 	[data-has-sidebar] .main-pane > main {

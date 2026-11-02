@@ -4,12 +4,13 @@
    (besides its own name), so the sticky parts switch on together.
 
    On top of table.css (header, rows, outline):
-   - The table fits its column: no sideways scroll. A component shows the
-     columns that fit as cells and the rest elsewhere (ModelsComparison: a
-     details row; cards below 36rem). Everything left-aligned, 16px before
-     a cell's text and 24px after it, so neighbouring columns read apart.
+   - The table never scrolls sideways. A component shows the columns that
+     fit as cells and the rest elsewhere (ModelsComparison: a details row,
+     more columns in the breakout band on wide screens, cards below 36rem).
+     Everything left-aligned, with the site's table padding: 8px before a
+     cell's text and 12px after it.
    - Headers: the label with its sort arrow on one line, the unit (if any)
-     in small text below: never more than two lines. Cells hold values only.
+     in small text below, wrapping at its spaces. Cells hold values only.
    - Creator logos: 32px rounded squares.
    - From 36rem of width: the filter row stays under the site header, and a
      copy of the header row (src/scripts/floatingTableHead.ts) stays under
@@ -26,13 +27,13 @@
 .aifs-data-table.aifs-data-table :is(th, td) {
 	box-sizing: border-box;
 	padding-block: var(--aifs-table-cell-padding-y-compact);
-	padding-inline: var(--aifs-table-data-padding-start) var(--aifs-table-data-padding-end);
+	padding-inline: var(--aifs-table-cell-padding-x) var(--aifs-table-cell-padding-end);
 	text-align: start;
 }
 
-/* table.css narrows the first column's start; data tables keep the 16px. */
+/* table.css changes the first column's start; data tables keep the 8px. */
 .aifs-data-table.aifs-data-table :is(th, td):first-child {
-	padding-inline-start: var(--aifs-table-data-padding-start);
+	padding-inline-start: var(--aifs-table-cell-padding-x);
 }
 
 /* Short values stay on one line; a component lets its list columns wrap. */
@@ -146,9 +147,8 @@
 }
 
 /* The header row's copy (floatingTableHead.ts): pinned under the filters,
-   taking no room of its own, clipped to the visible part of the scroll
-   area, on the sheet's white, and shown only while the real header is
-   scrolled away. */
+   taking no room of its own, on the sheet's white, and shown only while
+   the real header is scrolled away. */
 .aifs-head-float {
 	position: sticky;
 	top: calc(var(--sl-nav-height) + var(--aifs-filterbar-height, 0px));
@@ -171,11 +171,6 @@
 	table-layout: fixed;
 	min-width: 0;
 	max-width: none;
-}
-
-/* Its first cell is moved by the script, not by sticky. */
-.aifs-head-float .aifs-head-float__table thead th:first-child {
-	position: relative;
 }
 
 @container datatable (max-width: 36rem) {
