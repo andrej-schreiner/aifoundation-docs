@@ -4,15 +4,17 @@
    (besides its own name), so the sticky parts switch on together.
 
    On top of table.css (header, rows, outline):
-   - Columns size to their content; everything left-aligned, 16px before a
-     cell's text and 24px after it, so neighbouring columns read apart.
+   - The table never scrolls sideways. A component shows the columns that
+     fit as cells and the rest elsewhere (ModelsComparison: a details row,
+     more columns in the breakout band on wide screens, cards below 36rem).
+     Everything left-aligned, with the site's table padding: 8px before a
+     cell's text and 12px after it.
    - Headers: the label with its sort arrow on one line, the unit (if any)
-     in small text below: never more than two lines. Cells hold values only.
+     in small text below, wrapping at its spaces. Cells hold values only.
    - Creator logos: 32px rounded squares.
-   - From 40rem of width: the first column stays in place when the table
-     scrolls sideways, the filter row stays under the site header, and a copy
-     of the header row (src/scripts/floatingTableHead.ts) stays under the
-     filters. */
+   - From 36rem of width: the filter row stays under the site header, and a
+     copy of the header row (src/scripts/floatingTableHead.ts) stays under
+     the filters. */
 
 .aifs-data-table {
 	display: table;
@@ -25,13 +27,13 @@
 .aifs-data-table.aifs-data-table :is(th, td) {
 	box-sizing: border-box;
 	padding-block: var(--aifs-table-cell-padding-y-compact);
-	padding-inline: var(--aifs-table-data-padding-start) var(--aifs-table-data-padding-end);
+	padding-inline: var(--aifs-table-cell-padding-x) var(--aifs-table-cell-padding-end);
 	text-align: start;
 }
 
-/* table.css narrows the first column's start; data tables keep the 16px. */
+/* table.css changes the first column's start; data tables keep the 8px. */
 .aifs-data-table.aifs-data-table :is(th, td):first-child {
-	padding-inline-start: var(--aifs-table-data-padding-start);
+	padding-inline-start: var(--aifs-table-cell-padding-x);
 }
 
 /* Short values stay on one line; a component lets its list columns wrap. */
@@ -128,8 +130,7 @@
 }
 
 /* The filter row stays under the site header while the table scrolls past,
-   on the sheet's white and above the sticky first column. Like the table's
-   scroll area, it runs to the sheet's end edge. Not in the phone layout:
+   on the sheet's white, within the content column. Not in the phone layout:
    there the filters wrap to several rows, which would cover the screen. */
 .aifs-data-filterbar {
 	/* Room above and below the fields, so the stuck row reads as a bar. */
@@ -137,20 +138,17 @@
 	background-color: var(--aifs-layout-sheet);
 }
 
-@container datatable (min-width: 40.01rem) {
+@container datatable (min-width: 36.01rem) {
 	.aifs-data-filterbar {
 		position: sticky;
 		top: var(--sl-nav-height);
 		z-index: 3;
-		margin-inline-end: calc(-1 * var(--sl-content-pad-x));
-		padding-inline-end: var(--sl-content-pad-x);
 	}
 }
 
 /* The header row's copy (floatingTableHead.ts): pinned under the filters,
-   taking no room of its own, clipped to the visible part of the scroll
-   area, on the sheet's white, and shown only while the real header is
-   scrolled away. */
+   taking no room of its own, on the sheet's white, and shown only while
+   the real header is scrolled away. */
 .aifs-head-float {
 	position: sticky;
 	top: calc(var(--sl-nav-height) + var(--aifs-filterbar-height, 0px));
@@ -175,27 +173,17 @@
 	max-width: none;
 }
 
-/* Its first cell is moved by the script, not by sticky. */
-.aifs-head-float .aifs-head-float__table thead th:first-child {
-	position: relative;
-}
-
-@container datatable (max-width: 40rem) {
+@container datatable (max-width: 36rem) {
 	.aifs-head-float {
 		display: none;
 	}
 }
 
-/* The first column stays in place when the table scrolls sideways: the page
-   background behind it, a line at its end edge, and the row's hover fill
-   drawn over it.
-
-   The outline: here the cells draw it, not the table (table.css), so the
-   sticky column keeps the left line and the rounded corners when the rest
-   scrolls away under it. Each cell adds its edges as inset shadows, which
-   follow the corner radius. The last row shown carries .mc-last-visible
-   (set by the script; filters hide or remove rows). */
-@container datatable (min-width: 40.01rem) {
+/* The outline: here the cells draw it, not the table (table.css), so it
+   follows the rows filters leave. Each cell adds its edges as inset
+   shadows, which follow the corner radius. The last row shown carries
+   .mc-last-visible (set by the script; filters hide or remove rows). */
+@container datatable (min-width: 36.01rem) {
 	.aifs-data-table {
 		border: 0;
 	}
@@ -207,32 +195,19 @@
 			var(--dt-start, var(--dt-none)),
 			var(--dt-end, var(--dt-none)),
 			var(--dt-top, var(--dt-none)),
-			var(--dt-bottom, var(--dt-none)),
-			var(--dt-sticky, var(--dt-none));
+			var(--dt-bottom, var(--dt-none));
 	}
 
 	.aifs-data-table :is(th, td):first-child {
 		--dt-start: inset var(--dt-edge) 0 0 var(--aifs-table-outline);
-		--dt-sticky: inset calc(-1 * var(--dt-edge)) 0 0 var(--aifs-table-sticky-shadow);
-		position: sticky;
-		inset-inline-start: 0;
-		z-index: 1;
-		background-color: var(--aifs-layout-sheet);
 	}
 
-	/* The last shown column: some rows end in a hidden phone cell
-	   (.mc-mobile-cell), so plain :last-child would miss it. */
-	.aifs-data-table :is(thead th:last-child, td:last-child:not(.mc-mobile-cell), td:has(+ .mc-mobile-cell)) {
+	.aifs-data-table :is(thead th:last-child, td:last-child) {
 		--dt-end: inset calc(-1 * var(--dt-edge)) 0 0 var(--aifs-table-outline);
 	}
 
 	.aifs-data-table thead th {
 		--dt-top: inset 0 var(--dt-edge) 0 var(--aifs-table-outline);
-	}
-
-	.aifs-data-table thead th:first-child {
-		z-index: 2;
-		background-color: var(--aifs-table-head-background);
 	}
 
 	.aifs-data-table tbody tr.mc-last-visible > td {
@@ -244,21 +219,17 @@
 		border-end-start-radius: var(--aifs-table-radius);
 	}
 
-	.aifs-data-table tbody tr.mc-last-visible > :is(td:last-child:not(.mc-mobile-cell), td:has(+ .mc-mobile-cell)) {
+	.aifs-data-table tbody tr.mc-last-visible > td:last-child {
 		border-end-end-radius: var(--aifs-table-radius);
-	}
-
-	.aifs-data-table tbody tr:hover > td:first-child {
-		background-image: linear-gradient(var(--aifs-table-row-hover), var(--aifs-table-row-hover));
 	}
 }
 
 /* In a breakout band (layout.css) the sticky parts take the band's colour;
-   the table stays white on it. */
-.aifs-breakout :is(.aifs-data-filterbar, .aifs-head-float__clip) {
+   the table stays white on it. Not in a design-system Showcase (no band). */
+.aifs-breakout:not(.showcase *) :is(.aifs-data-filterbar, .aifs-head-float__clip) {
 	background-color: var(--aifs-layout-tint);
 }
 
-.aifs-breakout .aifs-data-table {
+.aifs-breakout:not(.showcase *) .aifs-data-table {
 	background-color: var(--aifs-layout-sheet);
 }

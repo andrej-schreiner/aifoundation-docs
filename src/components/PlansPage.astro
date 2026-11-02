@@ -24,7 +24,7 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import { resolvePrimaryCategory } from '../shared/lib/modelCategories';
-import { EURO_SUFFIX_DE, formatDecimalText, formatInteger, type NumberLocale } from '../shared/lib/displayFormat';
+import { EURO_SUFFIX_DE, formatDecimalText, formatInteger, keepWholeParts, type NumberLocale } from '../shared/lib/displayFormat';
 
 interface Props {
   selectedPlanId?: string;
@@ -593,7 +593,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                         <span class:list={['plan-tile__mark', item.dash ? 'is-custom' : item.on ? 'is-yes' : 'is-no']}>
                           {item.dash ? '—' : <Icon name={item.on ? 'action-checkmark' : 'action-close'} size={16} />}
                         </span>
-                        <span>{item.label}</span>
+                        <span>{keepWholeParts(item.label).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}</span>
                       </li>
                     ))}
                   </ul>
@@ -619,7 +619,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
           </p>
         )}
         {!compact && <p class="plan-spend">{t.spendNote}</p>}
-        {(legacy || isArchive) && <small>{t.footnote}</small>}
+        {(legacy || isArchive) && <small>{keepWholeParts(t.footnote).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}</small>}
       </section>
     )
   }
@@ -640,7 +640,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
       planLocked={Boolean(selectedPlanId)}
     />
     <div class="plans-models-notes">
-      <p id="cached-token-notes">&dagger; {t.cachedPriceNote}</p>
+      <p id="cached-token-notes">&dagger; {keepWholeParts(t.cachedPriceNote).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}</p>
       <p id="worldwide-location-notes">
         {t.worldwideLocationNote}{' '}
         <a href={t.enterpriseTrustHref}>{t.enterpriseTrustLabel}</a>

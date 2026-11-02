@@ -252,6 +252,28 @@ export default defineConfig({
 })();`,
 				},
 				{
+					// Below 72rem On this page is a bar under the header; a long
+					// current heading wraps, so the bar can grow. Its real height
+					// goes to --aifs-mobile-toc-actual, and the scroll padding
+					// (custom.css) uses it, so a jump to a heading lands below the
+					// bar however many lines it has.
+					tag: 'script',
+					content: `(() => {
+	const start = () => {
+		const bar = document.querySelector('mobile-starlight-toc nav');
+		if (!bar) return;
+		const root = document.documentElement;
+		new ResizeObserver(() => {
+			const h = bar.getBoundingClientRect().height;
+			if (h > 0) root.style.setProperty('--aifs-mobile-toc-actual', Math.ceil(h) + 'px');
+			else root.style.removeProperty('--aifs-mobile-toc-actual');
+		}).observe(bar);
+	};
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+	else start();
+})();`,
+				},
+				{
 					// Embedded T-Systems chat widget, loaded site-wide. The deferred
 					// IIFE injects the async widget.js from chat.ai.t-systems.net; the
 					// widget renders its own launcher in the bottom-right corner. The

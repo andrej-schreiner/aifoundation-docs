@@ -10,38 +10,43 @@
 // Footer override is truly global).
 //
 // Named generically (it was QwenPreviewBanner) because the copy is swapped
-// whenever the preview catalog changes. Bars stack in the order of the
-// `bars` array below; each one is dismissed on its own. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
+// whenever the preview catalog changes. The announcements share one box, a
+// row each (tag, text, link) in the order of the `bars` array below, with
+// one close control for the box. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
 // replaced GlmBanner.
 //
-// Kept deliberately compact: a slim single-line bar in its own row above the
-// content sheet, outside it (portaled into .qp-stack by the script below;
-// styled in layout.css), so it never covers content and scrolls away with
-// the page.
+// Kept deliberately compact: one box in its own row above the content sheet,
+// outside it (portaled into .qp-stack by the script below; the row and the
+// box's alignment with the content column are in layout.css), so it never
+// covers content and scrolls away with the page.
 //
 // Dismiss semantics are unchanged: this site navigates via full page loads, so
 // the closed state lives in sessionStorage (survives navigation between docs
 // pages). A hard reload clears it (detected via PerformanceNavigationTiming
 // "reload"), and a new tab starts a fresh session — so the announcement
-// returns. Each bar has its own storage key, and the key changes with each
-// announcement, so visitors who dismissed the previous one still see this one.
+// returns. Each announcement has its own storage key (closing the box stores
+// the keys of the rows it shows), and the key changes with each announcement,
+// so visitors who dismissed the previous one still see this one.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
-const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
+const label = isDE ? 'Ankündigungen' : 'Announcements';
+const close = isDE ? 'Ankündigungen schließen' : 'Dismiss announcements';
 
 const bars = isDE
   ? [
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'Neu',
-        msg: '<b>GLM 5.3</b> (T-Cloud) und <b>DeepSeek 4.1 Flash</b> (T-Cloud, Vorschau) ab 2.\u00a0Nov.',
+        tag: 'magenta',
+        msg: '<b>GLM 5.3</b> (<span class="nowrap">T-Cloud</span>) und <b>DeepSeek 4.1 Flash</b> (<span class="nowrap">T-Cloud</span>, Vorschau) ab 2.\u00a0Nov.',
         cta: 'Modelle ansehen',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Hinweis',
+        tag: 'standard',
         msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
         cta: 'Zur API-Umstellung',
         href: `${prefix}/api-transition`,
@@ -51,13 +56,15 @@ const bars = isDE
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'New',
-        msg: '<b>GLM 5.3</b> (T-Cloud) and <b>DeepSeek 4.1 Flash</b> (T-Cloud, preview) from 2\u00a0Nov',
+        tag: 'magenta',
+        msg: '<b>GLM 5.3</b> (<span class="nowrap">T-Cloud</span>) and <b>DeepSeek 4.1 Flash</b> (<span class="nowrap">T-Cloud</span>, preview) from 2\u00a0Nov',
         cta: 'View models',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Notice',
+        tag: 'standard',
         msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
         cta: 'View API changes',
         href: `${prefix}/api-transition`,
@@ -68,30 +75,39 @@ import Tag from './Tag.astro';
 import Icon from './Icon.astro';
 ---
 
-{bars.map((b) => (
-  <div class="qp-bar" data-key={b.key} role="region" aria-label={close} hidden>
-    <Tag color="magenta" size="small" class="qp-badge">{b.badge}</Tag>
-    <p class="qp-msg" set:html={b.msg}></p>
-    <a class="qp-cta" href={b.href}>{b.cta}</a>
+{bars.length > 0 && (
+  <div class="qp-box" role="region" aria-label={label} hidden>
+    <ul class="qp-rows">
+      {bars.map((b) => (
+        <li class="qp-bar" data-key={b.key}>
+          <Tag color={b.tag as 'magenta' | 'standard'} size="small" class="qp-badge">{b.badge}</Tag>
+          <p class="qp-msg" set:html={b.msg}></p>
+          <a class="qp-cta" href={b.href}>{b.cta}</a>
+        </li>
+      ))}
+    </ul>
     <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={close}>
       <Icon name="action-close" size={16} />
     </Button>
   </div>
-))}
+)}
 
 <style>
-  .qp-bar {
-    /* In-flow (not fixed): the bar occupies real layout space above the page
+  /* One box for every announcement: a row each, the close control at the
+     end of the first row. The rows share the box's columns (subgrid), so
+     the texts start at one line after tags of different widths. */
+  .qp-box {
+    /* In-flow (not fixed): the box occupies real layout space above the page
        title, so it can never cover content, and it scrolls away with the
        page. See the portal logic in the script below. */
     position: relative;
     z-index: 1;
+    box-sizing: border-box;
 
-    display: flex;
-    align-items: center;
-    gap: var(--aifs-notice-gap);
-    /* Spans its row (.qp-stack in layout.css), which sets the gaps. */
-    width: 100%;
+    display: grid;
+    grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
+    align-items: start;
+    column-gap: var(--aifs-notice-gap);
     margin: 0;
     padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
 
@@ -104,111 +120,130 @@ import Icon from './Icon.astro';
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
 
-    animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
-  }
-  :global(:root[data-theme='dark']) .qp-bar {
-    background: var(--aifs-color-surface-chrome);
-    color: var(--aifs-color-text-body);
-    border-color: var(--aifs-color-border-subtle);
-    border-inline-start-color: var(--aifs-color-action-background);
   }
 
-  :global(:root[data-theme='dark']) .qp-msg :global(b) {
-    color: var(--aifs-color-text-body);
+  /* The first time it appears in a session it fades in (opacity only, no
+     movement); on later pages it is simply there. */
+  .qp-box.qp-box--enter {
+    animation: qpFadeIn var(--aifs-notice-enter-duration) var(--aifs-notice-enter-easing);
   }
 
-  :global(:root[data-theme='dark']) .qp-cta {
-    color: var(--aifs-color-link-standard);
-  }
-
-  .qp-bar[hidden] {
+  .qp-box[hidden] {
     display: none;
   }
 
-  /* Drawn by the Tag component (magenta, small). */
+  .qp-rows {
+    display: grid;
+    grid-column: 1 / 4;
+    grid-template-columns: subgrid;
+    row-gap: var(--aifs-notice-gap);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .qp-bar {
+    display: grid;
+    grid-column: 1 / 4;
+    grid-template-columns: subgrid;
+    align-items: center;
+    /* The row is as tall as the close control, so one-line rows read
+       centred beside it. */
+    min-height: var(--aifs-button-min-height-small);
+    margin: 0;
+  }
+
+  .qp-bar + .qp-bar {
+    margin-top: 0;
+  }
+
+  /* Drawn by the Tag component (small): magenta for New, standard (grey)
+     for a notice, so magenta stays rare. */
   .qp-bar :global(.qp-badge) {
-    flex-shrink: 0;
+    justify-self: start;
   }
 
   .qp-msg {
-    flex: 1 1 auto;
+    min-width: 0;
     margin: 0;
-    color: var(--sl-color-text);
+    /* No single word alone on the last line. */
+    text-wrap: pretty;
+    color: var(--aifs-color-text-body);
   }
+
   .qp-msg :global(b) {
-    color: var(--sl-color-accent-high);
+    color: var(--aifs-color-brand-text);
     font-weight: 600;
   }
 
   .qp-cta {
-    flex-shrink: 0;
     color: var(--aifs-color-link-standard);
     font-weight: 600;
     text-decoration: underline;
     text-underline-offset: var(--aifs-radius-indicator);
     white-space: nowrap;
   }
+
   .qp-cta:hover,
   .qp-cta:focus-visible {
     color: var(--aifs-color-text-body);
   }
 
   /* Drawn by the Button component (ghost, small, icon only). */
-  .qp-bar :global(.qp-close) {
-    flex-shrink: 0;
+  .qp-box :global(.qp-close) {
+    grid-column: 4;
+    grid-row: 1;
     border-radius: var(--aifs-notice-close-radius);
   }
 
-  .qp-bar :focus-visible {
+  .qp-box :focus-visible {
     outline: var(--aifs-button-focus-width) solid var(--aifs-color-focus);
     outline-offset: var(--aifs-button-focus-width);
   }
 
-  /* Phones: one line of text, the link, and the close control on the right. */
-  @media (max-width: 40rem) {
-    .qp-bar {
-      display: grid;
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      grid-template-areas: "badge msg close" "badge cta close";
-      align-items: center;
-      column-gap: var(--aifs-notice-gap);
-      row-gap: var(--aifs-notice-row-gap-compact);
+  /* Narrow boxes: the link goes under its text; the close control keeps
+     the end of the first row. */
+  @container qpstack (max-width: 40rem) {
+    .qp-box {
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
       padding: var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-x-compact);
     }
+
+    .qp-rows {
+      grid-column: 1 / 3;
+    }
+
+    .qp-bar {
+      grid-column: 1 / 3;
+      grid-template-rows: auto auto;
+      row-gap: var(--aifs-notice-row-gap-compact);
+      align-items: start;
+      padding-block: var(--aifs-notice-padding-y-compact);
+    }
+
     .qp-bar :global(.qp-badge) {
-      grid-area: badge;
-      align-self: start;
+      grid-row: 1 / 3;
     }
-    .qp-msg {
-      grid-area: msg;
-      min-width: 0;
-      white-space: normal;
-      overflow: visible;
-      text-overflow: unset;
-    }
+
+    .qp-msg,
     .qp-cta {
-      grid-area: cta;
+      grid-column: 2;
       justify-self: start;
     }
-    .qp-bar :global(.qp-close) {
-      grid-area: close;
-      align-self: start;
+
+    .qp-box :global(.qp-close) {
+      grid-column: 3;
     }
   }
 
-  @keyframes gaSlideIn {
+  @keyframes qpFadeIn {
     from {
       opacity: 0;
-      transform: translateY(-0.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .qp-bar {
+    .qp-box.qp-box--enter {
       animation: none;
     }
   }
@@ -241,18 +276,31 @@ import Icon from './Icon.astro';
     }
   }
 
-  function dismiss(bar: HTMLElement) {
+  // Closing the box dismisses every announcement it shows.
+  function dismiss(box: HTMLElement) {
     try {
-      sessionStorage.setItem(bar.dataset.key!, '1');
+      box.querySelectorAll<HTMLElement>('.qp-bar[data-key]').forEach((bar) => sessionStorage.setItem(bar.dataset.key!, '1'));
     } catch {}
-    const stack = bar.parentElement;
-    bar.remove();
-    // The last bar gone: drop the row, so its spacing goes too.
-    if (stack?.classList.contains('qp-stack') && !stack.querySelector('.qp-bar')) stack.remove();
+    const stack = box.parentElement;
+    // Focus was on the close button (or a link) in the box: it goes to the
+    // page title, not to <body>, so keyboard users keep their place.
+    const hadFocus = box.contains(document.activeElement);
+    box.remove();
+    if (hadFocus) {
+      const title = document.getElementById('_top') ?? document.querySelector<HTMLElement>('main h1');
+      if (title) {
+        if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
+        title.focus({ preventScroll: true });
+      }
+    }
+    // The box gone: drop the row, so its spacing goes too.
+    if (stack?.classList.contains('qp-stack')) stack.remove();
   }
 
   function initPreviewModelsBanner() {
-    const all = Array.from(document.querySelectorAll<HTMLElement>('.qp-bar[data-key]'));
+    const box = document.querySelector<HTMLElement>('.qp-box');
+    if (!box) return;
+    const all = Array.from(box.querySelectorAll<HTMLElement>('.qp-bar[data-key]'));
     clearOnReload(all.map((bar) => bar.dataset.key!));
 
     const bars = all.filter((bar) => {
@@ -262,12 +310,16 @@ import Icon from './Icon.astro';
       }
       return true;
     });
-    if (!bars.length) return;
+    if (!bars.length) {
+      box.remove();
+      return;
+    }
 
     // Portal to just above the sheet, the row around the table of contents
-    // and the content: the bars are about the site, not the page, so they
-    // sit on the frame and share the sheet's width and edges (layout.css).
-    // They stay in flow, take real space, and scroll away with the page.
+    // and the content: the announcements are about the site, not the page,
+    // so they sit on the frame, lined up with the content column
+    // (layout.css). They stay in flow, take real space, and scroll away with
+    // the page.
     let host = document.querySelector<HTMLElement>('.qp-stack');
     const sheet = document.querySelector('.main-pane')?.parentElement;
     if (!host) {
@@ -277,22 +329,28 @@ import Icon from './Icon.astro';
     } else if (sheet && host.nextElementSibling !== sheet) {
       sheet.before(host);
     }
-    if (bars[0].parentElement !== host) {
-      host.append(...bars);
+    if (box.parentElement !== host) host.append(box);
+
+    // Fade in only the first time in a session.
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem('aifsAnnouncementsSeen') === '1';
+      sessionStorage.setItem('aifsAnnouncementsSeen', '1');
+    } catch {}
+    box.classList.toggle('qp-box--enter', !seen);
+    box.hidden = false;
+    if (box.dataset.bound !== '1') {
+      box.dataset.bound = '1';
+      box.querySelector('.qp-close')?.addEventListener('click', () => dismiss(box));
     }
 
-    for (const bar of bars) {
-      bar.hidden = false;
-      bar.querySelector('.qp-close')?.addEventListener('click', () => dismiss(bar));
-    }
-
-    // Escape dismisses a bar only while focus is inside it: elsewhere the
+    // Escape closes the box only while focus is inside it: elsewhere the
     // key belongs to whatever is open (a dialog, search, a filter menu).
     if (!(window as any).__previewModelsBannerEscBound) {
       (window as any).__previewModelsBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape' || e.defaultPrevented) return;
-        const el = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.qp-bar[data-key]:not([hidden])');
+        const el = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.qp-box:not([hidden])');
         if (el) dismiss(el);
       });
     }

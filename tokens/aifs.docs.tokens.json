@@ -245,6 +245,7 @@
       },
       "grid-gap": { "$value": "{spacing.composition.space-06}", "$description": "16px between the items of every grid on a page, across and down: card rows, card grids, model cards, recommended models, plan tiles, previous and next." },
       "grid-action-gap": { "$value": "{spacing.composition.space-08}", "$description": "24px between a grid and a button below it, such as Show more models." },
+      "launcher-clearance": { "$value": "{spacing.composition.space-14}", "$description": "48px more at the content column's end edge while the chat launcher (bottom right, 56px, 20px from the window's edges) would otherwise sit over the column, so it keeps 12px from the column's text and controls." },
       "content-width-wide": {
         "$value": { "value": 85, "unit": "rem" },
         "$description": "Content column of the table template (pages without On this page, such as plans and model tables): 1360px, so the wide tables fit. Text on these pages still stops at the measure."
@@ -457,15 +458,17 @@
       "border": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "The panel's start edge and the lines under its header and above its footer." }
     },
     "notice": {
-      "$description": "The site notices in the band above the sheet (PreviewModelsBanner): a slim bar with a tag, one line of text, a link and a close button.",
+      "$description": "The announcement box in the band above the sheet (PreviewModelsBanner): one box with a row per announcement (a tag, the text, a link) and one close button.",
       "radius": { "$type": "dimension", "$value": "{aifs.notification.radius}", "$description": "8px, as the inline notification." },
       "close-radius": { "$type": "dimension", "$value": "{aifs.radius.control}", "$description": "4px on the close button's hover fill: concentric with the bar's 8px, 4px inside it." },
       "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px above and below." },
       "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px at the sides." },
-      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between tag, text, link and close button." },
+      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between tag, text, link and close button, and between the rows of the box." },
       "padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px above and below on phones." },
       "padding-x-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px at the sides on phones." },
-      "row-gap-compact": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the text and the link on phones." }
+      "row-gap-compact": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the text and the link on phones." },
+      "enter-duration": { "$type": "duration", "$value": "{motion.duration.transition}", "$description": "200ms fade-in, the first time the box appears in a session. Off with reduced motion." },
+      "enter-easing": { "$type": "cubicBezier", "$value": "{motion.easing.enter}", "$description": "Telekom's enter (ease-out) curve: no overshoot." }
     },
     "logo": {
       "$description": "The Logo component: a creator's logo in a white rounded square with a hairline border. Three sizes; the image sits inside a small inset. Scale has no logo component.",
@@ -483,7 +486,7 @@
       "background": { "$type": "color", "$value": "{aifs.color.logo-background}" }
     },
     "models-list": {
-      "$description": "The models table on phones: one entry per model (logo, name, details button), a meta line, and a details panel behind the button.",
+      "$description": "The models table's parts (ModelsComparison): the model cell (logo, name, tags), the cards below 36rem (label–value rows), and the details row with the columns the table does not show.",
       "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between logo, name and button, and between the items of the meta line." },
       "meta-gap-y": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between wrapped lines of the meta line, and around each entry." },
       "label-gap": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between a detail's label and its value." },
@@ -491,12 +494,16 @@
       "panel-gap-x": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px between the columns of the details panel." },
       "label-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}", "$description": "12px labels in the details panel." }
     },
+    "models-table": {
+      "$description": "Sizes of the models table's own controls (ModelsComparison).",
+      "sort-width": { "$type": "dimension", "$value": "{core.dimension.5875}", "$description": "240px: the Sort by field beside the count, as wide as its longest option in German." },
+      "detail-min-column": { "$type": "dimension", "$value": "{core.dimension.5250}", "$description": "160px: the narrowest column of the details row; as many columns as fit." }
+    },
     "table": {
       "$description": "Component tokens for tables, mirroring Scale's scale-table (telekom/scale@e90165a, table.css): a grey header with bold small text and rounded top corners, no outer frame, a line under each row, a hover fill, and sortable headers. Two densities as in Scale: default (Markdown tables) and compact (the dense model and plan tables). Deviation: cell text wraps, because docs tables hold descriptions.",
       "radius": { "$type": "dimension", "$value": "{radius.standard}", "$description": "The outline's corners, and with them the header's top corners and the last row's bottom corners." },
       "outline": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "A subtle line around the whole table. Deviation from Scale, which has no outer frame: it holds a table together on the white sheet, as the frame does for code blocks and cards." },
       "outline-width": { "$type": "dimension", "$value": "{aifs.border-width.standard}" },
-      "sticky-shadow": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "Line at the end edge of the sticky first column, so scrolled columns pass under a clear edge." },
       "head-background": { "$type": "color", "$value": "{color.background.surface-subtle}" },
       "head-text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
       "head-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}" },
@@ -507,8 +514,6 @@
       "cell-padding-end": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px after the last column." },
       "cell-padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px, Scale's default size." },
       "cell-padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px, Scale's base (small) size." },
-      "data-padding-start": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px before a cell's text in the data tables (data-table.css)." },
-      "data-padding-end": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px after a cell's text in the data tables, so neighbouring columns read apart." },
       "row-border-width": { "$type": "dimension", "$value": "{spacing.composition.space-01}" },
       "row-border": { "$type": "color", "$value": "{color.ui.faint}" },
       "row-hover": { "$type": "color", "$value": "{color.ui.state-fill.hovered}" },

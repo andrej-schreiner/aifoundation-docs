@@ -72,10 +72,14 @@ Site parts, not for reuse (Starlight slots and single-page tables):
 ### Layout and rhythm — use what is there
 
 - **One page layout.** Every page: On this page beside a 720px content
-  column. A wide element (the models table) does not widen the page; it
-  takes `.aifs-breakout`: a band on the subtle backdrop from the column's
-  start to the window's edge (`src/styles/layout.css`). Do not set
-  `tableOfContents: false` to make room.
+  column. A wide element (the models table) does not widen the page and
+  never scrolls sideways. From 72rem it takes `.aifs-breakout`: a band on
+  the subtle backdrop from the column's start to the window's edge
+  (`src/styles/layout.css`), beside On this page (which stays sticky), with
+  the chat launcher's clearance inside it; it must fit the band (the models
+  table shows more columns as the band widens). Below 72rem it fits the
+  column (the models table: main columns, a details row, cards below
+  36rem). Do not set `tableOfContents: false` to make room.
 - **Vertical rhythm** (`aifs.rhythm.*`): 12 after a heading · 16 between
   paragraphs · 32 around blocks and components · 32/48/72 before h4/h3/h2 ·
   96 before previous/next. Do not set margins between content blocks

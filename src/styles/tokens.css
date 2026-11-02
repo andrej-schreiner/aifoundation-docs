@@ -98,6 +98,7 @@
 	--aifs-layout-content-width: 45rem;
 	--aifs-layout-grid-gap: 16px;
 	--aifs-layout-grid-action-gap: 24px;
+	--aifs-layout-launcher-clearance: 48px;
 	--aifs-layout-content-width-wide: 85rem;
 	--aifs-layout-measure: 45rem;
 	--aifs-layout-divider: #dfdfe1;
@@ -242,6 +243,8 @@
 	--aifs-notice-padding-y-compact: 4px;
 	--aifs-notice-padding-x-compact: 8px;
 	--aifs-notice-row-gap-compact: 2px;
+	--aifs-notice-enter-duration: 200ms;
+	--aifs-notice-enter-easing: cubic-bezier(0.4, 0.6, 0.6, 1);
 	--aifs-logo-size-small: 20px;
 	--aifs-logo-size-default: 32px;
 	--aifs-logo-size-large: 40px;
@@ -260,10 +263,11 @@
 	--aifs-models-list-panel-padding: 8px;
 	--aifs-models-list-panel-gap-x: 16px;
 	--aifs-models-list-label-font-size: 12px;
+	--aifs-models-table-sort-width: 240px;
+	--aifs-models-table-detail-min-column: 160px;
 	--aifs-table-radius: 8px;
 	--aifs-table-outline: #dfdfe1;
 	--aifs-table-outline-width: 1px;
-	--aifs-table-sticky-shadow: #dfdfe1;
 	--aifs-table-head-background: #efeff0;
 	--aifs-table-head-text: #000000;
 	--aifs-table-head-font-size: 12px;
@@ -274,8 +278,6 @@
 	--aifs-table-cell-padding-end: 12px;
 	--aifs-table-cell-padding-y: 16px;
 	--aifs-table-cell-padding-y-compact: 8px;
-	--aifs-table-data-padding-start: 16px;
-	--aifs-table-data-padding-end: 24px;
 	--aifs-table-row-border-width: 1px;
 	--aifs-table-row-border: #dfdfe1;
 	--aifs-table-row-hover: rgb(0 0 0 / 0.07);
@@ -609,6 +611,7 @@
 	--aifs-layout-content-width: 45rem;
 	--aifs-layout-grid-gap: 16px;
 	--aifs-layout-grid-action-gap: 24px;
+	--aifs-layout-launcher-clearance: 48px;
 	--aifs-layout-content-width-wide: 85rem;
 	--aifs-layout-measure: 45rem;
 	--aifs-layout-divider: #353841;
@@ -753,6 +756,8 @@
 	--aifs-notice-padding-y-compact: 4px;
 	--aifs-notice-padding-x-compact: 8px;
 	--aifs-notice-row-gap-compact: 2px;
+	--aifs-notice-enter-duration: 200ms;
+	--aifs-notice-enter-easing: cubic-bezier(0.4, 0.6, 0.6, 1);
 	--aifs-logo-size-small: 20px;
 	--aifs-logo-size-default: 32px;
 	--aifs-logo-size-large: 40px;
@@ -771,10 +776,11 @@
 	--aifs-models-list-panel-padding: 8px;
 	--aifs-models-list-panel-gap-x: 16px;
 	--aifs-models-list-label-font-size: 12px;
+	--aifs-models-table-sort-width: 240px;
+	--aifs-models-table-detail-min-column: 160px;
 	--aifs-table-radius: 8px;
 	--aifs-table-outline: #353841;
 	--aifs-table-outline-width: 1px;
-	--aifs-table-sticky-shadow: #353841;
 	--aifs-table-head-background: #353841;
 	--aifs-table-head-text: #ffffff;
 	--aifs-table-head-font-size: 12px;
@@ -785,8 +791,6 @@
 	--aifs-table-cell-padding-end: 12px;
 	--aifs-table-cell-padding-y: 16px;
 	--aifs-table-cell-padding-y-compact: 8px;
-	--aifs-table-data-padding-start: 16px;
-	--aifs-table-data-padding-end: 24px;
 	--aifs-table-row-border-width: 1px;
 	--aifs-table-row-border: #353841;
 	--aifs-table-row-hover: rgb(255 255 255 / 0.14);

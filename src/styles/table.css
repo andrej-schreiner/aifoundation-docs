@@ -74,21 +74,6 @@
 	container-name: mdtable;
 }
 
-/* The models and plans tables scroll in an area that runs to the sheet's
-   end edge: at rest it starts where the text starts; scrolled to the end, it
-   stops the sheet's padding short of the edge. (Markdown tables don't
-   scroll: below 36rem they stack, see @container mdtable.) */
-.sl-markdown-content :is(.models-comparison__scroll, .rate-plans-section .table-wrapper) {
-	box-sizing: border-box;
-	/* No bounce at the ends: it slid the table under the sticky first
-	   column's backing and broke the rounded corners. */
-	overscroll-behavior-x: none;
-	width: auto;
-	max-width: none;
-	margin-inline-end: calc(-1 * var(--sl-content-pad-x));
-	padding-inline-end: var(--sl-content-pad-x);
-}
-
 .sl-markdown-content .aifs-table-scroll > table:not(.plans-table):not(.models-comparison-table) {
 	display: table;
 	width: 100%;
@@ -389,4 +374,15 @@
 	.sl-markdown-content .aifs-table-scroll td[data-label='Host'] > code > wbr {
 		display: none;
 	}
+}
+
+/* A cell that is only a short API path (.md-path, set by
+   rehype-table-scroll.mjs; api-endpoints, Paths) never breaks: `/v2/coding`
+   is one value, and at 16 characters at most it fits the narrowest column. */
+.sl-markdown-content .aifs-table-scroll td.md-path > code {
+	white-space: nowrap;
+}
+
+.sl-markdown-content .aifs-table-scroll td.md-path > code > wbr {
+	display: none;
 }
