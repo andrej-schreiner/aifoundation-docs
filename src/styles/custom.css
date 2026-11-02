@@ -59,7 +59,7 @@
 	white-space: normal;
 	overflow: visible;
 	text-overflow: clip;
-	line-height: 1.2;
+	line-height: var(--aifs-sidebar-nav-line-height);
 }
 
 /* More room for the heading: the toggle keeps its label, with less space
@@ -69,10 +69,22 @@
 	padding-inline: var(--aifs-button-padding-x-ghost) var(--aifs-button-icon-gap-small);
 }
 
-/* A jump to a heading lands below the bar even when the bar has grown to
-   two more lines for a long heading. */
+/* Small phones: the toggle is its arrow only, so the heading has the
+   line. The label stays in the markup (font size 0), so the control is
+   still named "On this page" / "Auf dieser Seite". */
+@media (max-width: 21.99rem) {
+	#starlight__on-this-page--mobile .toggle {
+		font-size: 0;
+	}
+}
+
+/* A jump to a heading lands below the bar, at the bar's real height
+   (--aifs-mobile-toc-actual, measured by a script in astro.config.mjs;
+   Starlight's bar height until it runs) plus Starlight's own gap. */
 @media (max-width: 71.99rem) {
 	html {
-		scroll-padding-top: calc(1.5rem + var(--sl-nav-height) + var(--sl-mobile-toc-height) + 2rem);
+		scroll-padding-top: calc(
+			var(--aifs-rhythm-stack) + var(--sl-nav-height) + var(--aifs-mobile-toc-actual, var(--sl-mobile-toc-height))
+		);
 	}
 }
