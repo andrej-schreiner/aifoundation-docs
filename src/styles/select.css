@@ -175,11 +175,10 @@
 .ts-header starlight-version-select label select {
 	box-sizing: border-box;
 	height: var(--aifs-select-height);
-	/* Starlight and the version plugin give each select a fixed width, so the
-	   label was clipped (and "Latest" did not fit the German header). Size to
-	   the label; the same padding sits in front of every caret. */
-	width: max-content;
-	max-width: 11rem;
+	/* One width for all three. Sized to their content, each was as wide as its
+	   widest option (a native select's rule), so they differed from 111px to
+	   176px. The token fits the widest value, Deutsch. */
+	width: var(--aifs-select-header-width);
 	padding-inline: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap) / 2);
 	/* Starlight pulls each select outwards by its padding, so neighbours touch;
 	   the header's gap spaces them instead. */
@@ -214,4 +213,153 @@ site-search button {
 site-search button:focus-visible {
 	outline: 2px solid var(--aifs-select-focus);
 	outline-offset: 1px;
+}
+
+/* Filter fields: the model tables' multi-select filters, drawn as the
+   standard select: the label inside the field above the value, the chevron
+   on the right. A <details> holds them, so the list of checkboxes opens
+   below the field. The value says what is chosen ("All", one option, or how
+   many), written by src/scripts/filterField.ts; it is bold while the filter
+   narrows the table. */
+.aifs-filter {
+	position: relative;
+	min-width: 10rem;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	color: var(--aifs-select-text);
+}
+
+.aifs-filter > summary {
+	position: relative;
+	box-sizing: border-box;
+	display: block;
+	height: var(--aifs-select-height);
+	padding: calc(var(--aifs-select-padding-top-with-label) - var(--aifs-select-border-width))
+		calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size) + var(--aifs-select-icon-gap))
+		calc(var(--aifs-select-padding-bottom-with-label) - var(--aifs-select-border-width))
+		calc(var(--aifs-select-padding-x) - var(--aifs-select-border-width));
+	border: var(--aifs-select-border-width) solid var(--aifs-select-border);
+	border-radius: var(--aifs-select-radius);
+	background: var(--aifs-select-background);
+	font-size: var(--aifs-select-font-size);
+	line-height: 1.25;
+	list-style: none;
+	cursor: pointer;
+	user-select: none;
+	transition-property: background-color, border-color;
+	transition-duration: var(--aifs-select-transition-duration);
+	transition-timing-function: var(--aifs-select-transition-easing);
+}
+
+.aifs-filter > summary::marker {
+	content: '';
+}
+
+.aifs-filter > summary::-webkit-details-marker {
+	display: none;
+}
+
+.aifs-filter > summary:hover {
+	border-color: var(--aifs-select-border-hovered);
+	background: var(--aifs-select-background-hovered);
+}
+
+.aifs-filter > summary:focus-visible {
+	border-color: var(--aifs-select-border-hovered);
+	outline: 2px solid var(--aifs-select-focus);
+	outline-offset: 1px;
+}
+
+.aifs-filter__label {
+	position: absolute;
+	top: var(--aifs-select-label-top);
+	left: var(--aifs-select-padding-x);
+	right: calc(var(--aifs-select-padding-x) + var(--aifs-select-icon-size));
+	overflow: hidden;
+	color: var(--aifs-select-label);
+	font-size: var(--aifs-select-label-font-size);
+	font-weight: var(--aifs-select-label-font-weight);
+	line-height: 1.25;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aifs-filter__value {
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.aifs-filter--active .aifs-filter__value {
+	font-weight: var(--aifs-select-label-font-weight);
+}
+
+.aifs-filter__icon {
+	position: absolute;
+	right: var(--aifs-select-padding-x);
+	top: 50%;
+	display: flex;
+	transform: translateY(-50%);
+	color: var(--aifs-select-icon);
+	transition: transform var(--aifs-select-transition-duration) var(--aifs-select-transition-easing);
+}
+
+.aifs-filter[open] .aifs-filter__icon {
+	transform: translateY(-50%) rotate(180deg);
+}
+
+/* The list: below the field, at least as wide as it. */
+.aifs-filter[open] {
+	z-index: 40;
+}
+
+.aifs-filter__menu {
+	position: absolute;
+	top: calc(100% + var(--aifs-select-helper-gap));
+	left: 0;
+	z-index: 40;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	min-width: 100%;
+	max-height: 18rem;
+	overflow-y: auto;
+	padding: var(--aifs-select-label-top) 0;
+	border: var(--aifs-select-border-width) solid var(--aifs-select-border);
+	border-radius: var(--aifs-select-radius);
+	background: var(--aifs-layout-sheet);
+	/* TODO(token-gap): Telekom shadow tokens are not converted yet. */
+	box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+}
+
+.aifs-filter__option {
+	display: flex;
+	align-items: center;
+	gap: var(--aifs-select-icon-gap);
+	padding: var(--aifs-select-icon-gap) var(--aifs-select-padding-x);
+	font-size: var(--aifs-select-font-size);
+	white-space: nowrap;
+	cursor: pointer;
+}
+
+.aifs-filter__option[hidden] {
+	display: none;
+}
+
+.aifs-filter__option:hover {
+	background: var(--aifs-select-background-hovered);
+}
+
+.aifs-filter__option input[type='checkbox'] {
+	margin: 0;
+	accent-color: var(--aifs-color-action-background);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aifs-filter > summary,
+	.aifs-filter__icon {
+		transition: none;
+	}
 }

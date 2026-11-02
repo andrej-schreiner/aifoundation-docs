@@ -163,7 +163,7 @@ For charts and scanned pages, use [Visual RAG](/guides/embeddings#visual-rag) an
 Visual RAG indexes your files in both text and image, combining the stability of text indexing with the flexibility of visual indexing. It can retrieve information from graphs, charts, and complex table layouts that text-based RAG systems miss.
 
 :::note[Prerequisites]
-- An API key with Visual RAG access (contact **AlFoundation@t-systems.com**)
+- An API key with Visual RAG access (contact **ai@t-systems.com**)
 - OpenAI SDK installed ([Quickstart](/))
 - Documents to index (PDF, PPTX, DOCX, HTML, or PNG)
 :::
@@ -184,6 +184,7 @@ Visual RAG indexes your files in both text and image, combining the stability of
 ### Setup
 
 ```python
+import os
 
 from openai import OpenAI
 
@@ -314,6 +315,7 @@ for result in results:
 Combine retrieval with LLM inference for a complete Visual RAG pipeline:
 
 ```python
+import os
 
 from openai import OpenAI
 

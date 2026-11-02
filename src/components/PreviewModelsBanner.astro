@@ -1,54 +1,49 @@
 ---
-// Site-wide announcement: one compact box above the page title, one row per
-// announcement (Tag + a linked message + an arrow), and one close button for
-// the whole box. Currently the GLM 5.3 / DeepSeek 4.1 Flash launch (linking
-// to the LLM list) and the API transition notice (linking to /api-transition).
-// Rendered from ArchiveBanner.astro (Starlight's Banner slot), so it appears
-// on every page, as the first child of <main>.
+// Site-wide announcement bars — currently the API transition notice (linking
+// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
+// PaddleOCR-VL-1.6 (linking to /guides/ocr).
+// It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
+// which replaced the DiffusionGemma 26B A4B
+// preview bar, which replaced the
+// GLM 5.3 Flash / Qwen 3.8 27B FP8 production bar. Rendered from
+// Footer.astro so it appears on every page (there are no splash pages, so the
+// Footer override is truly global).
 //
 // Named generically (it was QwenPreviewBanner) because the copy is swapped
-// whenever the catalog changes. Each row keeps its own storage key, and the
-// key changes with each announcement, so visitors who dismissed the previous
-// one still see this one.
+// whenever the preview catalog changes. Bars stack in the order of the
+// `bars` array below; each one is dismissed on its own. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
+// replaced GlmBanner.
 //
-// In-flow, not fixed: it takes its space on the first paint and scrolls away
-// with the page. .qp-stack is a panel with the title panel's insets, so the
-// box shares the content column's left edge; layout.css sets the gaps.
+// Kept deliberately compact: a slim single-line bar in its own row above the
+// content sheet, outside it (portaled into .qp-stack by the script below;
+// styled in layout.css), so it never covers content and scrolls away with
+// the page.
 //
-// Dismiss semantics: this site navigates via full page loads, so the closed
-// state lives in sessionStorage (survives navigation between docs pages). A
-// hard reload clears it (detected via PerformanceNavigationTiming "reload"),
-// and a new tab starts a fresh session — so the announcement returns. An
-// inline head script (astro.config.mjs) turns each stored key into a
-// qp-off-<key> class on <html> before the first paint; layout.css hides the
-// matching row, and the whole box once every row is off.
+// Dismiss semantics are unchanged: this site navigates via full page loads, so
+// the closed state lives in sessionStorage (survives navigation between docs
+// pages). A hard reload clears it (detected via PerformanceNavigationTiming
+// "reload"), and a new tab starts a fresh session — so the announcement
+// returns. Each bar has its own storage key, and the key changes with each
+// announcement, so visitors who dismissed the previous one still see this one.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
-const label = isDE ? 'Ankündigungen' : 'Announcements';
-const close = isDE ? 'Ankündigungen schließen' : 'Dismiss announcements';
+const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
 
-// `short` on phones; a row with a `msg` shows that instead where the column
-// has room for it on one line (see the container query). A `split` row's
-// `msg` is two lines (a <br> between its sentences) on every screen but a
-// phone, so the box keeps one height as the column narrows.
-const rows = isDE
+const bars = isDE
   ? [
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'Neu',
-        tag: 'magenta',
         msg: '<b>GLM 5.3</b> (T-Cloud) und <b>DeepSeek 4.1 Flash</b> (T-Cloud, Vorschau) ab 2.\u00a0Nov.',
-        short: '<b>GLM 5.3</b>, <b>DeepSeek 4.1 Flash</b> ab 2.\u00a0Nov.',
+        cta: 'Modelle ansehen',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Hinweis',
-        tag: 'standard',
-        split: true,
-        msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. <br>Prüfen Sie, was sich ändert und was Sie tun müssen.',
-        short: '<b>API-Änderungen</b>: Was ist zu tun?',
+        msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
+        cta: 'Zur API-Umstellung',
         href: `${prefix}/api-transition`,
       },
     ]
@@ -56,18 +51,15 @@ const rows = isDE
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'New',
-        tag: 'magenta',
         msg: '<b>GLM 5.3</b> (T-Cloud) and <b>DeepSeek 4.1 Flash</b> (T-Cloud, preview) from 2\u00a0Nov',
-        short: '<b>GLM 5.3</b>, <b>DeepSeek 4.1 Flash</b> from 2\u00a0Nov',
+        cta: 'View models',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Notice',
-        tag: 'standard',
-        split: true,
-        msg: 'We are making a few <b>API changes</b>. <br>See what changes and what you need to do.',
-        short: '<b>API changes</b>: what to do',
+        msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
+        cta: 'View API changes',
         href: `${prefix}/api-transition`,
       },
     ];
@@ -76,204 +68,234 @@ import Tag from './Tag.astro';
 import Icon from './Icon.astro';
 ---
 
-<div class="qp-stack" data-pagefind-ignore>
-  <div class="qp-box" role="region" aria-label={label}>
-    <ul class="qp-rows">
-      {rows.map((r) => (
-        <li class:list={['qp-row', r.split && 'qp-row--split']} data-key={r.key}>
-          <a class="qp-link" href={r.href}>
-            <Tag color={r.tag as 'standard' | 'magenta'} size="small" class="qp-badge">{r.badge}</Tag>
-            <span class="qp-text">
-              {/* No whitespace between the parts: the one no-break space keeps
-                  the arrow on the last word's line. */}
-              {r.msg && <span class="qp-msg" set:html={r.msg} />}<span class:list={['qp-short', r.msg && 'qp-short--alt']} set:html={r.short} />{'\u00a0'}<span class="qp-arrow" aria-hidden="true">{'\u2192'}</span>
-            </span>
-          </a>
-        </li>
-      ))}
-    </ul>
+{bars.map((b) => (
+  <div class="qp-bar" data-key={b.key} role="region" aria-label={close} hidden>
+    <Tag color="magenta" size="small" class="qp-badge">{b.badge}</Tag>
+    <p class="qp-msg" set:html={b.msg}></p>
+    <a class="qp-cta" href={b.href}>{b.cta}</a>
     <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={close}>
       <Icon name="action-close" size={16} />
     </Button>
   </div>
-</div>
+))}
 
 <style>
-  /* One box for all rows: the card border and radius, no fill of its own,
-     as wide as its text (never wider than the column). */
-  .qp-box {
+  .qp-bar {
+    /* In-flow (not fixed): the bar occupies real layout space above the page
+       title, so it can never cover content, and it scrolls away with the
+       page. See the portal logic in the script below. */
+    position: relative;
+    z-index: 1;
+
     display: flex;
     align-items: center;
-    gap: 8px;
-    width: fit-content;
-    max-width: 100%;
-    box-sizing: border-box;
-    padding: 4px 4px 4px 12px;
-    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-    border-radius: var(--aifs-radius-card);
+    gap: var(--aifs-notice-gap);
+    /* Spans its row (.qp-stack in layout.css), which sets the gaps. */
+    width: 100%;
+    margin: 0;
+    padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
+
+    background: var(--aifs-color-surface-chrome);
     color: var(--aifs-color-text-body);
+    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
+    border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
+    border-radius: var(--aifs-notice-radius);
+    box-shadow: none;
     font-size: var(--aifs-text-small-font-size);
-    line-height: 20px;
+    line-height: var(--aifs-text-small-line-height);
+
+    animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
+  }
+  :global(:root[data-theme='dark']) .qp-bar {
+    background: var(--aifs-color-surface-chrome);
+    color: var(--aifs-color-text-body);
+    border-color: var(--aifs-color-border-subtle);
+    border-inline-start-color: var(--aifs-color-action-background);
   }
 
-  .qp-rows {
-    flex: 1 1 auto;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    list-style: none;
+  :global(:root[data-theme='dark']) .qp-msg :global(b) {
+    color: var(--aifs-color-text-body);
   }
 
-  /* Tag and text in two columns: a wrapped line starts under the text, and the
-     20px tag lines up with the first 20px line. */
-  .qp-link {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: start;
-    column-gap: 8px;
-    padding-block: 4px;
-    color: inherit;
-    text-decoration: none;
-  }
-
-  .qp-link :global(.qp-badge) {
-    margin: 0;
-  }
-
-  .qp-text {
-    min-width: 0;
-    overflow-wrap: break-word;
-  }
-
-  .qp-text :global(b) {
-    font-weight: 700;
-  }
-
-  /* Inline, so it can't break away from the text. */
-  .qp-arrow {
-    position: relative;
-    left: 0;
+  :global(:root[data-theme='dark']) .qp-cta {
     color: var(--aifs-color-link-standard);
-    font-weight: 700;
-    transition: left 0.15s ease;
   }
 
-  /* The message is a link in running text (redesign.css): blue, 500,
-     underlined; the bold parts stay bold. */
-  .qp-text :is(.qp-msg, .qp-short) {
-    color: var(--aifs-color-link-standard);
-    font-weight: 500;
-    text-decoration: underline;
-    text-decoration-thickness: var(--aifs-border-width-standard);
-    text-underline-offset: 2px;
-  }
-
-  .qp-link:hover .qp-text :is(.qp-msg, .qp-short) {
-    color: var(--aifs-color-link-hovered);
-    text-decoration-thickness: 2px;
-  }
-
-  .qp-link:hover .qp-arrow {
-    color: var(--aifs-color-link-hovered);
-  }
-
-  .qp-link:hover .qp-arrow {
-    left: 2px;
-  }
-
-  .qp-link:focus-visible {
-    outline: 2px solid var(--aifs-color-focus);
-    outline-offset: 2px;
-    border-radius: var(--aifs-radius-control);
-  }
-
-  /* Drawn by the Button component (ghost, small, icon only), centred on the
-     rows. */
-  .qp-box :global(.qp-close) {
-    flex-shrink: 0;
-  }
-
-  .qp-short--alt {
+  .qp-bar[hidden] {
     display: none;
   }
 
-  /* The long message where it fits on one line (every column on the sheet);
-     a narrower column (phones) gets the short one. */
-  .qp-stack {
-    container: qp-stack / inline-size;
+  /* Drawn by the Tag component (magenta, small). */
+  .qp-bar :global(.qp-badge) {
+    flex-shrink: 0;
   }
 
-  @container qp-stack (max-width: 38.74rem) {
-    .qp-row:not(.qp-row--split) .qp-msg {
-      display: none;
-    }
-    .qp-row:not(.qp-row--split) .qp-short--alt {
-      display: inline;
-    }
+  .qp-msg {
+    flex: 1 1 auto;
+    margin: 0;
+    color: var(--sl-color-text);
+  }
+  .qp-msg :global(b) {
+    color: var(--sl-color-accent-high);
+    font-weight: 600;
   }
 
+  .qp-cta {
+    flex-shrink: 0;
+    color: var(--aifs-color-link-standard);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: var(--aifs-radius-indicator);
+    white-space: nowrap;
+  }
+  .qp-cta:hover,
+  .qp-cta:focus-visible {
+    color: var(--aifs-color-text-body);
+  }
+
+  /* Drawn by the Button component (ghost, small, icon only). */
+  .qp-bar :global(.qp-close) {
+    flex-shrink: 0;
+    border-radius: var(--aifs-notice-close-radius);
+  }
+
+  .qp-bar :focus-visible {
+    outline: var(--aifs-button-focus-width) solid var(--aifs-color-focus);
+    outline-offset: var(--aifs-button-focus-width);
+  }
+
+  /* Phones: one line of text, the link, and the close control on the right. */
   @media (max-width: 40rem) {
-    .qp-row--split .qp-msg {
-      display: none;
+    .qp-bar {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      grid-template-areas: "badge msg close" "badge cta close";
+      align-items: center;
+      column-gap: var(--aifs-notice-gap);
+      row-gap: var(--aifs-notice-row-gap-compact);
+      padding: var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-x-compact);
     }
-    .qp-row--split .qp-short--alt {
-      display: inline;
+    .qp-bar :global(.qp-badge) {
+      grid-area: badge;
+      align-self: start;
+    }
+    .qp-msg {
+      grid-area: msg;
+      min-width: 0;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
+    }
+    .qp-cta {
+      grid-area: cta;
+      justify-self: start;
+    }
+    .qp-bar :global(.qp-close) {
+      grid-area: close;
+      align-self: start;
     }
   }
 
-  /* Phones: 40px rows and close button to tap. */
-  @media (max-width: 40rem) {
-    .qp-box {
-      align-items: flex-start;
+  @keyframes gaSlideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-0.5rem);
     }
-    .qp-link {
-      min-height: 40px;
-      box-sizing: border-box;
-      align-content: center;
-    }
-    .qp-box :global(.qp-close) {
-      min-width: 40px;
-      min-height: 40px;
+    to {
+      opacity: 1;
+      transform: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .qp-arrow {
-      transition: none;
+    .qp-bar {
+      animation: none;
     }
   }
 </style>
 
 <script>
-  // Closes every row: stores each key and sets its qp-off-<key> class, which
-  // hides the box (layout.css). Focus then goes to the page title, not <body>.
-  function dismiss() {
-    const root = document.documentElement;
-    document.querySelectorAll<HTMLElement>('.qp-row[data-key]').forEach((row) => {
-      const key = row.dataset.key;
-      if (!key) return;
-      try {
-        sessionStorage.setItem(key, '1');
-      } catch {}
-      root.classList.add('qp-off-' + key);
-    });
-    const h1 = document.querySelector<HTMLElement>('main h1');
-    if (h1) {
-      if (!h1.hasAttribute('tabindex')) h1.setAttribute('tabindex', '-1');
-      h1.focus();
+  // Dismiss-semantics rationale: see the component frontmatter.
+  let reloadHandled = false;
+
+  function isDismissed(key: string) {
+    try {
+      return sessionStorage.getItem(key) === '1';
+    } catch {
+      return false;
     }
   }
 
+  // Clear the dismissals on a hard reload so the announcements return on refresh.
+  function clearOnReload(keys: string[]) {
+    if (reloadHandled) return;
+    reloadHandled = true;
+    const nav = performance.getEntriesByType('navigation')[0] as
+      | PerformanceNavigationTiming
+      | undefined;
+    const isReload = nav ? nav.type === 'reload' : (performance as any).navigation?.type === 1;
+    if (isReload) {
+      try {
+        keys.forEach((key) => sessionStorage.removeItem(key));
+      } catch {}
+    }
+  }
+
+  function dismiss(bar: HTMLElement) {
+    try {
+      sessionStorage.setItem(bar.dataset.key!, '1');
+    } catch {}
+    const stack = bar.parentElement;
+    bar.remove();
+    // The last bar gone: drop the row, so its spacing goes too.
+    if (stack?.classList.contains('qp-stack') && !stack.querySelector('.qp-bar')) stack.remove();
+  }
+
   function initPreviewModelsBanner() {
-    document.querySelectorAll<HTMLElement>('.qp-box').forEach((box) => {
-      if (box.dataset.qpBound === '1') return;
-      box.dataset.qpBound = '1';
-      box.querySelector('.qp-close')?.addEventListener('click', dismiss);
-      // Escape only while focus is inside the box.
-      box.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') dismiss();
-      });
+    const all = Array.from(document.querySelectorAll<HTMLElement>('.qp-bar[data-key]'));
+    clearOnReload(all.map((bar) => bar.dataset.key!));
+
+    const bars = all.filter((bar) => {
+      if (isDismissed(bar.dataset.key!)) {
+        bar.remove();
+        return false;
+      }
+      return true;
     });
+    if (!bars.length) return;
+
+    // Portal to just above the sheet, the row around the table of contents
+    // and the content: the bars are about the site, not the page, so they
+    // sit on the frame and share the sheet's width and edges (layout.css).
+    // They stay in flow, take real space, and scroll away with the page.
+    let host = document.querySelector<HTMLElement>('.qp-stack');
+    const sheet = document.querySelector('.main-pane')?.parentElement;
+    if (!host) {
+      host = document.createElement('div');
+      host.className = 'qp-stack';
+      sheet?.before(host);
+    } else if (sheet && host.nextElementSibling !== sheet) {
+      sheet.before(host);
+    }
+    if (bars[0].parentElement !== host) {
+      host.append(...bars);
+    }
+
+    for (const bar of bars) {
+      bar.hidden = false;
+      bar.querySelector('.qp-close')?.addEventListener('click', () => dismiss(bar));
+    }
+
+    // Escape dismisses a bar only while focus is inside it: elsewhere the
+    // key belongs to whatever is open (a dialog, search, a filter menu).
+    if (!(window as any).__previewModelsBannerEscBound) {
+      (window as any).__previewModelsBannerEscBound = true;
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Escape' || e.defaultPrevented) return;
+        const el = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.qp-bar[data-key]:not([hidden])');
+        if (el) dismiss(el);
+      });
+    }
   }
 
   document.addEventListener('astro:page-load', initPreviewModelsBanner);

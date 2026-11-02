@@ -96,6 +96,9 @@ export default defineConfig({
 	redirects: {
 		...archivedVersions,
 		'/Quickstart': '/getting-started/quickstart',
+		// The catalog is a section of the Models page.
+		'/models/catalog': '/models/#catalog',
+		'/de/models/catalog': '/de/models/#katalog',
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
@@ -317,7 +320,7 @@ export default defineConfig({
 			// tokens.css is generated from tokens/ (bun run tokens) and loaded last, so the
 			// Starlight variables it sets win over the hand-set ones in the other two.
 			routeMiddleware: './src/starlightRouteData.ts',
-			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
+			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/data-table.css', './src/styles/tooltip.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
 				defaultProps: {
@@ -332,7 +335,9 @@ export default defineConfig({
 			},
 			plugins: [
 				starlightVersions({
-					versions: [{ slug: 'v1-2-0', label: 'v1.2.0 (Archived)' }],
+					// No "(Archived)": archived pages carry a banner, and the suffix set the
+					// width of every header select (a select is as wide as its longest option).
+					versions: [{ slug: 'v1-2-0', label: 'v1.2.0' }],
 				}),
 			],
 			defaultLocale: 'root',
@@ -341,10 +346,11 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
+				// Every group starts closed; Starlight opens the one with the current page.
 				{
 					label: 'Get started',
 					translations: { de: 'Erste Schritte' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
@@ -357,7 +363,7 @@ export default defineConfig({
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'All models', translations: { de: 'Alle Modelle' }, slug: 'models' },
 						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
@@ -371,7 +377,7 @@ export default defineConfig({
 				{
 					label: 'API usage',
 					translations: { de: 'API-Nutzung' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 						{ label: 'Chat', translations: { de: 'Chat' }, slug: 'guides/chat-completions' },
@@ -391,7 +397,7 @@ export default defineConfig({
 				{
 					label: 'Integrations',
 					translations: { de: 'Integrationen' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
@@ -404,7 +410,7 @@ export default defineConfig({
 				{
 					label: 'Trust & compliance',
 					translations: { de: 'Vertrauen & Compliance' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'Enterprise Trust & certifications', translations: { de: 'Enterprise Trust & Zertifizierungen' }, slug: 'reference/enterprise-trust' },
 						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
@@ -413,7 +419,7 @@ export default defineConfig({
 				{
 					label: 'Plans & pricing',
 					translations: { de: 'Tarife & Preise' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
 						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
@@ -423,7 +429,7 @@ export default defineConfig({
 				{
 					label: 'Resources',
 					translations: { de: 'Ressourcen' },
-					collapsed: false,
+					collapsed: true,
 					items: [
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },

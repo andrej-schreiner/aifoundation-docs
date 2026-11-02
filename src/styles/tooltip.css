@@ -1,0 +1,184 @@
+/* Tooltip, aligned with Scale's scale-tooltip (telekom/scale,
+   packages/components/src/components/tooltip/tooltip.css): a dark box with
+   white body text and a 12px arrow, faded in and out. Every value is a
+   --aifs-tooltip-* token from tokens.css.
+
+   Scale places it with floating-ui; here it is placed with CSS against a
+   positioned parent, in four placements: top (centred, the default),
+   top-end (end edges aligned, for a trigger in a corner), bottom (centred
+   below, for a table header, whose scroll container would cut off a
+   tooltip above it) and right (vertically centred, for tags in a row).
+
+   Two triggers use it:
+   - The Tooltip component (src/components/Tooltip.astro) and the model
+     table's rows (built in a script) wrap a trigger in .ui-tooltip; the
+     tooltip shows on hover and keyboard focus.
+   - The Button component renders one from its successTooltip prop and shows
+     it while data-state="success" is set. */
+
+.aifs-tooltip {
+	position: absolute;
+	bottom: calc(100% + var(--aifs-tooltip-distance));
+	left: 50%;
+	/* TODO(token-gap): no z-index tokens; Scale uses --scl-z-index-70. */
+	z-index: 70;
+	box-sizing: border-box;
+	width: max-content;
+	/* Never wider than the nearest size container (the viewport if there is
+	   none), less --aifs-tooltip-inset, so a long text breaks instead of
+	   running off a phone screen. A card sets the inset to its padding. */
+	max-width: min(var(--aifs-tooltip-max-width, 20rem), calc(100cqi - var(--aifs-tooltip-inset, 0px)));
+	overflow-wrap: anywhere;
+	padding: var(--aifs-tooltip-padding-y) var(--aifs-tooltip-padding-x);
+	border-radius: var(--aifs-tooltip-radius);
+	background: var(--aifs-tooltip-background);
+	color: var(--aifs-tooltip-text);
+	font-size: var(--aifs-tooltip-font-size);
+	font-weight: var(--aifs-tooltip-font-weight);
+	line-height: var(--aifs-tooltip-line-height);
+	text-align: start;
+	text-transform: none;
+	letter-spacing: normal;
+	white-space: normal;
+	pointer-events: none;
+	/* --aifs-tooltip-shift: set by Tooltip.astro's script to keep a hover
+	   tooltip inside the content area, as floating-ui's shift does in Scale. */
+	transform: translateX(calc(-50% + var(--aifs-tooltip-shift, 0px)));
+	/* Hidden with display:none, not visibility: a hidden box would still
+	   widen a scrolling table. allow-discrete and @starting-style keep the
+	   fade; older engines show and hide at once. */
+	display: none;
+	opacity: 0;
+	transition-property: opacity, display;
+	transition-behavior: allow-discrete;
+	transition-duration: var(--aifs-tooltip-duration-hide);
+	transition-delay: var(--aifs-tooltip-delay-hide);
+	transition-timing-function: var(--aifs-tooltip-easing);
+}
+
+/* The arrow: a square turned 45°, below the text. */
+.aifs-tooltip::after {
+	content: '';
+	position: absolute;
+	bottom: calc(-1 * var(--aifs-tooltip-arrow-offset));
+	left: 50%;
+	z-index: -1;
+	width: var(--aifs-tooltip-arrow-size);
+	height: var(--aifs-tooltip-arrow-size);
+	/* Shifted back by the box's shift, so it still points at the trigger. */
+	margin-left: calc(var(--aifs-tooltip-arrow-size) / -2 - var(--aifs-tooltip-shift, 0px));
+	background: var(--aifs-tooltip-background);
+	transform: rotate(45deg);
+}
+
+/* top-end: the tooltip's end edge on the trigger's, the arrow over the
+   trigger's centre. The trigger sets --aifs-tooltip-anchor-width. */
+.aifs-tooltip--top-end {
+	left: auto;
+	right: 0;
+	transform: translateX(var(--aifs-tooltip-shift, 0px));
+}
+
+.aifs-tooltip--top-end::after {
+	left: auto;
+	right: calc(var(--aifs-tooltip-anchor-width, 100%) / 2);
+	margin-left: 0;
+	margin-right: calc(var(--aifs-tooltip-arrow-size) / -2 + var(--aifs-tooltip-shift, 0px));
+}
+
+/* bottom: below the trigger, the arrow pointing up. */
+.aifs-tooltip--bottom {
+	top: calc(100% + var(--aifs-tooltip-distance));
+	bottom: auto;
+}
+
+.aifs-tooltip--bottom::after {
+	top: calc(-1 * var(--aifs-tooltip-arrow-offset));
+	bottom: auto;
+}
+
+/* right: beside the trigger, centred on it, the arrow pointing back. */
+.aifs-tooltip--right {
+	top: 50%;
+	bottom: auto;
+	left: calc(100% + var(--aifs-tooltip-distance));
+	transform: translateY(-50%);
+}
+
+.aifs-tooltip--right::after {
+	top: 50%;
+	bottom: auto;
+	left: calc(-1 * var(--aifs-tooltip-arrow-offset));
+	margin-top: calc(var(--aifs-tooltip-arrow-size) / -2);
+	margin-left: 0;
+}
+
+/* Hover and focus trigger. */
+.ui-tooltip {
+	position: relative;
+	display: inline-flex;
+	justify-content: center;
+	vertical-align: middle;
+	outline: none;
+}
+
+.ui-tooltip__trigger {
+	display: inline-flex;
+}
+
+.ui-tooltip__trigger:focus-visible {
+	outline: var(--aifs-button-focus-width) solid var(--aifs-button-focus);
+	outline-offset: var(--aifs-button-focus-offset);
+	border-radius: var(--aifs-radius-control);
+}
+
+.ui-tooltip:is(:hover, :focus-within):not(.ui-tooltip--dismissed) > .aifs-tooltip,
+.aifs-button[data-state='success'] > .aifs-tooltip {
+	display: block;
+	opacity: 1;
+	transition-duration: var(--aifs-tooltip-duration-show);
+	transition-delay: 0s;
+}
+
+@starting-style {
+	.ui-tooltip:is(:hover, :focus-within):not(.ui-tooltip--dismissed) > .aifs-tooltip,
+	.aifs-button[data-state='success'] > .aifs-tooltip {
+		opacity: 0;
+	}
+}
+
+/* WCAG 1.4.13: a hover tooltip can itself be hovered, to read or select its
+   text. A transparent strip bridges the gap to the trigger, so the pointer
+   does not drop it on the way. */
+.ui-tooltip > .aifs-tooltip {
+	pointer-events: auto;
+}
+
+.ui-tooltip > .aifs-tooltip::before {
+	content: '';
+	position: absolute;
+	inset: 100% 0 auto;
+	height: var(--aifs-tooltip-distance);
+}
+
+.ui-tooltip > .aifs-tooltip--bottom::before {
+	inset: auto 0 100%;
+}
+
+.ui-tooltip > .aifs-tooltip--right::before {
+	inset: 0 100% 0 auto;
+	width: var(--aifs-tooltip-distance);
+	height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.aifs-tooltip {
+		transition: none;
+	}
+}
+
+@media (forced-colors: active) {
+	.aifs-tooltip {
+		border: 1px solid CanvasText;
+	}
+}

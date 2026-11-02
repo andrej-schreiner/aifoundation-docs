@@ -151,6 +151,7 @@ print(response.choices[0].message.content)
   <TabItem value="node" label="Node.js">
 
 ```javascript
+import OpenAI from "openai";
 
 const client = new OpenAI({
   baseURL: "https://llm-server.llmhub.t-systems.net/queue",
@@ -180,6 +181,7 @@ Process multiple prompts efficiently using the queue:
   <TabItem value="python" label="Python" default>
 
 ```python
+import asyncio
 
 from openai import AsyncOpenAI
 
@@ -215,6 +217,7 @@ asyncio.run(main())
   <TabItem value="node" label="Node.js">
 
 ```javascript
+import OpenAI from "openai";
 
 const client = new OpenAI({
   baseURL: "https://llm-server.llmhub.t-systems.net/queue",

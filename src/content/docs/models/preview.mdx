@@ -5,8 +5,6 @@ description: "Preview models on AI Foundation Services, including OCR and decisi
 
 import PlansPage from '../../../components/PlansPage.astro';
 
-<div style="max-width: 54rem;">
-
 :::tip[New in preview: DeepSeek 4.1 Flash]
 **DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash-preview`) accepts text and image and returns text. It is a preview model hosted on T-Cloud in Germany, within the EU, and, like the other preview models, free on any active plan.
 :::
@@ -28,11 +26,7 @@ import PlansPage from '../../../components/PlansPage.astro';
 RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the conditions that apply.
 :::
 
-</div>
-
 <PlansPage selectedPlanId="Test" sectionTitle="Preview models" modelsSectionTitle="Our Models" />
-
-<div style="max-width: 54rem;">
 
 <a id="rpm-tpm-notes"></a>
 
@@ -47,4 +41,3 @@ RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&as
 
 Customers requiring contractual guarantees on throughput, end-to-end latency, or time-to-first-token should consider [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 
-</div>
