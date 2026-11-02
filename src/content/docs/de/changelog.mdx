@@ -7,9 +7,30 @@ Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdate
 
 ## v1.2.4 — 2026-11
 
+Bringt die Dokumentation in Übereinstimmung mit der **[Leistungsbeschreibung](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf)** vom 30. Oktober 2026, die für alle folgenden Punkte die verbindliche Quelle ist. Sie gilt ab dem 1. Dezember 2026; wenn Sie die neuen Modelle schon vorher nutzen, akzeptieren Sie sie mit der Nutzung.
+
 ### Hinzugefügt
 
+- **GLM 5.3** (`GLM-5.3`) von Z.ai in den Tarifen Essential, Professional und Agentic: für Coding und agentische Aufgaben, mit einem Kontextfenster von 1M, gehostet in Deutschland. Siehe [Tarife & Preise](/de/plans).
+- **Qwen3-Reranker-4B**, **LightOnOCR-3-4B** und **PaddleOCR-VL-1.6** sind von der Preview in den Produktivbetrieb gewechselt, in den Tarifen Essential, Professional und Agentic. Die Modell-IDs verlieren das Suffix `-Preview`: `Qwen3-Reranker-4B`, `LightOnOCR-3-4B`, `PaddleOCR-VL-1.6`. Siehe [Reranking](/de/guides/reranking) und [OCR](/de/guides/ocr).
+- Neue Modelle in den Tarifen Essential, Professional und Agentic: **Claude Haiku 5.5** und **Gemini 4 Argon**. **GPT-6 Astra** und **Claude Fable 5.1** in Professional und Agentic. Siehe [Tarife & Preise](/de/plans).
+- **GPT-6 Astra** wird nach Kontextlänge bepreist, mit eigenen Preisen ab 272k Input-Tokens; **Claude Haiku 5.5** hat eigene Preise ab 100k Input-Tokens.
 - Neues Preview-Modell im Test-Katalog für **Reranking**: **Qwen3-Reranker-4B** (`Qwen3-Reranker-4B-Preview`), das Dokumente über den Endpunkt `POST /rerank` nach Relevanz für eine Anfrage sortiert (kompatibel mit den Rerank-APIs von Cohere und Jina). Kostenlos in jedem aktiven Tarif. Neue Anleitung: [Reranking](/de/guides/reranking), mit Beispielen für curl, Python, Node.js und das Cohere SDK.
+
+### Geändert
+
+- **Gemini 3 Flash** ist nicht mehr zur Stilllegung vorgesehen: Die Leistungsbeschreibung führt es weiterhin, daher bleibt es in den Tarifen Essential, Professional und Agentic.
+- **Qwen3 Embedding 8B** kostet 0,10 € pro Million Input- und Output-Tokens (Input bisher 0,15 €), mit neuen Rate-Limits: 180.000 Input-TPM und 360 RPM in Essential, 360.000 und 720 in Professional, 600.000 und 1.200 in Agentic.
+- **[Enterprise Trust](/de/reference/enterprise-trust)** führt die neuen Modelle auf und nennt für die von der Telekom betriebenen Modelle neben der T-Cloud Public die Industrial AI Cloud.
+- Die Beispiele pro Modell unter [Rate-Limits](/de/reference/rate-limits) zeigen die aktuellen Limits von GPT-OSS 120B und GPT-6 Luna.
+
+### Veraltet
+
+- **GLM 5.2**, **GPT-5.6 Luna**, **Claude Sonnet 5**, **Claude Opus 5**, **Claude Fable 5**, **Gemini 3.1 Pro** und **Mistral Medium 3** werden am **30.11.2026** stillgelegt und in den Tarifen nicht mehr aufgeführt. Bis dahin funktionieren sie weiter. Ersatzmodelle siehe [Zur Stilllegung vorgesehen](/de/models/scheduled-for-retirement).
+
+### Entfernt
+
+- **GPT-5**, **GPT-5 mini**, **GPT-5 nano**, **GPT-5 Codex**, **GPT 5.4**, **GPT 5.4 mini**, **GPT 5.5**, **Claude 4.5 Haiku**, **Claude 4.6 Sonnet / Opus**, **Claude Opus 4.8** und **Gemini 3 Pro** wurden am 31.10.2026 stillgelegt und aus den Tarifen entfernt. Siehe [Stillgelegte Modelle](/de/models/retired).
 
 ## v1.2.3 — 2026-10
 

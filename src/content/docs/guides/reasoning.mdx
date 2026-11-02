@@ -1,6 +1,6 @@
 ---
 title: "Reasoning Control"
-description: "Control chain-of-thought depth with the `reasoning_effort` parameter on reasoning-capable models such as GPT-5, Gemini 3, and Claude 4.6."
+description: "Control chain-of-thought depth with the `reasoning_effort` parameter on reasoning-capable models such as GPT-6, Gemini 3, and Claude 5.5."
 ---
 
 
@@ -28,9 +28,9 @@ The table below shows a few common models and how reasoning is controlled on eac
 
 | Model (example) | Reasoning Control |
 |---|---|
-| GPT-5, GPT-5 mini, GPT-5 nano | `reasoning_effort` parameter |
+| GPT-6.1 Sol, GPT-6 Luna | `reasoning_effort` parameter |
 | Gemini 3 | `reasoning_effort` parameter |
-| Claude 4.6, Claude Opus 5 | `reasoning_effort` parameter |
+| Claude Sonnet 5.5, Claude Opus 5.5 | `reasoning_effort` parameter |
 | Qwen 3.6 | `/no_think` prompt keyword |
 
 Most reasoning models follow one of these two patterns: an OpenAI-compatible `reasoning_effort` parameter, or a prompt keyword. `reasoning_effort` is accepted far more widely than the table suggests — GLM, Mistral, Gemma, Nemotron and the T-Cloud-hosted open-source models take it too.

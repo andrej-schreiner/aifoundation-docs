@@ -1,8 +1,9 @@
 ---
 // Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above the Qwen3-Reranker-4B preview model (linking to
-// /guides/reranking).
-// It replaced the OCR preview bar (LightOnOCR-3-4B / PaddleOCR-VL-1.6), which
+// to /api-transition) above GLM 5.3 going live on the paid plans (linking to
+// /plans).
+// It replaced the Qwen3-Reranker-4B preview bar, which replaced the OCR
+// preview bar (LightOnOCR-3-4B / PaddleOCR-VL-1.6), which
 // replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
@@ -40,11 +41,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'rerankerPreviewBannerDismissed',
+        key: 'glm53LiveBannerDismissed',
         badge: 'Neu',
-        msg: 'Neu in der Preview: <b>Qwen3-Reranker-4B</b> — sortiert Suchergebnisse nach Relevanz, damit Ihre RAG-Pipeline die richtigen Dokumente findet. Kostenlos testbar.',
-        cta: 'Reranking ausprobieren',
-        href: `${prefix}/guides/reranking`,
+        msg: 'Jetzt live: <b>GLM 5.3</b> von Z.ai in allen kostenpflichtigen Tarifen — für Coding und agentische Aufgaben, mit 1M Kontextfenster, gehostet in Deutschland.',
+        cta: 'Zu den Tarifen',
+        href: `${prefix}/plans`,
       },
     ]
   : [
@@ -56,11 +57,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'rerankerPreviewBannerDismissed',
+        key: 'glm53LiveBannerDismissed',
         badge: 'New',
-        msg: 'New in preview: <b>Qwen3-Reranker-4B</b> — sorts search results by relevance, so your RAG pipeline finds the right documents. Free to try.',
-        cta: 'Try reranking',
-        href: `${prefix}/guides/reranking`,
+        msg: 'Now live: <b>GLM 5.3</b> from Z.ai on all paid plans — built for coding and agentic tasks, with a 1M context window, hosted in Germany.',
+        cta: 'View plans',
+        href: `${prefix}/plans`,
       },
     ];
 ---

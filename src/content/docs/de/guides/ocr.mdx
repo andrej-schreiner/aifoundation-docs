@@ -1,6 +1,6 @@
 ---
 title: "OCR (Dokumentenerkennung)"
-description: "Gescannte Dokumente, PDFs und Fotos mit den Preview-Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
+description: "Gescannte Dokumente, PDFs und Fotos mit den Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
@@ -26,20 +26,21 @@ Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre
 
 | | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
 |---|---|---|
-| Modell-ID | `LightOnOCR-3-4B-Preview` | `PaddleOCR-VL-1.6-Preview` |
+| Modell-ID | `LightOnOCR-3-4B` | `PaddleOCR-VL-1.6` |
 | Hersteller | [LightOn](https://www.lighton.ai), Paris, Frankreich | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
 | Eine Anfrage | **ein Seitenbild** → die ganze Seite als Markdown | **ein Seitenelement** (Textblock, Tabelle, Formel, Diagramm) |
 | Ausgabe | Markdown; Tabellen als HTML, Formeln als LaTeX; optional Layout-Blöcke mit Koordinaten | Text, Tabellen, LaTeX-Formeln, Diagrammdaten; als Markdown/JSON über die PaddleOCR-Pipeline |
 | Sprachen | mehrsprachig. Von uns getestet mit Deutsch und Französisch | 109 Sprachen. Von uns getestet mit Deutsch und Französisch |
 | Kontextfenster | 32K | 128K |
 | Lizenz | Apache 2.0 | Apache 2.0 |
+| Preis pro 1 Mio. Tokens (Input / Output) | 0,20 € / 0,60 € | 0,10 € / 0,40 € |
 | Wählen, wenn | Sie Seite → Markdown in einem Aufruf möchten, ohne zusätzliche Software | Sie hohen Durchsatz oder Ausgabe pro Element (Tabellen, Formeln, Diagramme) aus einer vollständigen Layout-Pipeline brauchen |
 
 :::note[LightOnOCR-3]
 Made in Europe von LightOn aus Paris. Es liest gedruckten Text und Handschrift und erhält Tabellen und mehrspaltige Layouts.
 :::
 
-Beide Modelle sind in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate-Limits.
+Beide Modelle sind in den Tarifen Essential, Professional und Agentic verfügbar. Die Rate-Limits je Tarif finden Sie unter [Tarife & Preise](/de/plans).
 
 
 ## Zwei Wege, die Modelle aufzurufen
@@ -81,7 +82,7 @@ Eine Anfrage pro Seite: Senden Sie das Seitenbild ohne Text-Prompt und erhalten 
 
 
     response = client.chat.completions.create(
-        model="LightOnOCR-3-4B-Preview",
+        model="LightOnOCR-3-4B",
         messages=[{
             "role": "user",
             "content": [{"type": "image_url", "image_url": {"url": page_to_data_url("document.pdf")}}],
@@ -97,7 +98,7 @@ Eine Anfrage pro Seite: Senden Sie das Seitenbild ohne Text-Prompt und erhalten 
     Speichern Sie die Seite zuerst als `page.png` (längste Kante 2048 px). Der Request-Body kommt in eine Datei, weil eine Base64-Seite für die Kommandozeile zu lang ist.
 
     ```bash
-    printf '{"model": "LightOnOCR-3-4B-Preview", "temperature": 0.2, "top_p": 0.9, "max_tokens": 4096,
+    printf '{"model": "LightOnOCR-3-4B", "temperature": 0.2, "top_p": 0.9, "max_tokens": 4096,
       "messages": [{"role": "user", "content": [
         {"type": "image_url", "image_url": {"url": "data:image/png;base64,%s"}}]}]}' \
       "$(base64 < page.png | tr -d '\n')" > request.json
@@ -129,7 +130,7 @@ Senden Sie nach dem Bild den Text-Prompt `grounding`. Jeder Block der Seite begi
 import re
 
 response = client.chat.completions.create(
-    model="LightOnOCR-3-4B-Preview",
+    model="LightOnOCR-3-4B",
     messages=[{
         "role": "user",
         "content": [
@@ -176,7 +177,7 @@ pages = [page_to_data_url(pdf_path, page=i) for i in range(len(pdfium.PdfDocumen
 
 def ocr_page(data_url):
     response = client.chat.completions.create(
-        model="LightOnOCR-3-4B-Preview",
+        model="LightOnOCR-3-4B",
         messages=[{"role": "user", "content": [{"type": "image_url", "image_url": {"url": data_url}}]}],
         temperature=0.2,
         top_p=0.9,
@@ -205,7 +206,7 @@ LightOns Paket [`lightonocr`](https://github.com/lightonai/LightOnOCR) wandelt P
     ocr = LightOnOCR(
         base_url=os.environ["OPENAI_BASE_URL"],
         api_key=os.environ["OPENAI_API_KEY"],
-        model="LightOnOCR-3-4B-Preview",  # always set the model
+        model="LightOnOCR-3-4B",  # always set the model
         timeout=300,
     )
 
@@ -220,7 +221,7 @@ LightOns Paket [`lightonocr`](https://github.com/lightonai/LightOnOCR) wandelt P
   <TabItem value="cli" label="CLI">
     ```bash
     export LIGHTONOCR_API_KEY=$OPENAI_API_KEY
-    lightonocr report.pdf --base-url "$OPENAI_BASE_URL" --model LightOnOCR-3-4B-Preview \
+    lightonocr report.pdf --base-url "$OPENAI_BASE_URL" --model LightOnOCR-3-4B \
       --max-tokens 4096 --concurrency 8
     ```
 
@@ -235,7 +236,7 @@ Geben Sie immer die Modell-ID an: Ohne sie nimmt die Bibliothek das erste Modell
 
 PaddleOCR-VL ist der Erkennungsschritt einer **zweistufigen Pipeline**:
 1. Ein kleines **Layout-Modell** läuft bei Ihnen und findet die Blöcke der Seite (Text, Überschriften, Tabellen, Formeln, Diagramme, Stempel) und ihre Lesereihenfolge.
-2. Jeder Block wird ausgeschnitten und mit dem passenden Task-Prompt an `PaddleOCR-VL-1.6-Preview` gesendet.
+2. Jeder Block wird ausgeschnitten und mit dem passenden Task-Prompt an `PaddleOCR-VL-1.6` gesendet.
 3. Die Ergebnisse werden als Markdown oder JSON wieder zusammengesetzt.
 
 Das Modell ist klein und schnell, eine Seite besteht also aus vielen kurzen, parallelen Anfragen. Senden Sie keine ganzen Seiten mit `OCR:`: Bei Tabellen liest das Modell die Zellen dann als flache Zahlenliste. Nutzen Sie die Pipeline oder schneiden Sie die Elemente selbst aus.
@@ -254,7 +255,7 @@ pipeline = PaddleOCRVL(
     vl_rec_backend="vllm-server",
     vl_rec_server_url=os.environ["OPENAI_BASE_URL"],
     vl_rec_api_key=os.environ["OPENAI_API_KEY"],
-    vl_rec_api_model_name="PaddleOCR-VL-1.6-Preview",
+    vl_rec_api_model_name="PaddleOCR-VL-1.6",
     vl_rec_max_concurrency=8,
     device="cpu",  # the layout model runs locally; use "gpu:0" if you have a GPU
 )
@@ -302,7 +303,7 @@ with open("table.png", "rb") as f:
     image_url = "data:image/png;base64," + base64.b64encode(f.read()).decode()
 
 response = client.chat.completions.create(
-    model="PaddleOCR-VL-1.6-Preview",
+    model="PaddleOCR-VL-1.6",
     messages=[{
         "role": "user",
         "content": [
@@ -332,11 +333,10 @@ Tabellen kommen als **OTSL**: `<nl>` beendet eine Zeile, `<fcel>` beginnt eine Z
 - **Senden Sie Bilder als Base64-Data-URLs.** `https://`-Bildlinks werden mit `422` abgelehnt: Die Modelle laden keine Bilder herunter.
 - **Bilder zählen als Input-Tokens.** Etwa 3.000 pro Seite bei LightOnOCR mit 2048 px und bis zu etwa 1.260 pro Bild bei PaddleOCR-VL (weniger bei kleinen Ausschnitten). Prüfen Sie `usage.prompt_tokens`.
 - **Streaming funktioniert** bei beiden Modellen (`stream=True`), wenn Sie Text schon während des Lesens anzeigen möchten.
-- **Preview-Modelle.** Beide unterliegen den Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate-Limits, kein SLA, nicht für Produktiv-Workloads.
 
 
 ## Nächste Schritte
 
 - [Multimodal (Vision)](/de/guides/multimodal) — Fragen zu Bildern mit Vision-Chat-Modellen stellen
 - [Visual RAG](/de/guides/visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
-- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle
+- [Tarife & Preise](/de/plans) — Preise und Rate-Limits je Tarif

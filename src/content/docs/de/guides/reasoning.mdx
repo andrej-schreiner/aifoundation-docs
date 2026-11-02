@@ -1,6 +1,6 @@
 ---
 title: "Reasoning"
-description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf Reasoning-fähigen Modellen wie GPT-5, Gemini 3 und Claude 4.6 steuern."
+description: "Tiefe des Chain-of-Thought-Prozesses mit dem Parameter `reasoning_effort` auf Reasoning-fähigen Modellen wie GPT-6, Gemini 3 und Claude 5.5 steuern."
 ---
 
 
@@ -28,9 +28,9 @@ Die folgende Tabelle zeigt einige gängige Modelle und wie Reasoning dort gesteu
 
 | Modell (Beispiel) | Reasoning |
 |---|---|
-| GPT-5, GPT-5 mini, GPT-5 nano | Parameter `reasoning_effort` |
+| GPT-6.1 Sol, GPT-6 Luna | Parameter `reasoning_effort` |
 | Gemini 3 | Parameter `reasoning_effort` |
-| Claude 4.6, Claude Opus 5 | Parameter `reasoning_effort` |
+| Claude Sonnet 5.5, Claude Opus 5.5 | Parameter `reasoning_effort` |
 | Qwen 3.6 | Prompt-Schlüsselwort `/no_think` |
 
 Die meisten Reasoning-Modelle folgen einem dieser beiden Muster: dem OpenAI-kompatiblen Parameter `reasoning_effort` oder einem Prompt-Schlüsselwort. `reasoning_effort` wird deutlich breiter akzeptiert, als die Tabelle vermuten lässt — auch GLM, Mistral, Gemma, Nemotron und die T-Cloud-gehosteten Open-Source-Modelle nehmen ihn entgegen.
