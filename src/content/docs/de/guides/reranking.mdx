@@ -1,6 +1,6 @@
 ---
 title: "Reranking"
-description: "Suchergebnisse mit dem Preview-Modell Qwen3-Reranker-4B nach Relevanz für eine Anfrage sortieren und so RAG und Suche verbessern."
+description: "Suchergebnisse mit dem Modell Qwen3-Reranker-4B nach Relevanz für eine Anfrage sortieren und so RAG und Suche verbessern."
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
@@ -24,14 +24,15 @@ Der Reranker liest die Anfrage und jedes Dokument gemeinsam. Er erkennt so Relev
 
 | | **Qwen3-Reranker-4B** |
 |---|---|
-| Modell-ID | `Qwen3-Reranker-4B-Preview` |
+| Modell-ID | `Qwen3-Reranker-4B` |
 | Hersteller | [Qwen](https://huggingface.co/Qwen/Qwen3-Reranker-4B) (Alibaba Cloud) |
 | Endpunkt | `POST /v2/rerank` (auch `/v1/rerank`) |
 | Sprachen | über 100 Sprachen. Von uns getestet auf Deutsch sowie mit deutschen und chinesischen Anfragen an englische Dokumente |
 | Kontextfenster | 40.960 Tokens pro Paar aus Anfrage und Dokument |
 | Lizenz | Apache 2.0 |
+| Preis pro 1 Mio. Tokens (Input / Output) | 0,05 € / 0,05 € |
 
-Das Modell ist in [Test / Vorschau](/de/plans/test): kostenlos in jedem aktiven Tarif, mit dynamischen Rate Limits. Es wird auf T-Cloud Public in Deutschland gehostet.
+Das Modell ist in den Tarifen Essential, Professional und Agentic verfügbar; die Rate Limits je Tarif finden Sie unter [Tarife & Preise](/de/plans). Es wird auf T-Cloud Public in Deutschland gehostet.
 
 
 ## Grundlegende Verwendung
@@ -45,7 +46,7 @@ Senden Sie eine `query` und eine Liste von `documents`. Die Antwort listet die D
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Qwen3-Reranker-4B-Preview",
+        "model": "Qwen3-Reranker-4B",
         "query": "What is the capital of Germany?",
         "documents": [
           "Paris is the capital of France.",
@@ -72,7 +73,7 @@ Senden Sie eine `query` und eine Liste von `documents`. Die Antwort listet die D
     response = client.post(
         "/rerank",
         body={
-            "model": "Qwen3-Reranker-4B-Preview",
+            "model": "Qwen3-Reranker-4B",
             "query": "What is the capital of Germany?",
             "documents": documents,
             "top_n": 2,
@@ -94,7 +95,7 @@ Senden Sie eine `query` und eine Liste von `documents`. Die Antwort listet die D
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "Qwen3-Reranker-4B-Preview",
+        model: "Qwen3-Reranker-4B",
         query: "What is the capital of Germany?",
         documents: [
           "Paris is the capital of France.",
@@ -126,7 +127,7 @@ Token usage: {'prompt_tokens': 258, 'total_tokens': 258, 'completion_tokens': 0}
 ```json
 {
   "id": "score-283f1d15-f206-4d7c-b55f-9d0c31141ae8",
-  "model": "Qwen3-Reranker-4B-Preview",
+  "model": "Qwen3-Reranker-4B",
   "usage": {"prompt_tokens": 258, "total_tokens": 258, "completion_tokens": 0},
   "results": [
     {"index": 1, "document": {"text": "Berlin is the capital and largest city of Germany.", "multi_modal": null}, "relevance_score": 0.9829727411270142},
@@ -139,7 +140,7 @@ Token usage: {'prompt_tokens': 258, 'total_tokens': 258, 'completion_tokens': 0}
 
 | Parameter | Typ | Beschreibung |
 |---|---|---|
-| `model` | String | `Qwen3-Reranker-4B-Preview` |
+| `model` | String | `Qwen3-Reranker-4B` |
 | `query` | String | Die Suchanfrage oder Frage |
 | `documents` | Array von Strings | Die zu bewertenden Kandidaten. Senden Sie mindestens einen |
 | `top_n` | Integer | Optional. Gibt nur die besten `n` Dokumente zurück. Lassen Sie es weg oder senden Sie `0`, um alle zu erhalten |
@@ -162,7 +163,7 @@ co = cohere.ClientV2(
 )
 
 response = co.rerank(
-    model="Qwen3-Reranker-4B-Preview",
+    model="Qwen3-Reranker-4B",
     query="What is the capital of Germany?",
     documents=[
         "Paris is the capital of France.",
@@ -209,7 +210,7 @@ candidates = [documents[i] for i in np.argsort(-similarity)[:4]]
 # 2. Rerank: score each candidate against the query, keep the best two.
 reranked = client.post(
     "/rerank",
-    body={"model": "Qwen3-Reranker-4B-Preview", "query": query, "documents": candidates, "top_n": 2},
+    body={"model": "Qwen3-Reranker-4B", "query": query, "documents": candidates, "top_n": 2},
     cast_to=object,
 )
 for r in reranked["results"]:
@@ -236,11 +237,10 @@ In der Produktion speichern Sie die Embeddings der Dokumente in einem Vector Sto
 - **Viele Dokumente pro Anfrage sind kein Problem.** 100 Dokumente kommen in unter zwei Sekunden zurück, 500 in etwa drei.
 - **Dokumente kommen immer mit zurück.** Jedes Ergebnis enthält `document.text`; der Cohere-Parameter `return_documents` wird ignoriert.
 - **Keine Queue-Variante.** `/queue/rerank` gibt es nicht; wiederholen Sie die Anfrage stattdessen bei `429`.
-- **Preview-Modell.** Es gelten die Bedingungen für [Test / Vorschau](/de/plans/test): dynamische Rate Limits, kein SLA, nicht für Produktions-Workloads.
 
 
 ## Nächste Schritte
 
 - [Embeddings](/de/guides/embeddings) — Kandidaten für das Reranking finden
 - [Visual RAG](/de/guides/visual-rag) — Dokumente anhand ihrer Seitenbilder durchsuchen
-- [Test / Vorschau Modelle](/de/plans/test) — Limits und Bedingungen für Preview-Modelle
+- [Tarife & Preise](/de/plans) — Preise und Rate Limits je Tarif

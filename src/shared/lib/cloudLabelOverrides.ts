@@ -8,15 +8,11 @@
 // using the region-derived cloud key, so a model stays findable under the cloud
 // its region names.
 const CLOUD_LABEL_OVERRIDES: Record<string, string> = {
-  'claude-haiku-4.5': 'GCP / Azure',
-  'claude-sonnet-4.6': 'GCP / Azure',
-  'claude-opus-4.6': 'GCP / Azure',
-  'claude-opus-4.8': 'GCP / Azure',
-  'claude-sonnet-5': 'GCP / Azure',
-  'claude-opus-5': 'GCP / Azure',
-  'claude-fable-5': 'GCP / Azure',
   'claude-sonnet-5.5': 'GCP / Azure',
   'claude-opus-5.5': 'GCP / Azure',
+  'claude-haiku-5.5': 'GCP / Azure',
+  'claude-haiku-5.5-long-context': 'GCP / Azure',
+  'claude-fable-5.1': 'GCP / Azure',
 };
 
 /** Cloud label to render for a model, falling back to the region-derived one. */

@@ -15,7 +15,7 @@ Limits variieren sowohl nach Tarif als auch nach Modell. Die folgende Tabelle ze
 
 | Metrik | Essential | Professional | Agentic |
 |---|---|---|---|
-| **Verfügbare Modelle** | 42 | 44 | 44 |
+| **Verfügbare Modelle** | 32 | 36 | 36 |
 | **Beispiel-RPM** <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 ### Beispiel: Limits pro Modell je Tarif
@@ -26,17 +26,17 @@ Zur Veranschaulichung der Skalierung hier die Limits für zwei repräsentative M
 
 | Tarif | RPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Eingabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Ausgabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 |---|---|---|---|
-| Essential | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 150.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
-| Professional | 600 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 600.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 300.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
-| Agentic | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 2.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Essential | 100 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 400.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 400.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Professional | 200 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Agentic | 300 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 2.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 2.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
-**GPT-5.4** (Azure, EU):
+**GPT-6 Luna** (Azure, EU):
 
 | Tarif | RPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Eingabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | Ausgabe-TPM <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 |---|---|---|---|
-| Essential | 30.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 3.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.500.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
-| Professional | 60.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 6.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 3.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
-| Agentic | 100.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 10.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 5.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Essential | 250 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 250.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 125.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Professional | 500 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 500.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 250.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
+| Agentic | 1.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 1.000.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> | 500.000 <sup><a href="#hinweise-zu-den-rpm--und-tpm-werten">*</a></sup> |
 
 :::note
 **Preview-Modelle** (Test-Katalog) nutzen *dynamische* Rate-Limits anstelle fester RPM/TPM-Werte. Die Telekom kann die Nutzung von Preview-Modellen jederzeit ohne vorherige Ankündigung anpassen oder einschränken.

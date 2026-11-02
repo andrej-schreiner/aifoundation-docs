@@ -70,11 +70,11 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
   // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
-  'LightOnOCR-3-4B-Preview': 'vision',
-  'PaddleOCR-VL-1.6-Preview': 'vision',
+  'LightOnOCR-3-4B': 'vision',
+  'PaddleOCR-VL-1.6': 'vision',
   // Reranker: Text (query + documents) -> relevance scores. Primary 'embeddings'
   // keeps it with the retrieval models and off /models/llms.
-  'Qwen3-Reranker-4B-Preview': 'embeddings',
+  'Qwen3-Reranker-4B': 'embeddings',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
@@ -96,7 +96,9 @@ function resolvePrimaryCategory(exactModelName: string): Category {
 // general-purpose LLM that is also strong at code must be tagged explicitly to
 // appear on /models/coding in addition to its primary category (/models/llms).
 const EXTRA_CATEGORIES: Record<string, Category[]> = {
-  'GLM-5.2': ['coding'],
+  // GLM-5.3: Z.ai's model card calls it "the most capable open-weights model
+  // for coding"; primary 'llms' as a general-purpose model.
+  'GLM-5.3': ['coding'],
   // GLM-5.3-Flash is positioned by Z.ai as a coding/agentic model —
   // its model card reports it approaching Claude Opus 4.8 on coding and
   // agentic benchmarks — but stays primary 'llms' as a general-purpose model.
@@ -219,16 +221,16 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // d3 (preview) is a decision model: /decisions only, Text+Image in. It
   // generates no text, so no streaming and no tool calling.
   'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
-  // OCR models (preview): page or element image in, Markdown / text out. Image
+  // OCR models: page or element image in, Markdown / text out. Image
   // only: the text part of a request is a fixed mode keyword (LightOnOCR:
   // none or "grounding"; PaddleOCR-VL: a task prompt such as "OCR:"), not
   // free text, so you cannot send text or ask questions about the image.
   // Streaming works; no tool calling.
-  'LightOnOCR-3-4B-Preview':  { inputModalities: ['Image'], streaming: true, toolCalling: false },
-  'PaddleOCR-VL-1.6-Preview': { inputModalities: ['Image'], streaming: true, toolCalling: false },
-  // Reranker (preview): /rerank only, query and documents in, one relevance
-  // score per document out. No streaming, no tool calling.
-  'Qwen3-Reranker-4B-Preview': { outputModalities: ['Score'], streaming: false, toolCalling: false },
+  'LightOnOCR-3-4B':  { inputModalities: ['Image'], streaming: true, toolCalling: false },
+  'PaddleOCR-VL-1.6': { inputModalities: ['Image'], streaming: true, toolCalling: false },
+  // Reranker: /rerank only, query and documents in, one relevance score per
+  // document out. No streaming, no tool calling.
+  'Qwen3-Reranker-4B': { outputModalities: ['Score'], streaming: false, toolCalling: false },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },

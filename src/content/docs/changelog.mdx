@@ -7,9 +7,30 @@ Major changes to AI Foundation Services — new models, feature updates, and dep
 
 ## v1.2.4 — 2026-11
 
+Aligns the documentation with the **[Service Description](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf)** as of 30 October 2026, which is the binding source for everything below. It applies from 1 December 2026; if you use the new models before then, you accept it by using them.
+
 ### Added
 
+- **GLM 5.3** (`GLM-5.3`) from Z.ai on the Essential, Professional and Agentic plans: built for coding and agentic tasks, with a 1M context window, hosted in Germany. See [Plans & Pricing](/plans).
+- **Qwen3-Reranker-4B**, **LightOnOCR-3-4B** and **PaddleOCR-VL-1.6** moved from preview to production on the Essential, Professional and Agentic plans. The model IDs drop the `-Preview` suffix: `Qwen3-Reranker-4B`, `LightOnOCR-3-4B`, `PaddleOCR-VL-1.6`. See [Reranking](/guides/reranking) and [OCR](/guides/ocr).
+- New models on the Essential, Professional and Agentic plans: **Claude Haiku 5.5** and **Gemini 4 Argon**. **GPT-6 Astra** and **Claude Fable 5.1** on Professional and Agentic. See [Plans & Pricing](/plans).
+- **GPT-6 Astra** is priced by context length, with separate rates above 272k input tokens; **Claude Haiku 5.5** has separate rates above 100k input tokens.
 - New preview model in the Test catalog for **reranking**: **Qwen3-Reranker-4B** (`Qwen3-Reranker-4B-Preview`), which sorts documents by relevance to a query through the `POST /rerank` endpoint (compatible with the Cohere and Jina rerank APIs). Free on any active plan. New guide: [Reranking](/guides/reranking), with curl, Python, Node.js and Cohere SDK examples.
+
+### Changed
+
+- **Gemini 3 Flash** is no longer scheduled for retirement: the Service Description still lists it, so it stays on the Essential, Professional and Agentic plans.
+- **Qwen3 Embedding 8B** costs €0.10 per million input and output tokens (input was €0.15), with new rate limits: 180,000 input TPM and 360 RPM on Essential, 360,000 and 720 on Professional, 600,000 and 1,200 on Agentic.
+- **[Enterprise Trust](/reference/enterprise-trust)** lists the new models, and names the Industrial AI Cloud next to T-Cloud Public for the models Telekom operates.
+- The per-model examples on [Rate Limits](/reference/rate-limits) show the current limits of GPT-OSS 120B and GPT-6 Luna.
+
+### Deprecated
+
+- **GLM 5.2**, **GPT-5.6 Luna**, **Claude Sonnet 5**, **Claude Opus 5**, **Claude Fable 5**, **Gemini 3.1 Pro** and **Mistral Medium 3** retire on **2026-11-30** and are no longer listed in the plans. They keep working until then. See [Scheduled for Retirement](/models/scheduled-for-retirement) for replacements.
+
+### Removed
+
+- **GPT-5**, **GPT-5 mini**, **GPT-5 nano**, **GPT-5 Codex**, **GPT 5.4**, **GPT 5.4 mini**, **GPT 5.5**, **Claude 4.5 Haiku**, **Claude 4.6 Sonnet / Opus**, **Claude Opus 4.8** and **Gemini 3 Pro** were retired on 2026-10-31 and are removed from the plans. See [Retired Models](/models/retired).
 
 ## v1.2.3 — 2026-10
 

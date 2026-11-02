@@ -1,6 +1,6 @@
 ---
 title: "Reranking"
-description: "Sort search results by relevance to a query with the Qwen3-Reranker-4B preview model, to improve RAG and search quality."
+description: "Sort search results by relevance to a query with the Qwen3-Reranker-4B model, to improve RAG and search quality."
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
@@ -24,14 +24,15 @@ The reranker reads the query and each document together, so it catches relevance
 
 | | **Qwen3-Reranker-4B** |
 |---|---|
-| Model ID | `Qwen3-Reranker-4B-Preview` |
+| Model ID | `Qwen3-Reranker-4B` |
 | Made by | [Qwen](https://huggingface.co/Qwen/Qwen3-Reranker-4B) (Alibaba Cloud) |
 | Endpoint | `POST /v2/rerank` (also `/v1/rerank`) |
 | Languages | 100+ languages. Tested by us on German, and on German and Chinese queries over English documents |
 | Context window | 40,960 tokens per query–document pair |
 | License | Apache 2.0 |
+| Price per 1M tokens (input / output) | €0.05 / €0.05 |
 
-The model is in [Test / Preview](/plans/test): free on any active plan, with dynamic rate limits. It is hosted on T-Cloud Public in Germany.
+The model is available on the Essential, Professional and Agentic plans; see [Plans & Pricing](/plans) for the rate limits of each plan. It is hosted on T-Cloud Public in Germany.
 
 
 ## Basic usage
@@ -45,7 +46,7 @@ Send a `query` and a list of `documents`. The response lists the documents from 
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Qwen3-Reranker-4B-Preview",
+        "model": "Qwen3-Reranker-4B",
         "query": "What is the capital of Germany?",
         "documents": [
           "Paris is the capital of France.",
@@ -72,7 +73,7 @@ Send a `query` and a list of `documents`. The response lists the documents from 
     response = client.post(
         "/rerank",
         body={
-            "model": "Qwen3-Reranker-4B-Preview",
+            "model": "Qwen3-Reranker-4B",
             "query": "What is the capital of Germany?",
             "documents": documents,
             "top_n": 2,
@@ -94,7 +95,7 @@ Send a `query` and a list of `documents`. The response lists the documents from 
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "Qwen3-Reranker-4B-Preview",
+        model: "Qwen3-Reranker-4B",
         query: "What is the capital of Germany?",
         documents: [
           "Paris is the capital of France.",
@@ -126,7 +127,7 @@ Token usage: {'prompt_tokens': 258, 'total_tokens': 258, 'completion_tokens': 0}
 ```json
 {
   "id": "score-283f1d15-f206-4d7c-b55f-9d0c31141ae8",
-  "model": "Qwen3-Reranker-4B-Preview",
+  "model": "Qwen3-Reranker-4B",
   "usage": {"prompt_tokens": 258, "total_tokens": 258, "completion_tokens": 0},
   "results": [
     {"index": 1, "document": {"text": "Berlin is the capital and largest city of Germany.", "multi_modal": null}, "relevance_score": 0.9829727411270142},
@@ -139,7 +140,7 @@ Token usage: {'prompt_tokens': 258, 'total_tokens': 258, 'completion_tokens': 0}
 
 | Parameter | Type | Description |
 |---|---|---|
-| `model` | string | `Qwen3-Reranker-4B-Preview` |
+| `model` | string | `Qwen3-Reranker-4B` |
 | `query` | string | The search query or question |
 | `documents` | array of strings | The candidates to score. Send at least one |
 | `top_n` | integer | Optional. Return only the best `n` documents. Omit it, or send `0`, to get all of them |
@@ -162,7 +163,7 @@ co = cohere.ClientV2(
 )
 
 response = co.rerank(
-    model="Qwen3-Reranker-4B-Preview",
+    model="Qwen3-Reranker-4B",
     query="What is the capital of Germany?",
     documents=[
         "Paris is the capital of France.",
@@ -209,7 +210,7 @@ candidates = [documents[i] for i in np.argsort(-similarity)[:4]]
 # 2. Rerank: score each candidate against the query, keep the best two.
 reranked = client.post(
     "/rerank",
-    body={"model": "Qwen3-Reranker-4B-Preview", "query": query, "documents": candidates, "top_n": 2},
+    body={"model": "Qwen3-Reranker-4B", "query": query, "documents": candidates, "top_n": 2},
     cast_to=object,
 )
 for r in reranked["results"]:
@@ -236,11 +237,10 @@ In production you would keep the document embeddings in a vector store instead o
 - **Many documents per request are fine.** 100 documents return in under two seconds, 500 in about three.
 - **Documents always come back.** Each result includes `document.text`; Cohere's `return_documents` parameter is ignored.
 - **No queued variant.** `/queue/rerank` does not exist; retry on `429` instead.
-- **Preview model.** It runs under the [Test / Preview](/plans/test) terms: dynamic rate limits, no SLA, not for production workloads.
 
 
 ## Next steps
 
 - [Embeddings](/guides/embeddings) — Retrieve candidates for reranking
 - [Visual RAG](/guides/visual-rag) — Search documents by their page images
-- [Test / Preview Models](/plans/test) — Limits and terms for preview models
+- [Plans & Pricing](/plans) — Prices and rate limits per plan

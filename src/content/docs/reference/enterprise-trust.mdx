@@ -16,18 +16,20 @@ The Service Description splits the catalog into two categories with materially d
 
 ### Category 1 — EU/EEA & adequacy-decision processing
 
-Operated by Telekom on T-Cloud Public. Examples:
+Operated by Telekom on T-Cloud Public and the Industrial AI Cloud. Examples:
 
 - Google Gemma 4 31B
 - Mistral Small 4
 - Alibaba Qwen 3.6 35B
 - Alibaba Qwen 3.8 27B
 - NVIDIA Nemotron 3 Super
-- Zhipu AI GLM 5.2
+- Zhipu AI GLM 5.3
 - Zhipu AI GLM 5.3 Flash
 - OpenAI GPT-OSS-120B
 - OpenAI Whisper Large v3 / v3 Turbo (STT)
-- Jina embeddings v2, BAAI BGE m3 (embeddings)
+- Jina embeddings v2, BAAI BGE m3, Qwen3 Embedding 8B (embeddings)
+- Qwen3-Reranker-4B (reranking)
+- LightOnOCR-3-4B, PaddleOCR-VL-1.6 (OCR)
 
 For these models:
 
@@ -38,10 +40,9 @@ For these models:
 
 Forwarded by Telekom directly to the third-party provider, who runs the model on its own infrastructure. Examples:
 
-- OpenAI GPT-5 and GPT-6 families, GPT Image 2, Ada-Text — on Microsoft Azure (France/Sweden)
-- Anthropic Claude (4.6, Opus 4.8, 5 and 5.5 families) — on Google Cloud or Microsoft Azure
-- Google Gemini 3 family — on Google Cloud
-- Mistral Medium 3 — on Google Cloud
+- OpenAI GPT-5.6 and GPT-6 families, GPT Image 2, Ada-Text — on Microsoft Azure (France/Sweden)
+- Anthropic Claude (Opus 5.5, Sonnet 5.5, Haiku 5.5, Fable 5.1) — on Google Cloud or Microsoft Azure
+- Google Gemini 3 and 4 families — on Google Cloud
 
 For these models:
 
