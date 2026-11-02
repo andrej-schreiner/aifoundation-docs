@@ -38,13 +38,15 @@ const bars = isDE
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'Neu',
-        msg: '<b>GLM 5.3</b> (T-Cloud) und <b>DeepSeek 4.1 Flash</b> (T-Cloud, Vorschau) ab 2.\u00a0Nov.',
+        tag: 'magenta',
+        msg: '<b>GLM 5.3</b> (<span class="nowrap">T-Cloud</span>) und <b>DeepSeek 4.1 Flash</b> (<span class="nowrap">T-Cloud</span>, Vorschau) ab 2.\u00a0Nov.',
         cta: 'Modelle ansehen',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Hinweis',
+        tag: 'standard',
         msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
         cta: 'Zur API-Umstellung',
         href: `${prefix}/api-transition`,
@@ -54,13 +56,15 @@ const bars = isDE
       {
         key: 'glm53DeepseekLaunchDismissed',
         badge: 'New',
-        msg: '<b>GLM 5.3</b> (T-Cloud) and <b>DeepSeek 4.1 Flash</b> (T-Cloud, preview) from 2\u00a0Nov',
+        tag: 'magenta',
+        msg: '<b>GLM 5.3</b> (<span class="nowrap">T-Cloud</span>) and <b>DeepSeek 4.1 Flash</b> (<span class="nowrap">T-Cloud</span>, preview) from 2\u00a0Nov',
         cta: 'View models',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Notice',
+        tag: 'standard',
         msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
         cta: 'View API changes',
         href: `${prefix}/api-transition`,
@@ -76,7 +80,7 @@ import Icon from './Icon.astro';
     <ul class="qp-rows">
       {bars.map((b) => (
         <li class="qp-bar" data-key={b.key}>
-          <Tag color="magenta" size="small" class="qp-badge">{b.badge}</Tag>
+          <Tag color={b.tag as 'magenta' | 'standard'} size="small" class="qp-badge">{b.badge}</Tag>
           <p class="qp-msg" set:html={b.msg}></p>
           <a class="qp-cta" href={b.href}>{b.cta}</a>
         </li>
@@ -116,7 +120,12 @@ import Icon from './Icon.astro';
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
 
-    animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
+  }
+
+  /* The first time it appears in a session it fades in (opacity only, no
+     movement); on later pages it is simply there. */
+  .qp-box.qp-box--enter {
+    animation: qpFadeIn var(--aifs-notice-enter-duration) var(--aifs-notice-enter-easing);
   }
 
   .qp-box[hidden] {
@@ -148,7 +157,8 @@ import Icon from './Icon.astro';
     margin-top: 0;
   }
 
-  /* Drawn by the Tag component (magenta, small). */
+  /* Drawn by the Tag component (small): magenta for New, standard (grey)
+     for a notice, so magenta stays rare. */
   .qp-bar :global(.qp-badge) {
     justify-self: start;
   }
@@ -156,6 +166,8 @@ import Icon from './Icon.astro';
   .qp-msg {
     min-width: 0;
     margin: 0;
+    /* No single word alone on the last line. */
+    text-wrap: pretty;
     color: var(--aifs-color-text-body);
   }
 
@@ -224,19 +236,14 @@ import Icon from './Icon.astro';
     }
   }
 
-  @keyframes gaSlideIn {
+  @keyframes qpFadeIn {
     from {
       opacity: 0;
-      transform: translateY(-0.5rem);
-    }
-    to {
-      opacity: 1;
-      transform: none;
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .qp-box {
+    .qp-box.qp-box--enter {
       animation: none;
     }
   }
@@ -275,7 +282,17 @@ import Icon from './Icon.astro';
       box.querySelectorAll<HTMLElement>('.qp-bar[data-key]').forEach((bar) => sessionStorage.setItem(bar.dataset.key!, '1'));
     } catch {}
     const stack = box.parentElement;
+    // Focus was on the close button (or a link) in the box: it goes to the
+    // page title, not to <body>, so keyboard users keep their place.
+    const hadFocus = box.contains(document.activeElement);
     box.remove();
+    if (hadFocus) {
+      const title = document.getElementById('_top') ?? document.querySelector<HTMLElement>('main h1');
+      if (title) {
+        if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
+        title.focus({ preventScroll: true });
+      }
+    }
     // The box gone: drop the row, so its spacing goes too.
     if (stack?.classList.contains('qp-stack')) stack.remove();
   }
@@ -314,6 +331,13 @@ import Icon from './Icon.astro';
     }
     if (box.parentElement !== host) host.append(box);
 
+    // Fade in only the first time in a session.
+    let seen = false;
+    try {
+      seen = sessionStorage.getItem('aifsAnnouncementsSeen') === '1';
+      sessionStorage.setItem('aifsAnnouncementsSeen', '1');
+    } catch {}
+    box.classList.toggle('qp-box--enter', !seen);
     box.hidden = false;
     if (box.dataset.bound !== '1') {
       box.dataset.bound = '1';

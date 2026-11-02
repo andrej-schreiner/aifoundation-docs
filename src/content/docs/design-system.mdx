@@ -145,7 +145,7 @@ A button that confirms its own action, such as a copy button, puts the confirmat
 | `successTooltip` | tooltip text shown while `data-state="success"` is set | – |
 | `tooltipPlacement` | `top`, `top-end` | `top` |
 
-Used in: the header (Get API key), the model cards (copy ID, Show more), the model and plan tables (Reset filters, Show details) and the announcement banners (close).
+Used in: the header (Get API key), the model cards (copy ID, Show more), the model and plan tables (Reset filters, Show details) and the announcement box (close).
 
 </ComponentCard>
 
@@ -454,7 +454,7 @@ There is no dismissible variant, because nothing on the site removes a tag.
 
 All colours pass WCAG AA in both modes (4.5–15.8:1); cyan, yellow and red only just, as in Scale.
 
-Used in: the model and plan tables (cloud, tier, T-Cloud; the cloud and tier tags there are buttons that filter the table), the homepage labels and the announcement banners.
+Used in: the model and plan tables (cloud, tier, T-Cloud; the cloud and tier tags there are buttons that filter the table), the homepage labels and the announcement box (New in magenta, a notice in standard).
 
 </ComponentCard>
 
@@ -953,6 +953,7 @@ One page layout (`layout.css`, tokens `aifs.layout.*`):
 - **Sheet:** white, edge to edge, no frame. Above it, the notice band on the subtle backdrop, as tall as whole rows of the site navigation; the sheet scrolls up over it. Below it, the footer on the backdrop, revealed as the sheet ends.
 - **Content:** On this page in a column on the sheet, then the content column at the measure (720px): text, code, Markdown tables and cards share it. Below 72rem On this page is a menu above the content.
 - **Breakout band** (`.aifs-breakout`): from 72rem a wide element leaves the column into a band on the subtle backdrop, from the column's start (its padding) to the window's edge, so the sheet seems to stop above and below it. Used by the models table on All models, the model category pages and the plans pages. The band stays beside On this page, which stays sticky. Its content keeps the chat launcher's clearance at its end (from 80rem), so the launcher covers nothing. Nothing in it scrolls sideways: the element fits the band. Below 72rem there is no band, and the element fits the content column. On wide screens without On this page (only this draft page and the archive) the band spans the sheet and its content keeps to the column.
+- **Announcement box** (`PreviewModelsBanner`, a site part): one box above the sheet, lined up with the content column, a row per announcement (tag, text, link) and one close control. **New** has the magenta tag, a notice the standard one. It fades in (opacity only) the first time in a session; closing it moves focus to the page title. Tokens: `aifs.notice.*`.
 
 ### Task and flow patterns
 
