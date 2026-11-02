@@ -1019,8 +1019,10 @@ const rowDataPayload = rows.map((m) => ({
   </dialog>
 
   <div class="models-comparison__status" aria-live="polite">
+    {/* Explicit spaces: Astro's compressHTML drops the plain whitespace
+        between an expression and an element ("Showing39of39models"). */}
     <span data-status-text>
-      {t.showing} <span data-visible-count>{activeRowCount}</span> {t.of} <span data-total-count>{activeRowCount}</span> {t.models}
+      {t.showing}{' '}<span data-visible-count>{activeRowCount}</span>{' '}{t.of}{' '}<span data-total-count>{activeRowCount}</span>{' '}{t.models}
     </span>
   </div>
 
