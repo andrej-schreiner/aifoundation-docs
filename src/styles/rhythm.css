@@ -10,9 +10,6 @@
 	--aifs-text-h4-font-family: var(--aifs-font-body);
 	--aifs-text-body-font-family: var(--aifs-font-body);
 	--aifs-text-small-font-family: var(--aifs-font-body);
-	--aifs-layout-measure: 52rem;
-	--aifs-layout-content-width: 52rem;
-	--sl-content-width: 52rem;
 }
 
 body,

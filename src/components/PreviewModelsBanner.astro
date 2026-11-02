@@ -1,7 +1,7 @@
 ---
-// Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above the two OCR preview models, LightOnOCR-3-4B and
-// PaddleOCR-VL-1.6 (linking to /guides/ocr).
+// Site-wide announcement banners — currently the GLM 5.3 / DeepSeek launch
+// (New) first, then the API transition notice (Notice, linking to
+// /api-transition).
 // It replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
@@ -10,43 +10,49 @@
 // Footer override is truly global).
 //
 // Named generically (it was QwenPreviewBanner) because the copy is swapped
-// whenever the preview catalog changes. The announcements share one box, a
-// row each (tag, text, link) in the order of the `bars` array below, with
-// one close control for the box. It replaced the GA bar (Mistral Small 4 / Gemma 4), which in turn
-// replaced GlmBanner.
+// whenever the preview catalog changes. Each announcement is its own banner
+// (tag, text, link, close button) in the order of the `bars` array below:
+// New in a magenta-accented tint, Notice in an informational (blue) tint.
+// It replaced one combined box with a row per announcement, which replaced
+// the GA bar (Mistral Small 4 / Gemma 4), which in turn replaced GlmBanner.
 //
-// Kept deliberately compact: one box in its own row above the content sheet,
-// outside it (portaled into .qp-stack by the script below; the row and the
-// box's alignment with the content column are in layout.css), so it never
-// covers content and scrolls away with the page.
+// Placed at the top of the content column, on the sheet (portaled there by
+// the script below; the spacing is in layout.css), so the banners have the
+// column's edges and width at every window width, never cover content and
+// scroll away with the page.
 //
-// Dismiss semantics are unchanged: this site navigates via full page loads, so
-// the closed state lives in sessionStorage (survives navigation between docs
+// Dismiss semantics: this site navigates via full page loads, so a closed
+// banner is remembered in sessionStorage (survives navigation between docs
 // pages). A hard reload clears it (detected via PerformanceNavigationTiming
-// "reload"), and a new tab starts a fresh session — so the announcement
-// returns. Each announcement has its own storage key (closing the box stores
-// the keys of the rows it shows), and the key changes with each announcement,
-// so visitors who dismissed the previous one still see this one.
+// "reload"), and a new tab starts a fresh session, so the banner returns.
+// Each banner has its own close button and storage key, and the key changes
+// with each announcement, so visitors who dismissed the previous one still
+// see this one. After a close, focus moves to the remaining banner's close
+// button, or to the page title when none is left.
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
-const label = isDE ? 'Ankündigungen' : 'Announcements';
-const close = isDE ? 'Ankündigungen schließen' : 'Dismiss announcements';
 
 const bars = isDE
   ? [
       {
         key: 'glm53DeepseekLaunchDismissed',
+        kind: 'new',
         badge: 'Neu',
         tag: 'magenta',
+        label: 'Neue Modelle',
+        close: 'Hinweis zu neuen Modellen schließen',
         msg: '<b>GLM 5.3</b> (<span class="nowrap">T-Cloud</span>) und <b>DeepSeek 4.1 Flash</b> (<span class="nowrap">T-Cloud</span>, Vorschau) ab 2.\u00a0Nov.',
         cta: 'Modelle ansehen',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
+        kind: 'notice',
         badge: 'Hinweis',
         tag: 'standard',
+        label: 'API-Änderungen',
+        close: 'Hinweis zur API-Umstellung schließen',
         msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
         cta: 'Zur API-Umstellung',
         href: `${prefix}/api-transition`,
@@ -55,16 +61,22 @@ const bars = isDE
   : [
       {
         key: 'glm53DeepseekLaunchDismissed',
+        kind: 'new',
         badge: 'New',
         tag: 'magenta',
+        label: 'New models',
+        close: 'Dismiss new models announcement',
         msg: '<b>GLM 5.3</b> (<span class="nowrap">T-Cloud</span>) and <b>DeepSeek 4.1 Flash</b> (<span class="nowrap">T-Cloud</span>, preview) from 2\u00a0Nov',
         cta: 'View models',
         href: `${prefix}/models/llms`,
       },
       {
         key: 'apiTransitionBannerDismissed',
+        kind: 'notice',
         badge: 'Notice',
         tag: 'standard',
+        label: 'API changes',
+        close: 'Dismiss API changes notice',
         msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
         cta: 'View API changes',
         href: `${prefix}/api-transition`,
@@ -75,86 +87,67 @@ import Tag from './Tag.astro';
 import Icon from './Icon.astro';
 ---
 
-{bars.length > 0 && (
-  <div class="qp-box" role="region" aria-label={label} hidden>
-    <ul class="qp-rows">
-      {bars.map((b) => (
-        <li class="qp-bar" data-key={b.key}>
-          <Tag color={b.tag as 'magenta' | 'standard'} size="small" class="qp-badge">{b.badge}</Tag>
-          <p class="qp-msg" set:html={b.msg}></p>
-          <a class="qp-cta" href={b.href}>{b.cta}</a>
-        </li>
-      ))}
-    </ul>
-    <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={close}>
+{bars.map((b) => (
+  <div class={`qp-bar qp-bar--${b.kind}`} data-key={b.key} role="region" aria-label={b.label} hidden>
+    <Tag color={b.tag as 'magenta' | 'standard'} size="small" class="qp-badge">{b.badge}</Tag>
+    <p class="qp-msg" set:html={b.msg}></p>
+    <a class="qp-cta" href={b.href}>{b.cta}</a>
+    <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={b.close}>
       <Icon name="action-close" size={16} />
     </Button>
   </div>
-)}
+))}
 
 <style>
-  /* One box for every announcement: a row each, the close control at the
-     end of the first row. The rows share the box's columns (subgrid), so
-     the texts start at one line after tags of different widths. */
-  .qp-box {
-    /* In-flow (not fixed): the box occupies real layout space above the page
-       title, so it can never cover content, and it scrolls away with the
-       page. See the portal logic in the script below. */
+  /* One banner per announcement: tag, text, link, close button in a row.
+     A light tint and an accent line at the start, no border or shadow, in
+     the style of the asides and Scale's inline notification: magenta for
+     New, informational blue for a notice. */
+  .qp-bar {
+    /* In-flow (not fixed): the banner occupies real layout space above the
+       page title, so it can never cover content, and it scrolls away with
+       the page. */
     position: relative;
-    z-index: 1;
     box-sizing: border-box;
 
     display: grid;
     grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
-    align-items: start;
+    align-items: center;
     column-gap: var(--aifs-notice-gap);
+    min-height: calc(var(--aifs-button-min-height-small) + 2 * var(--aifs-notice-padding-y));
     margin: 0;
-    padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
+    padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-y) var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
 
-    background: var(--aifs-color-surface-chrome);
+    background: color-mix(in srgb, var(--_qp-tint) calc(var(--_qp-tint-strength) * 100%), var(--aifs-layout-sheet));
     color: var(--aifs-color-text-body);
-    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-    border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
+    border: 0;
+    border-inline-start: var(--aifs-border-width-indicator) solid var(--_qp-accent);
     border-radius: var(--aifs-notice-radius);
     box-shadow: none;
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
+  }
 
+  .qp-bar--new {
+    --_qp-accent: var(--aifs-notice-new-accent);
+    --_qp-tint: var(--aifs-notice-new-tint);
+    --_qp-tint-strength: var(--aifs-notice-new-tint-strength);
+  }
+
+  .qp-bar--notice {
+    --_qp-accent: var(--aifs-notice-info-accent);
+    --_qp-tint: var(--aifs-notice-info-tint);
+    --_qp-tint-strength: var(--aifs-notice-info-tint-strength);
   }
 
   /* The first time it appears in a session it fades in (opacity only, no
      movement); on later pages it is simply there. */
-  .qp-box.qp-box--enter {
+  .qp-bar.qp-bar--enter {
     animation: qpFadeIn var(--aifs-notice-enter-duration) var(--aifs-notice-enter-easing);
   }
 
-  .qp-box[hidden] {
+  .qp-bar[hidden] {
     display: none;
-  }
-
-  .qp-rows {
-    display: grid;
-    grid-column: 1 / 4;
-    grid-template-columns: subgrid;
-    row-gap: var(--aifs-notice-gap);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .qp-bar {
-    display: grid;
-    grid-column: 1 / 4;
-    grid-template-columns: subgrid;
-    align-items: center;
-    /* The row is as tall as the close control, so one-line rows read
-       centred beside it. */
-    min-height: var(--aifs-button-min-height-small);
-    margin: 0;
-  }
-
-  .qp-bar + .qp-bar {
-    margin-top: 0;
   }
 
   /* Drawn by the Tag component (small): magenta for New, standard (grey)
@@ -171,8 +164,9 @@ import Icon from './Icon.astro';
     color: var(--aifs-color-text-body);
   }
 
+  /* Bold in the text colour: magenta text on the tint would fall below 4.5:1. */
   .qp-msg :global(b) {
-    color: var(--aifs-color-brand-text);
+    color: var(--aifs-color-text-body);
     font-weight: 600;
   }
 
@@ -190,49 +184,49 @@ import Icon from './Icon.astro';
   }
 
   /* Drawn by the Button component (ghost, small, icon only). */
-  .qp-box :global(.qp-close) {
-    grid-column: 4;
-    grid-row: 1;
+  .qp-bar :global(.qp-close) {
     border-radius: var(--aifs-notice-close-radius);
   }
 
-  .qp-box :focus-visible {
+  .qp-bar :focus-visible {
     outline: var(--aifs-button-focus-width) solid var(--aifs-color-focus);
     outline-offset: var(--aifs-button-focus-width);
   }
 
-  /* Narrow boxes: the link goes under its text; the close control keeps
-     the end of the first row. */
+  /* Narrow columns: the link goes under its text; the close button keeps
+     the end of the first line. */
   @container qpstack (max-width: 40rem) {
-    .qp-box {
-      grid-template-columns: max-content minmax(0, 1fr) max-content;
-      padding: var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-x-compact);
-    }
-
-    .qp-rows {
-      grid-column: 1 / 3;
-    }
-
     .qp-bar {
-      grid-column: 1 / 3;
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
       grid-template-rows: auto auto;
       row-gap: var(--aifs-notice-row-gap-compact);
       align-items: start;
-      padding-block: var(--aifs-notice-padding-y-compact);
+      padding: var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-y-compact)
+        var(--aifs-notice-padding-x-compact);
     }
 
     .qp-bar :global(.qp-badge) {
+      grid-column: 1;
       grid-row: 1 / 3;
+      margin-top: var(--aifs-notice-padding-y);
     }
 
-    .qp-msg,
+    .qp-msg {
+      grid-column: 2;
+      grid-row: 1;
+      padding-top: var(--aifs-notice-padding-y);
+    }
+
     .qp-cta {
       grid-column: 2;
+      grid-row: 2;
       justify-self: start;
+      padding-bottom: var(--aifs-notice-padding-y);
     }
 
-    .qp-box :global(.qp-close) {
+    .qp-bar :global(.qp-close) {
       grid-column: 3;
+      grid-row: 1;
     }
   }
 
@@ -243,7 +237,7 @@ import Icon from './Icon.astro';
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .qp-box.qp-box--enter {
+    .qp-bar.qp-bar--enter {
       animation: none;
     }
   }
@@ -261,7 +255,7 @@ import Icon from './Icon.astro';
     }
   }
 
-  // Clear the dismissals on a hard reload so the announcements return on refresh.
+  // Clear the dismissals on a hard reload so the banners return on refresh.
   function clearOnReload(keys: string[]) {
     if (reloadHandled) return;
     reloadHandled = true;
@@ -276,31 +270,38 @@ import Icon from './Icon.astro';
     }
   }
 
-  // Closing the box dismisses every announcement it shows.
-  function dismiss(box: HTMLElement) {
+  // Closing a banner dismisses that announcement only.
+  function dismiss(bar: HTMLElement) {
     try {
-      box.querySelectorAll<HTMLElement>('.qp-bar[data-key]').forEach((bar) => sessionStorage.setItem(bar.dataset.key!, '1'));
+      sessionStorage.setItem(bar.dataset.key!, '1');
     } catch {}
-    const stack = box.parentElement;
-    // Focus was on the close button (or a link) in the box: it goes to the
-    // page title, not to <body>, so keyboard users keep their place.
-    const hadFocus = box.contains(document.activeElement);
-    box.remove();
+    const stack = bar.parentElement;
+    // Focus was in the banner: it goes to the remaining banner's close
+    // button, or to the page title, not to <body>, so keyboard users keep
+    // their place.
+    const hadFocus = bar.contains(document.activeElement);
+    const next = (bar.nextElementSibling ?? bar.previousElementSibling)?.querySelector<HTMLElement>('.qp-close');
+    bar.remove();
     if (hadFocus) {
-      const title = document.getElementById('_top') ?? document.querySelector<HTMLElement>('main h1');
-      if (title) {
-        if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
-        title.focus({ preventScroll: true });
+      if (next) {
+        next.focus();
+      } else {
+        const title = document.getElementById('_top') ?? document.querySelector<HTMLElement>('main h1');
+        if (title) {
+          if (!title.hasAttribute('tabindex')) title.setAttribute('tabindex', '-1');
+          title.focus({ preventScroll: true });
+        }
       }
     }
-    // The box gone: drop the row, so its spacing goes too.
-    if (stack?.classList.contains('qp-stack')) stack.remove();
+    // The last banner gone: drop the row, so its spacing goes too.
+    if (stack?.classList.contains('qp-stack') && !stack.querySelector('.qp-bar')) stack.remove();
+    // The title moved up: On this page re-aligns with it (astro.config.mjs).
+    document.dispatchEvent(new Event('aifs:banner-dismissed'));
   }
 
   function initPreviewModelsBanner() {
-    const box = document.querySelector<HTMLElement>('.qp-box');
-    if (!box) return;
-    const all = Array.from(box.querySelectorAll<HTMLElement>('.qp-bar[data-key]'));
+    const all = Array.from(document.querySelectorAll<HTMLElement>('.qp-bar[data-key]'));
+    if (!all.length) return;
     clearOnReload(all.map((bar) => bar.dataset.key!));
 
     const bars = all.filter((bar) => {
@@ -310,26 +311,21 @@ import Icon from './Icon.astro';
       }
       return true;
     });
-    if (!bars.length) {
-      box.remove();
-      return;
-    }
+    if (!bars.length) return;
 
-    // Portal to just above the sheet, the row around the table of contents
-    // and the content: the announcements are about the site, not the page,
-    // so they sit on the frame, lined up with the content column
-    // (layout.css). They stay in flow, take real space, and scroll away with
-    // the page.
+    // Portal to the top of the content column, before the title: the
+    // banners are about the site, not the page, but they sit on the sheet
+    // with the column's edges (layout.css). They stay in flow, take real
+    // space, and scroll away with the page.
     let host = document.querySelector<HTMLElement>('.qp-stack');
-    const sheet = document.querySelector('.main-pane')?.parentElement;
+    const main = document.querySelector<HTMLElement>('.main-pane > main') ?? document.querySelector<HTMLElement>('main');
+    const firstPanel = main?.querySelector(':scope > .content-panel');
     if (!host) {
       host = document.createElement('div');
       host.className = 'qp-stack';
-      sheet?.before(host);
-    } else if (sheet && host.nextElementSibling !== sheet) {
-      sheet.before(host);
     }
-    if (box.parentElement !== host) host.append(box);
+    if (firstPanel && host.nextElementSibling !== firstPanel) firstPanel.before(host);
+    else if (!firstPanel && main && host.parentElement !== main) main.prepend(host);
 
     // Fade in only the first time in a session.
     let seen = false;
@@ -337,20 +333,23 @@ import Icon from './Icon.astro';
       seen = sessionStorage.getItem('aifsAnnouncementsSeen') === '1';
       sessionStorage.setItem('aifsAnnouncementsSeen', '1');
     } catch {}
-    box.classList.toggle('qp-box--enter', !seen);
-    box.hidden = false;
-    if (box.dataset.bound !== '1') {
-      box.dataset.bound = '1';
-      box.querySelector('.qp-close')?.addEventListener('click', () => dismiss(box));
-    }
+    bars.forEach((bar) => {
+      if (bar.parentElement !== host) host!.append(bar);
+      bar.classList.toggle('qp-bar--enter', !seen);
+      bar.hidden = false;
+      if (bar.dataset.bound !== '1') {
+        bar.dataset.bound = '1';
+        bar.querySelector('.qp-close')?.addEventListener('click', () => dismiss(bar));
+      }
+    });
 
-    // Escape closes the box only while focus is inside it: elsewhere the
+    // Escape closes a banner only while focus is inside it: elsewhere the
     // key belongs to whatever is open (a dialog, search, a filter menu).
     if (!(window as any).__previewModelsBannerEscBound) {
       (window as any).__previewModelsBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
         if (e.key !== 'Escape' || e.defaultPrevented) return;
-        const el = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.qp-box:not([hidden])');
+        const el = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.qp-bar:not([hidden])');
         if (el) dismiss(el);
       });
     }

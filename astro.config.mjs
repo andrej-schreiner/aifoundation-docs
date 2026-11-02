@@ -205,12 +205,14 @@ export default defineConfig({
 			head: [
 				{
 					// Puts "On this page" on the same baseline as the page title.
-					// The title's height above the fold varies (the announcement box
-					// above it, which can be closed; a title over two lines), so CSS
-					// can't know the offset. Measures both baselines and sets
+					// The title's height above the fold varies (the announcement
+					// banners above it, which can be closed; a title over two lines),
+					// so CSS can't know the offset. Measures both baselines and sets
 					// --aifs-toc-offset on the root; layout.css applies it as a margin
-					// on the sticky column. The ResizeObserver on the title panel
-					// re-measures when the box is closed (the panel's padding changes).
+					// on the sticky column. Re-measures when the title panel or the
+					// column (main, which holds the banners) changes size, and on the
+					// aifs:banner-dismissed event from PreviewModelsBanner: closing a
+					// banner moves the title panel without resizing it.
 					tag: 'script',
 					content: `(() => {
 	const wide = matchMedia('(min-width: 72rem)');
@@ -242,8 +244,12 @@ export default defineConfig({
 	};
 	const start = () => {
 		align();
+		const observer = new ResizeObserver(align);
 		const panel = document.querySelector('.main-pane .content-panel');
-		if (panel) new ResizeObserver(align).observe(panel);
+		const sheet = document.querySelector('.main-pane > main');
+		if (panel) observer.observe(panel, { box: 'border-box' });
+		if (sheet) observer.observe(sheet);
+		document.addEventListener('aifs:banner-dismissed', align);
 		wide.addEventListener('change', align);
 		document.fonts?.ready.then(align);
 	};
@@ -321,6 +327,18 @@ export default defineConfig({
 					content: `(function(){var r=document.documentElement;new MutationObserver(function(){r.setAttribute('data-theme-switching','');requestAnimationFrame(function(){requestAnimationFrame(function(){r.removeAttribute('data-theme-switching');});});}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();`,
 				},
 				{
+					// Sidebar groups start open. Starlight keeps the groups a visitor
+					// closed in sessionStorage ('sl-sidebar-state') and restores them on
+					// the next page; a state stored before the groups opened by default
+					// (when every group started closed) would still close them, so it is
+					// dropped once per session, marked by a versioned key. Runs in <head>,
+					// before the sidebar restores its state. Only needed for sessions
+					// that began before the groups opened by default: remove it once
+					// those have expired (sessionStorage ends with the tab).
+					tag: 'script',
+					content: `(function(){try{var v='aifsSidebarDefaultOpen1';if(sessionStorage.getItem(v)!=='1'){sessionStorage.removeItem('sl-sidebar-state');sessionStorage.setItem(v,'1');}}catch(e){}})();`,
+				},
+				{
 					// Sidebar groups are collapsible (Starlight's <details>, state kept in
 					// sessionStorage). The group holding the current page is always open,
 					// even if it was closed earlier in the session.
@@ -368,11 +386,11 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
-				// Every group starts closed; Starlight opens the one with the current page.
+				// Every group starts open (Starlight's default, no `collapsed`); the
+				// chevrons still close them. See the sidebar-state script in `head`.
 				{
 					label: 'Get started',
 					translations: { de: 'Erste Schritte' },
-					collapsed: true,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
@@ -385,7 +403,6 @@ export default defineConfig({
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
-					collapsed: true,
 					items: [
 						{ label: 'All models', translations: { de: 'Alle Modelle' }, slug: 'models' },
 						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
@@ -399,7 +416,6 @@ export default defineConfig({
 				{
 					label: 'API usage',
 					translations: { de: 'API-Nutzung' },
-					collapsed: true,
 					items: [
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 						{ label: 'Chat', translations: { de: 'Chat' }, slug: 'guides/chat-completions' },
@@ -419,7 +435,6 @@ export default defineConfig({
 				{
 					label: 'Integrations',
 					translations: { de: 'Integrationen' },
-					collapsed: true,
 					items: [
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
@@ -429,7 +444,6 @@ export default defineConfig({
 				{
 					label: 'Trust & compliance',
 					translations: { de: 'Vertrauen & Compliance' },
-					collapsed: true,
 					items: [
 						{ label: 'Enterprise Trust & certifications', translations: { de: 'Enterprise Trust & Zertifizierungen' }, slug: 'reference/enterprise-trust' },
 						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
@@ -438,7 +452,6 @@ export default defineConfig({
 				{
 					label: 'Plans & pricing',
 					translations: { de: 'Tarife & Preise' },
-					collapsed: true,
 					items: [
 						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
 						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
@@ -448,7 +461,6 @@ export default defineConfig({
 				{
 					label: 'Resources',
 					translations: { de: 'Ressourcen' },
-					collapsed: true,
 					items: [
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },

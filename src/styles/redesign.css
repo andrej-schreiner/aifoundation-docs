@@ -148,25 +148,20 @@ html:not([data-has-sidebar]) .meta {
 	opacity: 1;
 }
 
-/* Card groups: one column, then two equal columns from 768px.
-   Unlayered so this wins over the old flex rule and Starlight's layered grid. */
+/* Card groups: as many equal columns as fit cards of at least
+   aifs.layout.card-min-width in the fluid column (one on phones, two at
+   1440px, three at 1920px, five at 2560px); the cards stretch to fill the
+   row. Unlayered so this wins over the old flex rule and Starlight's
+   layered grid. */
 .card-grid,
 .link-card-row {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr);
-	gap: var(--aifs-card-gap);
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--aifs-layout-card-min-width)), 1fr));
+	gap: var(--aifs-layout-grid-gap);
 	width: 100%;
 	justify-content: stretch;
 	justify-items: stretch;
 	align-items: stretch;
-}
-
-@media (min-width: 768px) {
-	.card-grid,
-	.link-card-row {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0.75rem;
-	}
 }
 
 .card-grid > *,
@@ -302,15 +297,12 @@ html:not([data-has-sidebar]) .meta {
 /* Two fixed halves: a lone link keeps its half (previous on the start side,
    next on the end side) instead of filling the row. Stacked on phones;
    50rem is where Starlight's sidebar layout begins. */
-/* No wider than the reading column, also on the wide table pages, where
-   they sit in the middle of the sheet. */
+/* As wide as the fluid content column. */
 .pagination-links {
 	grid-template-columns: minmax(0, 1fr);
 	gap: var(--aifs-card-gap);
 	box-sizing: border-box;
 	width: 100%;
-	max-width: var(--aifs-layout-measure);
-	margin-inline: auto;
 }
 
 @media (min-width: 50rem) {

@@ -71,22 +71,30 @@ Site parts, not for reuse (Starlight slots and single-page tables):
 
 ### Layout and rhythm — use what is there
 
-- **One page layout.** Every page: On this page beside a 720px content
-  column. A wide element (the models table) does not widen the page and
-  never scrolls sideways. From 72rem it takes `.aifs-breakout`: a band on
-  the subtle backdrop from the column's start to the window's edge
-  (`src/styles/layout.css`), beside On this page (which stays sticky), with
-  the chat launcher's clearance inside it; it must fit the band (the models
-  table shows more columns as the band widens). Below 72rem it fits the
-  column (the models table: main columns, a details row, cards below
-  36rem). Do not set `tableOfContents: false` to make room.
+- **One page layout.** Every page: On this page beside a **fluid content
+  column** (`src/styles/layout.css`). The column fills the rest of the row
+  at every window width, with no maximum width (`--sl-content-width` is
+  100%, in `layout.css`); its side padding is `aifs.layout.sheet-padding`, from 120rem
+  `aifs.layout.sheet-padding-wide`, and from 80rem it keeps the chat
+  launcher's clearance at its end edge. A wide element (the models table)
+  fits the column and never scrolls sideways: it shows more columns as the
+  column grows (main columns, a details row, cards below 36rem). There is
+  no breakout band. Do not set `tableOfContents: false` to make room, and
+  do not give the column or a page a max-width of its own.
 - **Vertical rhythm** (`aifs.rhythm.*`): 12 after a heading · 16 between
   paragraphs · 32 around blocks and components · 32/48/72 before h4/h3/h2 ·
   96 before previous/next. Do not set margins between content blocks
   yourself; `src/styles/layout.css` does.
 - **Grids**: `aifs.layout.grid-gap` (16px) across and down;
-  `aifs.layout.grid-action-gap` (24px) above a button under a grid.
-- **Text width**: running text stops at `aifs.layout.measure` (720px).
+  `aifs.layout.grid-action-gap` (24px) above a button under a grid. Card
+  grids fit as many columns of at least `aifs.layout.card-min-width` as the
+  column has room for (`auto-fit`), so they use a wide window.
+- **Text width**: running text fills the fluid column; there is no measure.
+- **Announcements** (`PreviewModelsBanner`): one banner each, at the top of
+  the content column with its edges, no backdrop behind them; each has its
+  own close button and session memory.
+- **Site navigation**: every sidebar group starts open (no `collapsed` in
+  `astro.config.mjs`); a visitor can close groups with the chevrons.
 - **One models table**: every list of models is `ModelsComparison` with a
   column preset. Need a column or filter it does not have? Add it there, to
   the preset that needs it; never build a second table.

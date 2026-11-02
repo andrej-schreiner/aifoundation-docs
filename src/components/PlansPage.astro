@@ -683,7 +683,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   /* Intro, table and notes: the flow gap between paragraphs, the block gap
      around the table. */
   .plans-models-intro {
-    max-width: var(--aifs-layout-measure);
     margin: 0 0 var(--aifs-rhythm-flow);
   }
 
@@ -694,7 +693,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plans-models-notes {
     display: grid;
     gap: var(--aifs-rhythm-after-heading);
-    max-width: var(--aifs-layout-measure);
     margin-top: var(--aifs-rhythm-flow);
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
@@ -880,14 +878,14 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .plan-spend {
     margin: 8px 0 0;
-    max-width: var(--aifs-layout-measure);
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
   }
 
-  /* Phones stay one column. Two by two until four cards of about 215px fit.
-     With the sidebar open that is 1280 (content about 854px) and 1440. */
+  /* Phones stay one column. Two by two until four cards fit: 58rem of
+     section, the German Premium tile's longest line (about 1600px windows
+     with On this page beside the fluid column). */
   @container rateplans (min-width: 34rem) {
     .plan-tiles {
       grid-template-columns: 1fr 1fr;
@@ -899,7 +897,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     }
   }
 
-  @container rateplans (min-width: 53rem) {
+  @container rateplans (min-width: 58rem) {
     .plan-tiles {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
@@ -963,10 +961,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .table-wrapper > table {
     border-radius: var(--sl-border-md);
     overflow: visible;
-  }
-
-  .par-description {
-    max-width: var(--aifs-layout-measure);
   }
 
   .token-price-note {
