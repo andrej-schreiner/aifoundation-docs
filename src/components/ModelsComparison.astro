@@ -528,6 +528,9 @@ const t = {
   colCloud: isDE ? 'Cloud' : 'Cloud',
   colInput: isDE ? 'Eingabe' : 'Input',
   colOutput: isDE ? 'Ausgabe' : 'Output',
+  // The modality columns, apart from the Input / Output price columns.
+  colInputTypes: isDE ? 'Eingabeformate' : 'Input types',
+  colOutputTypes: isDE ? 'Ausgabeformate' : 'Output types',
   colStreaming: 'Streaming',
   colTools: 'Tools',
   colFeatures: isDE ? 'Funktionen' : 'Features',
@@ -554,7 +557,6 @@ const t = {
   notSupported: isDE ? 'Nicht unterstützt' : 'Not supported',
   details: 'Details',
   showDetails: isDE ? 'Details anzeigen' : 'Show details',
-  hideDetails: isDE ? 'Details ausblenden' : 'Hide details',
   priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
   planPreview: isDE ? 'Vorschau' : 'Preview',
   // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
@@ -760,7 +762,7 @@ const columns: Column[] = ([
   { key: 'provider', label: t.colProvider, cls: '', presets: ALL_PRESETS },
   { key: 'cloud', label: t.colCloud, cls: '', presets: ALL_PRESETS },
   { key: 'location', label: t.colLocation, cls: '', presets: ALL_PRESETS },
-  { key: 'input', label: t.colInput, cls: '', presets: MODEL_PAGES },
+  { key: 'input', label: t.colInputTypes, cls: '', presets: MODEL_PAGES },
   { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming, presets: MODEL_PAGES },
   { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools, presets: MODEL_PAGES },
   { key: 'context', label: t.colContext, unit: t.unitContext, cls: 'num', presets: ALL_PRESETS },
@@ -802,7 +804,7 @@ const rowColumns: Column[] = [...columns];
 if (show('input')) {
   rowColumns.splice(rowColumns.findIndex((c) => c.key === 'input') + 1, 0, {
     key: 'output',
-    label: t.colOutput,
+    label: t.colOutputTypes,
     cls: '',
     sortable: false,
     presets: MODEL_PAGES,
@@ -893,8 +895,6 @@ const scriptText = {
   showResults: t.showResults,
   removeFilter: t.removeFilter,
   nSelected: t.nSelected,
-  showDetails: t.showDetails,
-  hideDetails: t.hideDetails,
 };
 
 // Build the row-data payload consumed by the client script. We render the
@@ -1243,7 +1243,7 @@ const rowDataPayload = rows.map((m) => ({
                     aria-expanded="false"
                     aria-controls={detailsId}
                   >
-                    <span class="mc-more__label"><span data-more-text>{t.showDetails}</span><span class="sr-only">: {m.displayModelName}</span></span>
+                    <span class="mc-more__label">{t.showDetails}<span class="sr-only">: {m.displayModelName}</span></span>
                     <Icon name="navigation-collapse-down" size={16} class="mc-more__chevron" />
                   </Button>
                 </td>
@@ -1846,9 +1846,9 @@ const rowDataPayload = rows.map((m) => ({
       const tr = btn.closest<HTMLTableRowElement>('tr[data-key]');
       const detail = tr?.dataset.key ? detailRowsByKey.get(tr.dataset.key) : null;
       if (!tr || !detail) return;
+      // The name stays "Show details"; aria-expanded (and the chevron) say
+      // whether they are open.
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      const label = btn.querySelector<HTMLElement>('[data-more-text]');
-      if (label) label.textContent = open ? text.hideDetails : text.showDetails;
       tr.classList.toggle('mc-open', open);
       detail.hidden = !open || tr.hidden;
       // The table's bottom edge follows the last row shown.
