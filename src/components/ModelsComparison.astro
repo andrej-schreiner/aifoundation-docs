@@ -72,6 +72,9 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
   'LightOnOCR-3-4B-Preview': 'vision',
   'PaddleOCR-VL-1.6-Preview': 'vision',
+  // Reranker: Text (query + documents) -> relevance scores. Primary 'embeddings'
+  // keeps it with the retrieval models and off /models/llms.
+  'Qwen3-Reranker-4B-Preview': 'embeddings',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
@@ -128,7 +131,7 @@ type Creator =
   | 'T-Systems'
   | 'Other';
 type InputModality = 'Text' | 'Image' | 'Audio';
-type OutputModality = 'Text' | 'Image' | 'Audio' | 'Vector';
+type OutputModality = 'Text' | 'Image' | 'Audio' | 'Vector' | 'Score';
 
 interface Capabilities {
   creator: Creator;
@@ -223,6 +226,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // Streaming works; no tool calling.
   'LightOnOCR-3-4B-Preview':  { inputModalities: ['Image'], streaming: true, toolCalling: false },
   'PaddleOCR-VL-1.6-Preview': { inputModalities: ['Image'], streaming: true, toolCalling: false },
+  // Reranker (preview): /rerank only, query and documents in, one relevance
+  // score per document out. No streaming, no tool calling.
+  'Qwen3-Reranker-4B-Preview': { outputModalities: ['Score'], streaming: false, toolCalling: false },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
@@ -496,6 +502,7 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
   Image: isDE ? 'Bild' : 'Image',
   Audio: 'Audio',
   Vector: isDE ? 'Vektor' : 'Vector',
+  Score: 'Score',
 };
 
 // `null` means the price has not been published yet (placeholder rows for
@@ -538,7 +545,7 @@ const uniqueClouds = (['Telekom', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter
 const uniqueInputs = (['Text', 'Image', 'Audio'] as InputModality[]).filter((mod) =>
   allModels.some((m) => m.capabilities.inputModalities.includes(mod)),
 );
-const uniqueOutputs = (['Text', 'Image', 'Audio', 'Vector'] as OutputModality[]).filter((mod) =>
+const uniqueOutputs = (['Text', 'Image', 'Audio', 'Vector', 'Score'] as OutputModality[]).filter((mod) =>
   allModels.some((m) => m.capabilities.outputModalities.includes(mod)),
 );
 const uniquePlans = ['Essential', 'Professional', 'Agentic', 'Test'].filter((p) =>
