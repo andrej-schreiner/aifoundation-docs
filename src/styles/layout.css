@@ -316,12 +316,6 @@ mobile-starlight-toc nav {
 		padding-bottom: 5rem;
 	}
 
-	/* Catalog copy buttons stay clear of the launcher. The model list uses
-	   the same inset on both sides, the page padding only. */
-	.available-models {
-		padding-inline-end: 3.25rem;
-	}
-
 	.widget-container.bottom-right {
 		right: 8px;
 		bottom: max(8px, env(safe-area-inset-bottom));

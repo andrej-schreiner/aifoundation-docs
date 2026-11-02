@@ -323,10 +323,11 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
     align-items: stretch;
   }
 
-  /* A card needs about 17rem for its longest row (Server Location, globe,
-     Worldwide), so: two columns from 34rem, three from 52rem. Container
+  /* A card needs about 19.5rem for its longest rows (Server Location,
+     globe, Worldwide; the three prices), so: two columns from 40rem, three
+     from 52rem. Container
      queries cannot read custom properties, so these are rem, not tokens. */
-  @container (min-width: 34rem) {
+  @container (min-width: 40rem) {
     .models-grid {
       grid-template-columns: repeat(2, 1fr);
     }
