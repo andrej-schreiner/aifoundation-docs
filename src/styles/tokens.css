@@ -95,12 +95,10 @@
 	--aifs-header-settings-offset: 4px;
 	--aifs-layout-sidebar-width: 17.5rem;
 	--aifs-layout-toc-width: 14rem;
-	--aifs-layout-content-width: 45rem;
 	--aifs-layout-grid-gap: 16px;
+	--aifs-layout-card-min-width: 20rem;
 	--aifs-layout-grid-action-gap: 24px;
 	--aifs-layout-launcher-clearance: 48px;
-	--aifs-layout-content-width-wide: 85rem;
-	--aifs-layout-measure: 45rem;
 	--aifs-layout-divider: #dfdfe1;
 	--aifs-layout-backdrop: #efeff0;
 	--aifs-layout-backdrop-strength: 0.5;
@@ -108,6 +106,7 @@
 	--aifs-layout-sheet-border: #dfdfe1;
 	--aifs-layout-sheet-radius: 12px;
 	--aifs-layout-sheet-padding: 40px;
+	--aifs-layout-sheet-padding-wide: 64px;
 	--aifs-layout-frame-padding: 32px;
 	--aifs-layout-frame-padding-x-wide: 64px;
 	--aifs-layout-frame-gap: 32px;
@@ -245,6 +244,12 @@
 	--aifs-notice-row-gap-compact: 2px;
 	--aifs-notice-enter-duration: 200ms;
 	--aifs-notice-enter-easing: cubic-bezier(0.4, 0.6, 0.6, 1);
+	--aifs-notice-new-accent: #e20074;
+	--aifs-notice-new-tint: #e20074;
+	--aifs-notice-new-tint-strength: 0.06;
+	--aifs-notice-info-accent: #2238df;
+	--aifs-notice-info-tint: #d3d7f9;
+	--aifs-notice-info-tint-strength: 0.4;
 	--aifs-logo-size-small: 20px;
 	--aifs-logo-size-default: 32px;
 	--aifs-logo-size-large: 40px;
@@ -508,7 +513,6 @@
 	--sl-text-base: var(--aifs-text-body-font-size);
 	--sl-text-sm: var(--aifs-text-small-font-size);
 	--sl-sidebar-width: var(--aifs-layout-sidebar-width);
-	--sl-content-width: var(--aifs-layout-content-width);
 	--sl-content-gap-y: var(--aifs-rhythm-flow);
 	--sl-line-height: var(--aifs-line-height-prose);
 	--sl-text-code-sm: var(--aifs-code-block-font-size);
@@ -608,12 +612,10 @@
 	--aifs-header-settings-offset: 4px;
 	--aifs-layout-sidebar-width: 17.5rem;
 	--aifs-layout-toc-width: 14rem;
-	--aifs-layout-content-width: 45rem;
 	--aifs-layout-grid-gap: 16px;
+	--aifs-layout-card-min-width: 20rem;
 	--aifs-layout-grid-action-gap: 24px;
 	--aifs-layout-launcher-clearance: 48px;
-	--aifs-layout-content-width-wide: 85rem;
-	--aifs-layout-measure: 45rem;
 	--aifs-layout-divider: #353841;
 	--aifs-layout-backdrop: #353841;
 	--aifs-layout-backdrop-strength: 0.5;
@@ -621,6 +623,7 @@
 	--aifs-layout-sheet-border: #353841;
 	--aifs-layout-sheet-radius: 12px;
 	--aifs-layout-sheet-padding: 40px;
+	--aifs-layout-sheet-padding-wide: 64px;
 	--aifs-layout-frame-padding: 32px;
 	--aifs-layout-frame-padding-x-wide: 64px;
 	--aifs-layout-frame-gap: 32px;
@@ -758,6 +761,12 @@
 	--aifs-notice-row-gap-compact: 2px;
 	--aifs-notice-enter-duration: 200ms;
 	--aifs-notice-enter-easing: cubic-bezier(0.4, 0.6, 0.6, 1);
+	--aifs-notice-new-accent: #e20074;
+	--aifs-notice-new-tint: #e20074;
+	--aifs-notice-new-tint-strength: 0.06;
+	--aifs-notice-info-accent: #7d94f9;
+	--aifs-notice-info-tint: #131f7b;
+	--aifs-notice-info-tint-strength: 0.4;
 	--aifs-logo-size-small: 20px;
 	--aifs-logo-size-default: 32px;
 	--aifs-logo-size-large: 40px;
@@ -1021,7 +1030,6 @@
 	--sl-text-base: var(--aifs-text-body-font-size);
 	--sl-text-sm: var(--aifs-text-small-font-size);
 	--sl-sidebar-width: var(--aifs-layout-sidebar-width);
-	--sl-content-width: var(--aifs-layout-content-width);
 	--sl-content-gap-y: var(--aifs-rhythm-flow);
 	--sl-line-height: var(--aifs-line-height-prose);
 	--sl-text-code-sm: var(--aifs-code-block-font-size);

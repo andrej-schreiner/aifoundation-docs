@@ -2,7 +2,11 @@
    of contents (On this page), content. Starlight puts the table of contents
    on the right; here it sits next to the site navigation, so both lists are
    where the pointer already is. Widths are --aifs-layout-* tokens from
-   tokens.css, which also fill --sl-sidebar-width and --sl-content-width.
+   tokens.css, which also fill --sl-sidebar-width.
+   The content column is fluid: it fills the rest of the row at every
+   width, with no cap on it or on the text. --sl-content-width is 100%
+   (below), not a token: a fraction of the row is not a design value, and
+   DTCG dimensions are px or rem only. Starlight sizes .sl-container with it.
 
    The table of contents already comes before the content in Starlight's
    markup (TwoColumnContent.astro); Starlight only moves it right with
@@ -11,10 +15,11 @@
    Below 72rem Starlight shows the table of contents as a menu above the
    content instead; nothing changes there. */
 
-/* The subtle backdrop: behind the notice band, the footer and (from 72rem)
-   the whole page under the sheet. The backdrop colour mixed into the sheet
+/* The subtle backdrop: behind the footer and (from 72rem) the whole page
+   under the sheet. The backdrop colour mixed into the sheet
    colour, lighter than any Telekom step. */
 :root {
+	--sl-content-width: 100%;
 	--aifs-layout-tint: color-mix(
 		in srgb,
 		var(--aifs-layout-backdrop) calc(var(--aifs-layout-backdrop-strength) * 100%),
@@ -89,8 +94,8 @@ mobile-starlight-toc nav {
 
 	/* Everything under the header is tinted; the table of contents and the
 	   content share one sheet in the page colour, from the navigation to the
-	   window's edge. The tint shows above it (the notice band) and below it
-	   (the footer, revealed behind the sheet). */
+	   window's edge. The tint shows below it (the footer, revealed behind
+	   the sheet). */
 	:root[data-has-sidebar] body {
 		background-color: var(--aifs-layout-tint);
 	}
@@ -99,12 +104,22 @@ mobile-starlight-toc nav {
 	[data-has-sidebar] .main-pane {
 		--sl-content-pad-x: var(--aifs-layout-sheet-padding);
 	}
+}
+
+/* Very wide windows: a little more padding at the fluid column's sides. */
+@media (min-width: 120rem) {
+	[data-has-sidebar] .main-pane {
+		--sl-content-pad-x: var(--aifs-layout-sheet-padding-wide);
+	}
+}
+
+@media (min-width: 72rem) {
 
 	/* The same padding above the first panel and below the last, so the
 	   sheet's padding is equal on all four sides. *-of-type: a <script>
 	   comes first in <main>. */
-	/* :first-of-type does not match once the banner row (also a div) sits
-	   above the title. nth-child(1 of .content-panel) is the title panel. */
+	/* :first-of-type does not match once the banners (a div) sit above the
+	   title. nth-child(1 of .content-panel) is the title panel. */
 	[data-has-sidebar] .main-pane > main > .content-panel:nth-child(1 of .content-panel) {
 		padding-top: var(--aifs-layout-sheet-padding);
 		padding-bottom: 0;
@@ -125,27 +140,11 @@ mobile-starlight-toc nav {
 		margin-bottom: 0;
 	}
 
-	/* The content column: the content width plus its padding. */
+	/* The content column is fluid: it takes the rest of the row, with no
+	   cap (--sl-content-width is 100%). */
 	[data-has-sidebar] .main-pane > main {
 		box-sizing: border-box;
-		max-width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x));
-	}
-
-	/* The sheet's widest: the content column, plus the table of contents and
-	   the padding before it. Shared with the notice bars above the sheet.
-	   Wide pages (plans, model tables) widen --sl-content-width themselves
-	   (custom.css, redesign.css). */
-	[data-has-sidebar] .main-frame {
-		--aifs-sheet-max-width: calc(
-			var(--sl-content-width) + 2 * var(--aifs-layout-sheet-padding) + 2 * var(--aifs-border-width-standard)
-		);
-	}
-
-	[data-has-sidebar][data-has-toc] .main-frame {
-		--aifs-sheet-max-width: calc(
-			var(--aifs-layout-toc-width) + var(--sl-content-width) + 3 * var(--aifs-layout-sheet-padding) +
-				2 * var(--aifs-border-width-standard)
-		);
+		max-width: none;
 	}
 
 	/* The sheet is the row Starlight wraps around the table of contents and
@@ -164,134 +163,40 @@ mobile-starlight-toc nav {
 	}
 }
 
-/* Pages without On this page (this draft's design-system page and the
-   archived v1.2.0 pages; every current page has it) keep the wider column,
-   aifs.layout.content-width-wide. Text still stops at the measure.
-   Starlight derives the content's centring and the header search's alignment
-   from --sl-content-width, so the variable is all that changes. [data-theme]
-   lifts this above the token mapping in tokens.css. */
-:root[data-theme][data-has-sidebar]:not([data-has-toc]) {
-	--sl-content-width: var(--aifs-layout-content-width-wide);
-}
-
-/* Wide elements (the models table): on wide screens, a band that leaves
-   the text column. It starts where the column's padding starts (its content
-   lines up with the text) and runs to the window's edge, on the subtle
-   backdrop, so the sheet seems to stop above and below it. It stays out of
-   On this page's column, so that list stays sticky beside it. The band's
-   content keeps the launcher's clearance at its end (from 80rem), so the
-   chat launcher covers nothing in it. Below 72rem (On this page is a menu
-   above the content) there is no band: the element fits the column.
-   The pane is a size container, so the band can measure it.
-   --aifs-breakout-out: how far the column stops short of the pane's edge. */
-[data-has-sidebar] .main-pane {
-	container-type: inline-size;
-	container-name: sheetpane;
-}
-
-@media (min-width: 72rem) {
-	/* .sl-markdown-content: above a component's own width rules. Not in a
-	   design-system Showcase: there it stays in the Showcase's frame. */
-	[data-has-sidebar] .sl-markdown-content .aifs-breakout:not(.showcase *) {
-		--aifs-breakout-clearance: 0px;
-		--aifs-breakout-out: max(
-			100cqw - var(--sl-content-width) - 2 * var(--sl-content-pad-x),
-			var(--aifs-breakout-clearance)
-		);
-		box-sizing: border-box;
-		width: auto;
-		max-width: none;
-		margin-inline: calc(-1 * var(--sl-content-pad-x)) calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
-		padding: var(--aifs-rhythm-block) calc(var(--sl-content-pad-x) + var(--aifs-breakout-clearance)) var(--aifs-rhythm-block)
-			var(--sl-content-pad-x);
-		background-color: var(--aifs-layout-tint);
-	}
-
-	/* Without On this page (this draft's design-system page and the
-	   archive) the column is centred: the band spans the pane, its content
-	   keeps to the column. */
-	[data-has-sidebar]:not([data-has-toc]) .sl-markdown-content .aifs-breakout:not(.showcase *) {
-		--aifs-breakout-out: calc((100cqw - min(100cqw, var(--sl-content-width) + 2 * var(--sl-content-pad-x))) / 2);
-		margin-inline: calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
-		padding-inline: calc(var(--aifs-breakout-out) + var(--sl-content-pad-x));
-	}
-}
-
-/* The chat launcher is shown from 80rem (below): the column keeps a
-   clearance at its end edge, and so does the band's content. */
-@media (min-width: 80rem) {
-	[data-has-sidebar][data-has-toc] .sl-markdown-content .aifs-breakout:not(.showcase *) {
-		--aifs-breakout-clearance: var(--aifs-layout-launcher-clearance);
-	}
-}
-
-/* The announcement box sits above the sheet, not in it: it is about the
-   site, not the page. PreviewModelsBanner places the row just before the
-   sheet (the row around the table of contents and the content). The row is
-   a band on the tint across the whole width; the box in it lines up with
-   the content column: it starts where the page's text starts and is as wide
-   as the column. The row is a size container, so the box can lay its rows
-   out for the room it has. */
+/* The announcements (PreviewModelsBanner) sit at the top of the content
+   column, on the sheet, before the title: the script places the stack
+   there. It has the column's padding, so the banners have the column's
+   edges and width at every window width (the launcher's clearance too,
+   from 80rem). The stack is a size container, so each banner can lay out
+   for the room it has. */
 .qp-stack {
 	container-type: inline-size;
 	container-name: qpstack;
 	display: flex;
 	flex-direction: column;
-	width: 100%;
+	gap: var(--aifs-notice-gap);
 	box-sizing: border-box;
 	margin: 0;
-	/* Phones and tablets: the content column's inset. */
-	padding: var(--sl-content-pad-x, 1rem);
-	background-color: var(--aifs-layout-tint);
+	padding: var(--aifs-rhythm-block) var(--sl-content-pad-x) 0;
 }
 
-.qp-stack > * {
-	max-width: var(--sl-content-width);
+/* The title follows the banners after the block gap. */
+main:has(> .qp-stack) > .content-panel:nth-child(1 of .content-panel) {
+	padding-top: var(--aifs-rhythm-block);
 }
 
 @media (min-width: 72rem) {
-	/* Like the footer at the end, the band stays put under the header and the
-	   sheet (z-index 1, below) scrolls up over it. */
-	/* Its height is a whole number of rows of the site navigation beside it,
-	   so its bottom edge lines up with a row's line (2 rows, more if the box
-	   is taller). The box sits centred in it. */
-	[data-has-sidebar] .main-frame > .qp-stack {
-		--aifs-nav-row-height: calc(
-			2 * var(--aifs-sidebar-nav-padding-y) + var(--aifs-sidebar-nav-font-size) * var(--aifs-sidebar-nav-line-height) +
-				var(--aifs-border-width-standard)
-		);
-		position: sticky;
-		top: var(--sl-nav-height);
-		z-index: 0;
-		justify-content: center;
-		min-height: calc(2 * var(--aifs-nav-row-height));
-		/* At least this much above and below the box; a taller box makes the
-		   band taller. */
-		padding: var(--aifs-rhythm-flow) var(--aifs-layout-sheet-padding);
+	[data-has-sidebar] .main-pane > main > .qp-stack {
+		padding-top: var(--aifs-layout-sheet-padding);
 	}
 
-	/* Beside On this page, the column starts after it and the content's own
-	   padding (the sheet padding, above). */
-	[data-has-sidebar][data-has-toc] .main-frame > .qp-stack > * {
-		margin-inline-start: calc(var(--aifs-layout-toc-width) + var(--aifs-layout-sheet-padding));
-	}
-
-	[data-has-sidebar]:not([data-has-toc]) .main-frame > .qp-stack > * {
-		margin-inline: auto;
+	[data-has-sidebar] .main-pane > main:has(> .qp-stack) > .content-panel:nth-child(1 of .content-panel) {
+		padding-top: var(--aifs-rhythm-block);
 	}
 }
 
-/* With the chat launcher shown, the column keeps a clearance at its end
-   edge (below); the box ends where the column does. */
-@media (min-width: 80rem) {
-	[data-has-sidebar][data-has-toc] .main-frame > .qp-stack > * {
-		margin-inline-end: var(--aifs-layout-launcher-clearance);
-	}
-}
-
-/* Starlight draws a hairline between the title panel and the body. The title
-   is only as wide as the measure, so the line reads as a stray rule across
-   the sheet. */
+/* Starlight draws a hairline between the title panel and the body; the
+   sheet has no rules inside it. */
 .content-panel + .content-panel {
 	border-top: 0;
 }
@@ -346,16 +251,6 @@ mobile-starlight-toc nav {
 	}
 }
 
-/* Line length: running text stops at the measure (720px). On normal pages
-   the content column is the measure too (aifs.layout.content-width aliases
-   it), so text and boxes share one width and the sheet ends with the text.
-   On wide pages (plans, model tables) the column widens and the text still
-   stops here, as does text inside an aside. */
-.sl-markdown-content
-	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6):not(:where(.not-content *, .plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *, starlight-tabs [role="tablist"], starlight-tabs [role="tablist"] *)) {
-	max-width: var(--aifs-layout-measure);
-}
-
 .nowrap {
 	white-space: nowrap;
 }
@@ -366,7 +261,7 @@ mobile-starlight-toc nav {
 }
 
 .content-panel :where(h1, h1 + p) {
-	max-width: min(100%, var(--aifs-layout-measure));
+	max-width: 100%;
 	min-width: 0;
 	box-sizing: border-box;
 }
@@ -496,15 +391,12 @@ footer.sl-flex .meta:not(:has(*)) {
 }
 
 /* From 80rem the launcher is shown, 20px from the window's bottom-right
-   corner (its own placement). Until the column reaches its full width, the
-   column ends just short of the window (the sheet padding only), so the
-   launcher would sit over its last characters and links: the column keeps
-   a clearance at its end edge (the breakout band's content too, above). Once the column is full width the clearance is spare room, and
-   the column keeps its width. */
+   corner (its own placement). The fluid column runs to the window's edge
+   less the sheet padding, so the launcher would sit over its last
+   characters and links: the column keeps a clearance at its end edge. */
 @media (min-width: 80rem) {
 	[data-has-sidebar] .main-pane > main {
 		padding-inline-end: var(--aifs-layout-launcher-clearance);
-		max-width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x) + var(--aifs-layout-launcher-clearance));
 	}
 }
 

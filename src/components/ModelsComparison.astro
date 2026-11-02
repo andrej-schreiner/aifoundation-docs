@@ -787,9 +787,9 @@ const PRIMARY_COLUMNS: Record<ColumnPreset, string[]> = {
   useCase: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
   plan: ['model', 'inputPrice', 'outputPrice', 'rpm', 'tpm'],
 };
-// On wide screens the table is in a breakout band (layout.css), wider than
-// the column. Each step of width (container queries below: 1 from 48rem,
-// 2 from 63rem, 3 from 77rem) moves these columns out of the details into
+// The content column is fluid (layout.css), so the table grows with the
+// window. Each step of width (container queries below: 1 from 51rem,
+// 2 from 64rem, 3 from 82rem) moves these columns out of the details into
 // the row; the details keep the rest. The reasoning columns (long code
 // values) and the legal links stay in the details.
 const EXTRA_COLUMNS: Record<ColumnPreset, Record<string, 1 | 2 | 3>> = {
@@ -948,7 +948,7 @@ const rowDataPayload = rows.map((m) => ({
   </p>
 ) : (
 <div
-  class:list={['models-comparison', `models-comparison--${preset}`, 'aifs-breakout']}
+  class:list={['models-comparison', `models-comparison--${preset}`]}
   data-plan={activePlan || undefined}
   data-rows={JSON.stringify(rowDataPayload)}
   data-t={JSON.stringify(scriptText)}>
@@ -2309,15 +2309,16 @@ const rowDataPayload = rows.map((m) => ({
   }
 
   /* Wide-screen columns (EXTRA_COLUMNS): hidden in the row, their values
-     in the details, until the breakout band (layout.css) gives the table
-     room. Each step shows its cells and hides the same values in the
-     details. The steps are what the widest preset needs in German, so the
-     table never grows wider than the band. */
+     in the details, until the fluid content column gives the table room
+     (about 1440px windows for the first step, 1920px for all three). Each
+     step shows its cells and hides the same values in the details. The
+     steps are what the widest preset needs in German, so the table never
+     grows wider than the column. */
   .models-comparison .models-comparison-table :is(th, td).mc-x {
     display: none;
   }
 
-  @container comparison (min-width: 48rem) {
+  @container comparison (min-width: 51rem) {
     .models-comparison .models-comparison-table :is(th, td).mc-x1 {
       display: table-cell;
     }
@@ -2327,7 +2328,7 @@ const rowDataPayload = rows.map((m) => ({
     }
   }
 
-  @container comparison (min-width: 63rem) {
+  @container comparison (min-width: 64rem) {
     .models-comparison .models-comparison-table :is(th, td).mc-x2 {
       display: table-cell;
     }
@@ -2337,7 +2338,7 @@ const rowDataPayload = rows.map((m) => ({
     }
   }
 
-  @container comparison (min-width: 77rem) {
+  @container comparison (min-width: 82rem) {
     .models-comparison .models-comparison-table :is(th, td).mc-x3 {
       display: table-cell;
     }

@@ -238,22 +238,10 @@
         "$value": { "value": 14, "unit": "rem" },
         "$description": "Table of contents (On this page), 224px. Next to the site navigation, so both lists sit where the pointer already is."
       },
-      "content-width": {
-        "$value": "{aifs.layout.measure}",
-        "$description": "Widest the content column gets: the measure, so text, code blocks, tables, cards and asides share one width and the sheet ends where the text does. A code line longer than that scrolls inside its block.",
-        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-content-width"] } }
-      },
       "grid-gap": { "$value": "{spacing.composition.space-06}", "$description": "16px between the items of every grid on a page, across and down: card rows, card grids, model cards, recommended models, plan tiles, previous and next." },
+      "card-min-width": { "$value": { "value": 20, "unit": "rem" }, "$description": "320px: the narrowest card in a card grid or link-card row. The grid fits as many columns as the fluid column has room for." },
       "grid-action-gap": { "$value": "{spacing.composition.space-08}", "$description": "24px between a grid and a button below it, such as Show more models." },
       "launcher-clearance": { "$value": "{spacing.composition.space-14}", "$description": "48px more at the content column's end edge while the chat launcher (bottom right, 56px, 20px from the window's edges) would otherwise sit over the column, so it keeps 12px from the column's text and controls." },
-      "content-width-wide": {
-        "$value": { "value": 85, "unit": "rem" },
-        "$description": "Content column of the table template (pages without On this page, such as plans and model tables): 1360px, so the wide tables fit. Text on these pages still stops at the measure."
-      },
-      "measure": {
-        "$value": { "value": 45, "unit": "rem" },
-        "$description": "Widest running text gets, 720px, and with it the content column (content-width aliases it). About 99 characters a line at 16px in the system font, over the 45 to 80 that read most comfortably; TeleNeo is wider, so fewer. Measured on the guides."
-      },
       "divider": {
         "$type": "color",
         "$value": "{color.ui.faint}",
@@ -277,6 +265,7 @@
       "sheet-border": { "$type": "color", "$value": "{color.ui.faint}" },
       "sheet-radius": { "$value": "{radius.large}", "$description": "Top corners of the sheet." },
       "sheet-padding": { "$value": "{spacing.composition.space-12}", "$description": "40px on all four sides of the content on the sheet (left and right through Starlight's --sl-content-pad-x)." },
+      "sheet-padding-wide": { "$value": "{spacing.composition.space-17}", "$description": "64px left and right of the content from 120rem (1920px) wide, so the fluid column gets a little more air on very wide windows." },
       "frame-padding": {
         "$value": "{spacing.composition.space-10}",
         "$description": "32px around the row that holds the table of contents and the sheet: above it, left and right. The sheet runs off the bottom."
@@ -458,17 +447,23 @@
       "border": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "The panel's start edge and the lines under its header and above its footer." }
     },
     "notice": {
-      "$description": "The announcement box in the band above the sheet (PreviewModelsBanner): one box with a row per announcement (a tag, the text, a link) and one close button.",
+      "$description": "The announcement banners at the top of the content column (PreviewModelsBanner): one banner per announcement (a tag, the text, a link, a close button), a light tint and an accent line at the start, no border.",
       "radius": { "$type": "dimension", "$value": "{aifs.notification.radius}", "$description": "8px, as the inline notification." },
       "close-radius": { "$type": "dimension", "$value": "{aifs.radius.control}", "$description": "4px on the close button's hover fill: concentric with the bar's 8px, 4px inside it." },
       "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px above and below." },
       "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px at the sides." },
-      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between tag, text, link and close button, and between the rows of the box." },
+      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between tag, text, link and close button, and between two banners." },
       "padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px above and below on phones." },
       "padding-x-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px at the sides on phones." },
       "row-gap-compact": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the text and the link on phones." },
       "enter-duration": { "$type": "duration", "$value": "{motion.duration.transition}", "$description": "200ms fade-in, the first time the box appears in a session. Off with reduced motion." },
-      "enter-easing": { "$type": "cubicBezier", "$value": "{motion.easing.enter}", "$description": "Telekom's enter (ease-out) curve: no overshoot." }
+      "enter-easing": { "$type": "cubicBezier", "$value": "{motion.easing.enter}", "$description": "Telekom's enter (ease-out) curve: no overshoot." },
+      "new-accent": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Accent line of a New banner: brand magenta, as the New tag beside it." },
+      "new-tint": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Mixed into the sheet colour by new-tint-strength for a New banner's background." },
+      "new-tint-strength": { "$type": "number", "$value": 0.06, "$description": "Share of magenta in a New banner's background: a faint pink in light mode, a faint warm grey in dark mode; body text and links keep AA on it. Telekom has no subtle magenta step." },
+      "info-accent": { "$type": "color", "$value": "{aifs.aside.note.accent}", "$description": "Accent line of a Notice banner: informational blue, as a note aside." },
+      "info-tint": { "$type": "color", "$value": "{aifs.aside.note.background}", "$description": "Telekom's informational subtle colour, mixed into the sheet colour for a Notice banner's background." },
+      "info-tint-strength": { "$type": "number", "$value": "{aifs.aside.tint-opacity}", "$description": "The asides' 40% tint, so a notice reads like a note." }
     },
     "logo": {
       "$description": "The Logo component: a creator's logo in a white rounded square with a hairline border. Three sizes; the image sits inside a small inset. Scale has no logo component.",

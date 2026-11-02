@@ -6,7 +6,7 @@
    On top of table.css (header, rows, outline):
    - The table never scrolls sideways. A component shows the columns that
      fit as cells and the rest elsewhere (ModelsComparison: a details row,
-     more columns in the breakout band on wide screens, cards below 36rem).
+     more columns as the fluid column widens, cards below 36rem).
      Everything left-aligned, with the site's table padding: 8px before a
      cell's text and 12px after it.
    - Headers: the label with its sort arrow on one line, the unit (if any)
@@ -222,14 +222,4 @@
 	.aifs-data-table tbody tr.mc-last-visible > td:last-child {
 		border-end-end-radius: var(--aifs-table-radius);
 	}
-}
-
-/* In a breakout band (layout.css) the sticky parts take the band's colour;
-   the table stays white on it. Not in a design-system Showcase (no band). */
-.aifs-breakout:not(.showcase *) :is(.aifs-data-filterbar, .aifs-head-float__clip) {
-	background-color: var(--aifs-layout-tint);
-}
-
-.aifs-breakout:not(.showcase *) .aifs-data-table {
-	background-color: var(--aifs-layout-sheet);
 }
