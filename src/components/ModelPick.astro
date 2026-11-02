@@ -1,6 +1,15 @@
 ---
-import { choiceById, modelFact, picksFor } from '../shared/lib/choosingModels';
-import { creatorNameFor, getLogo } from '../shared/lib/logos';
+// Recommended models for one use case, built on the model card
+// (AvailableModels): the same frame and header (logo, name, copy
+// button with its success tooltip), plus the model ID as code under the
+// name, then label–value rows for context and hosting. Tokens:
+// aifs.model-card.*.
+import { choiceById, picksFor } from '../shared/lib/choosingModels';
+import { creatorNameFor } from '../shared/lib/logos';
+import Logo from './Logo.astro';
+import Button from './Button.astro';
+import Icon from './Icon.astro';
+import Tag from './Tag.astro';
 
 interface Props {
   useCase: string;
@@ -29,12 +38,22 @@ const t = isDE
   ? {
       heading: 'Empfohlen',
       preview: 'Vorschau',
-      unpublished: 'Kontext nicht angegeben',
+      unpublished: 'Nicht angegeben',
+      context: 'Kontext',
+      hosting: 'Hosting',
+      copyTitle: 'Modell-ID kopieren: {id}',
+      copyAria: 'Modell-ID {id} kopieren',
+      copied: 'Kopiert: {id}',
     }
   : {
       heading: 'Recommended',
       preview: 'Preview',
-      unpublished: 'Context not published',
+      unpublished: 'Not published',
+      context: 'Context',
+      hosting: 'Hosting',
+      copyTitle: 'Copy model ID: {id}',
+      copyAria: 'Copy model ID {id}',
+      copied: 'Copied: {id}',
     };
 
 function notesHtml(text: string): string {
@@ -58,25 +77,51 @@ function place(hosting: string): string {
 
 <section class="model-pick not-content">
   <h2>{t.heading}</h2>
+  <span class="model-pick__status" role="status" aria-live="polite" aria-atomic="true"></span>
   <ul class="model-pick__list">
     {picks.map((model) => {
       const creator = creatorNameFor(model.id, model.name);
-      const logo = getLogo(creator) || getLogo('Other');
-      const zoom = creator.startsWith('Google');
+      const copied = t.copied.replace('{id}', model.id);
       return (
         <li class="model-pick__card">
           <div class="model-pick__head">
-            <span class:list={['model-pick__mark', { 'model-pick__mark--zoom': zoom }]}>
-              <img src={logo} alt="" width="20" height="20" />
-            </span>
-            <strong>{model.name}</strong>
-            {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
+            <Logo name={creator} size="large" />
+            <div class="model-pick__title">
+              <h3 class="model-pick__name">
+                {model.name}
+                {model.preview && <Tag size="small">{t.preview}</Tag>}
+              </h3>
+              <code class="model-pick__id">{model.id}</code>
+            </div>
+            <Button
+              variant="ghost"
+              size="small"
+              iconOnly
+              class="model-pick__copy"
+              data-model-id={model.id}
+              data-copied-label={copied}
+              title={t.copyTitle.replace('{id}', model.id)}
+              ariaLabel={t.copyAria.replace('{id}', model.id)}
+              successTooltip={copied}
+              tooltipPlacement="top-end">
+              <Icon name="action-copy-paste" size={16} />
+              <Icon slot="success" name="action-checkmark" size={16} />
+            </Button>
           </div>
-          <p class="model-pick__meta">
-            <code>{model.id}</code>
-            <a class="aifs-tag aifs-tag--small" href={`${prefix}/reference/enterprise-trust`}>{place(model.hosting)}</a>
-            <span>{model.context || t.unpublished}</span>
-          </p>
+          <dl class="model-pick__rows">
+            <div class="model-pick__row">
+              <dt>{t.context}</dt>
+              <dd>{model.context || t.unpublished}</dd>
+            </div>
+            <div class="model-pick__row">
+              <dt>{t.hosting}</dt>
+              <dd>
+                <Tag size="small" color={model.hosting.startsWith('T-Cloud') ? 'magenta' : 'standard'} href={`${prefix}/reference/enterprise-trust`}>
+                  {place(model.hosting)}
+                </Tag>
+              </dd>
+            </div>
+          </dl>
         </li>
       );
     })}
@@ -86,97 +131,170 @@ function place(hosting: string): string {
 </section>
 
 <style>
+  /* The grid follows its own width, as the model cards do: two columns from
+     34rem, three from 52rem. Container queries cannot read custom
+     properties, so these are rem, not tokens. */
+  .model-pick {
+    container-type: inline-size;
+  }
+
+  /* A section heading: the section gap above comes from layout.css. */
   .model-pick h2 {
-    margin: 0 0 8px;
-    font-size: 1.25rem;
-    line-height: 1.3;
+    margin: 0 0 var(--aifs-rhythm-after-heading);
+  }
+
+  .model-pick__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 
   .model-pick__list {
-    list-style: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--aifs-model-card-grid-gap);
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: 8px;
+    list-style: none;
   }
 
+  @container (min-width: 34rem) {
+    .model-pick__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @container (min-width: 52rem) {
+    .model-pick__list {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  /* The model card's frame; it only informs, so it has no hover. A size
+     container, so the copy tooltip stays inside the card. */
   .model-pick__card {
-    background: var(--aifs-color-surface-chrome);
-    color: var(--aifs-color-text-body);
-    border: 1px solid var(--aifs-color-border-subtle);
-    border-radius: var(--aifs-table-radius, 8px);
-    padding: 10px 12px;
+    container-type: inline-size;
+    --aifs-tooltip-inset: var(--aifs-model-card-padding);
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-model-card-gap);
+    margin: 0;
+    padding: var(--aifs-model-card-padding);
+    border: var(--aifs-model-card-border-width) solid var(--aifs-model-card-border);
+    border-radius: var(--aifs-model-card-radius);
+    background: var(--aifs-model-card-background);
+    color: var(--aifs-model-card-value);
   }
 
   .model-pick__head {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: var(--aifs-model-card-logo-gap);
+  }
+
+  .model-pick__title {
+    flex: 1;
     min-width: 0;
   }
 
-  .model-pick__head strong {
-    min-width: 0;
-    line-height: 1.3;
-  }
-
-  .model-pick__mark {
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    padding: 2px;
-    border: 1px solid var(--aifs-color-border-subtle);
-    border-radius: 4px;
-    background: var(--aifs-color-logo-background, #fff);
-  }
-
-  .model-pick__mark--zoom {
-    padding: 0;
-  }
-
-  .model-pick__mark img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .model-pick__mark--zoom img {
-    width: 175%;
-    height: 175%;
-    max-width: none;
-    flex: 0 0 auto;
-  }
-
-  .model-pick__meta {
+  .model-pick__name {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 6px;
-    margin: 6px 0 0;
-    font-size: 0.8125rem;
-    line-height: 1.3;
+    gap: var(--aifs-model-card-row-gap);
+    margin: 0;
+    font-size: var(--aifs-model-card-name-font-size);
+    font-weight: var(--aifs-model-card-name-font-weight);
+    line-height: 1.25;
+    color: var(--aifs-model-card-value);
   }
 
-  .model-pick__meta code {
+  .model-pick__id {
+    display: block;
+    font-size: var(--aifs-code-block-font-size);
+    width: fit-content;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    color: var(--aifs-model-card-label);
+  }
+
+  .model-pick :global(.model-pick__copy) {
+    flex: none;
+  }
+
+  .model-pick__rows {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-model-card-row-gap);
+    margin: 0;
+  }
+
+  /* If a card is too narrow, the value wraps under its label and stays at
+     the end edge. */
+  .model-pick__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--aifs-model-card-row-gap);
+    margin: 0;
+  }
+
+  .model-pick__row dt {
+    flex: none;
+    color: var(--aifs-model-card-label);
+    font-weight: normal;
     white-space: nowrap;
   }
 
-  .model-pick__meta :global(a.aifs-tag) {
-    text-decoration: none;
+  .model-pick__row dd {
+    margin: 0 0 0 auto;
+    font-weight: var(--aifs-model-card-value-font-weight);
   }
 
   .model-pick__notes {
-    margin: 8px 0 0;
-    font-size: 0.875rem;
-    line-height: 1.45;
+    max-width: var(--aifs-layout-measure);
+    margin: var(--aifs-model-card-gap) 0 0;
   }
 
   .model-pick__guide {
-    margin: 8px 0 0;
+    margin: var(--aifs-model-card-row-gap) 0 0;
   }
 </style>
+
+<script>
+  // Copy the model ID. Button's success state swaps in the tick and shows
+  // the tooltip for 1500ms; the section's live region announces it.
+  function setupModelPick() {
+    document.querySelectorAll<HTMLButtonElement>('.model-pick__copy').forEach((btn) => {
+      if (btn.dataset.ready) return;
+      btn.dataset.ready = '1';
+      const status = btn.closest('.model-pick')?.querySelector('.model-pick__status');
+      btn.addEventListener('click', async () => {
+        const id = btn.dataset.modelId;
+        if (!id) return;
+        try {
+          await navigator.clipboard.writeText(id);
+        } catch {
+          return;
+        }
+        const label = btn.getAttribute('aria-label') ?? '';
+        const copied = btn.dataset.copiedLabel ?? id;
+        btn.dataset.state = 'success';
+        btn.setAttribute('aria-label', copied);
+        if (status) status.textContent = copied;
+        setTimeout(() => {
+          delete btn.dataset.state;
+          btn.setAttribute('aria-label', label);
+          if (status) status.textContent = '';
+        }, 1500);
+      });
+    });
+  }
+
+  setupModelPick();
+  document.addEventListener('astro:after-swap', setupModelPick);
+</script>

@@ -7,7 +7,8 @@
    Use the Tag and PlanTag components (src/components/). Existing markup is
    mapped onto the same styles below, so the tables, which build their rows
    in scripts, need no new markup:
-   .plans-tag (table tags, small) and .hero-badge (homepage) → standard,
+   .plans-tag (table tags, small), .sl-badge (small in the sidebar) and
+   .hero-badge (homepage) → standard,
    .tag-tcloud → magenta, .tag-plan-<plan> → plan colour. */
 
 .aifs-tag,
@@ -37,10 +38,12 @@
 	letter-spacing: normal;
 }
 
-/* Size: small. The table tags are small, to sit in a dense row. */
+/* Size: small. The table tags and the sidebar badges are small, to sit in
+   a dense row. */
 
 .aifs-tag--small,
-.plans-tag {
+.plans-tag,
+.sidebar-content .sl-badge {
 	height: var(--aifs-tag-height-small);
 	padding: 0 var(--aifs-tag-padding-x-small);
 	font-size: var(--aifs-tag-font-size-small);

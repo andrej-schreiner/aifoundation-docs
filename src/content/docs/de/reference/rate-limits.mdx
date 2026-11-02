@@ -47,10 +47,9 @@ Für die vollständige Aufschlüsselung pro Modell für Ihren Tarif besuchen Sie
 
 ## Wie Rate-Limits funktionieren
 
-- **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Eingabe-Token pro Minute; kein SLA-gestützter Durchsatzwert
+- **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Token pro Minute, mit getrennten Limits für Eingabe- und Ausgabe-Token (siehe Tabellen oben); kein SLA-gestützter Durchsatzwert
 - **RPM (Anfragen pro Minute)** — Best-Effort-*Obergrenze* für API-Anfragen pro Minute; kein SLA-gestützter Anfragerate-Wert
 - Limits gelten je Projekt — alle in einem Projekt erzeugten API-Schlüssel teilen sich das Kontingent
-- Sowohl Eingabe- als auch Ausgabe-Token zählen zu den TPM-Limits
 
 Anders gesagt: RPM/TPM zeigen, ab wann die Plattform Ihren Traffic *drosselt*. Sie sagen **nichts** darüber aus, mit welcher Rate die Plattform Ihren Traffic *bedient*. Im Shared Service hängt die tatsächlich erreichte Rate von der Plattformlast und der Nutzung desselben Modells durch andere Tenants ab.
 
@@ -170,7 +169,7 @@ def safe_completion(messages, max_retries=3):
 
 <a id="hinweise-zu-den-rpm--und-tpm-werten"></a>
 
-## Servicehinweis zu den veröffentlichten RPM- und TPM-Werten
+## Rate-Limits sind Obergrenzen, keine Garantie
 
 <sup>&ast;</sup> Die auf dieser Seite gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
 

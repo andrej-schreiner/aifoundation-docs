@@ -1,11 +1,18 @@
 ---
+// Site part, not for reuse. Starlight's Header slot (astro.config.mjs): logo,
+// search, version, theme and language selects, and the API key button.
 import config from 'virtual:starlight/user-config';
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
 import Button from './Button.astro';
+import Icon from './Icon.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+// From 50 to 72rem the search and the version, theme and language selects
+// move into one menu, so the site name keeps its room. Phones have their own
+// menu (MobileMenuFooter) and keep the search icon.
+const menu = isDE ? 'Menü' : 'Menu';
 const home = isDE ? '/de/' : '/';
 const cta = isDE ? 'API-Key' : 'Get API key';
 const ctaAria = isDE
@@ -25,10 +32,19 @@ const showSearch =
 			<span class="ts-word-short">AIFS</span>
 		</span>
 	</a>
-	<div class="ts-search">{showSearch && <Search />}</div>
+	<div class="ts-search" data-search-home>{showSearch && <Search />}</div>
 	<div class="ts-tools">
-		<ThemeSelect />
-		<LanguageSelect />
+		<Button variant="ghost" class="ts-settings-toggle" aria-expanded="false" aria-controls="ts-settings">
+			<Icon name="action-menu" size={20} />
+			{menu}
+			<Icon name="navigation-collapse-down" size={16} class="ts-settings-caret" />
+		</Button>
+		<div class="ts-settings" id="ts-settings">
+			<div class="ts-settings__search" data-search-menu></div>
+			{/* starlight-versions renders the version select inside ThemeSelect. */}
+			<ThemeSelect />
+			<LanguageSelect />
+		</div>
 		<Button class="ts-cta" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer" ariaLabel={ctaAria}>
 			{cta}
 		</Button>
@@ -88,10 +104,75 @@ const showSearch =
 	}
 
 	.ts-tools {
+		position: relative;
 		display: flex;
 		align-items: center;
 		gap: var(--aifs-header-tools-gap);
 		flex: 0 0 auto;
+	}
+
+	/* Wide screens: the selects sit in the row, as before; the panel's box
+	   drops away. */
+	.ts-settings {
+		display: contents;
+	}
+
+	.ts-tools :global(.ts-settings-toggle) {
+		display: none;
+	}
+
+	/* Below 72rem: one Settings button; the selects open in a panel under
+	   it, drawn like a filter field's menu. */
+	@media (max-width: 71.99rem) {
+		.ts-tools :global(.ts-settings-toggle) {
+			display: inline-flex;
+		}
+
+		.ts-tools :global(.ts-settings-caret) {
+			transition-property: rotate;
+			transition-duration: var(--aifs-select-transition-duration);
+			transition-timing-function: var(--aifs-select-transition-easing);
+		}
+
+		.ts-tools :global(.ts-settings-toggle[aria-expanded='true'] .ts-settings-caret) {
+			rotate: 180deg;
+		}
+
+		.ts-settings {
+			position: absolute;
+			top: calc(100% + var(--aifs-header-settings-offset));
+			right: 0;
+			z-index: 40;
+			display: flex;
+			flex-direction: column;
+			gap: var(--aifs-header-settings-row-gap);
+			padding: var(--aifs-header-settings-padding);
+			border: var(--aifs-select-border-width) solid var(--aifs-select-border);
+			border-radius: var(--aifs-select-radius);
+			background: var(--aifs-layout-sheet);
+			/* TODO(token-gap): Telekom shadow tokens are not converted yet (GAPS.md row 10). */
+			box-shadow: 0 8px 24px rgb(0 0 0 / 0.16);
+		}
+
+		.ts-settings:not([data-open]) {
+			display: none;
+		}
+
+		/* The search field spans the panel, as wide as the selects. */
+		.ts-settings__search :global(button[data-open-modal]) {
+			width: 100%;
+			max-width: none;
+		}
+
+		.ts-settings__search:empty {
+			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.ts-tools :global(.ts-settings-caret) {
+			transition: none;
+		}
 	}
 
 	/* Wide screens: three columns, the logo and the tools in equal flexible
@@ -151,4 +232,54 @@ const showSearch =
 	}
 	localizeVersionLabel();
 	document.addEventListener('astro:page-load', localizeVersionLabel);
+
+	// From 50 to 72rem the search button lives in the menu panel; elsewhere
+	// in its <site-search>. Only the button moves: Starlight keeps references
+	// to it and the dialog, so both keep working, and the dialog stays out of
+	// the hidden panel, where it could not be seen when ⌘K opens it.
+	const menuWidth = window.matchMedia('(min-width: 50rem) and (max-width: 71.99rem)');
+	function placeSearch() {
+		const search = document.querySelector('site-search');
+		const button = document.querySelector('button[data-open-modal]');
+		const slot = menuWidth.matches ? document.querySelector('[data-search-menu]') : search;
+		if (button && slot && button.parentElement !== slot) slot.prepend(button);
+	}
+	placeSearch();
+	menuWidth.addEventListener('change', placeSearch);
+	document.addEventListener('astro:page-load', placeSearch);
+
+	// The Menu button (50 to 72rem) shows and hides the panel with the search
+	// and the version, theme and language selects. Escape and a click
+	// outside close it.
+	function initSettings() {
+		const toggle = document.querySelector<HTMLButtonElement>('.ts-settings-toggle');
+		const panel = document.getElementById('ts-settings');
+		if (!toggle || !panel || toggle.dataset.bound) return;
+		toggle.dataset.bound = 'true';
+
+		const setOpen = (open: boolean) => {
+			toggle.setAttribute('aria-expanded', String(open));
+			panel.toggleAttribute('data-open', open);
+		};
+
+		toggle.addEventListener('click', () => {
+			const open = toggle.getAttribute('aria-expanded') !== 'true';
+			setOpen(open);
+			if (open) panel.querySelector<HTMLElement>('button[data-open-modal], select')?.focus();
+		});
+
+		panel.addEventListener('keydown', (e) => {
+			if (e.key !== 'Escape') return;
+			e.preventDefault();
+			setOpen(false);
+			toggle.focus();
+		});
+
+		document.addEventListener('click', (e) => {
+			const target = e.target as Node;
+			if (!toggle.contains(target) && !panel.contains(target)) setOpen(false);
+		});
+	}
+	initSettings();
+	document.addEventListener('astro:page-load', initSettings);
 </script>

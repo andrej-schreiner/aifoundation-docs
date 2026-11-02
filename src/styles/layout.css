@@ -11,6 +11,17 @@
    Below 72rem Starlight shows the table of contents as a menu above the
    content instead; nothing changes there. */
 
+/* The subtle backdrop: behind the notice band, the footer and (from 72rem)
+   the whole page under the sheet. The backdrop colour mixed into the sheet
+   colour, lighter than any Telekom step. */
+:root {
+	--aifs-layout-tint: color-mix(
+		in srgb,
+		var(--aifs-layout-backdrop) calc(var(--aifs-layout-backdrop-strength) * 100%),
+		var(--aifs-layout-sheet)
+	);
+}
+
 /* One colour for every line in the frame: under the header, right of the
    site navigation, under the mobile table of contents. It matches the lines between navigation rows. */
 .header {
@@ -49,8 +60,22 @@ mobile-starlight-toc nav {
 		border-inline-start: 0;
 	}
 
-	/* The table of contents sits on the tinted area, level with the top of
-	   the sheet. Its look is in sidebar-nav.css. */
+	/* On a page with a breakout band, On this page scrolls away with the
+	   page instead: the band runs under its column, so a sticky list would
+	   be covered while the band passes. */
+	[data-has-toc]:has(.aifs-breakout) .right-sidebar {
+		position: static;
+		height: auto;
+	}
+
+	/* The table of contents sits on the sheet, with the sheet's padding on
+	   its start side; the content's own padding separates the two. Its look
+	   is in sidebar-nav.css. */
+	[data-has-toc] .right-sidebar-container {
+		box-sizing: content-box;
+		padding-inline-start: var(--aifs-layout-sheet-padding);
+	}
+
 	[data-has-toc] .right-sidebar-panel {
 		padding: 0;
 	}
@@ -70,18 +95,12 @@ mobile-starlight-toc nav {
 		width: auto;
 	}
 
-	/* Everything under the header is tinted; the content sits on a sheet in
-	   the page colour, as wide as the content column, starting right after
-	   the table of contents. It starts a gutter
-	   below the header with rounded top corners and runs off the bottom of
-	   the page. The tint is the backdrop colour mixed into the sheet colour,
-	   lighter than any Telekom step. */
+	/* Everything under the header is tinted; the table of contents and the
+	   content share one sheet in the page colour, from the navigation to the
+	   window's edge. The tint shows above it (the notice band) and below it
+	   (the footer, revealed behind the sheet). */
 	:root[data-has-sidebar] body {
-		background-color: color-mix(
-			in srgb,
-			var(--aifs-layout-backdrop) calc(var(--aifs-layout-backdrop-strength) * 100%),
-			var(--aifs-layout-sheet)
-		);
+		background-color: var(--aifs-layout-tint);
 	}
 
 	/* More room on the sheet: Starlight's content padding, widened. */
@@ -114,33 +133,111 @@ mobile-starlight-toc nav {
 		margin-bottom: 0;
 	}
 
+	/* The content column: the content width plus its padding. */
 	[data-has-sidebar] .main-pane > main {
 		box-sizing: border-box;
 		max-width: calc(var(--sl-content-width) + 2 * var(--sl-content-pad-x));
-		min-height: calc(100vh - var(--sl-nav-height) - var(--aifs-layout-frame-padding));
-		border: var(--aifs-border-width-standard) solid var(--aifs-layout-sheet-border);
-		border-bottom: 0;
-		border-radius: var(--aifs-layout-sheet-radius) var(--aifs-layout-sheet-radius) 0 0;
-		background-color: var(--aifs-layout-sheet);
 	}
 
-	/* The 50rem cap is the column beside "On this page". With no table of
-	   contents the sheet fills the row, which is what the home page needs. */
-	[data-has-sidebar]:not([data-has-toc]) .main-pane > main {
-		max-width: none;
+	/* The sheet's widest: the content column, plus the table of contents and
+	   the padding before it. Shared with the notice bars above the sheet.
+	   Wide pages (plans, model tables) widen --sl-content-width themselves
+	   (custom.css, redesign.css). */
+	[data-has-sidebar] .main-frame {
+		--aifs-sheet-max-width: calc(
+			var(--sl-content-width) + 2 * var(--aifs-layout-sheet-padding) + 2 * var(--aifs-border-width-standard)
+		);
 	}
 
-	/* The row Starlight wraps around the table of contents and the content
-	   (TwoColumnContent.astro) gets the frame's padding and gap. No padding
-	   below: the sheet runs off the bottom of the page. */
+	[data-has-sidebar][data-has-toc] .main-frame {
+		--aifs-sheet-max-width: calc(
+			var(--aifs-layout-toc-width) + var(--sl-content-width) + 3 * var(--aifs-layout-sheet-padding) +
+				2 * var(--aifs-border-width-standard)
+		);
+	}
+
+	/* The sheet is the row Starlight wraps around the table of contents and
+	   the content (TwoColumnContent.astro): edge to edge, without a frame, in
+	   the page colour. Its padding keeps the table of contents and the
+	   content off its start edge. */
 	[data-has-sidebar] .main-frame > .lg\:sl-flex {
-		gap: var(--aifs-layout-frame-gap);
-		padding: var(--aifs-layout-frame-padding) var(--aifs-layout-frame-padding) 0;
+		box-sizing: border-box;
+		min-height: calc(100vh - var(--sl-nav-height));
+		margin: 0;
+		padding: 0;
+		gap: 0;
+		border: 0;
+		border-radius: 0;
+		background-color: var(--aifs-layout-sheet);
 	}
 }
 
-/* Notice banners live inside the content sheet (PreviewModelsBanner portals
-   them to the top of <main>), so they share the sheet's left and right edges. */
+/* Pages without On this page (this draft's design-system page and the
+   archived v1.2.0 pages; every current page has it) keep the wider column,
+   aifs.layout.content-width-wide. Wide elements elsewhere use the breakout
+   band below. Text still stops at the measure.
+   Starlight derives the content's centring and the header search's alignment
+   from --sl-content-width, so the variable is all that changes. [data-theme]
+   lifts this above the token mapping in tokens.css. */
+:root[data-theme][data-has-sidebar]:not([data-has-toc]) {
+	--sl-content-width: var(--aifs-layout-content-width-wide);
+}
+
+/* Wide elements (the models table): a band that leaves the text column. It
+   starts where the column starts (with the column's padding inside it) and
+   runs to the sheet's end edge, on the subtle backdrop, so the sheet seems
+   to stop above and below it. The pane is a size container, so the band can
+   measure it.
+   --aifs-breakout-out: how far the column stops short of the pane's edge. */
+[data-has-sidebar] .main-pane {
+	container-type: inline-size;
+	container-name: sheetpane;
+}
+
+/* .sl-markdown-content: above a component's own max-width: 100%. The
+   column is left-aligned in the pane (beside On this page, and on narrower
+   screens): the band reaches from its start to the pane's end edge. */
+.sl-markdown-content .aifs-breakout {
+	--aifs-breakout-out: calc(100cqw - min(100cqw, var(--sl-content-width) + 2 * var(--sl-content-pad-x)));
+	box-sizing: border-box;
+	width: auto;
+	max-width: none;
+	margin-inline: calc(-1 * var(--sl-content-pad-x)) calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
+	padding: var(--aifs-rhythm-block) var(--sl-content-pad-x);
+	background-color: var(--aifs-layout-tint);
+}
+
+/* Beside On this page the band starts at the sheet's start edge, under the
+   On this page column, so the table has that room too; its content starts
+   where On this page's text does. On these pages the list is not sticky
+   (above), so it has scrolled away before the band arrives; the band is
+   still painted above the column in case a long list reaches it. */
+@media (min-width: 72rem) {
+	[data-has-sidebar][data-has-toc] .sl-markdown-content .aifs-breakout {
+		position: relative;
+		z-index: 1;
+		margin-inline-start: calc(
+			-1 * (var(--sl-content-pad-x) + var(--aifs-layout-toc-width) + var(--aifs-layout-sheet-padding))
+		);
+		padding-inline-start: var(--aifs-layout-sheet-padding);
+	}
+}
+
+/* Wide screens without On this page centre the column: the band spans the
+   pane, its content keeps to the column. */
+@media (min-width: 72rem) {
+	[data-has-sidebar]:not([data-has-toc]) .sl-markdown-content .aifs-breakout {
+		--aifs-breakout-out: calc((100cqw - min(100cqw, var(--sl-content-width) + 2 * var(--sl-content-pad-x))) / 2);
+		margin-inline: calc(-1 * (var(--aifs-breakout-out) + var(--sl-content-pad-x)));
+		padding-inline: calc(var(--aifs-breakout-out) + var(--sl-content-pad-x));
+	}
+}
+
+/* Notice banners sit above the sheet, not in it: they are about the site,
+   not the page. PreviewModelsBanner places the row just before the sheet
+   (the row around the table of contents and the content). The row is a band
+   on the tint across the whole width; the notices in it start where the
+   page's text starts and stop at the sheet's former width. */
 .qp-stack {
 	display: flex;
 	flex-direction: column;
@@ -148,29 +245,41 @@ mobile-starlight-toc nav {
 	width: 100%;
 	box-sizing: border-box;
 	margin: 0;
-	/* Same inset as the content column, so the bars share its left edge. */
-	padding: 0 var(--sl-content-pad-x, 1rem) 8px;
+	/* Phones: the content column's inset. */
+	padding: var(--sl-content-pad-x, 1rem);
+	background-color: var(--aifs-layout-tint);
 }
 
-/* Below the desktop sheet, the content column was flush with the window.
-   The same inset the sheet uses above 72rem, on the right and between the
-   sidebar and the card. */
-@media (min-width: 50rem) and (max-width: 71.99rem) {
-	[data-has-sidebar] .main-pane > main {
-		box-sizing: border-box;
-		margin: 16px 16px 0;
-		border: var(--aifs-border-width-standard) solid var(--aifs-layout-sheet-border);
-		border-bottom: 0;
-		border-radius: var(--aifs-layout-sheet-radius) var(--aifs-layout-sheet-radius) 0 0;
-		background-color: var(--aifs-layout-sheet);
+@media (min-width: 72rem) {
+	/* Like the footer at the end, the band stays put under the header and the
+	   sheet (z-index 1, below) scrolls up over it. */
+	/* Its height is a whole number of rows of the site navigation beside it,
+	   so its bottom edge lines up with a row's line: 2 rows for one notice,
+	   3 for two, 4 for three or more (three notices are taller than three
+	   rows). The notices sit centred in it. */
+	[data-has-sidebar] .main-frame > .qp-stack {
+		--aifs-nav-row-height: calc(
+			2 * var(--aifs-sidebar-nav-padding-y) + var(--aifs-sidebar-nav-font-size) * var(--aifs-sidebar-nav-line-height) +
+				var(--aifs-border-width-standard)
+		);
+		position: sticky;
+		top: var(--sl-nav-height);
+		z-index: 0;
+		justify-content: center;
+		min-height: calc(2 * var(--aifs-nav-row-height));
+		padding: 0 var(--aifs-layout-sheet-padding);
 	}
-}
 
-/* From 1440px there is room for more air left and right of the row. The
-   breakpoint is a raw value: media queries can't read custom properties. */
-@media (min-width: 90rem) {
-	[data-has-sidebar] .main-frame > .lg\:sl-flex {
-		padding-inline: var(--aifs-layout-frame-padding-x-wide);
+	[data-has-sidebar] .main-frame > .qp-stack:has(> :nth-child(2)) {
+		min-height: calc(3 * var(--aifs-nav-row-height));
+	}
+
+	[data-has-sidebar] .main-frame > .qp-stack:has(> :nth-child(3)) {
+		min-height: calc(4 * var(--aifs-nav-row-height));
+	}
+
+	[data-has-sidebar] .main-frame > .qp-stack > * {
+		max-width: calc(var(--aifs-sheet-max-width) - 2 * var(--aifs-layout-sheet-padding));
 	}
 }
 
@@ -220,15 +329,30 @@ mobile-starlight-toc nav {
 		padding-bottom: 0;
 	}
 
+	/* The sheet ends with its own padding. The chat launcher sits in the
+	   frame's margin beside the sheet here, so the page needs no clearance
+	   for it (it does below 72rem, above). */
 	[data-has-sidebar] .main-pane .content-panel:last-of-type {
-		padding-bottom: calc(var(--aifs-layout-sheet-padding) + 4.5rem);
+		padding-bottom: var(--aifs-layout-sheet-padding);
+	}
+
+	/* The sheet sits above the site footer, which is fixed behind it on the
+	   tint (Footer.astro): the bottom margin is the room that reveals the
+	   footer at the end of the page. */
+	[data-has-sidebar] .main-frame > .lg\:sl-flex {
+		position: relative;
+		z-index: 1;
+		margin-bottom: var(--aifs-footer-height, 0px);
 	}
 }
 
-/* Line length: running text stops at the measure (about 75 characters).
-   Code blocks, tables, tabs and cards use the full content width. */
+/* Line length: running text stops at the measure (720px). On normal pages
+   the content column is the measure too (aifs.layout.content-width aliases
+   it), so text and boxes share one width and the sheet ends with the text.
+   On wide pages (plans, model tables) the column widens and the text still
+   stops here, as does text inside an aside. */
 .sl-markdown-content
-	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .starlight-aside):not(:where(.plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *)) {
+	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6):not(:where(.not-content *, .plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *)) {
 	max-width: var(--aifs-layout-measure);
 }
 
@@ -259,11 +383,12 @@ mobile-starlight-toc nav {
 
 
 /* Vertical rhythm, on Telekom's 8px scale (--aifs-rhythm-* tokens): the gap
-   grows with the size of the break. 16px between paragraphs (Starlight's
-   --sl-content-gap-y, set in tokens.css), 24px around blocks, 48, 32 or 24px
-   before a heading and 12px after it, so a heading sits with its section.
-   Unlayered, so these win over Starlight's content layer; :where() keeps the
-   block rule below the heading rules. */
+   grows with the size of the break, about 1.5x a step. 16px between
+   paragraphs (Starlight's --sl-content-gap-y, set in tokens.css), 32px around
+   blocks and components, 72, 48 or 32px before a heading and 12px after it,
+   so a heading sits with its section and sections separate. Unlayered, so
+   these win over Starlight's content layer; :where() keeps the block rule
+   below the heading rules. */
 .content-panel {
 	padding-block: var(--aifs-rhythm-panel-padding-y);
 }
@@ -284,8 +409,9 @@ main > .content-panel:nth-child(2 of .content-panel) {
 	padding-top: 12px;
 }
 
+/* A clear break between the content and the previous and next links. */
 .content-panel .sl-container > footer.sl-flex {
-	margin-top: 16px;
+	margin-top: var(--aifs-rhythm-page-end);
 }
 
 footer.sl-flex {
@@ -304,20 +430,37 @@ footer.sl-flex .meta:not(:has(*)) {
 	margin-top: var(--aifs-rhythm-stack);
 }
 
+/* Blocks and components: the block gap above and below, as margins that
+   collapse with the neighbour's. That works through hidden siblings (a
+   component's <script> often sits between it and the next paragraph), which
+   a "block + *" rule would land on instead. */
 .sl-markdown-content
-	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content),
-.sl-markdown-content
-	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content)
-	+ * {
-	margin-top: var(--aifs-rhythm-block);
+	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content, .hero-badges, .link-card-row, .choose-desktop, .models-comparison, .plans-page, .available-models) {
+	margin-block: var(--aifs-rhythm-block);
 }
 
-.sl-markdown-content > :first-child {
-	margin-top: 0;
+/* Components that open with a section heading start a section. :where()
+   keeps the first-child rule below in charge at the top of a page. */
+.sl-markdown-content > :where(.model-pick, .plans-page, .available-models:has(> .models-heading)) {
+	margin-top: var(--aifs-rhythm-heading-2);
+}
+
+@media (max-width: 50rem) {
+	.sl-markdown-content > :where(.model-pick, .plans-page, .available-models:has(> .models-heading)) {
+		margin-top: var(--aifs-rhythm-heading-2-compact);
+	}
 }
 
 .sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2) {
 	margin-top: var(--aifs-rhythm-heading-2);
+}
+
+/* Narrow screens: a smaller section break, so a section's start stays on
+   screen with the end of the one before. */
+@media (max-width: 50rem) {
+	.sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2) {
+		margin-top: var(--aifs-rhythm-heading-2-compact);
+	}
 }
 
 .sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
@@ -330,6 +473,12 @@ footer.sl-flex .meta:not(:has(*)) {
 
 .sl-markdown-content > :is(h2, h3, h4, h5, h6, .sl-heading-wrapper) + * {
 	margin-top: var(--aifs-rhythm-after-heading);
+}
+
+/* Nothing above the first element: the title's own gap is enough. The
+   doubled class outweighs the heading rules above. */
+.sl-markdown-content.sl-markdown-content > :first-child {
+	margin-top: 0;
 }
 
 /* A heading straight after another keeps its own gap. */

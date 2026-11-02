@@ -135,7 +135,7 @@ html:not([data-has-sidebar]) .meta {
 .link-card-row {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr);
-	gap: 0.75rem;
+	gap: var(--aifs-card-gap);
 	width: 100%;
 	justify-content: stretch;
 	justify-items: stretch;
@@ -165,73 +165,210 @@ html:not([data-has-sidebar]) .meta {
 	max-width: none;
 }
 
+/* Cards: Starlight's Card and LinkCard share one frame (--aifs-card-*).
+   Icon, title, description, top to bottom. A Card only informs; a LinkCard
+   is one click target with the arrow at the end, centred on its text. */
+.card,
 .sl-link-card {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	justify-content: flex-start;
-	gap: 4px;
-	width: 100%;
-	height: 100%;
-	min-width: 0;
 	box-sizing: border-box;
-	padding: 20px 24px;
-	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-	border-radius: var(--aifs-radius-card);
-	background: var(--aifs-color-surface-chrome);
+	min-width: 0;
+	padding: var(--aifs-card-padding);
+	border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+	border-radius: var(--aifs-card-radius);
+	background: var(--aifs-card-background);
 	box-shadow: none;
-	text-align: left;
+	text-align: start;
 }
 
-.sl-link-card > .icon {
-	order: -1;
-	width: 1.5rem;
-	height: 1.5rem;
-	flex: 0 0 auto;
-	color: var(--aifs-color-brand-text);
+.card {
+	display: flex;
+	flex-direction: column;
+	gap: var(--aifs-card-text-gap);
+}
+
+.card .title {
+	flex-direction: column;
+	align-items: flex-start;
+	gap: var(--aifs-card-icon-gap);
+	margin: 0;
+	font-size: var(--aifs-text-body-font-size);
+	font-weight: var(--aifs-card-title-font-weight);
+	line-height: var(--aifs-text-body-line-height);
+	color: var(--aifs-color-text-body);
+}
+
+.card .icon {
+	width: var(--aifs-card-icon-size);
+	height: var(--aifs-card-icon-size);
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: none;
+	color: var(--aifs-card-icon);
+}
+
+.card .body {
+	margin: 0;
+	font-size: var(--aifs-text-body-font-size);
+	color: var(--aifs-card-description);
+}
+
+.card .body > :first-child {
+	margin-top: 0;
+}
+
+.sl-link-card {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: center;
+	gap: var(--aifs-card-arrow-gap);
+	transition: border-color var(--aifs-card-transition-duration) ease;
 }
 
 .sl-link-card .stack {
-	width: 100%;
+	gap: var(--aifs-card-text-gap);
 	align-items: flex-start;
 }
 
 .sl-link-card .title {
 	display: block;
-	margin-top: 4px;
-	font-weight: 700;
 	font-size: var(--aifs-text-body-font-size);
-	text-align: left;
+	font-weight: var(--aifs-card-title-font-weight);
+	line-height: var(--aifs-text-body-line-height);
+	color: var(--aifs-color-text-body);
 }
 
 .sl-link-card .description {
 	display: block;
-	text-align: left;
+	line-height: var(--aifs-text-body-line-height);
+	color: var(--aifs-card-description);
 }
 
-.sl-link-card a {
-	text-align: left;
+.sl-link-card > .icon {
+	width: var(--aifs-card-icon-size);
+	height: var(--aifs-card-icon-size);
+	color: var(--aifs-card-arrow);
+	transition:
+		color var(--aifs-card-transition-duration) ease,
+		transform var(--aifs-card-transition-duration) ease;
 }
 
 .sl-link-card:hover,
 .sl-link-card:focus-within {
-	background: var(--aifs-color-surface-chrome);
-	border-color: var(--aifs-color-action-background);
+	background: var(--aifs-card-background);
+	border-color: var(--aifs-card-border-hovered);
 }
 
-.commitment-note {
-	background: var(--aifs-color-surface-subtle);
-	border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
+.sl-link-card:hover > .icon,
+.sl-link-card:focus-within > .icon {
+	color: var(--aifs-card-arrow-hovered);
+	transform: translateX(var(--aifs-card-arrow-shift));
+}
+
+/* The link's ::before covers the card, so the ring goes on the card. */
+.sl-link-card a:focus-visible {
+	outline: none;
+}
+
+.sl-link-card:has(a:focus-visible) {
+	outline: var(--aifs-card-focus-width) solid var(--aifs-card-focus);
+	outline-offset: var(--aifs-card-focus-offset);
+}
+
+/* Previous and next links at the end of a page: link cards too. "Previous"
+   or "Next" in the description colour, the page title as the card title,
+   the arrow at the outer edge, moving outward on hover. */
+/* Two fixed halves: a lone link keeps its half (previous on the start side,
+   next on the end side) instead of filling the row. Stacked on phones;
+   50rem is where Starlight's sidebar layout begins. */
+/* No wider than the reading column, also on the wide table pages, where
+   they sit in the middle of the sheet. */
+.pagination-links {
+	grid-template-columns: minmax(0, 1fr);
+	gap: var(--aifs-card-gap);
+	box-sizing: border-box;
+	width: 100%;
+	max-width: var(--aifs-layout-measure);
+	margin-inline: auto;
+}
+
+@media (min-width: 50rem) {
+	.pagination-links {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.pagination-links > a[rel='next'] {
+		grid-column: 2;
+	}
+}
+
+.pagination-links > a {
+	box-sizing: border-box;
+	gap: var(--aifs-card-arrow-gap);
+	padding: var(--aifs-card-padding);
+	border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+	border-radius: var(--aifs-card-radius);
+	background: var(--aifs-card-background);
+	box-shadow: none;
+	color: var(--aifs-card-description);
+	font-size: var(--aifs-text-body-font-size);
+	line-height: var(--aifs-text-body-line-height);
+	transition: border-color var(--aifs-card-transition-duration) ease;
+}
+
+.pagination-links .link-title {
+	font-size: var(--aifs-text-body-font-size);
+	font-weight: var(--aifs-card-title-font-weight);
+	line-height: var(--aifs-text-body-line-height);
 	color: var(--aifs-color-text-body);
 }
 
-.commitment-note__lead {
-	color: var(--aifs-color-text-body);
-	font-weight: 700;
+.pagination-links > a > svg {
+	width: var(--aifs-card-icon-size);
+	height: var(--aifs-card-icon-size);
+	color: var(--aifs-card-arrow);
+	transition:
+		color var(--aifs-card-transition-duration) ease,
+		transform var(--aifs-card-transition-duration) ease;
+}
+
+.pagination-links > a:is(:hover, :focus-visible) {
+	border-color: var(--aifs-card-border-hovered);
+}
+
+.pagination-links > a:is(:hover, :focus-visible) > svg {
+	color: var(--aifs-card-arrow-hovered);
+}
+
+.pagination-links > a[rel='prev']:is(:hover, :focus-visible) > svg {
+	transform: translateX(calc(-1 * var(--aifs-card-arrow-shift)));
+}
+
+.pagination-links > a[rel='next']:is(:hover, :focus-visible) > svg {
+	transform: translateX(var(--aifs-card-arrow-shift));
+}
+
+.pagination-links > a:focus-visible {
+	outline: var(--aifs-card-focus-width) solid var(--aifs-card-focus);
+	outline-offset: var(--aifs-card-focus-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.sl-link-card,
+	.sl-link-card > .icon,
+	.pagination-links > a,
+	.pagination-links > a > svg {
+		transition: none;
+	}
+
+	.sl-link-card:hover > .icon,
+	.sl-link-card:focus-within > .icon,
+	.pagination-links > a:is(:hover, :focus-visible) > svg {
+		transform: none;
+	}
 }
 
 .plans-table th a,
-.models-table-section .plans-table th a,
 .models-comparison-table thead th a,
 .sl-markdown-content th a {
 	color: inherit;
@@ -267,30 +404,14 @@ textarea {
 	max-width: 100%;
 }
 
-/* The data tables scroll inside these; as in Scale, there is no outer frame,
-   only the header's rounded top corners. */
-.models-table-section .table-wrapper,
-.models-comparison__scroll {
-	border-radius: var(--aifs-table-radius) var(--aifs-table-radius) 0 0;
-}
+/* The data tables scroll inside these. The table draws its own rounded
+   outline (table.css); the scroll area has no radius, or it would round the
+   table where it is cut off at the sheet's edge, not at its last column. */
 
 /* Page-QA rules Patrick's layout does not set. */
-:root[data-theme]:has(.models-table-section),
-:root[data-theme]:has(.models-comparison) {
-	--sl-content-width: 85rem;
-}
 
-:root:has(.models-table-section) .right-sidebar-container,
-:root:has(.models-comparison) .right-sidebar-container {
-	display: none;
-}
 
-.sl-markdown-content:has(.plans-page) :is(.link-card-row, .card-grid) {
-	max-width: 46rem !important;
-	width: min(100%, 46rem);
-}
-
-main:is(:has(.plans-page), :has(.models-comparison), :has(.models-table-section)) .qp-bar {
+main:is(:has(.plans-page), :has(.models-comparison)) .qp-bar {
 	width: 100% !important;
 	max-width: none !important;
 }
@@ -327,12 +448,6 @@ sup {
 	overflow-wrap: anywhere;
 	background: transparent;
 	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-standard);
-}
-
-.models-table-section .mt-compact-wrap {
-	box-shadow: none;
-	overflow: visible;
-	border-radius: var(--aifs-table-radius);
 }
 
 :root[data-theme='dark'] .sl-markdown-content img[src$='vision-rag-workflow.svg'] {

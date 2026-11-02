@@ -15,9 +15,9 @@
 // replaced GlmBanner.
 //
 // Kept deliberately compact: a slim single-line bar in its own row above the
-// table of contents and the content (portaled into .qp-stack by the script
-// below; styled in layout.css), so it never covers content and scrolls away
-// with the page.
+// content sheet, outside it (portaled into .qp-stack by the script below;
+// styled in layout.css), so it never covers content and scrolls away with
+// the page.
 //
 // Dismiss semantics are unchanged: this site navigates via full page loads, so
 // the closed state lives in sessionStorage (survives navigation between docs
@@ -89,20 +89,20 @@ import Icon from './Icon.astro';
 
     display: flex;
     align-items: center;
-    gap: 0.625rem;
+    gap: var(--aifs-notice-gap);
     /* Spans its row (.qp-stack in layout.css), which sets the gaps. */
     width: 100%;
     margin: 0;
-    padding: 0.45rem 0.75rem;
+    padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
 
     background: var(--aifs-color-surface-chrome);
     color: var(--aifs-color-text-body);
     border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
     border-inline-start: var(--aifs-border-width-indicator) solid var(--aifs-color-action-background);
-    border-radius: 8px;
+    border-radius: var(--aifs-notice-radius);
     box-shadow: none;
-    font-size: 0.875rem;
-    line-height: 1.35;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
 
     animation: gaSlideIn 0.32s cubic-bezier(0.2, 0.9, 0.25, 1.1);
   }
@@ -145,7 +145,7 @@ import Icon from './Icon.astro';
     color: var(--aifs-color-link-standard);
     font-weight: 600;
     text-decoration: underline;
-    text-underline-offset: 2px;
+    text-underline-offset: var(--aifs-radius-indicator);
     white-space: nowrap;
   }
   .qp-cta:hover,
@@ -156,12 +156,12 @@ import Icon from './Icon.astro';
   /* Drawn by the Button component (ghost, small, icon only). */
   .qp-bar :global(.qp-close) {
     flex-shrink: 0;
+    border-radius: var(--aifs-notice-close-radius);
   }
 
   .qp-bar :focus-visible {
-    outline: 2px solid var(--aifs-color-focus);
-    outline-offset: 2px;
-    border-radius: 6px;
+    outline: var(--aifs-button-focus-width) solid var(--aifs-color-focus);
+    outline-offset: var(--aifs-button-focus-width);
   }
 
   /* Phones: one line of text, the link, and the close control on the right. */
@@ -171,9 +171,9 @@ import Icon from './Icon.astro';
       grid-template-columns: auto minmax(0, 1fr) auto;
       grid-template-areas: "badge msg close" "badge cta close";
       align-items: center;
-      column-gap: 6px;
-      row-gap: 2px;
-      padding: 4px 6px;
+      column-gap: var(--aifs-notice-gap);
+      row-gap: var(--aifs-notice-row-gap-compact);
+      padding: var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-x-compact);
     }
     .qp-bar :global(.qp-badge) {
       grid-area: badge;
@@ -264,16 +264,18 @@ import Icon from './Icon.astro';
     });
     if (!bars.length) return;
 
-    // Portal to the top of the content sheet so the bars share its width and
-    // edges. They stay in flow, take real space, and scroll away with the page.
+    // Portal to just above the sheet, the row around the table of contents
+    // and the content: the bars are about the site, not the page, so they
+    // sit on the frame and share the sheet's width and edges (layout.css).
+    // They stay in flow, take real space, and scroll away with the page.
     let host = document.querySelector<HTMLElement>('.qp-stack');
-    const sheet = document.querySelector('main');
+    const sheet = document.querySelector('.main-pane')?.parentElement;
     if (!host) {
       host = document.createElement('div');
       host.className = 'qp-stack';
-      sheet?.prepend(host);
-    } else if (sheet && host.parentElement !== sheet) {
-      sheet.prepend(host);
+      sheet?.before(host);
+    } else if (sheet && host.nextElementSibling !== sheet) {
+      sheet.before(host);
     }
     if (bars[0].parentElement !== host) {
       host.append(...bars);
@@ -284,12 +286,13 @@ import Icon from './Icon.astro';
       bar.querySelector('.qp-close')?.addEventListener('click', () => dismiss(bar));
     }
 
-    // Escape dismisses the topmost visible bar.
+    // Escape dismisses a bar only while focus is inside it: elsewhere the
+    // key belongs to whatever is open (a dialog, search, a filter menu).
     if (!(window as any).__previewModelsBannerEscBound) {
       (window as any).__previewModelsBannerEscBound = true;
       document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Escape') return;
-        const el = document.querySelector<HTMLElement>('.qp-bar[data-key]:not([hidden])');
+        if (e.key !== 'Escape' || e.defaultPrevented) return;
+        const el = (document.activeElement as HTMLElement | null)?.closest<HTMLElement>('.qp-bar[data-key]:not([hidden])');
         if (el) dismiss(el);
       });
     }

@@ -1,4 +1,6 @@
 ---
+// Site part, not for reuse. Starlight's Banner slot (astro.config.mjs): on archived
+// v1.2.0 pages, a bar that links to the current docs; elsewhere the page's own banner.
 const { banner } = Astro.locals.starlightRoute.entry.data;
 const path = Astro.url.pathname;
 const archived = path.includes('/v1-2-0');

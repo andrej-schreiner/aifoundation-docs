@@ -1,120 +1,27 @@
 ---
-title: "Available Models"
-description: "Browse available LLMs, vision, embedding, and audio models on AI Foundation Services and retrieve the live model list via API."
+title: "Models"
+description: "Every model on AI Foundation Services in one table: provider, cloud, location, context, prices and plans. With the use-case pages and where each model runs."
 ---
 
-
-import { TabItem, Tabs } from '@astrojs/starlight/components';
-import AvailableModels from '../../../components/AvailableModels.astro';
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 
 AI Foundation Services provides access to a wide range of open-source and proprietary LLMs, embedding models, vision models, and audio models — all through a single OpenAI-compatible API.
 
-Browse the categories in the sidebar, or use the catalog below for context, pricing, and plan availability.
+Every model is in the table under [All models](#all-models). To list the models from code, see [Models API](/models/api).
 
+## Model use cases
 
-## Featured Models
+The models picked for a task, one page each:
 
-<AvailableModels showHeading={false} />
-
-For plan prices and rate limits, see [Plans & Pricing](/plans).
-
-## Catalog
-
-<ModelsComparison />
-
-## Understanding model categories
-
-- **Chat & reasoning** — General-purpose text generation, conversational agents, and reasoning.
-- **Coding** — Code-tuned models for completion, refactoring, and review.
-- **Vision** — Models that accept image input alongside text.
-- **Embeddings** — Convert text to vectors for semantic search, clustering, and RAG.
-- **Audio** — Speech-to-text models for transcription and translation.
-- **Images** — Generate images from text prompts.
-
-For data-handling details, see [Enterprise Trust](/reference/enterprise-trust).
-
-## List models via API
-
-<Tabs>
-  <TabItem value="curl" label="curl" default>
-    ```bash
-    curl "$OPENAI_BASE_URL/models" \
-      -H "Authorization: Bearer $OPENAI_API_KEY"
-    ```
-  </TabItem>
-  <TabItem value="python" label="Python">
-    ```python
-    from openai import OpenAI
-
-    client = OpenAI()
-
-    models = client.models.list()
-    for model in models.data:
-        print(model.id)
-    ```
-  </TabItem>
-  <TabItem value="node" label="Node.js">
-    ```javascript
-    import OpenAI from "openai";
-
-    const client = new OpenAI();
-
-    const models = await client.models.list();
-    for (const model of models.data) {
-      console.log(model.id);
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-
-## Model Metadata
-
-Each model includes metadata you can inspect:
-
-```python
-models = client.models.list()
-print(models.data[0].meta_data)
-```
-
-```json
-{
-  "model_type": "LLM",
-  "source_type": "OPEN SOURCE",
-  "max_sequence_length": 128000,
-  "hidden_size": 0,
-  "max_output_length": 0,
-  "deployment_region": "otc-germany",
-  "location": "otc-germany",
-  "license": "https://www.llama.com/llama3_3/license/",
-  "display_name": "Meta LLama 3.3 70B",
-  "deployment_country": "Germany, EU",
-  "input_modalities": ["text"],
-  "output_modalities": ["text"],
-  "model_lifecycle_stage": "Stable",
-  "is_externally_hosted": false
-}
-```
-
-**Key fields:**
-- **model_type** — `LLM`, `EMBEDDING`, `STT` (audio)
-- **max_sequence_length** — Maximum input + output tokens
-- **hidden_size** — Embedding vector dimensions (embedding models only)
-- **max_output_length** — Maximum output tokens the model can generate
-- **deployment_region** — Where the model is hosted (e.g., `otc-germany` for T-Cloud Germany)
-
-
-## Model Categories
-
-| Category | Examples | Use Case |
-|---|---|---|
-| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning |
-| **Embedding** | jina-embeddings-v2-base-de, text-embedding-bge-m3 | Semantic search, RAG |
-| **Vision** | Qwen 3.6 35B, Gemma 4 | Image analysis, multimodal chat |
-| **Audio/STT** | whisper-large-v3, whisper-large-v3-turbo | Speech-to-text, translation |
-| **Image Generation** | gpt-image-2 | Image creation from text prompts |
-
+<CardGrid>
+  <LinkCard title="For chat & reasoning" description="Text generation, conversational agents, and reasoning. For example GPT-OSS 120B, GLM 5.3, Claude Sonnet 5." href="/models/llms" />
+  <LinkCard title="For coding" description="Code-tuned models for completion, refactoring, and review." href="/models/coding" />
+  <LinkCard title="For vision" description="Models that accept image input alongside text, such as Qwen 3.6 35B and Gemma 4." href="/models/vision" />
+  <LinkCard title="For embeddings" description="Text as vectors for semantic search, clustering, and RAG, such as text-embedding-bge-m3." href="/models/embeddings" />
+  <LinkCard title="For audio" description="Speech-to-text for transcription and translation, such as whisper-large-v3." href="/models/audio" />
+  <LinkCard title="For images" description="Images from text prompts, such as gpt-image-2." href="/models/image-generation" />
+</CardGrid>
 
 ## Hosting & Compliance
 
@@ -124,3 +31,9 @@ print(models.data[0].meta_data)
 **Customer data is not used for model training, regardless of which model you select.**
 
 See [Enterprise Trust](/reference/enterprise-trust) for the full two-category data-handling breakdown.
+
+## All models
+
+Every model in one table, with its context, pricing, and plan availability. Filter by any of its attributes and sort by any column. For each plan's prices and rate limits, see [Plans & Pricing](/plans).
+
+<ModelsComparison />

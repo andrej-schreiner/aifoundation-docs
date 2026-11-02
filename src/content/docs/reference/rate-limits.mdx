@@ -47,10 +47,9 @@ For the full per-model breakdown for your plan, see the [Plans & Pricing](/plans
 
 ## How Rate Limits Work
 
-- **TPM (Tokens per Minute)** — best-effort *ceiling* on input tokens processed per minute; not an SLA-backed throughput target
+- **TPM (Tokens per Minute)** — best-effort *ceiling* on tokens processed per minute, with separate limits for input and output tokens (see the tables above); not an SLA-backed throughput target
 - **RPM (Requests per Minute)** — best-effort *ceiling* on API requests per minute; not an SLA-backed request-rate target
 - Limits apply at the project level — all API keys you generate in a project share the same quota
-- Both input and output tokens count toward TPM limits
 
 In other words, RPM/TPM tell you when the platform will start *throttling* your traffic. They do **not** tell you the rate at which the platform will *serve* your traffic. On the shared service, the realized rate depends on platform load and other tenants' usage of the same model.
 
@@ -170,7 +169,7 @@ def safe_completion(messages, max_retries=3):
 
 <a id="about-these-rpm-and-tpm-values"></a>
 
-## Service note on the published RPM and TPM values
+## Rate limits are ceilings, not guarantees
 
 <sup>&ast;</sup> The Requests-per-Minute (RPM) and Tokens-per-Minute (TPM) figures throughout this page are **best-effort, best-case ceilings** for the Shared LLM Serving Service. They denote the maximum traffic permitted under the contract — not a guaranteed level of throughput. The following conditions apply:
 

@@ -1,6 +1,9 @@
 ---
+// The "Choosing a model" table: one row per use case with the recommended model,
+// an alternative, where it runs and its context. Page component, not for reuse.
 import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
-import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { creatorNameFor } from '../shared/lib/logos';
+import Logo from './Logo.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
@@ -66,10 +69,6 @@ function contextCell(recommended: string, alternative: string): string {
   return a === b ? a : `${a} · ${b}`;
 }
 
-function logoFor(id: string, name: string): { src: string; zoom: boolean } {
-  const creator = creatorNameFor(id, name);
-  return { src: getLogo(creator) || getLogo('Other'), zoom: creator.startsWith('Google') };
-}
 ---
 
 <div class="choose-desktop">
@@ -89,15 +88,12 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
         {CHOICE_ROWS.map((row) => {
           const recommended = modelFact(row.recommended);
           const alternative = modelFact(row.alternative);
-          const logo = logoFor(recommended.id, recommended.name);
           return (
             <tr>
               <td>{isDE ? row.useCase.de : row.useCase.en}</td>
               <td>
                 <span class="choose-name">
-                  <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
-                    <img src={logo.src} alt="" width="20" height="20" />
-                  </span>
+                  <Logo name={creatorNameFor(recommended.id, recommended.name)} size="small" decorative />
                   <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
                 </span>
               </td>
@@ -120,14 +116,11 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
   {CHOICE_ROWS.map((row) => {
     const recommended = modelFact(row.recommended);
     const alternative = modelFact(row.alternative);
-    const logo = logoFor(recommended.id, recommended.name);
     return (
       <li class="choose-card">
         <p class="choose-card__case">{isDE ? row.useCase.de : row.useCase.en}</p>
         <p class="choose-card__rec">
-          <span class:list={['choose-mark', { 'choose-mark--zoom': logo.zoom }]}>
-            <img src={logo.src} alt="" width="20" height="20" />
-          </span>
+          <Logo name={creatorNameFor(recommended.id, recommended.name)} size="small" decorative />
           <span>
             <span class="choose-k">{t.recommended}</span>
             {recommended.name}
@@ -227,43 +220,6 @@ function logoFor(id: string, name: string): { src: string; zoom: boolean } {
 
   .choose-name > span:last-child {
     min-width: 0;
-  }
-
-  .choose-name .choose-mark {
-    margin-inline-end: 0;
-    box-sizing: border-box;
-  }
-
-  .choose-mark {
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
-    margin-inline-end: 6px;
-    vertical-align: middle;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    padding: 2px;
-    border: 1px solid var(--aifs-color-border-subtle);
-    border-radius: 4px;
-    background: var(--aifs-color-logo-background, #fff);
-  }
-
-  .choose-mark--zoom {
-    padding: 0;
-  }
-
-  .choose-mark img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .choose-mark--zoom img {
-    width: 175%;
-    height: 175%;
-    max-width: none;
   }
 
   .choose-card {

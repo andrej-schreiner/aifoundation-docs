@@ -69,7 +69,9 @@
 /* Focus ring inside the row, as in Scale, so it isn't cut off by the
    column's edge. */
 .sidebar-content :is(a, summary):focus-visible {
-	outline: none;
+	/* Transparent outline: high contrast drops the shadow and paints this. */
+	outline: var(--aifs-sidebar-nav-focus-width) solid transparent;
+	outline-offset: calc(-1 * var(--aifs-sidebar-nav-focus-width));
 	box-shadow: inset 0 0 0 var(--aifs-sidebar-nav-focus-width) var(--aifs-sidebar-nav-focus);
 }
 
@@ -197,7 +199,8 @@
 	}
 
 	.right-sidebar-panel starlight-toc a:focus-visible {
-		outline: none;
+		outline: var(--aifs-sidebar-nav-focus-width) solid transparent;
+		outline-offset: calc(-1 * var(--aifs-sidebar-nav-focus-width));
 		box-shadow: inset 0 0 0 var(--aifs-sidebar-nav-focus-width) var(--aifs-sidebar-nav-focus);
 	}
 

@@ -1,4 +1,4 @@
-# Design tokens (draft)
+# Design tokens
 
 Telekom design tokens for the AI Foundation Services docs, in the
 [DTCG 2025.10 format](https://www.designtokens.org/tr/2025.10/format/),
@@ -58,7 +58,7 @@ variable it should fill, for example `aifs.color.link.standard` →
 `--sl-color-text-accent`. For typography tokens, `property` says which part of
 the composite goes into the variable.
 
-Decisions made in the draft:
+Decisions made:
 
 - **Links are blue, actions are magenta.** Telekom's semantic link colour is
   blue (`#2238df` light, `#7d94f9` dark). Magenta is kept for primary actions
@@ -87,9 +87,10 @@ Decisions made in the draft:
    colour alone (WCAG 1.4.1). The underline is the non-colour cue.
 2. **TeleNeo needs a licensed webfont.** Without the font files served by the
    site, every reader sees the system font.
-3. **Shadows and spacing are not tokenised yet.** Shadows are marked
-   `TODO(token-gap)` where they are used; paddings and gaps are still literal
-   values.
+3. **Shadows and most spacing are not tokenised yet.** Shadows are marked
+   `TODO(token-gap)` where they are used. Page rhythm, layout widths and
+   grid gaps are tokens (`aifs.rhythm.*`, `aifs.layout.*`); paddings and gaps
+   inside components are still mostly literal values (GAPS.md).
 
 ## Checks run
 

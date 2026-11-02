@@ -1,28 +1,21 @@
 ---
 title: "Essential"
 description: "Modellverfügbarkeit, Rate-Limits und Preise für den LLM Hub Essential-Tarif — geeignet für wachsende API-Workloads."
-tableOfContents: false
 ---
 
 import PlansPage from '../../../../components/PlansPage.astro';
 
 Der monatliche Mindestumsatz im Tarif Essential beträgt 1.000 € an Token-Verbrauch. Die Nutzung darüber hinaus wird zu den ausgewiesenen Token-Preisen abgerechnet. Die Tarife unterscheiden sich durch den Durchsatz (RPM und TPM); siehe [Rate-Limits](/de/reference/rate-limits).
 
-<div style="max-width: 54rem;">
-
 :::note
 Preise gültig ab 1. August 2026. RPM- und TPM-Werte sind mit einem Sternchen <sup><a href="#rpm-tpm-notes">&ast;</a></sup> markiert — klicken Sie auf ein Sternchen für die vollständigen Bedingungen.
 :::
 
-</div>
-
 <PlansPage selectedPlanId="Essential" />
-
-<div style="max-width: 54rem;">
 
 <a id="rpm-tpm-notes"></a>
 
-## Servicehinweis zu den veröffentlichten RPM- und TPM-Werten
+## Rate-Limits sind Obergrenzen, keine Garantie
 
 <sup>&ast;</sup> Die oben gezeigten Werte für Anfragen pro Minute (RPM) und Token pro Minute (TPM) sind **Best-Effort-/Best-Case-Obergrenzen** im Shared LLM Serving Service. Sie geben den vertraglich maximal zulässigen Verbrauch an — keinen zugesicherten Durchsatz. Es gelten die folgenden Bedingungen:
 
@@ -32,4 +25,3 @@ Preise gültig ab 1. August 2026. RPM- und TPM-Werte sind mit einem Sternchen <s
 
 Für individuelle Anforderungen wenden Sie sich an das AIFS-Team unter [ai@t-systems.com](mailto:ai@t-systems.com).
 
-</div>

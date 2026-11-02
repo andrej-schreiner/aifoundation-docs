@@ -1,11 +1,16 @@
 ---
+// The plans page: rate plan cards, then the plan's models in ModelsComparison
+// (plan preset). `selectedPlanId` shows one plan; without it, every plan with a
+// plan field.
+import { parseLocation as parseRegionLocation } from '../shared/lib/location';
 import currentPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-01-19.json';
-import ModelsTable from './ModelsTable.astro';
+import ModelsComparison from './ModelsComparison.astro';
 import Tooltip from './Tooltip.astro';
+import PlanTag from './PlanTag.astro';
 import Icon from './Icon.astro';
 import Button from './Button.astro';
-import { creatorNameFor, logos } from '../shared/lib/logos';
+import { creatorNameFor } from '../shared/lib/logos';
 import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
@@ -57,8 +62,11 @@ const t = {
   spendNote: isDE
     ? 'Der Mindestumsatz ist monatlicher Token-Verbrauch, keine zusätzliche Gebühr. Darüber wird zu den ausgewiesenen Token-Preisen abgerechnet.'
     : 'The minimum commitment is monthly token spend, not an extra fee. Usage above it is billed at the listed token prices.',
-  perMonth: isDE ? '/ Monat Mindest-Tokenumsatz' : '/ month minimum token spend',
-  throughputLabel: isDE ? 'Durchsatz (TPM / RPM)' : 'Throughput (TPM / RPM)',
+  perMonth: isDE ? 'pro Monat, Mindestumsatz' : 'per month, minimum spend',
+  byAgreement: isDE ? 'nach Vereinbarung' : 'by agreement',
+  throughputLabel: isDE ? 'Durchsatz' : 'Throughput',
+  viewPlan: isDE ? 'Tarif ansehen' : 'View plan',
+  viewPlanNamed: isDE ? 'Tarif {plan} ansehen' : 'View plan {plan}',
   checkTCloud: isDE ? 'T-Cloud-Modelle' : 'T-Cloud models',
   checkHyperscaler: isDE ? 'Hyperscaler-Modelle' : 'Hyperscaler models',
   checkPremium: isDE ? 'Premium-Modelle' : 'Premium models',
@@ -72,7 +80,7 @@ const t = {
   modelsSubtitleList: isDE
     ? [
         'Probieren Sie die neuesten KI-Modelle aus: kostenlos testen, sofort erkunden. Unser Vorschau-Katalog ist Ihre Testumgebung, in der Sie Funktionen bewerten, die Leistung vergleichen und Ideen prototypisieren können, bevor Sie sie in Produktionsumgebungen einsetzen. Sie benötigen lediglich einen aktiven Tarif (Essential, Professional oder Agentic), um loszulegen.',
-        'Wähle ein Modell aus, probiere es in deinem Arbeitsablauf aus und finde heraus, was am besten passt.',
+        'Wählen Sie ein Modell aus, probieren Sie es in Ihrem Arbeitsablauf aus und finden Sie heraus, was am besten passt.',
         '\nHinweis',
         'Die Nutzung der Testmodelle ist kostenfrei, setzt jedoch das Abschließen eines Tarifes (Essential / Professional / Agentic) voraus. Die Telekom ist berechtigt, die Nutzung der Testmodelle jederzeit zu limitieren, insbesondere hinsichtlich der verfügbaren Tokens, Rate-Limits (TPM/RPM) und der Nutzungsdauer. Die Telekom ist berechtigt, die Testmodelle jederzeit und ohne vorherige Ankündigung abzuschalten oder den Zugang des Kunden zu diesen einzuschränken. Der Kunde hat keinen Rechtsanspruch auf die fortlaufende Bereitstellung der Testmodelle.',
       ]
@@ -121,6 +129,16 @@ const t = {
   thLimitsSub: 'RPM · TPM',
   thContext: isDE ? 'Kontext' : 'Context',
   thDetails: 'Details',
+  // Model table headers, as on All models: the label, the unit below it.
+  thCloud: 'Cloud',
+  thLocation: isDE ? 'Standort' : 'Location',
+  thCachedInput: isDE ? 'Cache-Eingabe' : 'Cached input',
+  thRequests: isDE ? 'Anfragen' : 'Requests',
+  thTokensPerMinute: 'Tokens',
+  unitPrice: isDE ? '€ / 1 Mio. Tokens' : '€ / 1M tokens',
+  unitPerMinute: isDE ? 'pro Minute' : 'per minute',
+  unitTokens: isDE ? 'Tokens' : 'tokens',
+  sortBy: isDE ? 'Nach {label} sortieren' : 'Sort by {label}',
   dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
   dynamicQuota: isDE ? 'Dynamisches Kontingent' : 'Dynamic Shared Quota',
   labelSortBy: isDE ? 'Sortieren nach' : 'Sort by',
@@ -337,33 +355,8 @@ function parseModelCreator(exactModelName: string | undefined, displayModelName:
   return creatorNameFor(exactModelName, displayModelName);
 }
 
-const COUNTRY_CODES: Record<string, string> = {
-  germany: 'de',
-  sweden: 'se',
-  france: 'fr',
-  europe: 'eu',
-  us: 'us',
-  // Not a flag — `.fi-globe` is defined in src/styles/custom.css.
-  worldwide: 'globe',
-};
-
-const REGION_DE: Record<string, string> = {
-  germany: 'Deutschland',
-  sweden: 'Schweden',
-  france: 'Frankreich',
-  europe: 'Europa',
-  worldwide: 'Weltweit',
-  us: 'USA',
-};
-
 function parseLocation(deploymentRegion: string): { name: string; code: string } {
-  const parts = deploymentRegion.toLowerCase().split('-');
-  if (parts.length < 2) return { name: deploymentRegion, code: '' };
-  const raw = parts[1];
-  const english = raw.charAt(0).toUpperCase() + raw.slice(1);
-  const name = isDE ? (REGION_DE[raw] ?? english) : english;
-  const code = COUNTRY_CODES[raw] || '';
-  return { name, code };
+  return parseRegionLocation(deploymentRegion, isDE);
 }
 
 function mapModelRow(
@@ -489,7 +482,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                 {planConfigs.map((plan) => (
                   <tr>
                     <td data-label={t.thPlan}>
-                      <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
+                      <PlanTag plan={plan.label} size="small" />
                     </td>
                     <td data-label={t.thCommitment}>
                       <span class="plans-table__main-text">{plan.basePrice}</span>
@@ -532,29 +525,33 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               ];
               return (
                 <li class="plan-tile">
-                  <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
-                  <p class="plan-tile__price">{price}</p>
-                  <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
+                  {/* Header: the plan tag (the plan's colour), the price, what
+                      the price means. A hairline separates it from the details. */}
+                  <div class="plan-tile__head">
+                    <h3 class="plan-tile__name">
+                      <PlanTag plan={plan.label} size="small" />
+                    </h3>
+                    <p class="plan-tile__price">{price}</p>
+                    <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : t.byAgreement}</p>
+                  </div>
                   <p class="plan-tile__for">{blurb}</p>
-                  <a class="plan-meter" href={t.rateLimitsHref}>
-                    <span class="plan-meter__label">{t.throughputLabel}</span>
-                    <span class="plan-meter__track">
-                      <span class="plan-meter__bar" aria-hidden="true">
-                        {[1, 2, 3, 4].map((step) => (
-                          <span
-                            class:list={[
-                              'plan-meter__seg',
-                              { 'is-on': meter > 0 && step <= meter, 'is-custom': meter === 0 },
-                            ]}
-                          />
-                        ))}
-                      </span>
-                      {meter === 0 && <span class="plan-meter__custom">{t.priceCustom}</span>}
+                  {/* Throughput as a bar in the plan's colour: one to four
+                      segments; a custom plan fills it. The link to the rate
+                      limits is in the sentence above the cards. */}
+                  <div class="plan-meter">
+                    <span class="plan-meter__label">
+                      {t.throughputLabel}
+                      <span class="sr-only">{meter === 0 ? t.priceCustom : `${meter} / 4`}</span>
                     </span>
-                  </a>
+                    <span class="plan-meter__bar" aria-hidden="true">
+                      {[1, 2, 3, 4].map((step) => (
+                        <span class:list={['plan-meter__seg', { 'is-on': meter === 0 || step <= meter }]} />
+                      ))}
+                    </span>
+                  </div>
                   <ul class="plan-tile__list">
                     {checks.map((item) => (
-                      <li>
+                      <li class:list={{ 'is-off': !item.on }}>
                         <span class:list={['plan-tile__mark', item.on ? 'is-yes' : 'is-no']}>
                           <Icon name={item.on ? 'action-checkmark' : 'action-close'} size={16} />
                         </span>
@@ -563,9 +560,18 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
                     ))}
                   </ul>
                   <div class="plan-tile__action">
-                    {plan.basePrice === 'Custom' && (
+                    {plan.basePrice === 'Custom' ? (
                       <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
                         {t.contactCta}
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        href={`${isDE ? '/de' : ''}/plans/${planTagKey(plan.label)}/`}
+                        ariaLabel={t.viewPlanNamed.replace('{plan}', plan.label)}
+                        class="plan-tile__cta">
+                        {t.viewPlan}
                       </Button>
                     )}
                   </div>
@@ -585,18 +591,30 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     )
   }
 
-  <ModelsTable
-    plansData={plansData}
-    effectiveIndex={initialPlanIndex}
-    locked={Boolean(selectedPlanId)}
-    translations={t}
-    logos={logos}
-    hostTooltips={hostTooltips}
-    tierTooltips={tierTooltips}
-    creatorTooltips={creatorTooltips}
-    testModelsSectionTitle={modelsSectionTitle}
-    legacy={legacy}
-  />
+  <section class="models-section plans-models-section">
+    {/* The models table of All models, with the plan preset: this plan's
+        prices, limits per minute and legal links. */}
+    <h2>{modelsSectionTitle || t.modelsTitle}</h2>
+    {modelsSectionTitle
+      ? (t.modelsSubtitleList as string[]).map((item) =>
+          item.startsWith('\n') ? <p class="plans-models-intro"><strong>{item.trim()}</strong></p> : <p class="plans-models-intro">{item}</p>,
+        )
+      : <p class="plans-models-intro">{t.modelsSubtitle}</p>}
+    <ModelsComparison
+      columns="plan"
+      plans={plansData}
+      plan={plansData[initialPlanIndex]?.packageName}
+      planLocked={Boolean(selectedPlanId)}
+    />
+    <div class="plans-models-notes">
+      <p id="cached-token-notes">&dagger; {t.cachedPriceNote}</p>
+      <p id="worldwide-location-notes">
+        {t.worldwideLocationNote}{' '}
+        <a href={t.enterpriseTrustHref}>{t.enterpriseTrustLabel}</a>
+      </p>
+      <p>{t.adequacyNote}</p>
+    </div>
+  </section>
 </div>
 
 <style is:global>
@@ -619,8 +637,41 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     color: var(--aifs-color-link-standard);
   }
 
+  /* Each section (rate plans, models) is a page section: the section gap
+     between them, the after-heading gap under their headings. */
+  .plans-page > * + * {
+    margin-top: var(--aifs-rhythm-heading-2);
+  }
+
+  .plans-page :is(.rate-plans-section, .plans-models-section) > h2 {
+    margin: 0 0 var(--aifs-rhythm-after-heading);
+  }
+
+  /* Intro, table and notes: the flow gap between paragraphs, the block gap
+     around the table. */
+  .plans-models-intro {
+    max-width: var(--aifs-layout-measure);
+    margin: 0 0 var(--aifs-rhythm-flow);
+  }
+
+  .plans-models-section > .models-comparison {
+    margin-top: var(--aifs-rhythm-block);
+  }
+
+  .plans-models-notes {
+    display: grid;
+    gap: var(--aifs-rhythm-after-heading);
+    max-width: var(--aifs-layout-measure);
+    margin-top: var(--aifs-rhythm-flow);
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+  }
+
+  .plans-models-notes p {
+    margin: 0;
+  }
+
   .rate-plans-section {
-    margin-bottom: 8px;
     container-type: inline-size;
     container-name: rateplans;
   }
@@ -628,118 +679,127 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tiles {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: var(--aifs-layout-grid-gap);
     margin: 0;
     padding: 0;
     list-style: none;
     align-items: stretch;
   }
 
+  /* Rate plan cards: the card frame (aifs.card.*), neutral; the plan tag
+     carries the plan's colour.
+     Rows line up across the cards (subgrid): header, description,
+     throughput, features, action. Not a link itself; the button is. */
   .plan-tile {
     display: grid;
     grid-template-rows: subgrid;
-    grid-row: span 7;
-    gap: 8px;
+    grid-row: span 5;
+    gap: var(--aifs-model-card-gap);
     min-width: 0;
     margin: 0;
-    padding: 16px;
-    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-    border-radius: var(--aifs-radius-card);
-    background: var(--aifs-color-surface-chrome);
+    padding: 0 0 var(--aifs-model-card-padding);
+    overflow: hidden;
+    border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+    border-radius: var(--aifs-card-radius);
+    background: var(--aifs-card-background);
   }
 
-  .plan-tile > .plans-tag {
-    align-self: start;
-    justify-self: start;
+  .plan-tile > :not(.plan-tile__head) {
+    margin: 0;
+    padding-inline: var(--aifs-model-card-padding);
+  }
+
+  .plan-tile__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-rhythm-after-heading);
+    padding: var(--aifs-model-card-padding);
+    border-bottom: var(--aifs-card-border-width) solid var(--aifs-card-border);
+  }
+
+  .sl-markdown-content .plan-tile__name {
+    margin: 0;
+    line-height: 0;
   }
 
   .plan-tile__price {
     margin: 0;
     color: var(--aifs-color-text-body);
-    font-family: var(--aifs-text-h2-font-family);
-    font-size: var(--aifs-text-h2-font-size);
-    font-weight: var(--aifs-text-h2-font-weight);
-    line-height: var(--aifs-text-h2-line-height);
+    font-family: var(--aifs-text-h1-font-family);
+    font-size: var(--aifs-text-h1-font-size);
+    font-weight: var(--aifs-text-h1-font-weight);
+    line-height: var(--aifs-text-h1-line-height);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sl-markdown-content .plan-tile__head > * + * {
+    margin-top: 0;
   }
 
   .plan-tile__unit {
-    margin: -4px 0 0;
+    margin: calc(-1 * var(--aifs-model-card-logo-padding)) 0 0;
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
-    font-weight: 500;
     line-height: var(--aifs-text-small-line-height);
   }
 
-  .sl-markdown-content a.plan-meter {
+  .plan-tile__for {
+    color: var(--aifs-color-text-body);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  .plan-meter {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-top: 4px;
-    color: inherit;
+    gap: var(--aifs-model-card-row-gap);
+  }
+
+  .plan-meter__label {
+    color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
-    font-weight: var(--aifs-button-font-weight);
     line-height: var(--aifs-text-small-line-height);
-    text-decoration: none;
-  }
-
-  .sl-markdown-content a.plan-meter .plan-meter__label {
-    color: var(--aifs-color-link-standard);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .sl-markdown-content a.plan-meter:hover .plan-meter__label,
-  .sl-markdown-content a.plan-meter:focus-visible .plan-meter__label {
-    color: var(--aifs-color-link-hovered);
-  }
-
-  .plan-meter__track {
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
 
   .plan-meter__bar {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
-    flex: 1 1 auto;
-    height: 8px;
+    gap: var(--aifs-model-card-logo-padding);
+    height: var(--aifs-model-card-row-gap);
   }
 
   .plan-meter__seg {
-    border-radius: var(--aifs-radius-control);
+    border-radius: var(--aifs-radius-indicator);
     background: var(--aifs-color-scale-6);
   }
 
-  .plan-meter__seg.is-on,
-  .plan-meter__seg.is-custom {
+  .plan-meter__seg.is-on {
     background: var(--aifs-color-action-background);
-  }
-
-  .plan-meter__custom {
-    flex: 0 0 auto;
-    color: var(--aifs-color-brand-text);
-    font-size: var(--aifs-tag-font-size-small);
-    font-weight: var(--aifs-tag-font-weight);
   }
 
   .plan-tile__list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin: 4px 0 0;
-    padding: 0;
+    gap: var(--aifs-model-card-row-gap);
+    padding-block: 0;
     list-style: none;
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
   }
 
+  .sl-markdown-content .plan-tile__list > li + li {
+    margin-top: 0;
+  }
+
   .plan-tile__list li {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--aifs-model-card-row-gap);
     min-width: 0;
+  }
+
+  .plan-tile__list li.is-off {
+    color: var(--aifs-color-text-muted);
   }
 
   .plan-tile__mark {
@@ -755,11 +815,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     color: var(--aifs-color-text-muted);
   }
 
-  .plan-tile__for {
-    margin: 0;
-    color: var(--aifs-color-text-body);
-    font-size: var(--aifs-text-small-font-size);
-    line-height: var(--aifs-text-small-line-height);
+  .plan-tile__action {
+    align-self: end;
   }
 
   /* Full width of the card. Colour, height, radius and states come from
@@ -770,7 +827,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .plan-spend {
     margin: 8px 0 0;
-    max-width: 54rem;
+    max-width: var(--aifs-layout-measure);
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
@@ -820,16 +877,12 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plans-table td:nth-last-child(-n + 2) .ui-tooltip__content {
     left: auto;
     right: 0;
-    transform: translateX(0) translateY(0.35rem);
-  }
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip:hover .ui-tooltip__content,
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip:focus-within .ui-tooltip__content {
-    transform: translateX(0) translateY(0);
+    transform: none;
   }
   .plans-table td:nth-last-child(-n + 2) .ui-tooltip__content::after {
     left: auto;
     right: 1.5rem;
+    margin-left: 0;
   }
 
   .table-wrapper > table {
@@ -838,7 +891,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   }
 
   .par-description {
-    width: min(100%, 54rem);
+    max-width: var(--aifs-layout-measure);
   }
 
   .token-price-note {
@@ -849,10 +902,9 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plans-table {
     display: table;
     width: 100%;
-    border-collapse: collapse;
     font-size: 0.875rem;
     overflow-wrap: break-word;
-    border: 0;
+    /* Border model and outline: table.css. */
   }
 
   /* Five short columns. Fixed layout lets Host and Tier chips wrap inside
@@ -867,7 +919,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     overflow-wrap: break-word;
   }
 
-  .rate-plans-section .plans-table :is(.ui-tooltip, .plans-tag) {
+  .rate-plans-section .plans-table :is(.ui-tooltip, .plans-tag, .aifs-tag) {
     margin-inline-end: 4px;
   }
 
@@ -982,15 +1034,4 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     }
   }
 
-  @media (max-width: 1200px) {
-    .par-description {
-      width: min(100%, 46rem);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .par-description {
-      width: 100%;
-    }
-  }
 </style>

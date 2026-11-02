@@ -91,6 +91,9 @@ export default defineConfig({
 	base: '/',
 	redirects: {
 		...archivedVersions,
+		// All models is now the last section of the Models page.
+		'/models/catalog': '/models/#all-models',
+		'/de/models/catalog': '/de/models/#alle-modelle',
 		'/Quickstart': '/',
 		'/getting-started/quickstart': '/',
 		'/de/getting-started/quickstart': '/de/',
@@ -272,13 +275,18 @@ export default defineConfig({
 			// tokens.css is generated from tokens/ (bun run tokens) and loaded last, so the
 			// Starlight variables it sets win over the hand-set ones in the other two.
 			routeMiddleware: './src/starlightRouteData.ts',
-			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tokens.css'],
+			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/data-table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tooltip.css', './src/styles/tokens.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
+				// Every block in the terminal frame, not only shell languages: one
+				// look for all code, with the file name (title="…") in its title bar.
+				defaultProps: { frame: 'terminal' },
 			},
 			plugins: [
 				starlightVersions({
-					versions: [{ slug: 'v1-2-0', label: 'v1.2.0 (Archived)' }],
+					// No "(Archived)": archived pages carry a banner, and the suffix set the
+					// width of every header select (a select is as wide as its longest option).
+					versions: [{ slug: 'v1-2-0', label: 'v1.2.0' }],
 				}),
 			],
 			defaultLocale: 'root',
@@ -287,9 +295,11 @@ export default defineConfig({
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
+				// Every group starts closed; Starlight opens the one with the current page.
 				{
 					label: 'Get started',
 					translations: { de: 'Erste Schritte' },
+					collapsed: true,
 					items: [
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
 						{ label: 'Choosing a model', translations: { de: 'Modell wählen' }, slug: 'getting-started/choosing-a-model' },
@@ -300,6 +310,7 @@ export default defineConfig({
 							label: 'Migrate to New API',
 							translations: { de: 'Umstieg auf neue API' },
 							badge: { text: { en: 'New', de: 'Neu' }, variant: 'tip' },
+							collapsed: true,
 							items: [
 								{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'api-transition' },
 								{ label: 'Requests', translations: { de: 'Anfragen' }, slug: 'api-transition/requests' },
@@ -313,21 +324,32 @@ export default defineConfig({
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
+					collapsed: true,
 					items: [
-						{ label: 'Catalog', translations: { de: 'Katalog' }, slug: 'models' },
-						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
-						{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
-						{ label: 'Vision', translations: { de: 'Vision' }, slug: 'models/vision' },
-						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
-						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'models/audio' },
-						{ label: 'Images', translations: { de: 'Bilder' }, slug: 'models/image-generation' },
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'models' },
+						{
+							// The models picked for a task, one page per use case.
+							label: 'Model use cases',
+							translations: { de: 'Anwendungsfälle' },
+							collapsed: true,
+							items: [
+								{ label: 'For chat & reasoning', translations: { de: 'Für Chat & Reasoning' }, slug: 'models/llms' },
+								{ label: 'For coding', translations: { de: 'Für Coding' }, slug: 'models/coding' },
+								{ label: 'For vision', translations: { de: 'Für Vision' }, slug: 'models/vision' },
+								{ label: 'For embeddings', translations: { de: 'Für Embeddings' }, slug: 'models/embeddings' },
+								{ label: 'For audio', translations: { de: 'Für Audio' }, slug: 'models/audio' },
+								{ label: 'For images', translations: { de: 'Für Bilder' }, slug: 'models/image-generation' },
+							],
+						},
 						{ label: 'Preview models', translations: { de: 'Vorschau-Modelle' }, slug: 'models/preview' },
+						{ label: 'Models API', translations: { de: 'Modelle per API' }, slug: 'models/api' },
 						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
 					],
 				},
 				{
 					label: 'Guides',
 					translations: { de: 'Anleitungen' },
+					collapsed: true,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'guides' },
 						{ label: 'Chat completions', translations: { de: 'Chat Completions' }, slug: 'guides/chat-completions' },
@@ -353,6 +375,7 @@ export default defineConfig({
 				{
 					label: 'Integrations',
 					translations: { de: 'Integrationen' },
+					collapsed: true,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'integrations' },
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
@@ -360,6 +383,7 @@ export default defineConfig({
 						{
 							label: 'Coding tools',
 							translations: { de: 'Coding-Tools' },
+							collapsed: true,
 							items: [
 								{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
 								{ label: 'Cline', slug: 'plugins/cline' },
@@ -374,6 +398,7 @@ export default defineConfig({
 				{
 					label: 'API reference',
 					translations: { de: 'API-Referenz' },
+					collapsed: true,
 					items: [
 						{ label: 'Endpoints', translations: { de: 'Endpunkte' }, slug: 'reference/api-endpoints' },
 						{ label: 'Error codes', translations: { de: 'Fehlercodes' }, slug: 'reference/error-codes' },
@@ -382,6 +407,7 @@ export default defineConfig({
 				{
 					label: 'Plans & Pricing',
 					translations: { de: 'Tarife & Preise' },
+					collapsed: true,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'plans' },
 						{ label: 'Essential', translations: { de: 'Essential' }, slug: 'plans/essential' },
@@ -394,6 +420,7 @@ export default defineConfig({
 				{
 					label: 'Trust & SLA',
 					translations: { de: 'Vertrauen & SLA' },
+					collapsed: true,
 					items: [
 						{ label: 'Enterprise Trust', translations: { de: 'Enterprise Trust' }, slug: 'reference/enterprise-trust' },
 						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
@@ -403,6 +430,7 @@ export default defineConfig({
 				{
 					label: 'Resources',
 					translations: { de: 'Ressourcen' },
+					collapsed: true,
 					items: [
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 						{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },

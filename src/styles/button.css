@@ -52,6 +52,14 @@
 	outline-offset: var(--aifs-button-focus-offset);
 }
 
+/* Children sit on the button's own axis. In Markdown content, Starlight puts
+   1rem above any element that follows another, which pushed a second icon
+   below the first. */
+.aifs-button > *,
+.sl-link-button > * {
+	margin: 0;
+}
+
 .aifs-button > svg,
 .sl-link-button > svg {
 	flex: none;
@@ -84,10 +92,12 @@
 /* Icon only: a square button; its label goes into aria-label. */
 
 .aifs-button--icon-only {
+	--aifs-tooltip-anchor-width: var(--aifs-button-min-height);
 	padding-inline: var(--aifs-button-padding-x-icon-only);
 }
 
 .aifs-button--icon-only.aifs-button--small {
+	--aifs-tooltip-anchor-width: var(--aifs-button-min-height-small);
 	padding-inline: var(--aifs-button-padding-x-icon-only-small);
 }
 
@@ -174,4 +184,30 @@
 .aifs-button--ghost:is(:disabled, [aria-disabled='true']) {
 	background: transparent;
 	color: var(--aifs-button-ghost-text-disabled);
+}
+
+/* Success state: data-state="success" swaps the content for the success slot
+   (see Button.astro). Ghost and secondary turn the success colour; primary
+   keeps its colours, since green on magenta would not be readable. */
+
+.aifs-button__content,
+.aifs-button__success {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: inherit;
+}
+
+.aifs-button__success,
+.aifs-button[data-state='success'] .aifs-button__content {
+	display: none;
+}
+
+.aifs-button[data-state='success'] .aifs-button__success {
+	display: inline-flex;
+}
+
+.aifs-button--ghost[data-state='success'],
+.aifs-button--secondary[data-state='success'] {
+	color: var(--aifs-button-success-text);
 }
