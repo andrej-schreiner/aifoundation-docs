@@ -419,11 +419,6 @@ textarea {
 /* Page-QA rules Patrick's layout does not set. */
 
 
-main:is(:has(.plans-page), :has(.models-comparison)) .qp-bar {
-	width: 100% !important;
-	max-width: none !important;
-}
-
 sup {
 	font-size: max(0.75em, 12px);
 	line-height: 0;

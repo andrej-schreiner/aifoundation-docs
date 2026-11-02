@@ -233,30 +233,36 @@ mobile-starlight-toc nav {
 	}
 }
 
-/* Notice banners sit above the sheet, not in it: they are about the site,
-   not the page. PreviewModelsBanner places the row just before the sheet
-   (the row around the table of contents and the content). The row is a band
-   on the tint across the whole width; the notices in it start where the
-   page's text starts and stop at the sheet's former width. */
+/* The announcement box sits above the sheet, not in it: it is about the
+   site, not the page. PreviewModelsBanner places the row just before the
+   sheet (the row around the table of contents and the content). The row is
+   a band on the tint across the whole width; the box in it lines up with
+   the content column: it starts where the page's text starts and is as wide
+   as the column. The row is a size container, so the box can lay its rows
+   out for the room it has. */
 .qp-stack {
+	container-type: inline-size;
+	container-name: qpstack;
 	display: flex;
 	flex-direction: column;
-	gap: var(--aifs-notice-gap);
 	width: 100%;
 	box-sizing: border-box;
 	margin: 0;
-	/* Phones: the content column's inset. */
+	/* Phones and tablets: the content column's inset. */
 	padding: var(--sl-content-pad-x, 1rem);
 	background-color: var(--aifs-layout-tint);
+}
+
+.qp-stack > * {
+	max-width: var(--sl-content-width);
 }
 
 @media (min-width: 72rem) {
 	/* Like the footer at the end, the band stays put under the header and the
 	   sheet (z-index 1, below) scrolls up over it. */
 	/* Its height is a whole number of rows of the site navigation beside it,
-	   so its bottom edge lines up with a row's line: 2 rows for one notice,
-	   3 for two, 4 for three or more (three notices are taller than three
-	   rows). The notices sit centred in it. */
+	   so its bottom edge lines up with a row's line (2 rows, more if the box
+	   is taller). The box sits centred in it. */
 	[data-has-sidebar] .main-frame > .qp-stack {
 		--aifs-nav-row-height: calc(
 			2 * var(--aifs-sidebar-nav-padding-y) + var(--aifs-sidebar-nav-font-size) * var(--aifs-sidebar-nav-line-height) +
@@ -267,21 +273,19 @@ mobile-starlight-toc nav {
 		z-index: 0;
 		justify-content: center;
 		min-height: calc(2 * var(--aifs-nav-row-height));
-		/* At least this much above and below the notices; taller notices
-		   make the band taller. */
+		/* At least this much above and below the box; a taller box makes the
+		   band taller. */
 		padding: var(--aifs-rhythm-flow) var(--aifs-layout-sheet-padding);
 	}
 
-	[data-has-sidebar] .main-frame > .qp-stack:has(> :nth-child(2)) {
-		min-height: calc(3 * var(--aifs-nav-row-height));
+	/* Beside On this page, the column starts after it and the content's own
+	   padding (the sheet padding, above). */
+	[data-has-sidebar][data-has-toc] .main-frame > .qp-stack > * {
+		margin-inline-start: calc(var(--aifs-layout-toc-width) + var(--aifs-layout-sheet-padding));
 	}
 
-	[data-has-sidebar] .main-frame > .qp-stack:has(> :nth-child(3)) {
-		min-height: calc(4 * var(--aifs-nav-row-height));
-	}
-
-	[data-has-sidebar] .main-frame > .qp-stack > * {
-		max-width: calc(var(--aifs-sheet-max-width) - 2 * var(--aifs-layout-sheet-padding));
+	[data-has-sidebar]:not([data-has-toc]) .main-frame > .qp-stack > * {
+		margin-inline: auto;
 	}
 }
 
