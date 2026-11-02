@@ -241,7 +241,7 @@ mobile-starlight-toc nav {
 .qp-stack {
 	display: flex;
 	flex-direction: column;
-	gap: 8px;
+	gap: var(--aifs-notice-gap);
 	width: 100%;
 	box-sizing: border-box;
 	margin: 0;
@@ -267,7 +267,9 @@ mobile-starlight-toc nav {
 		z-index: 0;
 		justify-content: center;
 		min-height: calc(2 * var(--aifs-nav-row-height));
-		padding: 0 var(--aifs-layout-sheet-padding);
+		/* At least this much above and below the notices; taller notices
+		   make the band taller. */
+		padding: var(--aifs-rhythm-flow) var(--aifs-layout-sheet-padding);
 	}
 
 	[data-has-sidebar] .main-frame > .qp-stack:has(> :nth-child(2)) {
@@ -352,7 +354,7 @@ mobile-starlight-toc nav {
    On wide pages (plans, model tables) the column widens and the text still
    stops here, as does text inside an aside. */
 .sl-markdown-content
-	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6):not(:where(.not-content *, .plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *)) {
+	:where(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6):not(:where(.not-content *, .plans-page *, td *, th *, .card-grid *, .link-card-row *, .sl-link-card *, starlight-tabs [role="tablist"], starlight-tabs [role="tablist"] *)) {
 	max-width: var(--aifs-layout-measure);
 }
 
@@ -484,4 +486,27 @@ footer.sl-flex .meta:not(:has(*)) {
 /* A heading straight after another keeps its own gap. */
 .sl-markdown-content > :is(h2, h3, h4, h5, h6, .sl-heading-wrapper) + :is(h3, .sl-heading-wrapper.level-h3) {
 	margin-top: var(--aifs-rhythm-heading-4);
+}
+
+/* The chat launcher stays off below 80rem, where it covered content and
+   the copy buttons. */
+@media (max-width: 79.99rem) {
+	#tsystems-chat-widget,
+	.widget-container {
+		display: none !important;
+	}
+}
+
+/* Small phones: one step down for the title, so long words such as
+   "(Dokumentenerkennung)" fit on a line. */
+@media (max-width: 26rem) {
+	.sl-container > h1 {
+		font-size: var(--aifs-text-h2-font-size);
+	}
+}
+
+/* Previous/next titles: long German words fit in half the column. */
+.pagination-links .link-title {
+	font-size: var(--aifs-text-h3-font-size);
+	overflow-wrap: break-word;
 }

@@ -3,6 +3,7 @@
 // an alternative, where it runs and its context. Page component, not for reuse.
 import { CHOICE_ROWS, modelFact } from '../shared/lib/choosingModels';
 import { creatorNameFor } from '../shared/lib/logos';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 import Logo from './Logo.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
@@ -37,7 +38,7 @@ const t = isDE
 function place(hosting: string): string {
   if (!isDE) return hosting;
   return hosting
-    .replaceAll('T-Cloud Germany', 'T-Cloud Deutschland')
+    .replaceAll('T-Cloud Germany\u00a0(EU)', 'T-Cloud Deutschland\u00a0(EU)')
     .replaceAll('Azure Sweden Central', 'Azure Schweden Mitte')
     .replaceAll('Azure France Central', 'Azure Frankreich Mitte')
     .replaceAll('Azure (worldwide)', 'Azure (Weltweit)')
@@ -48,13 +49,20 @@ function contextLabel(value: string): string {
   return value || '—';
 }
 
+// `code` wraps only at its wrap points (withWrapPoints), never mid-word.
 function richHtml(text: string): string {
   return text
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>');
+    .split(/(`[^`]+`)/)
+    .map((part) =>
+      part.length > 1 && part.startsWith('`') && part.endsWith('`')
+        ? `<code>${withWrapPoints(part.slice(1, -1))}</code>`
+        : part
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('T-Cloud', '<span class="nowrap">T-Cloud</span>'),
+    )
+    .join('');
 }
 
 function where(recommended: string, alternative: string): string {
@@ -64,13 +72,15 @@ function where(recommended: string, alternative: string): string {
 }
 
 function contextCell(recommended: string, alternative: string): string {
-  const a = contextLabel(modelFact(recommended).context);
-  const b = contextLabel(modelFact(alternative).context);
+  const a = modelFact(recommended).context;
+  const b = modelFact(alternative).context;
+  if (!a || !b) return contextLabel(a || b);
   return a === b ? a : `${a} · ${b}`;
 }
 
 ---
 
+<div class="choose-root">
 <div class="choose-desktop">
   <div class="aifs-table-scroll">
     <table>
@@ -120,11 +130,10 @@ function contextCell(recommended: string, alternative: string): string {
       <li class="choose-card">
         <p class="choose-card__case">{isDE ? row.useCase.de : row.useCase.en}</p>
         <p class="choose-card__rec">
-          <Logo name={creatorNameFor(recommended.id, recommended.name)} size="small" decorative />
-          <span>
-            <span class="choose-k">{t.recommended}</span>
-            {recommended.name}
-            {recommended.preview ? ` (${t.preview})` : ''}
+          <span class="choose-k">{t.recommended}</span>
+          <span class="choose-name">
+            <Logo name={creatorNameFor(recommended.id, recommended.name)} size="small" decorative />
+            <span>{recommended.name}{recommended.preview ? ` (${t.preview})` : ''}</span>
           </span>
         </p>
         <p>
@@ -148,6 +157,7 @@ function contextCell(recommended: string, alternative: string): string {
     );
   })}
 </ul>
+</div>
 
 <h2>{t.migrate}</h2>
 
@@ -172,35 +182,27 @@ function contextCell(recommended: string, alternative: string): string {
   .choose-desktop :global(.aifs-table-scroll) {
     width: 100%;
     max-width: 100%;
-    overflow-x: auto;
+    overflow-x: visible;
   }
 
+  /* Auto layout: each column is at least as wide as its longest word, so
+     words wrap only at spaces; the notes column takes the remaining width. */
   .choose-desktop table {
     width: 100%;
-    table-layout: fixed;
-    min-width: 48rem;
+    table-layout: auto;
+    min-width: 0;
   }
 
-  .choose-desktop th:nth-child(1),
-  .choose-desktop td:nth-child(1) { width: 16%; }
-  .choose-desktop th:nth-child(2),
-  .choose-desktop td:nth-child(2) { width: 18%; }
-  .choose-desktop th:nth-child(3),
-  .choose-desktop td:nth-child(3) { width: 18%; }
-  .choose-desktop th:nth-child(4),
-  .choose-desktop td:nth-child(4) { width: 14%; }
-  .choose-desktop th:nth-child(5),
-  .choose-desktop td:nth-child(5) { width: 10%; }
-  .choose-desktop th:nth-child(6),
-  .choose-desktop td:nth-child(6) { width: 24%; }
-
-  :global(:lang(de)) .choose-desktop td:first-child,
-  :global(:lang(de)) .choose-desktop td:last-child {
-    hyphens: auto;
-    -webkit-hyphens: auto;
-    hyphenate-limit-chars: 10 4 4;
+  .choose-desktop :global(th),
+  .choose-desktop :global(td) {
     overflow-wrap: break-word;
+    word-break: normal;
+    hyphens: manual;
+    -webkit-hyphens: manual;
   }
+
+  .choose-desktop th:nth-child(6),
+  .choose-desktop td:nth-child(6) { width: 36%; }
 
   .choose-cards {
     display: none;
@@ -241,10 +243,8 @@ function contextCell(recommended: string, alternative: string): string {
     font-weight: 700;
   }
 
-  .choose-card__rec {
-    display: flex;
+  .choose-card__rec .choose-name {
     align-items: center;
-    gap: 8px;
   }
 
   .choose-k {
@@ -253,7 +253,16 @@ function contextCell(recommended: string, alternative: string): string {
     color: var(--aifs-color-text-muted, var(--sl-color-gray-3));
   }
 
-  @media (max-width: 50rem) {
+  .choose-root {
+    container-type: inline-size;
+    container-name: choose;
+  }
+
+  /* Cards below 49rem of content width: the table's narrowest layout (longest
+     word per column, EN and DE) needs about 48.75rem, set by DE ("T-Cloud
+     Deutschland (EU)" keeps "Deutschland (EU)" whole). Wide desktops show the
+     table. */
+  @container choose (max-width: 49rem) {
     .choose-desktop {
       display: none;
     }

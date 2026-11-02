@@ -1,0 +1,41 @@
+---
+title: "Coding-Agenten einrichten"
+description: "Einen Coding-Agenten oder ein IDE-Plugin mit API-Schlüssel, Coding-Basis-URL und Coding-Modell an AI Foundation Services anbinden."
+---
+
+import ModelPick from '../../../../components/ModelPick.astro';
+
+Alle Coding-Werkzeuge unten verbinden sich auf dieselbe Weise mit AI Foundation Services: API-Schlüssel, Coding-Basis-URL und Modell-ID.
+
+## Was Sie brauchen
+
+- Einen API-Schlüssel: siehe [API-Schlüssel holen](/de/getting-started/quickstart#1-api-schlüssel-holen) oder erzeugen Sie einen unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard).
+- Die Coding-Basis-URL: `https://llm-server.llmhub.t-systems.net/v2/coding`
+- Eine Modell-ID: die Empfehlung steht unten, alle Optionen unter [Coding-Modelle](/de/models/coding).
+
+<ModelPick useCase="coding" />
+
+## Werkzeug wählen
+
+| Werkzeug | Wo es läuft | Einrichtung |
+| --- | --- | --- |
+| OpenCode | Terminal, mit jedem Editor oder jeder IDE | [OpenCode](/de/plugins/opencode) |
+| Cline for AI Engineer | Visual Studio Code | [Cline](/de/plugins/cline) |
+| Continue for AI Engineer | Visual Studio Code | [Continue für VS Code](/de/plugins/continue-vscode) |
+| Continue for AI Engineer | JetBrains-IDEs | [Continue für JetBrains](/de/plugins/continue-jetbrains) |
+| AI Engineer | IDE-Integrationen, Kommandozeilen-Tools, Plugins und MCP-Integrationen | [AI Engineer](/de/aie/overview) |
+
+Die Plugins laden Sie unter [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins) herunter.
+
+## Gemeinsame Einstellungen
+
+Die Felder heißen je nach Werkzeug etwas anders (`baseURL` in OpenCode, `apiBase` in Continue), die Werte sind dieselben:
+
+```text
+API Provider = OpenAI Compatible
+Base URL     = https://llm-server.llmhub.t-systems.net/v2/coding
+API Key      = your_api_key_here
+Model        = GLM-5.3
+```
+
+Weiter: [Empfohlene Modelle](/de/getting-started/choosing-a-model) · [Coding-Modelle](/de/models/coding) · [Function Calling](/de/guides/function-calling)

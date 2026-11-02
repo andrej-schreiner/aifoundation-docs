@@ -7,7 +7,7 @@ import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/al
 import { creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
-import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
@@ -16,7 +16,8 @@ import {
   cachedInputPrice,
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
-import { formatEuro } from '../shared/lib/displayFormat';
+import { resolvePrimaryCategory, type ModelCategory } from '../shared/lib/modelCategories';
+import { formatDecimalText, formatEuro, type NumberLocale } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
 import PlanTag from './PlanTag.astro';
 import Logo from './Logo.astro';
@@ -31,8 +32,9 @@ import { parseLocation } from '../shared/lib/location';
 import reasoningEffortData from '../data/reasoning-effort.json';
 // Where each model reports its reasoning token count in `usage` (engine-dependent).
 import reasoningTokensUsageData from '../data/reasoning-tokens-usage.json';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 
-type CategoryProp = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
+type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
 // Capability-derived filter for pages where "show me every model that can do
 // X" beats curating a category list. Vision is the motivating case: an LLM
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
@@ -89,51 +91,17 @@ const isPlanPreset = preset === 'plan';
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
+// Display-only: German pages write 1,40 €. Row data for sort/filter keeps the raw numbers.
+// Archived versions (/v1…/) keep their original number format.
+const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
+const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
 
-type Category = 'llms' | 'coding' | 'vision' | 'embeddings' | 'audio' | 'image-generation';
-
-// PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
-// models whose primary purpose is NOT general-purpose LLM appear here.
-// Everything else defaults to 'llms'.
-//
-// Additional category membership is *derived* from modalities — see
-// deriveCategories() below. So Qwen 3.6 35B (Text+Image in) is primary 'llms'
-// and gains 'vision' via derivation, surfacing on both /models/llms and
-// /models/vision. Gemini-class multimodal LLMs gain 'vision' AND 'audio'
-// the same way.
-//
-// Why some models need explicit non-llms primaries:
-//   - 'coding': no modality signals coding-specialisation; must be tagged.
-//   - 'audio': Whisper accepts Audio AND outputs Text — without an explicit
-//     primary it would be added to /models/llms (text-out default). Same
-//     logic for embeddings (text-in) and image-generation (image-out).
-const PRIMARY_CATEGORY: Record<string, Category> = {
-  // Coding-specialised (per OpenAI/Alibaba positioning).
-  'Qwen3-Coder-30B-A3B-Instruct': 'coding',
-  'gpt-5-codex': 'coding',
-  // Audio: speech-to-text. Primary 'audio' so they don't pollute /models/llms.
-  'whisper-large-v3': 'audio',
-  'whisper-large-v3-turbo': 'audio',
-  // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
-  'jina-embeddings-v2-base-de': 'embeddings',
-  'qwen3-embedding-8b': 'embeddings',
-  // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
-  'LightOnOCR-3-4B-Preview': 'vision',
-  'PaddleOCR-VL-1.6-Preview': 'vision',
-  'text-embedding-ada-002': 'embeddings',
-  'text-embedding-bge-m3': 'embeddings',
-  // Image generation: outputs Image. Primary 'image-generation' keeps them off
-  // /models/llms. They still surface on /models/vision via image-input derivation.
-  'gemini-3-pro-image': 'image-generation',
-  'gpt-image-2': 'image-generation',
-};
-
-function resolvePrimaryCategory(exactModelName: string): Category {
-  return PRIMARY_CATEGORY[exactModelName] ?? 'llms';
-}
+// Each model's primary category lives in shared/lib/modelCategories, which
+// cached-token pricing reads too.
+type Category = ModelCategory;
 
 // Multi-category derivation. A model's `categories` array is its primary
-// plus any modality-driven additions: image input → 'vision', any audio
+// plus any modality-driven additions: any audio
 // → 'audio', image output → 'image-generation', vector output → 'embeddings'.
 // Returned in stable display order so the Category column renders consistently.
 // Extra category memberships that cannot be inferred from modalities.
@@ -156,11 +124,10 @@ const EXTRA_CATEGORIES: Record<string, Category[]> = {
 
 function deriveCategories(primary: Category, caps: Capabilities, extra: Category[] = []): Category[] {
   const cats = new Set<Category>([primary, ...extra]);
-  if (caps.inputModalities.includes('Image')) cats.add('vision');
   if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
   if (caps.outputModalities.includes('Image')) cats.add('image-generation');
   if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
-  const ORDER: Category[] = ['llms', 'coding', 'vision', 'image-generation', 'audio', 'embeddings'];
+  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings'];
   return ORDER.filter((c) => cats.has(c));
 }
 
@@ -196,7 +163,6 @@ function inferCreator(exactModelName: string): string {
 const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
   llms:               { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   coding:             { inputModalities: ['Text'],          outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
-  vision:             { inputModalities: ['Text', 'Image'], outputModalities: ['Text'],   streaming: true,  toolCalling: true  },
   embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
   audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
   'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
@@ -226,9 +192,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   'gemini-3-pro-long-context':     { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemini-3.8-flash':              { inputModalities: ['Text', 'Image', 'Audio'] },
   'gemma-4-31B-it-FP8':            { inputModalities: ['Text', 'Image'] },
-  // TODO(andrej): confirm id DeepSeek-V4.1-Flash. Text and image in, text out.
+  // DeepSeek 4.1 Flash: text and image in, text out.
   // Tool calling and streaming are not in the repo data, so both stay unset.
-  'DeepSeek-V4.1-Flash':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: null },
+  'DeepSeek-V4.1-Flash-preview':   { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: null },
   // Mistral Small 4 is multimodal (Text+Image in). Keys match the GA ids in the
   // pricing catalog (the earlier `-Preview`/`-preview` suffixes are retired).
   'Mistral-Small-4-119B-2603':     { inputModalities: ['Text', 'Image'] },
@@ -420,11 +386,13 @@ for (const pkg of pricingData as Array<{
       reasoningTokensUsage: reasoningTokensUsageByName.get(exactModelName.toLowerCase()) ?? null,
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
+      // Archived pages keep their original output, so they skip the category check.
       cachedInputPricePerMillionTokens: cachedInputPrice(
         entry.inputPricePerMillionTokens as number | null,
         deploymentRegion,
+        isArchive ? null : category,
       ),
-      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion),
+      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion, isArchive ? null : category),
       plans: [pkg.packageName],
       modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
@@ -553,7 +521,7 @@ const planEmpty = isPlanPreset && activeRowCount === 0;
 // ---------------- Translations & formatters ----------------
 
 const t = {
-  heading: isDE ? 'Modelle im Vergleich' : 'Models Comparison',
+  heading: isDE ? 'Modelle im Vergleich' : 'Models comparison',
   colModel: isDE ? 'Modell' : 'Model',
   colCategory: isDE ? 'Kategorie' : 'Category',
   colProvider: isDE ? 'Anbieter' : 'Provider',
@@ -562,6 +530,8 @@ const t = {
   colOutput: isDE ? 'Ausgabe' : 'Output',
   colStreaming: 'Streaming',
   colTools: 'Tools',
+  colFeatures: isDE ? 'Funktionen' : 'Features',
+  newTag: isDE ? 'Neu' : 'New',
   colContext: isDE ? 'Kontext' : 'Context',
   colReasoningEffort: 'Reasoning',
   colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
@@ -586,6 +556,8 @@ const t = {
   priceIn: isDE ? 'Ein' : 'In',
   priceOut: isDE ? 'Aus' : 'Out',
   planPreview: isDE ? 'Vorschau' : 'Preview',
+  // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
+  previewPlans: isDE ? 'Kostenlos in jedem aktiven Tarif' : 'Free on any active plan',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
   showing: isDE ? 'Zeige' : 'Showing',
   of: isDE ? 'von' : 'of',
@@ -599,8 +571,8 @@ const t = {
     ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
     : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
   tooltipCachedPrice: isDE
-    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle — für externe Anbieter wird die Cache-Preisgestaltung später ergänzt.`
-    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only — cached pricing for external providers will be added later.`,
+    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle.`
+    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only.`,
   cachedPriceUnavailable: '—',
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
@@ -652,13 +624,13 @@ const t = {
 
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
-      'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland.',
+      'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland, innerhalb der EU.',
       Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab, siehe Standort.',
       GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab, siehe Standort.',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
-      'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany.",
+      'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany, within the EU.",
       Azure:   'Hosted on Microsoft Azure. The region depends on the model; see Location.',
       GCP:     'Hosted on Google Cloud Platform. The region depends on the model; see Location.',
       Other:   'Hosted by a third-party provider.',
@@ -667,10 +639,9 @@ const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
 const CATEGORY_LABELS: Record<Category, string> = {
   llms: 'LLM',
   coding: 'Coding',
-  vision: 'Vision',
   embeddings: 'Embedding',
   audio: 'Audio',
-  'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image Generation',
+  'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image generation',
 };
 
 const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
@@ -684,7 +655,7 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 // newly announced models); `0` means the model is genuinely free of charge.
 function formatPrice(n: number | null | undefined): string {
   if (n == null) return t.priceTba;
-  return formatEuro(n, 2);
+  return formatEuro(n, 2, numberLocale);
 }
 
 /** Table cells: the header carries "€ per 1M tokens", so the cell is the number. */
@@ -699,12 +670,12 @@ function formatCachedPrice(m: CompiledModel): string {
   // A cached price is 15% of the input price, so two decimals would round most
   // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
   // four decimals and drop trailing zeros.
-  return formatEuro(value, 4);
+  return formatEuro(value, 4, numberLocale);
 }
 
 function planHref(plan: string): string {
   if (plan === 'Test') return `${localePrefix}/models/preview/`;
-  return `${localePrefix}/plans/${plan.toLowerCase()}/`;
+  return `${localePrefix}/plans/#${plan.toLowerCase()}`;
 }
 
 /** The Test catalog is the preview catalog. The tag says Preview; the plan id stays Test. */
@@ -717,8 +688,8 @@ function formatContextLabel(raw: string | null | undefined): string {
   if (blankContext(raw)) return '—';
   const text = (raw ?? '').trim();
   const compact = text.replace(/,/g, '');
-  if (compact === '102400') return '102.4K';
-  if (/^1050k$/i.test(compact)) return '1.05M';
+  if (compact === '102400') return formatDecimalText('102.4K', numberLocale);
+  if (/^1050k$/i.test(compact)) return formatDecimalText('1.05M', numberLocale);
   return text;
 }
 
@@ -732,17 +703,28 @@ function previewCatalog(m: CompiledModel): boolean {
   return m.plans.includes('Test');
 }
 
+/** Plans column tags. The name already carries the Preview tag, so Test gets no second one.
+ *  Archived pages keep their original output. */
+function shownPlans(m: CompiledModel): string[] {
+  return isArchive ? m.plans : m.plans.filter((p) => p !== 'Test');
+}
+
 /** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
+function isEmbeddingOnly(m: CompiledModel): boolean {
+  return m.categories.length === 1 && m.categories[0] === 'embeddings';
+}
+
 function mobilePriceLine(m: CompiledModel): string | null {
   const input = m.inputPricePerMillionTokens;
-  const output = m.outputPricePerMillionTokens;
+  // Embedding models return vectors, not tokens: input price only, as on the plans page.
+  const output = isEmbeddingOnly(m) ? null : m.outputPricePerMillionTokens;
   if (input == null && output == null) return t.priceTba;
   const inputFree = input == null || input === 0;
   const outputFree = output == null || output === 0;
   if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
   const bits: string[] = [];
-  if (input != null && input !== 0) bits.push(formatEuro(input, 2));
-  if (output != null && output !== 0) bits.push(formatEuro(output, 2));
+  if (input != null && input !== 0) bits.push(formatEuro(input, 2, numberLocale));
+  if (output != null && output !== 0) bits.push(formatEuro(output, 2, numberLocale));
   if (bits.length === 0) return null;
   return `${bits.join(' / ')} ${t.perMillion}`;
 }
@@ -751,7 +733,7 @@ function cachedDetail(m: CompiledModel): string | null {
   if (!m.cachedPricingPublished) return null;
   const value = m.cachedInputPricePerMillionTokens;
   if (value == null || value === 0) return null;
-  return formatEuro(value, 4);
+  return formatEuro(value, 4, numberLocale);
 }
 
 function reasoningTokensDetail(m: CompiledModel): string | null {
@@ -1129,7 +1111,8 @@ const rowDataPayload = rows.map((m) => ({
             <tr data-key={m.key} data-plan={m.plan ?? undefined} hidden={isPlanPreset && m.plan !== activePlan}>
               <td data-label={t.colModel}>
                 <strong>{m.displayModelName}</strong>
-                {m.modelTier === 'premium' && <> <Tag color="yellow" size="small">Premium</Tag></>}
+                {isNewModel(m.exactModelName) && <> <Tag color="magenta" size="small">{t.newTag}</Tag></>}{previewCatalog(m) && <> <Tag size="small">{t.planPreview}</Tag></>}
+                {m.modelTier === 'premium' && <> <Tag size="small">Premium</Tag></>}
               </td>
               {show('category') && (
                 <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
@@ -1202,9 +1185,10 @@ const rowDataPayload = rows.map((m) => ({
               {show('plans') && (
                 <td data-label={t.colPlans}>
                   <span class="mc-plans">
-                    {m.plans.map((p) => (
+                    {shownPlans(m).map((p) => (
                       <PlanTag plan={p} size="small" href={planHref(p)} />
                     ))}
+                    {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
                   </span>
                 </td>
               )}
@@ -1215,7 +1199,7 @@ const rowDataPayload = rows.map((m) => ({
                 <div class="mc-m">
                   <div class="mc-m__top">
                     <Logo name={m.capabilities.creator} />
-                    <strong class="mc-m__name">{m.displayModelName}</strong>
+                    <strong class="mc-m__name">{m.displayModelName}{isNewModel(m.exactModelName) && <> <Tag color="magenta" size="small">{t.newTag}</Tag></>}{previewCatalog(m) && <> <Tag size="small">{t.planPreview}</Tag></>}</strong>
                     <Button
                       variant="ghost"
                       size="small"
@@ -1230,7 +1214,7 @@ const rowDataPayload = rows.map((m) => ({
                   </div>
                   <div class="mc-m__meta">
                     {!hostingUnconfirmed(m.exactModelName) && <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>}
-                    {m.modelTier === 'premium' && <Tag color="yellow" size="small">Premium</Tag>}
+                    {m.modelTier === 'premium' && <Tag size="small">Premium</Tag>}
                     {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
                     {priceLine && <span class:list={['mc-m__price', { 'mc-m__price--wrap': priceLine === t.priceTba }]}>{priceLine}</span>}
                   </div>
@@ -1287,7 +1271,7 @@ const rowDataPayload = rows.map((m) => ({
                       {!isPlanPreset && reasoningTokens && (
                         <div>
                           <dt>{t.colReasoningTokensUsage}</dt>
-                          <dd><code>{reasoningTokens}</code></dd>
+                          <dd><code set:html={withWrapPoints(reasoningTokens)} /></dd>
                         </div>
                       )}
                       {show('category') && (
@@ -1300,9 +1284,10 @@ const rowDataPayload = rows.map((m) => ({
                         <div>
                           <dt>{t.colPlans}</dt>
                           <dd class="mc-plans">
-                            {m.plans.map((p) => (
+                            {shownPlans(m).map((p) => (
                               <PlanTag plan={p} size="small" href={planHref(p)} />
                             ))}
+                            {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
                           </dd>
                         </div>
                       )}
@@ -1892,20 +1877,26 @@ const rowDataPayload = rows.map((m) => ({
       const menu = details.querySelector<HTMLElement>('.mc-filter__menu');
       const summary = details.querySelector<HTMLElement>('summary');
       if (!menu || !summary) return;
-      const narrow = root.getBoundingClientRect().width <= 640;
-      if (!details.open || !narrow) {
+      if (!details.open) {
         menu.style.position = '';
         menu.style.top = '';
         menu.style.left = '';
         menu.style.maxWidth = '';
+        menu.style.width = '';
         return;
       }
-      const rect = summary.getBoundingClientRect();
-      const left = Math.max(8, Math.min(rect.left, window.innerWidth - 196));
-      menu.style.position = 'fixed';
-      menu.style.top = `${Math.round(rect.bottom + 6)}px`;
-      menu.style.left = `${Math.round(left)}px`;
-      menu.style.maxWidth = 'calc(100vw - 16px)';
+      const rect = details.getBoundingClientRect();
+      const vw = document.documentElement.clientWidth;
+      const maxW = Math.min(240, vw - 16);
+      const left = Math.max(8, Math.min(rect.left, vw - maxW - 8));
+      menu.style.position = 'absolute';
+      menu.style.top = '';
+      menu.style.right = 'auto';
+      menu.style.left = `${Math.round(left - rect.left)}px`;
+      menu.style.width = `${maxW}px`;
+      menu.style.maxWidth = `${maxW}px`;
+      menu.style.boxSizing = 'border-box';
+      menu.style.overflowX = 'hidden';
     }
 
     root.addEventListener('toggle', (evt) => {

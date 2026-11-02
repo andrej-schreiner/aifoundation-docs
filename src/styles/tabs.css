@@ -6,11 +6,18 @@
    Scale: a light line under the tabs; the selected tab has magenta text and
    a 3px magenta bar; hover and press darken text and bar; 48px high. */
 
+starlight-tabs .tablist-wrapper {
+	max-width: 100%;
+	overflow: visible;
+}
+
 starlight-tabs [role='tablist'] {
 	display: flex;
+	flex-wrap: wrap;
 	gap: 0;
 	margin: 0;
 	padding: 0;
+	overflow: visible;
 	border-bottom: var(--aifs-tabs-line-width) solid var(--aifs-tabs-line);
 }
 
@@ -23,8 +30,11 @@ starlight-tabs [role='tab'] {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--aifs-tabs-icon-gap);
-	height: var(--aifs-tabs-height);
+	height: auto;
+	min-height: 40px;
 	padding: 0 var(--aifs-tabs-padding-x);
+	max-width: 100%;
+	white-space: nowrap;
 	border: 0;
 	border-radius: var(--aifs-tabs-radius) var(--aifs-tabs-radius) 0 0;
 	color: var(--aifs-tabs-text);

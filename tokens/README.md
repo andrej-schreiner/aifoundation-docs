@@ -20,6 +20,7 @@ and commit both.
 | `telekom.semantic.tokens.json` | Semantic, both modes | Typography, text styles, spacing, radius, line weight, motion, opacity, size |
 | `telekom.color.light.tokens.json` | Semantic, light | Text, background, primary, UI, functional and additional colours |
 | `telekom.color.dark.tokens.json` | Semantic, dark | The same names with dark values |
+| `aifs.dark.tokens.json` | Dark overrides | Dark backgrounds and hairlines taken from the live docs (docs.llmhub.t-systems.net), and the link and small-magenta text one step lighter to keep AA on them |
 | `aifs.docs.tokens.json` | Docs roles | What the docs need (link, action, table head, asides, current page, headings), each an alias of a Telekom semantic token |
 | `aifs.resolver.json` | Resolver | Loads the Telekom set, picks light or dark, then applies the docs layer |
 
@@ -61,8 +62,10 @@ the composite goes into the variable.
 Decisions made:
 
 - **Links are blue, actions are magenta.** Telekom's semantic link colour is
-  blue (`#2238df` light, `#7d94f9` dark). Magenta is kept for primary actions
-  and the current-page bar.
+  blue (`#2238df` light). Dark links are `#aabcfd`, hover `#d9e2ff`, one
+  step lighter than Telekom's `#7d94f9`, which is only 4.17:1 on `#353841`
+  (inline code in links, table heads) and fails AA. Magenta is kept for
+  primary actions and the current-page bar.
 - **Table heads are grey**: `background.surface-subtle` with standard text.
 - **Asides use the functional colours**: note = informational (blue), tip =
   success (green), caution = warning (orange), danger = danger (red).

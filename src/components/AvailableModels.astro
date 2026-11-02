@@ -11,25 +11,37 @@ import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiringModel } from '../shared/lib/choosingModels';
-import { hostingUnconfirmed } from '../shared/lib/launchModels';
+import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
+import { FEATURED_MODEL_IDS, isPreviewOnly, modelPrices } from '../shared/lib/modelCards';
+import { formatEuro } from '../shared/lib/displayFormat';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
   showHeading?: boolean;
-  /** Render only the first `limit` cards, without the Show More toggle. */
+  /** Render only the first `limit` cards, without the Show more toggle. */
   limit?: number;
+  /** Only the featured cards, in their own order, no "Show more": the full catalog follows on the page. */
+  featured?: boolean;
+  /** Per-1M token prices on each card (the overview); no copy button. */
+  pricing?: boolean;
 }
-const { showHeading = true, limit } = Astro.props;
+const { showHeading = true, limit, featured = false, pricing = false } = Astro.props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
 const t = {
-  cloud: isDE ? 'Cloud-Anbieter' : 'Cloud Provider',
-  serverLocation: isDE ? 'Serverstandort' : 'Server Location',
-  dataProcessing: isDE ? 'Datenverarbeitung' : 'Data Processing',
-  showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show More ({count} more)',
-  showLess: isDE ? 'Weniger anzeigen' : 'Show Less',
-  sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available Models',
+  cloud: isDE ? 'Cloud' : 'Cloud',
+  serverLocation: isDE ? 'Serverstandort' : 'Server location',
+  dataProcessing: isDE ? 'Datenverarbeitung' : 'Data processing',
+  showMoreTemplate: isDE ? '{count} weitere anzeigen' : 'Show more ({count} more)',
+  showLess: isDE ? 'Weniger anzeigen' : 'Show less',
+  sectionHeading: isDE ? 'Verfügbare Modelle' : 'Available models',
   preview: isDE ? 'Vorschau' : 'Preview',
+  newTag: isDE ? 'Neu' : 'New',
+  premium: 'Premium',
+  cached: isDE ? 'Gecacht/1M' : 'Cached/1M',
+  input: isDE ? 'Eingabe/1M' : 'Input/1M',
+  output: isDE ? 'Ausgabe/1M' : 'Output/1M',
+  free: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
   // A11y / tooltips — localized copy-button strings so screen readers in DE
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
@@ -102,11 +114,13 @@ function parseRegion(region: string): {
   if (isDE && regionDe[country]) country = regionDe[country];
   // A worldwide region resolves to the globe glyph rather than a country flag.
   const countryCode = getCountryCode(country);
+  // T-Cloud data stays in Germany, within the EU.
+  if (raw === 'otc') country = isDE ? 'Deutschland\u00a0(EU)' : 'Germany\u00a0(EU)';
 
   // A `worldwide` region means the third-party provider may run the model —
   // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
   const dataProcessing = raw === 'otc'
-    ? (isDE ? 'Deutschland' : 'Germany')
+    ? country
     : isWorldwide
       ? (isDE ? 'Weltweit' : 'Worldwide')
       : 'EU';
@@ -132,13 +146,14 @@ interface ModelCard {
   dataProcessing: string;
   dataProcessingCode: string;
   preview?: boolean;
+  premium?: boolean;
   showHosting?: boolean;
 }
 
 // Build model cards from pricing data (filtering out offline models)
 const pricingModels: ModelCard[] = configs
   .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName) && !isRetiringModel(c.exactModelName))
-  .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; isPreview: boolean }) => {
+  .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; modelTier?: string; isPreview: boolean }) => {
     const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
       c.deploymentRegion,
     );
@@ -153,6 +168,7 @@ const pricingModels: ModelCard[] = configs
       dataProcessing,
       dataProcessingCode,
       preview: c.isPreview,
+      premium: (c.modelTier ?? '').toLowerCase() === 'premium',
       showHosting: !hostingUnconfirmed(c.exactModelName) && Boolean(c.deploymentRegion),
     };
   });
@@ -170,7 +186,11 @@ for (const m of allModels) {
 const sortedModels = [...modelMap.values()].sort((a, b) => compareCatalogName(a.name, b.name));
 
 const INITIAL_COUNT = 6;
-const shownModels = limit ? sortedModels.slice(0, limit) : sortedModels;
+// Featured: the explicit order from modelCards.ts (same as the overview), not the catalog sort.
+const featuredModels = FEATURED_MODEL_IDS.map((id) => sortedModels.find((m) => m.modelId === id)).filter(
+  (m): m is ModelCard => Boolean(m),
+);
+const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, limit) : sortedModels;
 ---
 
 <div class="available-models">
@@ -185,28 +205,32 @@ const shownModels = limit ? sortedModels.slice(0, limit) : sortedModels;
   <span class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="models-grid" id={limit ? undefined : 'models-grid'}>
     {
-      shownModels.map((model, index) => (
-        <article class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT }]} data-index={index}>
+      cardModels.map((model, index) => (
+        <article class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT, 'model-card--priced': pricing }]} data-index={index}>
           <div class="model-card__head">
             <Logo name={model.creator} size="large" />
             <h3 class="model-card__name">
               {model.name}
+              {isNewModel(model.modelId) && <Tag size="small" color="magenta">{t.newTag}</Tag>}
               {model.preview && <Tag size="small">{t.preview}</Tag>}
+              {pricing && model.premium && <Tag size="small">{t.premium}</Tag>}
             </h3>
-            <Button
-              variant="ghost"
-              size="small"
-              iconOnly
-              class="model-card__copy"
-              data-model-id={model.modelId}
-              data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
-              title={t.copyTitleTemplate.replace('{id}', model.modelId)}
-              ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}
-              successTooltip={t.copiedAriaTemplate.replace('{id}', model.modelId)}
-              tooltipPlacement="top-end">
-              <Icon name="action-copy-paste" size={16} />
-              <Icon slot="success" name="action-checkmark" size={16} />
-            </Button>
+            {!pricing && (
+              <Button
+                variant="ghost"
+                size="small"
+                iconOnly
+                class="model-card__copy"
+                data-model-id={model.modelId}
+                data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
+                title={t.copyTitleTemplate.replace('{id}', model.modelId)}
+                ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}
+                successTooltip={t.copiedAriaTemplate.replace('{id}', model.modelId)}
+                tooltipPlacement="top-end">
+                <Icon name="action-copy-paste" size={16} />
+                <Icon slot="success" name="action-checkmark" size={16} />
+              </Button>
+            )}
           </div>
           {model.showHosting !== false && model.provider && (
             <dl class="model-card__rows">
@@ -232,12 +256,25 @@ const shownModels = limit ? sortedModels.slice(0, limit) : sortedModels;
               )}
             </dl>
           )}
+          {pricing && (isPreviewOnly(model.modelId) ? (
+            <p class="model-card__free">{t.free}</p>
+          ) : (() => {
+            const p = modelPrices(model.modelId);
+            const euro = (value: number | null, digits = 2) => formatEuro(value, digits, isDE ? 'de' : 'en');
+            return (
+              <dl class="model-card__prices">
+                {p.cached != null && <div><dt>{t.cached}</dt><dd>{euro(p.cached, 4)}</dd></div>}
+                {p.input != null && <div><dt>{t.input}</dt><dd>{euro(p.input)}</dd></div>}
+                {p.output != null && <div><dt>{t.output}</dt><dd>{euro(p.output)}</dd></div>}
+              </dl>
+            );
+          })())}
         </article>
       ))
     }
   </div>
   {
-    shownModels.length > INITIAL_COUNT && (
+    cardModels.length > INITIAL_COUNT && (
       <Button
         variant="secondary"
         class="models-toggle"
@@ -367,6 +404,39 @@ const shownModels = limit ? sortedModels.slice(0, limit) : sortedModels;
     white-space: nowrap;
   }
 
+  /* Overview cards (pricing): the per-1M prices at the foot of the card, so
+     they line up across a row of cards. */
+  .model-card__prices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aifs-model-card-row-gap) var(--aifs-model-card-gap);
+    margin: auto 0 0;
+  }
+
+  .model-card__prices > div {
+    display: grid;
+    margin: 0;
+  }
+
+  .model-card__prices dt {
+    margin: 0;
+    font-size: var(--aifs-text-small-font-size);
+    color: var(--aifs-model-card-label);
+    white-space: nowrap;
+  }
+
+  .model-card__prices dd,
+  .model-card__free {
+    margin: 0;
+    font-weight: var(--aifs-model-card-name-font-weight);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .model-card__free {
+    margin-top: auto;
+  }
+
   .model-card__row dd {
     margin: 0 0 0 auto;
   }
@@ -417,8 +487,8 @@ const shownModels = limit ? sortedModels.slice(0, limit) : sortedModels;
   function setupToggle(toggle: HTMLButtonElement) {
     const total = Number(toggle.dataset.total);
     const initial = Number(toggle.dataset.initial);
-    const showMoreTemplate = toggle.dataset.showMoreTemplate ?? 'Show More ({count} more)';
-    const showLess = toggle.dataset.showLess ?? 'Show Less';
+    const showMoreTemplate = toggle.dataset.showMoreTemplate ?? 'Show more ({count} more)';
+    const showLess = toggle.dataset.showLess ?? 'Show less';
     let expanded = false;
 
     toggle.addEventListener('click', () => {

@@ -3,6 +3,10 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, wri
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
+import rehypeInlineCodeBreaks from './src/plugins/rehype-inline-code-breaks.mjs';
+import rehypeNowrapTerms from './src/plugins/rehype-nowrap-terms.mjs';
+import { ecWrapPoints } from './src/plugins/ec-wrap-points.mjs';
+import { ecUntitledFrame } from './src/plugins/ec-untitled-frame.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
@@ -85,18 +89,16 @@ function rehypeMarkdownTables() {
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
-		rehypePlugins: [rehypeTableScroll],
+		rehypePlugins: [rehypeTableScroll, rehypeInlineCodeBreaks, rehypeNowrapTerms],
 	},
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
 	redirects: {
 		...archivedVersions,
-		// All models is now the last section of the Models page.
-		'/models/catalog': '/models/#all-models',
-		'/de/models/catalog': '/de/models/#alle-modelle',
-		'/Quickstart': '/',
-		'/getting-started/quickstart': '/',
-		'/de/getting-started/quickstart': '/de/',
+		'/Quickstart': '/getting-started/quickstart',
+		// The catalog is a section of the Models page.
+		'/models/catalog': '/models/#catalog',
+		'/de/models/catalog': '/de/models/#katalog',
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
@@ -111,8 +113,6 @@ export default defineConfig({
 		'/de/getting-started/models': '/de/models',
 		// Renamed when the page stopped describing /queue as asynchronous.
 		// Archived versions and external links still use the old path.
-		'/guides/asynchronous-requests': '/guides/queued-requests',
-		'/de/guides/asynchronous-requests': '/de/guides/queued-requests',
 		'/plans/basic': '/plans',
 		'/de/plans/basic': '/de/plans',
 		'/plans/standard-1000': '/plans',
@@ -141,6 +141,36 @@ export default defineConfig({
 		'/de/smartchat/local-chat': 'https://docs.smartchat.ai.t-systems.net',
 		'/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
 		'/de/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
+		'/models/vision': '/models',
+		'/de/models/vision': '/de/models',
+		'/plugins/roo-code': '/plugins/cline',
+		'/de/plugins/roo-code': '/de/plugins/cline',
+		'/plans/essential': '/plans#essential',
+		'/de/plans/essential': '/de/plans#essential',
+		'/plans/professional': '/plans#professional',
+		'/de/plans/professional': '/de/plans#professional',
+		'/plans/agentic': '/plans#agentic',
+		'/de/plans/agentic': '/de/plans#agentic',
+		'/getting-started/shared-vs-dedicated': '/plans#shared-or-dedicated',
+		'/de/getting-started/shared-vs-dedicated': '/de/plans#shared-or-dedicated',
+		'/guides/modalities': '/guides/multimodal',
+		'/de/guides/modalities': '/de/guides/multimodal',
+		'/guides/queued-requests': '/guides/reliability#queued-requests',
+		'/de/guides/queued-requests': '/de/guides/reliability#queued-requests',
+		'/guides/asynchronous-requests': '/guides/reliability#queued-requests',
+		'/de/guides/asynchronous-requests': '/de/guides/reliability#queued-requests',
+		'/guides/rag': '/guides/embeddings#rag',
+		'/de/guides/rag': '/de/guides/embeddings#rag',
+		'/guides/visual-rag': '/guides/embeddings#visual-rag',
+		'/de/guides/visual-rag': '/de/guides/embeddings#visual-rag',
+		'/api-transition/requests': '/api-transition#requests',
+		'/de/api-transition/requests': '/de/api-transition#anfragen',
+		'/api-transition/responses': '/api-transition#responses',
+		'/de/api-transition/responses': '/de/api-transition#antworten',
+		'/api-transition/streaming': '/api-transition#streaming',
+		'/de/api-transition/streaming': '/de/api-transition#streaming',
+		'/api-transition/errors': '/api-transition#error-handling',
+		'/de/api-transition/errors': '/de/api-transition#fehlerbehandlung',
 	},
 	integrations: [
 		{
@@ -175,10 +205,12 @@ export default defineConfig({
 			head: [
 				{
 					// Puts "On this page" on the same baseline as the page title.
-					// The title's height above the fold varies (notice banners, which
-					// can be closed; a title over two lines), so CSS can't know the
-					// offset. Measures both baselines and sets --aifs-toc-offset on the
-					// root; layout.css applies it as a margin on the sticky column.
+					// The title's height above the fold varies (the announcement box
+					// above it, which can be closed; a title over two lines), so CSS
+					// can't know the offset. Measures both baselines and sets
+					// --aifs-toc-offset on the root; layout.css applies it as a margin
+					// on the sticky column. The ResizeObserver on the title panel
+					// re-measures when the box is closed (the panel's padding changes).
 					tag: 'script',
 					content: `(() => {
 	const wide = matchMedia('(min-width: 72rem)');
@@ -232,7 +264,7 @@ export default defineConfig({
 					// The launcher lives in the widget's shadow root, so page CSS cannot
 					// reach it. On a phone it covers Details and copy buttons; shrink it.
 					tag: 'script',
-					content: `(function(){function shrink(){if(!matchMedia('(max-width: 40rem)').matches)return;var host=document.getElementById('tsystems-chat-widget');var root=host&&host.shadowRoot;if(!root||root.getElementById('aifs-launcher-size'))return;var style=document.createElement('style');style.id='aifs-launcher-size';style.textContent='.widget-launcher{width:40px!important;height:40px!important}.widget-launcher svg{width:20px!important;height:20px!important}.widget-container.bottom-right{right:8px;bottom:max(8px,env(safe-area-inset-bottom))}';root.appendChild(style);}var n=0;var t=setInterval(function(){shrink();if(++n>20)clearInterval(t);},250);})();`,
+					content: `(function(){function shrink(){if(!matchMedia('(max-width: 40rem)').matches)return;var host=document.getElementById('tsystems-chat-widget');var root=host&&host.shadowRoot;if(!root||root.getElementById('aifs-launcher-size'))return;var style=document.createElement('style');style.id='aifs-launcher-size';style.textContent='.widget-launcher{width:44px!important;height:44px!important}.widget-launcher svg{width:22px!important;height:22px!important}.widget-container.bottom-right{right:12px;bottom:max(12px,env(safe-area-inset-bottom))}';root.appendChild(style);}var n=0;var t=setInterval(function(){shrink();if(++n>20)clearInterval(t);},250);})();`,
 				},
 				{
 					// Language-aware Service Description PDF link, normalized at runtime.
@@ -251,6 +283,12 @@ export default defineConfig({
 					content: `(function(){function fix(){var file=document.documentElement.lang==='de'?'Leistungsbeschreibung-LLM-Serving-Service.pdf':'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"],a[href*="Leistungsbeschreibung_LLM_Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 				{
+					// Hide a dismissed notice before first paint so the bars
+					// do not pop in and push the page down.
+					tag: 'script',
+					content: `(function(){try{var keys=['apiTransitionBannerDismissed','glm53DeepseekLaunchDismissed'];var nav=performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='reload'){keys.forEach(function(k){sessionStorage.removeItem(k);});}keys.forEach(function(k){if(sessionStorage.getItem(k)==='1')document.documentElement.classList.add('qp-off-'+k);});}catch(e){}})();`,
+				},
+				{
 					// Theme switches happen at once. Without this, every element with a colour
 					// transition (buttons, links in components) fades over 200ms while the page
 					// background flips, so labels briefly vanish, e.g. black text on the new
@@ -259,6 +297,13 @@ export default defineConfig({
 					// transitions off, and clears the mark once the new colours are painted.
 					tag: 'script',
 					content: `(function(){var r=document.documentElement;new MutationObserver(function(){r.setAttribute('data-theme-switching','');requestAnimationFrame(function(){requestAnimationFrame(function(){r.removeAttribute('data-theme-switching');});});}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();`,
+				},
+				{
+					// Sidebar groups are collapsible (Starlight's <details>, state kept in
+					// sessionStorage). The group holding the current page is always open,
+					// even if it was closed earlier in the session.
+					tag: 'script',
+					content: `(function(){function openCurrent(){document.querySelectorAll('.sidebar-content details').forEach(function(d){if(d.querySelector('a[aria-current="page"]'))d.open=true;});}document.addEventListener('astro:page-load',openCurrent);if(document.readyState!=='loading')openCurrent();else document.addEventListener('DOMContentLoaded',openCurrent);})();`,
 				},
 			],
 			components: {
@@ -275,12 +320,18 @@ export default defineConfig({
 			// tokens.css is generated from tokens/ (bun run tokens) and loaded last, so the
 			// Starlight variables it sets win over the hand-set ones in the other two.
 			routeMiddleware: './src/starlightRouteData.ts',
-			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/data-table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tooltip.css', './src/styles/tokens.css'],
+			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/data-table.css', './src/styles/tooltip.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
-				// Every block in the terminal frame, not only shell languages: one
-				// look for all code, with the file name (title="…") in its title bar.
-				defaultProps: { frame: 'terminal' },
+				defaultProps: {
+					wrap: true,
+					preserveIndent: true,
+					hangingIndent: 2,
+				},
+				// Wrapped lines break only at spaces or at punctuation boundaries,
+				// never between two letters or digits (adds <wbr>). Untitled
+				// blocks get no header bar (ec-untitled-frame.mjs).
+				plugins: [ecWrapPoints(), ecUntitledFrame()],
 			},
 			plugins: [
 				starlightVersions({
@@ -301,24 +352,12 @@ export default defineConfig({
 					translations: { de: 'Erste Schritte' },
 					collapsed: true,
 					items: [
-						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'index' },
-						{ label: 'Choosing a model', translations: { de: 'Modell wählen' }, slug: 'getting-started/choosing-a-model' },
-						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
-						{ label: 'Shared vs dedicated', translations: { de: 'Shared und Dedicated' }, slug: 'getting-started/shared-vs-dedicated' },
-						{ label: 'Concepts and glossary', translations: { de: 'Konzepte und Glossar' }, slug: 'getting-started/concepts' },
-						{
-							label: 'Migrate to New API',
-							translations: { de: 'Umstieg auf neue API' },
-							badge: { text: { en: 'New', de: 'Neu' }, variant: 'tip' },
-							collapsed: true,
-							items: [
-								{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'api-transition' },
-								{ label: 'Requests', translations: { de: 'Anfragen' }, slug: 'api-transition/requests' },
-								{ label: 'Responses', translations: { de: 'Antworten' }, slug: 'api-transition/responses' },
-								{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'api-transition/streaming' },
-								{ label: 'Error handling', translations: { de: 'Fehlerbehandlung' }, slug: 'api-transition/errors' },
-							],
-						},
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
+						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
+						{ label: 'Coding agent setup', translations: { de: 'Coding-Agenten einrichten' }, slug: 'getting-started/coding-agents' },
+						{ label: 'Recommended models', translations: { de: 'Empfohlene Modelle' }, slug: 'getting-started/choosing-a-model' },
+						{ label: 'Migrate from OpenAI', translations: { de: 'Umstieg von OpenAI' }, slug: 'guides/migrate-from-openai' },
+						{ label: 'Migrate to the new API', translations: { de: 'Umstieg auf die neue API' }, slug: 'api-transition', badge: { text: { en: 'New', de: 'Neu' }, variant: 'tip' } },
 					],
 				},
 				{
@@ -326,50 +365,33 @@ export default defineConfig({
 					translations: { de: 'Modelle' },
 					collapsed: true,
 					items: [
-						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'models' },
-						{
-							// The models picked for a task, one page per use case.
-							label: 'Model use cases',
-							translations: { de: 'Anwendungsfälle' },
-							collapsed: true,
-							items: [
-								{ label: 'For chat & reasoning', translations: { de: 'Für Chat & Reasoning' }, slug: 'models/llms' },
-								{ label: 'For coding', translations: { de: 'Für Coding' }, slug: 'models/coding' },
-								{ label: 'For vision', translations: { de: 'Für Vision' }, slug: 'models/vision' },
-								{ label: 'For embeddings', translations: { de: 'Für Embeddings' }, slug: 'models/embeddings' },
-								{ label: 'For audio', translations: { de: 'Für Audio' }, slug: 'models/audio' },
-								{ label: 'For images', translations: { de: 'Für Bilder' }, slug: 'models/image-generation' },
-							],
-						},
+						{ label: 'All models', translations: { de: 'Alle Modelle' }, slug: 'models' },
+						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
+						{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
+						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
+						{ label: 'Speech-to-text', translations: { de: 'Spracherkennung' }, slug: 'models/audio' },
+						{ label: 'Image generation', translations: { de: 'Bildgenerierung' }, slug: 'models/image-generation' },
 						{ label: 'Preview models', translations: { de: 'Vorschau-Modelle' }, slug: 'models/preview' },
-						{ label: 'Models API', translations: { de: 'Modelle per API' }, slug: 'models/api' },
-						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
 					],
 				},
 				{
-					label: 'Guides',
-					translations: { de: 'Anleitungen' },
+					label: 'API usage',
+					translations: { de: 'API-Nutzung' },
 					collapsed: true,
 					items: [
-						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'guides' },
-						{ label: 'Chat completions', translations: { de: 'Chat Completions' }, slug: 'guides/chat-completions' },
+						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
+						{ label: 'Chat', translations: { de: 'Chat' }, slug: 'guides/chat-completions' },
 						{ label: 'Streaming', translations: { de: 'Streaming' }, slug: 'guides/streaming' },
-						{ label: 'Vision', translations: { de: 'Vision' }, slug: 'guides/multimodal' },
-						{ label: 'Multimodal', translations: { de: 'Multimodal' }, slug: 'guides/modalities' },
-						{ label: 'Image generation', translations: { de: 'Bildgenerierung' }, slug: 'guides/image-generation' },
-						{ label: 'Audio', translations: { de: 'Audio' }, slug: 'guides/audio' },
-						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'guides/embeddings' },
-						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 						{ label: 'Function calling', translations: { de: 'Function Calling' }, slug: 'guides/function-calling' },
 						{ label: 'Structured outputs', translations: { de: 'Strukturierte Ausgaben' }, slug: 'guides/structured-outputs' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
+						{ label: 'Image input', translations: { de: 'Bildeingabe' }, slug: 'guides/multimodal' },
+						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
+						{ label: 'Embeddings & RAG', translations: { de: 'Embeddings & RAG' }, slug: 'guides/embeddings' },
 						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 						{ label: 'Prefix caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
-						{ label: 'Queued requests', translations: { de: 'Queued Requests' }, slug: 'guides/queued-requests' },
-						{ label: 'Reliability and retries', translations: { de: 'Zuverlässigkeit und Wiederholungen' }, slug: 'guides/reliability' },
-						{ label: 'RAG', translations: { de: 'RAG' }, slug: 'guides/rag' },
-						{ label: 'Visual RAG', translations: { de: 'Visual RAG' }, slug: 'guides/visual-rag' },
-						{ label: 'Migrate from OpenAI', translations: { de: 'Umstieg von OpenAI' }, slug: 'guides/migrate-from-openai' },
+						{ label: 'Errors & reliability', translations: { de: 'Fehler & Zuverlässigkeit' }, slug: 'guides/reliability' },
+						{ label: 'API reference', translations: { de: 'API-Referenz' }, slug: 'reference/api-endpoints' },
 					],
 				},
 				{
@@ -377,54 +399,31 @@ export default defineConfig({
 					translations: { de: 'Integrationen' },
 					collapsed: true,
 					items: [
-						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'integrations' },
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
-						{
-							label: 'Coding tools',
-							translations: { de: 'Coding-Tools' },
-							collapsed: true,
-							items: [
-								{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
-								{ label: 'Cline', slug: 'plugins/cline' },
-								{ label: 'Continue for VS Code', slug: 'plugins/continue-vscode' },
-								{ label: 'Continue for JetBrains', slug: 'plugins/continue-jetbrains' },
-								{ label: 'OpenCode', slug: 'plugins/opencode' },
-								{ label: 'Roo Code', slug: 'plugins/roo-code' },
-							],
-						},
+						{ label: 'Cline', translations: { de: 'Cline' }, slug: 'plugins/cline' },
+						{ label: 'Continue', translations: { de: 'Continue' }, slug: 'plugins/continue-vscode' },
+						{ label: 'OpenCode', translations: { de: 'OpenCode' }, slug: 'plugins/opencode' },
+						{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
 					],
 				},
 				{
-					label: 'API reference',
-					translations: { de: 'API-Referenz' },
+					label: 'Trust & compliance',
+					translations: { de: 'Vertrauen & Compliance' },
 					collapsed: true,
 					items: [
-						{ label: 'Endpoints', translations: { de: 'Endpunkte' }, slug: 'reference/api-endpoints' },
-						{ label: 'Error codes', translations: { de: 'Fehlercodes' }, slug: 'reference/error-codes' },
+						{ label: 'Enterprise Trust & certifications', translations: { de: 'Enterprise Trust & Zertifizierungen' }, slug: 'reference/enterprise-trust' },
+						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
 					],
 				},
 				{
-					label: 'Plans & Pricing',
+					label: 'Plans & pricing',
 					translations: { de: 'Tarife & Preise' },
 					collapsed: true,
 					items: [
-						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'plans' },
-						{ label: 'Essential', translations: { de: 'Essential' }, slug: 'plans/essential' },
-						{ label: 'Professional', translations: { de: 'Professional' }, slug: 'plans/professional' },
-						{ label: 'Agentic', translations: { de: 'Agentic' }, slug: 'plans/agentic' },
+						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
+						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
 						{ label: 'Rate limits', translations: { de: 'Rate-Limits' }, slug: 'reference/rate-limits' },
-						{ label: 'Dedicated', translations: { de: 'Dedicated' }, slug: 'plans/dedicated' },
-					],
-				},
-				{
-					label: 'Trust & SLA',
-					translations: { de: 'Vertrauen & SLA' },
-					collapsed: true,
-					items: [
-						{ label: 'Enterprise Trust', translations: { de: 'Enterprise Trust' }, slug: 'reference/enterprise-trust' },
-						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
-						{ label: 'Service description (PDF)', translations: { de: 'Leistungsbeschreibung (PDF)' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service description PDF (opens in new tab)' } },
 					],
 				},
 				{
@@ -433,11 +432,9 @@ export default defineConfig({
 					collapsed: true,
 					items: [
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
+						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
 						{ label: 'FAQ', translations: { de: 'FAQ' }, slug: 'faq' },
-						{ label: 'Model status', translations: { de: 'Modellstatus' }, link: 'https://uptime.llmhub.t-systems.net/status/health', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Model status (opens in new tab)' } },
-						{ label: 'Playground', translations: { de: 'Playground' }, link: 'https://playground.llmhub.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'LLM Playground (opens in new tab)' } },
-						{ label: 'SmartChat docs', translations: { de: 'SmartChat-Doku' }, link: 'https://docs.smartchat.ai.t-systems.net', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'SmartChat docs (opens in new tab)' } },
-						{ label: 'AI Engineer docs', translations: { de: 'AI-Engineer-Doku' }, link: 'https://docs.ai-engineer.ai.t-systems.net/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'AI Engineer docs (opens in new tab)' } },
+						{ label: 'Glossary', translations: { de: 'Glossar' }, slug: 'getting-started/concepts' },
 					],
 				},
 		],

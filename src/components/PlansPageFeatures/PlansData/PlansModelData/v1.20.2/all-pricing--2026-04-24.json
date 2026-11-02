@@ -3529,7 +3529,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "DeepSeek-V4.1-Flash",
+        "exactModelName": "DeepSeek-V4.1-Flash-preview",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": "dynamic",
@@ -3537,19 +3537,19 @@
         "lifetimeTokenLimit": 0,
         "requestPerMinute": 0,
         "requestPerMinuteLimit": "dynamic",
-        "inputPricePerMillionTokens": null,
-        "outputPricePerMillionTokens": null,
+        "inputPricePerMillionTokens": 0.0,
+        "outputPricePerMillionTokens": 0.0,
         "modelQuotaMetadata": {
           "quotaType": "Dynamic",
           "note": "Limits are dynamically allocated for test models"
         },
         "displayModelName": "DeepSeek 4.1 Flash",
-        "modelLabel": "Preview model",
+        "modelLabel": "Test model (T-Cloud Public)",
         "contextWindow": null,
         "termsOfUseUrl": null,
         "dataProtectionUrl": null,
         "aiModelId": null,
-        "deploymentRegion": "",
+        "deploymentRegion": "otc-germany",
         "modelQuotaConfigId": null,
         "createdAt": "2026-11-02T10:00:00.000000",
         "updatedAt": "2026-11-02T10:00:00.000000",

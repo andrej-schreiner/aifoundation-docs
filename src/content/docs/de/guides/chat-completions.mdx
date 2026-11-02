@@ -10,7 +10,7 @@ Die Chat Completions API ist die primäre Methode zur Interaktion mit LLMs auf A
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/getting-started/quickstart))
+- OpenAI SDK oder HTTP-Client installiert ([Quickstart](/de/))
 :::
 
 **Was Sie lernen werden:**
@@ -183,13 +183,13 @@ Die vollständige API-Spezifikation finden Sie in der [API-Referenz](https://llm
 
 ## Grenzen und Fehlersuche
 
-Zwei Grenzen stehen bereits auf dieser Seite: die Completions API gilt nur für Open-Source-Modelle und soll nicht der Standardweg sein, und einige Modelle lehnen die Responses API mit HTTP 400 ab.
+Die Completions API gilt nur für Open-Source-Modelle und sollte nicht Ihr Standardweg sein. Einige Modelle lehnen die Responses API mit HTTP 400 ab.
 
-<div set:html="<!-- TODO(andrej): eine Parametermatrix je Modell steht in dieser Anleitung nicht. Die Parametertabelle ist der dokumentierte Satz. -->"></div>
+{/* TODO(andrej): eine Parametermatrix je Modell steht in dieser Anleitung nicht. Die Parametertabelle ist der dokumentierte Satz. */}
 
 ## Nächste Schritte
 
 - [Streaming](/de/guides/streaming) — Antworten Token für Token streamen
 - [Function Calling](/de/guides/function-calling) — Modelle mit externen Tools verbinden
 - [Multimodal](/de/guides/multimodal) — Bilder zusammen mit Text analysieren
-- [Queued Requests](/de/guides/queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten
+- [Queued Requests](/de/guides/reliability#queued-requests) — Auf freies Rate-Limit warten statt einen 429 zu erhalten

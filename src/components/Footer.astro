@@ -3,7 +3,6 @@
 // next links, then the site footer, which the script moves out of the sheet and
 // (from 72rem) fixes behind it, so the sheet scrolls up off it (layout.css).
 import Default from '@astrojs/starlight/components/Footer.astro';
-import PreviewModelsBanner from './PreviewModelsBanner.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
@@ -11,18 +10,14 @@ const links = isDE
   ? [
       { label: 'Impressum', href: 'https://www.t-systems.com/de/de/impressum' },
       { label: 'Datenschutz', href: 'https://www.t-systems.com/de/de/datenschutz' },
-      { label: 'Jugendschutz', href: 'https://www.telekom.com/de/konzern/compliance/details/jugendschutz-702466' },
     ]
   : [
       { label: 'Imprint', href: 'https://www.t-systems.com/de/en/imprint' },
       { label: 'Data privacy', href: 'https://www.t-systems.com/de/en/data-privacy' },
-      { label: 'Youth protection', href: 'https://www.telekom.com/en/corporate-responsibility/governance/protection-of-minors' },
     ];
 ---
 
 <Default {...Astro.props}><slot /></Default>
-
-<PreviewModelsBanner />
 
 <footer class="site-footer" aria-label={isDE ? 'Website' : 'Site'}>
   <div class="site-footer-inner">

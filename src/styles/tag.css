@@ -38,8 +38,13 @@
 	letter-spacing: normal;
 }
 
-/* Size: small. The table tags and the sidebar badges are small, to sit in
-   a dense row. */
+a.hero-badge,
+a.hero-badge:hover {
+	color: inherit;
+	text-decoration: none;
+}
+
+/* Size: small. The table tags are small, to sit in a dense row. */
 
 .aifs-tag--small,
 .plans-tag,
@@ -47,6 +52,16 @@
 	height: var(--aifs-tag-height-small);
 	padding: 0 var(--aifs-tag-padding-x-small);
 	font-size: var(--aifs-tag-font-size-small);
+}
+
+a.plans-tag,
+button.plans-tag {
+	display: inline-flex;
+	align-items: center;
+	box-sizing: border-box;
+	min-height: 24px;
+	height: auto;
+	padding-block: 2px;
 }
 
 /* Colours, as in Scale's standard type: a subtle background with its
@@ -100,9 +115,18 @@
 /* Colour: magenta (not in Scale; filled, for the few labels that should stand out) */
 
 .aifs-tag--magenta,
-.tag-tcloud {
+.tag-tcloud,
+.sl-badge.tip {
 	background: var(--aifs-tag-magenta-background);
 	color: var(--aifs-tag-magenta-text);
+}
+
+/* Cloud tags never split at a hyphen ("T-Cloud"), even when a table builds
+   them without the shared tag class. */
+.tag-tcloud,
+.tag-cloud,
+.tag-external-cloud {
+	white-space: nowrap;
 }
 
 /* Plan tags: one fixed colour per plan. Test and the retired plans keep the

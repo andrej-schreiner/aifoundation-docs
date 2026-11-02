@@ -45,9 +45,15 @@ body {
 	line-height: var(--aifs-line-height-prose);
 }
 
+/* Inline code wraps only at spaces and at the <wbr> points from
+   rehype-inline-code-breaks.mjs, not between two letters (Starlight's
+   overflow-wrap: anywhere on li would otherwise split `400` as `40` / `0`).
+   break-word still splits a piece that cannot fit at all, so nothing overflows. */
 .sl-markdown-content :not(pre) > code {
 	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
 	border-radius: var(--aifs-radius-control);
+	overflow-wrap: break-word;
+	word-break: normal;
 }
 
 .sl-markdown-content :is(h1, h2, h3, h4) {
@@ -146,6 +152,7 @@ html:not([data-has-sidebar]) .meta {
 	.card-grid,
 	.link-card-row {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 0.75rem;
 	}
 }
 
@@ -228,6 +235,7 @@ html:not([data-has-sidebar]) .meta {
 .sl-link-card .stack {
 	gap: var(--aifs-card-text-gap);
 	align-items: flex-start;
+	gap: 0;
 }
 
 .sl-link-card .title {
@@ -445,7 +453,8 @@ sup {
 
 .sl-markdown-content .starlight-aside :not(pre) > code {
 	white-space: normal;
-	overflow-wrap: anywhere;
+	overflow-wrap: break-word;
+	word-break: normal;
 	background: transparent;
 	border: var(--aifs-border-width-standard) solid var(--aifs-color-border-standard);
 }
@@ -461,8 +470,20 @@ sup {
 	}
 }
 
+starlight-menu-button button {
+	background: transparent;
+	color: var(--aifs-color-text-body);
+}
+
+/* The menu button is fixed in the header; its host element must not take a
+   46px line in the page flow above the content. */
+starlight-menu-button {
+	display: contents;
+}
+
 @media (max-width: 50rem) {
-	starlight-menu-button {
+	starlight-menu-button button,
+	site-search button {
 		display: inline-grid;
 		place-items: center;
 		min-width: 44px;

@@ -1,12 +1,12 @@
 ---
 title: "Preview models"
-description: "Preview models on AI Foundation Services, including OCR and decision models. Free on any active plan, with dynamic rate limits and no SLA. DeepSeek 4.1 Flash: pricing to be announced."
+description: "Preview models on AI Foundation Services, including OCR and decision models. Free on any active plan, with dynamic rate limits and no SLA."
 ---
 
 import PlansPage from '../../../components/PlansPage.astro';
 
 :::tip[New in preview: DeepSeek 4.1 Flash]
-**DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash`) accepts text and image and returns text. It is a preview model. Pricing is to be announced.
+**DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash-preview`) accepts text and image and returns text. It is a preview model hosted on T-Cloud in Germany, within the EU, and, like the other preview models, free on any active plan.
 :::
 
 :::tip[New in preview: two OCR models]
@@ -18,7 +18,7 @@ import PlansPage from '../../../components/PlansPage.astro';
 
 **DiffusionGemma 26B A4B** (`diffusiongemma-26B-A4B-it-Preview`), a diffusion-based Gemma model from Google with a 256K context window, serves both endpoints:
 
-- **Chat**: `/chat/completions` with text and image input, streaming, function calling and an optional thinking mode. See [Chat Completions](/guides/chat-completions).
+- **Chat**: `/chat/completions` with text and image input, streaming, function calling and an optional thinking mode. See [Chat completions](/guides/chat-completions).
 - **Decisions**: `/decisions` with text and image input. See [Decisions](/guides/decisions).
 :::
 
@@ -37,7 +37,7 @@ RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&as
 - Telekom may adjust, restrict, or discontinue them at any time without prior notice.
 - They carry **no minimum-availability commitment** and are **not part of any Service Level Agreement (SLA)**.
 - They are intended for evaluation and prototyping; they are **not suitable for production workloads**.
-- Preview models are free on any active plan. **DeepSeek 4.1 Flash: pricing to be announced.**
+- Preview models are free on any active plan.
 
 Customers requiring contractual guarantees on throughput, end-to-end latency, or time-to-first-token should consider [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 

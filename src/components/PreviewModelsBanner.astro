@@ -33,34 +33,34 @@ const close = isDE ? 'Ankündigung schließen' : 'Dismiss announcement';
 const bars = isDE
   ? [
       {
+        key: 'glm53DeepseekLaunchDismissed',
+        badge: 'Neu',
+        msg: '<b>GLM 5.3</b> (T-Cloud) und <b>DeepSeek 4.1 Flash</b> (T-Cloud, Vorschau) ab 2.\u00a0Nov.',
+        cta: 'Modelle ansehen',
+        href: `${prefix}/models/llms`,
+      },
+      {
         key: 'apiTransitionBannerDismissed',
         badge: 'Hinweis',
         msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
         cta: 'Zur API-Umstellung',
         href: `${prefix}/api-transition`,
       },
-      {
-        key: 'glm53DeepseekLaunchDismissed',
-        badge: 'Neu',
-        msg: '<b>GLM 5.3</b> und <b>DeepSeek 4.1 Flash</b> ab 2. Nov.',
-        cta: 'Modelle ansehen',
-        href: `${prefix}/models/llms`,
-      },
     ]
   : [
+      {
+        key: 'glm53DeepseekLaunchDismissed',
+        badge: 'New',
+        msg: '<b>GLM 5.3</b> (T-Cloud) and <b>DeepSeek 4.1 Flash</b> (T-Cloud, preview) from 2\u00a0Nov',
+        cta: 'View models',
+        href: `${prefix}/models/llms`,
+      },
       {
         key: 'apiTransitionBannerDismissed',
         badge: 'Notice',
         msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
         cta: 'View API changes',
         href: `${prefix}/api-transition`,
-      },
-      {
-        key: 'glm53DeepseekLaunchDismissed',
-        badge: 'New',
-        msg: '<b>GLM 5.3</b> and <b>DeepSeek 4.1 Flash</b> from 2 Nov',
-        cta: 'View models',
-        href: `${prefix}/models/llms`,
       },
     ];
 import Button from './Button.astro';

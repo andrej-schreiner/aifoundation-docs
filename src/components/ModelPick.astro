@@ -38,7 +38,6 @@ const t = isDE
   ? {
       heading: 'Empfohlen',
       preview: 'Vorschau',
-      unpublished: 'Nicht angegeben',
       context: 'Kontext',
       hosting: 'Hosting',
       copyTitle: 'Modell-ID kopieren: {id}',
@@ -48,7 +47,6 @@ const t = isDE
   : {
       heading: 'Recommended',
       preview: 'Preview',
-      unpublished: 'Not published',
       context: 'Context',
       hosting: 'Hosting',
       copyTitle: 'Copy model ID: {id}',
@@ -109,10 +107,12 @@ function place(hosting: string): string {
             </Button>
           </div>
           <dl class="model-pick__rows">
-            <div class="model-pick__row">
-              <dt>{t.context}</dt>
-              <dd>{model.context || t.unpublished}</dd>
-            </div>
+            {model.context && (
+              <div class="model-pick__row">
+                <dt>{t.context}</dt>
+                <dd>{model.context}</dd>
+              </div>
+            )}
             <div class="model-pick__row">
               <dt>{t.hosting}</dt>
               <dd>

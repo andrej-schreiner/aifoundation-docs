@@ -11,8 +11,8 @@ For models that support reasoning (chain-of-thought), you can control the depth 
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
-- A reasoning-capable model (see [Chat & Reasoning models](/models/llms))
+- OpenAI SDK installed ([Quickstart](/))
+- A reasoning-capable model (see [Chat & reasoning models](/models/llms))
 :::
 
 **What you'll learn:**
@@ -27,7 +27,7 @@ Accepted `reasoning_effort` values and the datasheet default:
 
 <ReasoningTable />
 
-<div set:html="<!-- TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash) supports a vendor thinking mode. Confirm the reasoning_effort values on AIFS before adding them to the table. -->"></div>
+{/* TODO(andrej): DeepSeek 4.1 Flash (DeepSeek-V4.1-Flash-preview) supports a vendor thinking mode. Confirm the reasoning_effort values on AIFS before adding them to the table. */}
 
 Qwen 3.6 also accepts the prompt keyword `/no_think`, in the section below.
 
@@ -37,7 +37,7 @@ A few models are exceptions worth knowing about:
 - **Some newer Anthropic models** reject `reasoning_effort` and control thinking differently; the error names the alternative to use.
 - **Code-specialised models** may reject the parameter outright with `The requested operation is unsupported.`
 
-If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning models](/models/llms).
+If a model rejects `reasoning_effort`, check its entry in [Chat & reasoning models](/models/llms).
 
 
 ## Using reasoning_effort
@@ -55,7 +55,7 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
             {"role": "system", "content": "You are a concise and helpful assistant."},
             {"role": "user", "content": "What is the capital of France?"},
         ],
-        reasoning_effort="high",  # "low", "medium", or "high"
+        reasoning_effort="high",  # GLM-5.3 accepts "none", "high", or "max"
     )
 
     print(response.choices[0].message.content)
@@ -66,7 +66,7 @@ If a model rejects `reasoning_effort`, check its entry in [Chat & Reasoning mode
 The sample uses `reasoning_effort="high"` on `GLM-5.3`. The datasheet lists `none`, `high`, and `max` for that model. Do not assume every model accepts the same values.
 
 
-## Disabling Reasoning for Qwen 3.6
+## Disabling reasoning for Qwen 3.6
 
 For Qwen 3.6 models, prepend `/no_think` to your prompt to disable reasoning:
 
@@ -89,18 +89,18 @@ print(response.choices[0].message.content)
 
 ## Limitations and troubleshooting
 
-These limits are already written on this page:
+Known limits:
 
 - Mistral models accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
 - Some newer Anthropic models reject `reasoning_effort`. The error names the alternative.
 - Some code-specialised models reject the parameter with `The requested operation is unsupported.`
 
-<div set:html="<!-- TODO(andrej): confirm which current Anthropic model ids reject reasoning_effort. The note above is the existing sentence; it does not name the ids. -->"></div>
+{/* TODO(andrej): confirm which current Anthropic model ids reject reasoning_effort. The note above is the existing sentence; it does not name the ids. */}
 
 ## Next steps
 
 <div class="link-card-row">
   <LinkCard title="Chat completions" href="/guides/chat-completions" description="The chat call this parameter is added to." />
   <LinkCard title="Function calling" href="/guides/function-calling" description="Tools on the same client." />
-  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="GLM 5.2 and Qwen 3.6 35B on T-Cloud." />
+  <LinkCard title="Recommended models" href="/getting-started/choosing-a-model" description="GLM 5.2 and Qwen 3.6 35B on T-Cloud." />
 </div>

@@ -4,6 +4,7 @@
 import reasoningEffortData from '../data/reasoning-effort.json';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 
 const RETIRING = new Set(
   [
@@ -20,7 +21,7 @@ const RETIRING = new Set(
     'claude-opus-4.8',
     'gemini-3-pro',
     'gemini-3-pro-long-context',
-    'gemini-3-flash',
+    // gemini-3-flash retires 2026-11-30; remove then.
   ].map((id) => id.toLowerCase()),
 );
 
@@ -64,10 +65,10 @@ const t = isDE
     <tbody>
       {rows.map((row) => (
         <tr>
-          <td>{row.name}</td>
-          <td><code>{row.id}</code></td>
-          <td><code>{row.values}</code></td>
-          <td>{row.fallback || t.none}</td>
+          <td data-label={t.model}>{row.name}</td>
+          <td data-label={t.id}><code set:html={withWrapPoints(row.id)} /></td>
+          <td data-label={t.values}><code>{row.values}</code></td>
+          <td data-label={t.fallback}>{row.fallback || t.none}</td>
         </tr>
       ))}
     </tbody>

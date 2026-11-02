@@ -5,11 +5,11 @@ description: "Point an OpenAI SDK at AI Foundation Services with the quickstart 
 
 import { LinkCard } from '@astrojs/starlight/components';
 
-<div set:html="<!-- TODO(andrej): confirm how to name OpenAI and Azure OpenAI on this page, and which Azure OpenAI fields (deployment name, api-version) actually differ. -->"></div>
+Point an application that already calls OpenAI at AI Foundation Services. Keep the SDK. Change the base URL, the API key, and the model id.
 
-Point an application that already calls OpenAI or Azure OpenAI at AI Foundation Services. Keep the SDK. Change the base URL, the API key, and the model id.
+If your code uses the AzureOpenAI client, switch to the standard OpenAI client: Azure-style deployment URLs and the api-key header are not part of the AI Foundation Services API.
 
-The move from the current AIFS endpoint to the New API is a separate guide: [Migrate to the New API](/api-transition).
+The move from the current AIFS endpoint to the New API is a separate guide: [Migrate to the new API](/api-transition).
 
 :::note[Prerequisites]
 - An AIFS API key ([get one here](https://apikey.llmhub.t-systems.net/))
@@ -20,7 +20,7 @@ The move from the current AIFS endpoint to the New API is a separate guide: [Mig
 
 ```bash
 export OPENAI_API_KEY="your_api_key_here"
-export OPENAI_BASE_URL="https://llm-server.llmhub.t-systems.net/v2"
+export OPENAI_BASE_URL="https://llm-server.ai.t-systems.net/v1"
 ```
 
 ```python
@@ -40,13 +40,11 @@ The response text is `response.choices[0].message.content`.
 
 Set `OPENAI_BASE_URL` and `OPENAI_API_KEY`. The chat body uses `model` and `messages`.
 
-Model ids on AIFS can differ from OpenAI model ids. [Choosing a model](/getting-started/choosing-a-model) lists the catalog. [Deprecations](/models/deprecations) lists retirement dates and replacements.
+Model ids on AIFS can differ from OpenAI model ids. [Recommended models](/getting-started/choosing-a-model) lists the catalog. [Deprecations](/models/deprecations) lists retirement dates and replacements.
 
 ## Limitations and troubleshooting
 
 The API is OpenAI-compatible. Not every parameter exists on every model. Some models return HTTP 400 for the Responses API. Use the guide for the call you are migrating.
-
-<div set:html="<!-- TODO(andrej): Azure OpenAI deployment names and api-version are not described in the current docs. Do not tell readers to drop or keep them until that is written down. -->"></div>
 
 Authentication failures are HTTP 401 or 403. See [Error codes](/reference/error-codes).
 
@@ -54,6 +52,6 @@ Authentication failures are HTTP 401 or 403. See [Error codes](/reference/error-
 
 <div class="link-card-row">
   <LinkCard title="Quickstart" href="/" description="Install, key, and the first chat call." />
-  <LinkCard title="Choosing a model" href="/getting-started/choosing-a-model" description="Catalog ids by use case." />
-  <LinkCard title="Migrate to the New API" href="/api-transition" description="The AIFS endpoint change." />
+  <LinkCard title="Recommended models" href="/getting-started/choosing-a-model" description="Catalog ids by use case." />
+  <LinkCard title="Migrate to the new API" href="/api-transition" description="The AIFS endpoint change." />
 </div>

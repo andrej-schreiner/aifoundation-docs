@@ -1,5 +1,5 @@
 ---
-title: "OCR (Dokumentenerkennung)"
+title: "OCR (Dokumenten\u00ADerkennung)"
 description: "Gescannte Dokumente, PDFs und Fotos mit den Vorschau-Modellen LightOnOCR-3-4B und PaddleOCR-VL-1.6 in Markdown, Tabellen und strukturierten Text umwandeln."
 ---
 
@@ -8,13 +8,13 @@ import ModelPick from '../../../../components/ModelPick.astro';
 
 Zwei OCR-Modelle lesen Dokumente für Sie: gescannte Briefe, Rechnungen, Formulare, wissenschaftliche Artikel und Folien. Sie liefern den Inhalt als **Markdown, HTML-Tabellen und LaTeX**, bereit für Suche, RAG-Pipelines oder Datenextraktion, statt als unstrukturierten Textblock.
 
-Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre Dokumente werden also in Deutschland verarbeitet.
+Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre Dokumente werden also in Deutschland, innerhalb der EU, verarbeitet.
 
 <ModelPick useCase="ocr" />
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/getting-started/quickstart)
+- `OPENAI_API_KEY` und `OPENAI_BASE_URL` gesetzt wie im [Quickstart](/de/)
 - `pip install openai pypdfium2 pillow` für die Python-Beispiele (`pypdfium2` wandelt PDF-Seiten in Bilder um)
 :::
 
@@ -27,7 +27,7 @@ Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre
 
 ## Unterstützte Modelle
 
-| | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
+| <span class="sr-only">Aspekt</span> | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
 |---|---|---|
 | Modell-ID | `LightOnOCR-3-4B-Preview` | `PaddleOCR-VL-1.6-Preview` |
 | Hersteller | [LightOn](https://www.lighton.ai), Paris, Frankreich | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
@@ -47,7 +47,7 @@ Beide Modelle sind in [Test / Vorschau](/de/models/preview): kostenlos in jedem 
 
 ## Zwei Wege, die Modelle aufzurufen
 
-| | **Chat Completions** (OpenAI SDK, curl, jede Sprache) | **Bibliotheken der Hersteller** (`lightonocr`, `paddleocr`) |
+| <span class="sr-only">Aspekt</span> | **Chat Completions** (OpenAI SDK, curl, jede Sprache) | **Bibliotheken der Hersteller** (`lightonocr`, `paddleocr`) |
 |---|---|---|
 | Einrichtung | nichts außer Ihrem HTTP-Client | ein Python-Paket (`paddleocr` braucht zusätzlich PaddlePaddle und lädt beim ersten Aufruf ein Layout-Modell von ~120 MB) |
 | PDFs | Sie wandeln die Seiten selbst in Bilder um | die Bibliothek wandelt PDFs um, sendet Seiten parallel und schreibt die Ergebnisse in Dateien |
@@ -340,6 +340,6 @@ Tabellen kommen als **OTSL**: `<nl>` beendet eine Zeile, `<fcel>` beginnt eine Z
 
 ## Nächste Schritte
 
-- [Multimodal (Vision)](/de/guides/multimodal) — Fragen zu Bildern mit Vision-Chat-Modellen stellen
-- [Visual RAG](/de/guides/visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
+- [Bildeingabe](/de/guides/multimodal) — Fragen zu Bildern mit Chat-Modellen stellen
+- [Visual RAG](/de/guides/embeddings#visual-rag) — Dokumente über ihre Seitenbilder durchsuchen
 - [Test-/Vorschau-Modelle](/de/models/preview) — Limits und Bedingungen für Vorschau-Modelle

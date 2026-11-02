@@ -1,76 +1,70 @@
 ---
-title: "Function Calling"
-description: "Define tools and let LLM Hub models return structured JSON arguments to integrate with external APIs and data sources."
+title: "Function calling"
+description: "Define tools and let AI Foundation Services models return structured JSON arguments for external APIs and data sources."
 ---
 
-
-import { TabItem, Tabs } from '@astrojs/starlight/components';
 
 Function calling lets models generate structured JSON arguments for functions you define, enabling integration with external tools and APIs.
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
-- A model that supports function calling (most hosted models do — see [Available Models](/models))
+- OpenAI SDK installed ([Quickstart](/))
+- A model that supports function calling (most hosted models do — see [Available models](/models))
 :::
 
 **What you'll learn:**
 - How to define tools/functions for the model to call
 - How to use function calling with the Responses API
-- Where the JSON Schema example moved ([Structured outputs](/guides/structured-outputs))
+- Where to find JSON Schema structured outputs ([Structured outputs](/guides/structured-outputs))
 
 
-## Basic Example
+## Basic example
 
-<Tabs>
-  <TabItem value="python" label="Python" default>
-    ```python showLineNumbers
-    from openai import OpenAI
+```python showLineNumbers
+from openai import OpenAI
 
-    client = OpenAI()
+client = OpenAI()
 
-    tools = [
-        {
-            "type": "function",
-            "function": {
-                "name": "get_current_weather",
-                "description": "Get the current weather",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "location": {
-                            "type": "string",
-                            "description": "The city and state, e.g. San Francisco, CA",
-                        },
-                        "format": {
-                            "type": "string",
-                            "enum": ["celsius", "fahrenheit"],
-                            "description": "The temperature unit to use.",
-                        },
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_current_weather",
+            "description": "Get the current weather",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "The city and state, e.g. San Francisco, CA",
                     },
-                    "required": ["location", "format"],
+                    "format": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"],
+                        "description": "The temperature unit to use.",
+                    },
                 },
+                "required": ["location", "format"],
             },
         },
-    ]
+    },
+]
 
-    messages = [
-        {"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."},
-        {"role": "user", "content": "What's the weather like today in Hamburg?"},
-    ]
+messages = [
+    {"role": "system", "content": "Don't make assumptions about what values to plug into functions. Ask for clarification if a user request is ambiguous."},
+    {"role": "user", "content": "What's the weather like today in Hamburg?"},
+]
 
-    response = client.chat.completions.create(
-        model="GLM-5.3",
-        messages=messages,
-        tools=tools,
-    )
+response = client.chat.completions.create(
+    model="GLM-5.2",
+    messages=messages,
+    tools=tools,
+)
 
-    print(response.choices[0].message)
-    ```
-  </TabItem>
-</Tabs>
+print(response.choices[0].message)
+```
 
-**Example output:**
+**Example output (illustrative):**
 ```
 ChatCompletionMessage(
     content=None,
@@ -89,7 +83,7 @@ ChatCompletionMessage(
 ```
 
 
-## Function Calling with Responses API
+## Function calling with Responses API
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -116,7 +110,7 @@ tools = [
 ]
 
 response = client.responses.create(
-    model="GLM-5.3",
+    model="gpt-oss-120b",
     input=[{"role": "user", "content": "What is the weather like in Paris today?"}],
     tools=tools,
 )
@@ -125,21 +119,21 @@ print(response.output)
 ```
 
 
-## Structured output
+## Structured outputs
 
 JSON Schema on the Responses API is documented on [Structured outputs](/guides/structured-outputs).
 
 ## Limitations and troubleshooting
 
 :::note
-Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available Models](/models) before relying on it.
+Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available models](/models) before relying on it.
 
-The Responses API is not limited to OpenAI models either — tool calls through it are confirmed on Google, Anthropic and T-Cloud-hosted open-source models as well, though a few models still reject Responses API requests.
+The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
 :::
 
 
 ## Next steps
 
 - [Streaming](/guides/streaming) — Stream function calling responses in real-time
-- [Chat Completions](/guides/chat-completions) — Basic chat API usage
-- [API Endpoints](/reference/api-endpoints) — Full endpoint reference
+- [Chat completions](/guides/chat-completions) — Basic chat API usage
+- [API endpoints](/reference/api-endpoints) — Full endpoint reference

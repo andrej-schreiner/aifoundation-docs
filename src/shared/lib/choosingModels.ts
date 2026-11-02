@@ -3,7 +3,16 @@ import { cloudLabelFor } from './cloudLabelOverrides';
 import { isHiddenModel } from './hiddenModels';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
-export const LAST_REVIEWED = '2026-10-30';
+export const LAST_REVIEWED = '2026-11-02';
+
+const REVIEWED_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const REVIEWED_MONTHS_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
+
+export function reviewedLabel(isDE: boolean): string {
+  const [year, month, day] = LAST_REVIEWED.split('-').map(Number);
+  const name = (isDE ? REVIEWED_MONTHS_DE : REVIEWED_MONTHS_EN)[month - 1];
+  return isDE ? `${day}. ${name} ${year}` : `${day} ${name} ${year}`;
+}
 
 /**
  * exact ids whose display names are on /models/deprecations for 2026-10-31
@@ -24,7 +33,7 @@ export const RETIRING_MODEL_IDS = new Set(
     'claude-opus-4.8',
     'gemini-3-pro',
     'gemini-3-pro-long-context',
-    'gemini-3-flash',
+    // gemini-3-flash retires 2026-11-30; remove then.
   ].map((id) => id.toLowerCase()),
 );
 
@@ -50,7 +59,7 @@ export interface ModelFact {
   name: string;
   /** Catalog context string, or a "not published" label when the field is empty. */
   context: string;
-  /** T-Cloud Germany, an Azure region, or a GCP region. */
+  /** T-Cloud Germany (EU), an Azure region, or a GCP region. */
   hosting: string;
   tcloud: boolean;
   preview: boolean;
@@ -96,7 +105,7 @@ function hostingFor(id: string, region: string): string {
     if (normalized.startsWith('gcp-europe-west')) return 'GCP europe-west1 / Azure';
     return 'GCP / Azure';
   }
-  if (normalized === 'otc-germany' || normalized.startsWith('otc')) return 'T-Cloud Germany';
+  if (normalized === 'otc-germany' || normalized.startsWith('otc')) return 'T-Cloud Germany\u00a0(EU)';
   if (normalized === 'azure-sweden-central') return 'Azure Sweden Central';
   if (normalized === 'azure-france-central') return 'Azure France Central';
   if (normalized === 'azure-worldwide') return 'Azure (worldwide)';
@@ -131,18 +140,21 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'chat',
     useCase: { en: 'General chat and assistants', de: 'Allgemeiner Chat und Assistenten' },
-    recommended: 'gpt-oss-120b',
-    alternative: 'Mistral-Small-4-119B-2603',
-    also: 'GLM-5.3-Flash',
+    // GLM 5.3 leads (Andrej, 2026-10-31); GPT-OSS 120B is never first.
+    recommended: 'GLM-5.3',
+    alternative: 'gpt-oss-120b',
+    also: 'Mistral-Small-4-119B-2603',
     notes: {
-      en: 'GPT-OSS 120B and Mistral Small 4 run on T-Cloud. Mistral Small 4 also accepts images. GLM 5.3 Flash is a smaller chat model on the same cloud.',
-      de: 'GPT-OSS 120B und Mistral Small 4 laufen auf T-Cloud. Mistral Small 4 akzeptiert zusätzlich Bilder. GLM 5.3 Flash ist ein kleineres Chat-Modell auf derselben Cloud.',
+      en: 'GLM 5.3, GPT-OSS 120B and Mistral Small 4 run on T-Cloud. GLM 5.3 has a 1M context window. Mistral Small 4 also accepts images.',
+      de: 'GLM 5.3, GPT-OSS 120B und Mistral Small 4 laufen auf T-Cloud. GLM 5.3 hat ein Kontextfenster von 1M. Mistral Small 4 akzeptiert zusätzlich Bilder.',
     },
+    // Code samples keep the model they already use.
+    snippetModel: 'gpt-oss-120b',
     guide: '/guides/chat-completions',
   },
   {
     id: 'reasoning',
-    useCase: { en: 'Reasoning and complex tasks', de: 'Reasoning und komplexe Aufgaben' },
+    useCase: { en: 'Reasoning and complex tasks', de: 'Komplexe Aufgaben' },
     recommended: 'GLM-5.3',
     alternative: 'GLM-5.2',
     notes: {
@@ -153,7 +165,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   },
   {
     id: 'coding',
-    useCase: { en: 'Coding and agents', de: 'Coding und Agents' },
+    useCase: { en: 'Coding and agents', de: 'Coding und Agenten' },
     recommended: 'GLM-5.3',
     alternative: 'GLM-5.3-Flash',
     also: 'Qwen3.8-27B-FP8',
@@ -165,7 +177,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   },
   {
     id: 'vision',
-    useCase: { en: 'Vision and document understanding', de: 'Vision und Dokumentverständnis' },
+    useCase: { en: 'Image and document understanding', de: 'Bilder und Dokumente verstehen' },
     recommended: 'Qwen-3.6-35B-FP8',
     alternative: 'gemma-4-31B-it-FP8',
     also: 'Mistral-Small-4-119B-2603',
@@ -227,7 +239,7 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     alternative: 'gemini-3-pro-image',
     notes: {
       en: 'GPT Image 2 runs on Azure Sweden. Gemini 3 Pro Image runs on Google Cloud worldwide. No image-generation model runs on T-Cloud.',
-      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Bildgenerierungsmodell läuft auf T-Cloud.',
+      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
     },
     guide: '/guides/image-generation',
   },

@@ -21,7 +21,7 @@
       "description": "Colour mode. Matches Starlight's data-theme attribute.",
       "contexts": {
         "light": [{ "$ref": "telekom.color.light.tokens.json" }],
-        "dark": [{ "$ref": "telekom.color.dark.tokens.json" }]
+        "dark": [{ "$ref": "telekom.color.dark.tokens.json" }, { "$ref": "aifs.dark.tokens.json" }]
       },
       "default": "light"
     }

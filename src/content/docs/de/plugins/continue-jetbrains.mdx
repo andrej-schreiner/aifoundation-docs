@@ -1,0 +1,113 @@
+---
+title: "Continue für JetBrains"
+description: "Das Continue-Plugin für JetBrains-IDEs installieren und einrichten: Chat, Inline-Bearbeitung, Autovervollständigung und Coding-Agenten auf AI Foundation Services."
+---
+
+Continue for AI Engineer ist eine angepasste Fassung des Continue-Plugins für JetBrains-IDEs. Es bringt Chat, Inline-Bearbeitung, Autovervollständigung und Coding-Agenten in IntelliJ-Abläufe, sodass Sie mit den Modellen arbeiten, ohne den Editor zu verlassen.
+
+## Funktionen
+
+- Chat für Fragen, Erklärungen zum Code und Unterstützung bei der Entwicklung
+- Inline-Bearbeitung für gezielte Änderungen im Editor
+- Autovervollständigung für schnelle Vorschläge während der Eingabe
+- Coding-Agenten für mehrschrittige Aufgaben wie Dateien lesen, Befehle ausführen und Änderungen anwenden
+
+## Installation
+
+1. Öffnen Sie in Ihrer JetBrains-IDE **Settings** und wählen Sie **Plugins**.
+2. Klicken Sie auf der Plugin-Seite auf das Zahnrad und wählen Sie **Manage Plugin Repositories**.
+3. Fügen Sie im Dialog **Custom Plugin Repositories** die Repository-URL von [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins) hinzu.
+
+4. Klicken Sie auf **OK**, um die Liste zu speichern und die Änderung zu übernehmen.
+5. Öffnen Sie den Marketplace, suchen Sie nach **Continue for AI Engineer** und installieren Sie es.
+
+## Konfigurationsdatei
+
+Nach der ersten Installation öffnen Sie das Continue-Plugin für AI Engineer und wählen **Local config**. Dadurch öffnet sich eine leere `config.yaml`, in die Sie Modell, Basis-URL und API-Schlüssel eintragen.
+
+1. Wählen Sie eine Modell-ID aus [Verfügbare Modelle](/de/models):
+
+```yaml
+model: gpt-oss-120b
+```
+
+2. Stellen Sie die Basis-URL ein:
+
+```yaml
+apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+```
+
+3. Erzeugen Sie einen API-Schlüssel unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard):
+
+```yaml
+apiKey: ${{ secrets.OPENAI_API_KEY }}
+```
+
+Speichern Sie den Schlüssel in ~/.continue/.env als OPENAI_API_KEY=… .
+
+4. Weisen Sie dem Modell eine oder mehrere Rollen zu, zum Beispiel `chat`, `edit`, `apply`, `autocomplete` oder `embed`:
+
+```yaml
+roles:
+  - chat
+```
+
+:::note[Nur Windows]
+Wenn Sie IntelliJ oder PyCharm unter Windows verwenden, tragen Sie die Proxy-Einstellungen in die Konfigurationsdatei ein:
+
+```yaml
+requestOptions:
+  proxy: http://proxy.example.com:8080
+```
+:::
+
+### Beispiel `config.yaml`
+
+```yaml
+name: Local Config
+version: 1.0.0
+schema: v1
+models:
+  - name: gpt-oss-120b
+    model: gpt-oss-120b
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    requestOptions:
+      proxy: http://proxy.example.com:8080
+  - name: GLM-5.3
+    model: GLM-5.3
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    requestOptions:
+      proxy: http://proxy.example.com:8080
+  - name: GLM-5.3-Flash
+    model: GLM-5.3-Flash
+    provider: openai
+    apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
+    apiKey: ${{ secrets.OPENAI_API_KEY }}
+    roles:
+      - chat
+      - edit
+      - apply
+    requestOptions:
+      proxy: http://proxy.example.com:8080
+```
+
+Sobald die Konfiguration gespeichert ist, können Sie einen Chat starten und Continue in Ihrer JetBrains-IDE verwenden.
+
+## Aktualisieren
+
+Automatische Updates sind für das JetBrains-Plugin enthalten, sobald eine neue Version erscheint.
+
+- Das Plugin kann Updates automatisch laden, wenn sie verfügbar sind.
+- Sie können auch manuell unter `Settings -> Appearance & Behavior -> System Settings -> Updates` prüfen.

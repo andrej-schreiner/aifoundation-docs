@@ -1,0 +1,74 @@
+---
+title: "OpenCode"
+description: "OpenCode installieren, einen quelloffenen KI-Coding-Agenten für das Terminal, und mit AI Foundation Services verbinden."
+---
+
+OpenCode ist ein quelloffener KI-Coding-Agent, der im Terminal läuft und sich mit jedem Editor oder jeder IDE verwenden lässt.
+
+## Funktionen
+
+- LSP-Unterstützung, die das passende Sprachwerkzeug für das Modell lädt
+- Mehrere Sitzungen, sodass mehrere Agenten am selben Projekt arbeiten können
+- Teilbare Sitzungslinks für Zusammenarbeit und Fehlersuche
+- MCP-Unterstützung für externe Werkzeuge und Datenquellen
+- Editorunabhängiger Ablauf, der in jeder IDE funktioniert
+
+## Installation und Einrichtung
+
+:::note[Proxy]
+Wie die meisten Kommandozeilenwerkzeuge braucht OpenCode in manchen Netzen Proxy-Einstellungen in der Shell. Unter Windows setzen Sie diese Variablen, bevor Sie OpenCode starten:
+
+```bash
+http_proxy=<your-proxy-url:port>
+https_proxy=<your-proxy-url:port>
+```
+:::
+
+1. Folgen Sie der Installationsanleitung für OpenCode unter [AI Coding Plugins](https://apikey.llmhub.t-systems.net/plugins).
+
+2. Starten Sie OpenCode:
+
+   ```bash
+   opencode
+   ```
+
+3. Führen Sie in OpenCode diesen Befehl aus, um den Anbieter zu wählen und sich mit Ihrem API-Schlüssel anzumelden:
+
+   ```bash
+   /connect
+   ```
+
+   Wählen Sie **AI Foundation Services** aus der Anbieterliste und geben Sie den API-Schlüssel ein, wenn Sie dazu aufgefordert werden. Einen Schlüssel erzeugen Sie unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard).
+
+Sie können jetzt einen Chat starten und OpenCode verwenden.
+
+## Beispielkonfiguration
+
+Wenn Sie OpenCode lieber deklarativ einrichten (oder ein Standardmodell und eine Basis-URL festlegen), legen Sie `opencode.json` im Projektverzeichnis oder unter `~/.config/opencode/opencode.json` als globale Vorgabe an:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "aifs/gpt-oss-120b",
+  "provider": {
+    "aifs": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "AI Foundation Services",
+      "options": {
+        "baseURL": "https://llm-server.llmhub.t-systems.net/v2/coding",
+        "apiKey": "{env:OPENAI_API_KEY}"
+      },
+      "models": {
+        "gpt-oss-120b": { "name": "GPT-OSS 120B (T-Cloud)" },
+        "GLM-5.3": { "name": "GLM 5.3 (T-Cloud)" },
+        "GLM-5.3-Flash": { "name": "GLM 5.3 Flash (T-Cloud)" }
+      }
+    }
+  },
+  "permission": {
+    "edit": "allow"
+  }
+}
+```
+
+OpenCode liest den Schlüssel über `{env:…}` aus `OPENAI_API_KEY`. Wenn Sie sich bereits mit `/connect` verbunden haben, ist der Schlüssel gespeichert und Sie können die Zeile `apiKey` weglassen. Eigene Anbieter nutzen das Paket `@ai-sdk/openai-compatible` und brauchen jedes Modell unter `models`. Siehe die [OpenCode-Anbieterdoku](https://opencode.ai/docs/providers/).

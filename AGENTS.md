@@ -45,7 +45,7 @@ exist. Do not invent one.
 | Models table (the only one: Models page, use cases, plans) | `ModelsComparison.astro` | `columns` catalog · useCase · plan; `category`; `capabilityFilter`; `plans`, `plan`, `planLocked` (plan preset) |
 | Plans page (rate plans + its models table) | `PlansPage.astro` (renders `ModelsComparison` with the plan preset) | `selectedPlanId` |
 | Aside, card, link card, card grid, tabs, steps, file tree | Starlight's own (`:::note`, `<Card>`, `<LinkCard>`, `<CardGrid>`, `<Tabs>`, `<Steps>`, `<FileTree>`) | restyled to our tokens; use them as Starlight documents them |
-| Code block | fenced Markdown code | every block uses the terminal frame; `title="file.py"` for a file name |
+| Code block | fenced Markdown code | long lines wrap; `title="file.py"` gives a header bar with the file name, untitled blocks have none |
 
 Site parts, not for reuse (Starlight slots and single-page tables):
 `SiteHeader`, `Footer`, `ArchiveBanner`, `MobileMenuFooter`,
@@ -133,7 +133,7 @@ component or token, and ask. A GAP note is a good result, not a failure.
 ## Before you commit
 
 1. `bun run tokens` — if you touched tokens (fails on broken aliases).
-2. `bun run build` — must complete (currently 227 pages).
+2. `bun run build` — must complete (currently 201 pages).
 3. Look at what you changed in the browser (`bun run dev`, port 4321;
    or `bun run dev --port 4322` in a worktree): light **and** dark mode,
    **375px and 1440px**, English **and** German. No page may scroll sideways.

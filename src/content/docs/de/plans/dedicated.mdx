@@ -13,10 +13,10 @@ Im Gegensatz zum [Shared LLM Serving Service](/de/plans) gibt es keine Rate-Limi
 
 <a id="comparison"></a>
 
-| | Shared LLM Serving Service | Dedicated LLM Serving |
+| <span class="sr-only">Aspekt</span> | Shared LLM Serving Service | Dedicated LLM Serving |
 |---|---|---|
 | **Tenancy** | Multi-Tenant — Kapazität wird über alle Kunden gepoolt | Single-Tenant — Hardware ist Ihrem Vertrag exklusiv zugewiesen |
-| **Preismodell** | Pay-as-you-go, Abrechnung pro Token | Fester Monatspreis pro GPU-Äquivalent |
+| **Preismodell** | Monatliche Mindestabnahme an Token-Umsatz; Nutzung darüber wird zu den gelisteten Token-Preisen abgerechnet | Fester Monatspreis pro GPU-Äquivalent |
 | **Rate-Limits** | Tarifabhängige RPM- und TPM-Obergrenzen — Best-Effort, nicht Teil des SLA | Keine — limitiert nur durch Ihre reservierte Hardware |
 | **Modelle** | Voller Katalog laut [Tarife & Preise](/de/plans) | Jedes Modell, das auf die reservierte Hardware passt, inklusive privater Fine-Tuning-Modelle |
 | **Performance** | Best-Effort, variiert mit Plattformlast; nicht Teil des SLA | Vorhersagbar auf der reservierten Hardware; Performance-SLAs verhandelbar |
@@ -42,7 +42,7 @@ Die Performance kann sich verschlechtern, wenn Sie die Hardware nahe ihrer Grenz
 
 Auf der Shared-Plattform konkurrieren Sie mit allen anderen Tenants um Kapazität auf demselben Open-Source-Modell. Bei Lastspitzen variieren End-to-End-Latenz und Time-to-First-Token; der effektive Durchsatz kann unter der veröffentlichten TPM-Obergrenze liegen.
 
-Im Dedicated LLM Serving bedienen Ihre GPUs ausschließlich Ihre Anfragen. Die Performance ist deterministisch und reproduzierbar — derselbe Prompt erzeugt Lauf für Lauf dasselbe Latenzprofil. Erst das macht **strikte SLAs** auf Latenz oder Durchsatz erreichbar.
+Im Dedicated LLM Serving bedienen Ihre GPUs ausschließlich Ihre Anfragen. Die Performance ist vorhersehbar und nicht von anderen Mandanten beeinflusst. Das macht **SLAs zu Latenz oder Durchsatz** auf der reservierten Hardware verhandelbar.
 
 ### 3. Jedes kompatible Modell
 

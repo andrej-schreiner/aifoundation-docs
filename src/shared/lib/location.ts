@@ -27,5 +27,7 @@ export function parseLocation(deploymentRegion: string | undefined | null, isDE:
   const raw = parts[1];
   const english = raw.charAt(0).toUpperCase() + raw.slice(1);
   const name = isDE ? (REGION_DE[raw] ?? english) : english;
+  // T-Cloud data stays in Germany, within the EU.
+  if (parts[0] === 'otc' && raw === 'germany') return { name: `${name} (EU)`, code: COUNTRY_CODES[raw] };
   return { name, code: COUNTRY_CODES[raw] || '' };
 }
