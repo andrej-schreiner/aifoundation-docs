@@ -11,7 +11,7 @@
 // breaks only when it is wider than the column. Table cells keep the wrap
 // points: a column sizes to its longest piece, and two URLs side by side may
 // not fit the fluid column on a narrow window, so there a URL breaks only
-// after a dot between host labels or before a `/`. Archived pages (paths under /v1…) keep them too.
+// after a dot between host labels or before a `/`.
 import { noBreakRanges, splitNoBreak, wrapOffsets } from './wrap-points.mjs';
 
 function wbr() {
@@ -83,22 +83,18 @@ function addWrapPoints(code) {
 }
 
 export default function rehypeInlineCodeBreaks() {
-	let archived = false;
 	const walk = (node, inCell) => {
 		for (const child of node.children ?? []) {
 			if (child.type !== 'element' || child.tagName === 'pre') continue;
-			const keep = archived || inCell;
 			if (child.tagName === 'code') {
-				if (keep || !markUrl(child, CODE_HOST)) addWrapPoints(child);
+				if (inCell || !markUrl(child, CODE_HOST)) addWrapPoints(child);
 			} else {
-				if (child.tagName === 'a' && !keep) markUrl(child, LINK_HOST);
+				if (child.tagName === 'a' && !inCell) markUrl(child, LINK_HOST);
 				walk(child, inCell || child.tagName === 'td' || child.tagName === 'th');
 			}
 		}
 	};
-	return (tree, file) => {
-		const path = String(file?.path ?? '').replaceAll('\\', '/');
-		archived = /\/content\/docs\/(?:de\/)?v1[^/]*\//.test(path);
+	return (tree) => {
 		walk(tree, false);
 	};
 }

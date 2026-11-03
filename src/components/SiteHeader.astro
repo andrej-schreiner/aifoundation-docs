@@ -9,6 +9,7 @@ import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
 import Button from './Button.astro';
+import VersionSelect from './VersionSelect.astro';
 import Icon from './Icon.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
@@ -51,7 +52,7 @@ const showSearch =
 		</Button>
 		<div class="ts-settings" id="ts-settings">
 			<div class="ts-settings__search" data-search-menu></div>
-			{/* starlight-versions renders the version select inside ThemeSelect. */}
+			<VersionSelect />
 			<ThemeSelect />
 			<LanguageSelect />
 		</div>
@@ -272,16 +273,6 @@ const showSearch =
 </script>
 
 <script>
-	// starlight-versions labels the current docs "Latest" in every locale.
-	function localizeVersionLabel() {
-		if (!document.documentElement.lang.startsWith('de')) return;
-		document.querySelectorAll('starlight-version-select option').forEach((option) => {
-			if (option.textContent?.trim() === 'Latest') option.textContent = 'Aktuell';
-		});
-	}
-	localizeVersionLabel();
-	document.addEventListener('astro:page-load', localizeVersionLabel);
-
 	// From 50 to 72rem the search button lives in the menu panel; elsewhere
 	// in its <site-search>. Only the button moves: Starlight keeps references
 	// to it and the dialog, so both keep working, and the dialog stays out of

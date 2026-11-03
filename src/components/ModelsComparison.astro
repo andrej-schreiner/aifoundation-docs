@@ -101,9 +101,7 @@ const isPlanPreset = preset === 'plan';
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
 // Display-only: German pages write 1,40 €. Row data for sort/filter keeps the raw numbers.
-// Archived versions (/v1…/) keep their original number format.
-const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
-const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
+const numberLocale: NumberLocale = isDE ? 'de' : 'en';
 
 // Each model's primary category lives in shared/lib/modelCategories, which
 // cached-token pricing reads too.
@@ -425,13 +423,12 @@ for (const pkg of pricingData as Array<{
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
       imageInputPricePerMillionTokens: (entry.imageInputPricePerMillionTokens as number) ?? null,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
-      // Archived pages keep their original output, so they skip the category check.
       cachedInputPricePerMillionTokens: cachedInputPrice(
         entry.inputPricePerMillionTokens as number | null,
         deploymentRegion,
-        isArchive ? null : category,
+        category,
       ),
-      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion, isArchive ? null : category),
+      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion, category),
       plans: [pkg.packageName],
       modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
@@ -729,9 +726,7 @@ function formatCachedPrice(m: CompiledModel): string {
   if (value == null) return 'xx';
   // A cached price is 15% of the input price, so two decimals would round most
   // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
-  // four decimals and drop trailing zeros. Archived pages keep their original
-  // "€0" for a zero cached price; current pages write €0.00 like every zero.
-  if (isArchive && value === 0) return '€0';
+  // four decimals and drop trailing zeros.
   return formatEuro(value, 4, numberLocale);
 }
 
@@ -758,10 +753,9 @@ function formatContextLabel(raw: string | null | undefined): string {
 /**
  * A row priced for one prompt length (its name ends in "(≤272k)" or
  * "(>272k)") shows the model's full context window; this note gives the
- * tier's prompt limit. Archived pages keep their original output.
+ * tier's prompt limit.
  */
 function priceTierNote(m: CompiledModel): string | null {
-  if (isArchive) return null;
   const match = /\((≤|>)\s*(\d+)k\)\s*$/i.exec(m.displayModelName);
   if (!match) return null;
   return (match[1] === '≤' ? t.tierUpTo : t.tierOver).replace('{limit}', `${match[2]}K`);
@@ -777,10 +771,9 @@ function previewCatalog(m: CompiledModel): boolean {
   return m.plans.includes('Test');
 }
 
-/** Plans column tags. The name already carries the Preview tag, so Test gets no second one.
- *  Archived pages keep their original output. */
+/** Plans column tags. The name already carries the Preview tag, so Test gets no second one. */
 function shownPlans(m: CompiledModel): string[] {
-  return isArchive ? m.plans : m.plans.filter((p) => p !== 'Test');
+  return m.plans.filter((p) => p !== 'Test');
 }
 
 function detailsIdFor(key: string): string {
@@ -847,8 +840,7 @@ const columns: Column[] = ([
   { key: 'plans', label: t.colPlans, cls: '', presets: MODEL_PAGES },
   { key: 'links', label: t.colLinks, cls: '', sortable: false, presets: ['plan'] },
 ] as Column[])
-  // Archived pages keep their original columns: no data processing.
-  .filter((c) => c.presets.includes(preset) && !(isArchive && c.key === 'dataProcessing'));
+  .filter((c) => c.presets.includes(preset));
 const show = (key: string) => columns.some((c) => c.key === key);
 
 // The table fits its room: it shows the columns below as cells (the model

@@ -13,8 +13,6 @@
 // - Inside a Starlight <TabItem>, an automatic title that only repeats the
 //   tab's label (case-insensitive: tab "Python" over a Python block) is left
 //   out; the frame stays. Explicit titles are kept.
-// - Archived pages (v1, v1-1-0, v1-2-0) are frozen: their blocks keep the plain
-//   frame when untitled, as before.
 const TERMINAL_TITLES = {
 	bash: 'Terminal',
 	sh: 'Terminal',
@@ -53,8 +51,6 @@ const LANGUAGE_LABELS = {
 	http: 'HTTP',
 	diff: 'Diff',
 };
-
-const ARCHIVED = /[\\/]content[\\/]docs[\\/](?:de[\\/])?v1(?:-1-0|-2-0)?[\\/]/;
 
 // Tab label of each code block in a document, in the order rehype-expressive-
 // code numbers them (groupIndex). Read once per document, before the first
@@ -110,11 +106,6 @@ export function ecFrameTitles() {
 			preprocessCode: ({ codeBlock }) => {
 				const { props, language } = codeBlock;
 				const frame = props.frame ?? 'auto';
-				const archived = ARCHIVED.test(codeBlock.parentDocument?.sourceFilePath ?? '');
-				if (archived) {
-					if (!props.title && frame === 'auto') props.frame = 'code';
-					return;
-				}
 				if (frame !== 'auto') return;
 				const tabLabel = tabLabelOf(codeBlock);
 				const terminalTitle = TERMINAL_TITLES[language];

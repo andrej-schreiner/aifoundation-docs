@@ -3,8 +3,7 @@
 // (plan preset). `selectedPlanId` shows one plan; without it, every plan with a
 // plan field.
 import { parseDataProcessing, parseLocation as parseRegionLocation } from '../shared/lib/location';
-import currentPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
-import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-01-19.json';
+import allPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import ModelsComparison from './ModelsComparison.astro';
 import Tooltip from './Tooltip.astro';
 import PlanTag from './PlanTag.astro';
@@ -30,23 +29,17 @@ interface Props {
   selectedPlanId?: string;
   sectionTitle?: string;
   modelsSectionTitle?: string;
-  legacy?: boolean;
   /** Overview: only the Essential, Professional and Agentic tiles, each with price, throughput and Premium access. */
   compact?: boolean;
 }
-const { selectedPlanId = '', sectionTitle = '', modelsSectionTitle = '', legacy = false, compact = false } = Astro.props;
-
-const allPricing = legacy ? legacyPricing : currentPricing;
+const { selectedPlanId = '', sectionTitle = '', modelsSectionTitle = '', compact = false } = Astro.props;
 
 // Detect locale from URL path
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
-// Archived versions (/v1…/) keep their original number format.
-const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
-const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
+const numberLocale: NumberLocale = isDE ? 'de' : 'en';
 
-/** Monthly plan price: "€1,000" on English pages, "1.000 €" (no-break space) on German pages. Archived pages keep their original "1,000 €". */
+/** Monthly plan price: "€1,000" on English pages, "1.000 €" (no-break space) on German pages. */
 function planPrice(amount: number): string {
-  if (isArchive) return `${formatInteger(amount, 'en')} €`;
   return numberLocale === 'de' ? `${formatInteger(amount, 'de')}${EURO_SUFFIX_DE}` : `€${formatInteger(amount, 'en')}`;
 }
 
@@ -221,18 +214,8 @@ const t = {
 // Only set on German pages so the English data-t payload stays unchanged.
 if (numberLocale === 'de') t.numberLocale = numberLocale;
 // The † (cached-token note) follows real cached prices only, not "—".
-// Archived pages keep the marker on every row, as published.
-if (!isArchive) t.cachedDaggerPricedOnly = true;
+t.cachedDaggerPricedOnly = true;
 
-// Legacy (v1.0.0) overrides — different copy for the archived plans page.
-if (legacy) {
-  t.subtitle = isDE
-    ? 'Die Tarife unterscheiden sich durch den Durchsatz: <a href="/de/reference/rate-limits/">TPM- und RPM-Rate-Limits</a>. Für dediziertes Hosting <a href="mailto:ai@t-systems.com">kontaktieren Sie uns</a>.'
-    : 'Plans differ by throughput: <a href="/reference/rate-limits/">TPM and RPM rate limits</a>. For dedicated hosting, <a href="mailto:ai@t-systems.com">contact us</a>.';
-  t.modelsSubtitle = isDE
-    ? 'Wählen Sie das richtige Modell für Ihren Anwendungsfall – von schnellen Antworten bis zu tiefgehender Analyse.'
-    : 'Choose the right model for your use case - from fast responses to deep analysis';
-}
 
 const hostTooltips: Record<string, string> = {
   'T-Cloud': t.tooltipTCloud,
@@ -246,8 +229,8 @@ const tierTooltips: Record<string, string> = {
   Premium: t.tooltipPremium,
 };
 
-// Plan display config (current)
-const currentPlanConfigs = [
+// Plan display config
+const planConfigs = [
   {
     packageName: 'Essential',
     label: 'Essential',
@@ -290,64 +273,6 @@ const currentPlanConfigs = [
   },
 ];
 
-// Plan display config (legacy v1: pre-2026-04 5-tier structure)
-const legacyPlanConfigs = [
-  {
-    packageName: 'Tarif Basic Template',
-    label: 'Basic',
-    basePrice: '–',
-    tokenPrice: priceText('3.53'),
-    rpm: '20',
-    modelHost: ['T-Cloud'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard1000 Template',
-    label: 'Standard 1000',
-    basePrice: planPrice(1000),
-    tokenPrice: priceText('3.53'),
-    rpm: '150',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard2000 Template',
-    label: 'Standard 2000',
-    basePrice: planPrice(2000),
-    tokenPrice: priceText('2.89'),
-    rpm: '300',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard3000 Template',
-    label: 'Standard 3000',
-    basePrice: planPrice(3000),
-    tokenPrice: priceText('2.23'),
-    rpm: '450',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard4000 Template',
-    label: 'Standard 4000',
-    basePrice: planPrice(4000),
-    tokenPrice: priceText('1.75'),
-    rpm: '600',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-];
-
-const planConfigs = legacy ? legacyPlanConfigs : currentPlanConfigs;
-const tokenPricesIdentical =
-  planConfigs.length > 0 && planConfigs.every((plan) => plan.tokenPrice === planConfigs[0].tokenPrice);
-const showTokenPriceColumn = !tokenPricesIdentical;
 
 // Helper: parse deployment region
 function parseCloud(deploymentRegion: string): string {
@@ -400,8 +325,7 @@ function mapModelRow(
 ) {
   const exactModelName = model.exactModelName ?? fallbackModel.exactModelName;
   const displayName = model.displayModelName || fallbackModel.displayModelName;
-  // Legacy and archived pages keep their original output: no category check.
-  const modelCategory = legacy || isArchive ? null : resolvePrimaryCategory(exactModelName);
+  const modelCategory = resolvePrimaryCategory(exactModelName);
 
   return {
     modelHost,
@@ -498,56 +422,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
       <section class:list={['rate-plans-section', { 'rate-plans-section--compact': compact }]}>
         {!compact && <h2>{t.ratePlansTitle}</h2>}
         {!compact && <p class="par-description" set:html={t.subtitle} />}
-        {legacy ? (
-          <div class="table-wrapper">
-            <table class="plans-table">
-              <thead>
-                <tr>
-                  <th>{t.thPlan}</th>
-                  <th>
-                    {t.thCommitment}
-                    <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
-                  </th>
-                  {showTokenPriceColumn && (
-                    <th>
-                      {t.thTokenPrice}
-                      <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
-                    </th>
-                  )}
-                  <th>
-                    {t.thRPM}
-                    <div class="plans-table__small-text">{t.thRPMUnit}</div>
-                  </th>
-                  <th>{t.thModelHost}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {planConfigs.map((plan) => (
-                  <tr>
-                    <td data-label={t.thPlan}>
-                      <PlanTag plan={plan.label} size="small" />
-                    </td>
-                    <td data-label={t.thCommitment}>
-                      <span class="plans-table__main-text">{plan.basePrice}</span>
-                    </td>
-                    {showTokenPriceColumn && <td data-label={t.thTokenPrice}><span class="nowrap">{plan.tokenPrice}{'\u00A0'}†</span></td>}
-                    <td data-label={t.thRPM}>{plan.rpm}</td>
-                    <td data-label={t.thModelHost}>
-                      {plan.modelHost.map((cloud, i) => (
-                        <>
-                          {i > 0 && ' '}
-                          <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
-                            <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud === 'External' ? t.hostExternal : cloud}</span>
-                          </Tooltip>
-                        </>
-                      ))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
           <ul class:list={['plan-tiles', { 'plan-tiles--compact': compact }]}>
             {(compact ? planConfigs.filter((plan) => plan.basePrice !== 'Custom') : planConfigs).map((plan) => {
               const price = plan.basePrice === 'Custom' ? t.priceCustom : plan.basePrice;
@@ -617,16 +491,7 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               );
             })}
           </ul>
-        )}
-        {/* One example price under the tiles reads as if it applied to every
-            plan, so only legacy and archived pages keep it and its footnote. */}
-        {(legacy || isArchive) && !showTokenPriceColumn && (
-          <p class="token-price-note">
-            {t.thTokenPrice}: {planConfigs[0].tokenPrice} <span class="nowrap">{t.thTokenPriceUnit}{'\u00A0'}†</span>
-          </p>
-        )}
         {!compact && <p class="plan-spend">{t.spendNote}</p>}
-        {(legacy || isArchive) && <small>{keepWholeParts(t.footnote).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}</small>}
       </section>
     )
   }
@@ -968,11 +833,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .table-wrapper > table {
     border-radius: var(--sl-border-md);
     overflow: visible;
-  }
-
-  .token-price-note {
-    margin: 8px 0 0;
-    font-size: var(--aifs-text-small-font-size);
   }
 
   .plans-table {

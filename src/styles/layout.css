@@ -169,14 +169,7 @@ mobile-starlight-toc nav {
    there. It has the column's padding, so the banners have the column's
    edges and width at every window width (the launcher's clearance too,
    from 80rem). The stack is a size container, so each banner can lay out
-   for the room it has. The archive bar's stack (ArchiveBanner) on archived
-   pages is placed the same way. */
-.archive-stack {
-	box-sizing: border-box;
-	margin: 0;
-	padding: var(--aifs-rhythm-block) var(--sl-content-pad-x) 0;
-}
-
+   for the room it has. */
 .qp-stack {
 	container-type: inline-size;
 	container-name: qpstack;
@@ -189,16 +182,16 @@ mobile-starlight-toc nav {
 }
 
 /* The title follows the banners after the block gap. */
-main:has(> :is(.qp-stack, .archive-stack)) > .content-panel:nth-child(1 of .content-panel) {
+main:has(> .qp-stack) > .content-panel:nth-child(1 of .content-panel) {
 	padding-top: var(--aifs-rhythm-block);
 }
 
 @media (min-width: 72rem) {
-	[data-has-sidebar] .main-pane > main > :is(.qp-stack, .archive-stack) {
+	[data-has-sidebar] .main-pane > main > .qp-stack {
 		padding-top: var(--aifs-layout-sheet-padding);
 	}
 
-	[data-has-sidebar] .main-pane > main:has(> :is(.qp-stack, .archive-stack)) > .content-panel:nth-child(1 of .content-panel) {
+	[data-has-sidebar] .main-pane > main:has(> .qp-stack) > .content-panel:nth-child(1 of .content-panel) {
 		padding-top: var(--aifs-rhythm-block);
 	}
 }

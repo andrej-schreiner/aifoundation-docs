@@ -1,0 +1,12 @@
+---
+// Site part, not for reuse. Starlight's Banner slot (astro.config.mjs): the
+// announcements (PreviewModelsBanner), then the page's own banner, if its
+// frontmatter has one. The archived versions are static snapshots (archive/)
+// with their own banners, so every page this renders is a current one.
+import PreviewModelsBanner from './PreviewModelsBanner.astro';
+
+const { banner } = Astro.locals.starlightRoute.entry.data;
+---
+
+<PreviewModelsBanner />
+{banner && <div class="sl-banner" data-pagefind-ignore set:html={banner.content} />}

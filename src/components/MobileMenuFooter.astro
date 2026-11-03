@@ -1,11 +1,13 @@
 ---
-// Site part, not for reuse. Starlight's MobileMenuFooter slot: theme and language
-// selects at the bottom of the phone menu.
+// Site part, not for reuse. Starlight's MobileMenuFooter slot: version, theme
+// and language selects at the bottom of the phone menu.
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
+import VersionSelect from './VersionSelect.astro';
 ---
 
 <div class="mobile-preferences">
+	<VersionSelect />
 	<ThemeSelect />
 	<LanguageSelect />
 </div>
