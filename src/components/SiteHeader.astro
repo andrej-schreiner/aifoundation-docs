@@ -1,6 +1,6 @@
 ---
 // Site part, not for reuse. Starlight's Header slot (astro.config.mjs): logo
-// (the T, the site name and under it the subline "Technical Documentation",
+// (the T, the site name and under it the subline "Technical documentation",
 // hidden on phones below 31rem), search, version, theme and language
 // selects, and the API key button (in English "API key" below 22.5rem, as
 // short as the German "API-Key").
@@ -17,7 +17,7 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 // menu (MobileMenuFooter) and keep the search icon.
 const menu = isDE ? 'Menü' : 'Menu';
 const home = isDE ? '/de/' : '/';
-const subline = isDE ? 'Technische Dokumentation' : 'Technical Documentation';
+const subline = isDE ? 'Technische Dokumentation' : 'Technical documentation';
 const cta = isDE ? 'API-Key' : 'Get API key';
 // Below 22.5rem "Get API key" does not fit beside "AIFS" and the search
 // button; the aria-label keeps the full name.
