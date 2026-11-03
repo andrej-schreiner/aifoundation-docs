@@ -1,12 +1,16 @@
 ---
 // Site part, not for reuse. Starlight's Banner slot (astro.config.mjs): on archived
-// v1.2.0 pages, a bar that links to the current docs; elsewhere the page's own banner.
+// pages (every version in starlightVersions), a bar that links to the current docs;
+// elsewhere the page's own banner.
+import versionsConfig from 'virtual:starlight-versions-config';
 import PreviewModelsBanner from './PreviewModelsBanner.astro';
 
 const { banner } = Astro.locals.starlightRoute.entry.data;
 const path = Astro.url.pathname;
-const archived = path.includes('/v1-2-0');
 const isDE = path === '/de' || path.startsWith('/de/');
+const versionSlug = path.replace(/^\/de(?=\/|$)/, '').split('/')[1];
+const archived = versionsConfig.versions.find((version) => version.slug === versionSlug);
+const label = archived ? (archived.label ?? archived.slug) : '';
 const home = isDE ? '/de/' : '/';
 ---
 
@@ -15,12 +19,12 @@ const home = isDE ? '/de/' : '/';
 		<div class="sl-banner" data-pagefind-ignore>
 			{isDE ? (
 				<>
-					Archivierte Fassung (v1.2.0). Die aktuelle Dokumentation ist die{' '}
+					Archivierte Fassung ({label}). Die aktuelle Dokumentation ist die{' '}
 					<a href={home}>Startseite</a>.
 				</>
 			) : (
 				<>
-					Archived snapshot (v1.2.0). For current documentation, start at the{' '}
+					Archived snapshot ({label}). For current documentation, start at the{' '}
 					<a href={home}>home page</a>.
 				</>
 			)}

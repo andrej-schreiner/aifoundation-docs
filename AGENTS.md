@@ -149,7 +149,7 @@ component or token, and ask. A GAP note is a good result, not a failure.
 ## Before you commit
 
 1. `bun run tokens` — if you touched tokens (fails on broken aliases).
-2. `bun run build` — must complete (currently 201 pages).
+2. `bun run build` — must complete (currently 373 pages).
 3. Look at what you changed in the browser (`bun run dev`, port 4321;
    or `bun run dev --port 4322` in a worktree): light **and** dark mode,
    **375px and 1440px**, English **and** German. No page may scroll sideways.
@@ -165,7 +165,7 @@ pass; fix the code, or say in the change why the check is wrong.
 | What | Where |
 |---|---|
 | Docs pages (EN / DE) | `src/content/docs/`, `src/content/docs/de/` |
-| Archived v1.2.0 pages (frozen, do not restyle) | `src/content/docs/v1-2-0/` |
+| Archived v1.0.0, v1.1.0, v1.2.0 pages (frozen, do not restyle) | `src/content/docs/v1/`, `src/content/docs/v1-1-0/`, `src/content/docs/v1-2-0/` |
 | Components | `src/components/` |
 | Tokens (source / generated) | `tokens/*.json` → `src/styles/tokens.css` |
 | Styles per component | `src/styles/*.css` (registered in `astro.config.mjs` → `customCss`) |

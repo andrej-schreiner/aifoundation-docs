@@ -377,7 +377,12 @@ export default defineConfig({
 				starlightVersions({
 					// No "(Archived)": archived pages carry a banner, and the suffix set the
 					// width of every header select (a select is as wide as its longest option).
-					versions: [{ slug: 'v1-2-0', label: 'v1.2.0' }],
+					// Labels and order as on production: Latest, v1.0.0, v1.1.0, v1.2.0.
+					versions: [
+						{ slug: 'v1', label: 'v1.0.0' },
+						{ slug: 'v1-1-0', label: 'v1.1.0' },
+						{ slug: 'v1-2-0', label: 'v1.2.0' },
+					],
 				}),
 			],
 			defaultLocale: 'root',
