@@ -93,3 +93,31 @@ When a release ships and the changelog/docs should be frozen as `vX.Y.Z`:
 4. In the **current** (unversioned) `changelog.mdx` and `de/changelog.mdx`, add a fresh `## vX.Y.Z — YYYY-MM` heading at the top — this becomes the "in-flight" section for the next release.
 
 The current changelog stays a living document; each `vN-N-N/changelog.mdx` is a frozen point-in-time snapshot.
+
+## Rate limits: the Service Description is the source of truth
+
+Every TPM and RPM value in the docs comes from the Service Description (SD), the
+"Leistungsbeschreibung LLM-Serving-Service", section 7.2 (one table per rate plan).
+The German SD prevails over the English translation. If the docs and the SD differ,
+the SD is right; if the SD has no value for a model and plan, the docs show none.
+
+When a new SD version is published, check the docs against it in the same change:
+
+1. Replace both PDFs in `public/files/` (same file names):
+   `Leistungsbeschreibung-LLM-Serving-Service.pdf` (DE) and
+   `Leistungsbeschreibung_LLM_Serving-Service_EN.pdf` (EN).
+2. Compare every `inputTokenPerMinuteLimit`, `outputTokenPerMinuteLimit` and
+   `requestPerMinuteLimit` in the current pricing JSON,
+   `src/components/PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json`
+   (it feeds `PlansPage.astro` and `ModelsComparison.astro`). A value the SD does
+   not list is `null`, which the tables show as "—".
+3. Check the figures written into the pages, EN and DE together:
+   `reference/rate-limits.mdx` (plan table and per-model examples), `faq.mdx`
+   ("What are the rate limits?"), and the wording in `plans/index.mdx`,
+   `plans/dedicated.mdx`, `models/preview.mdx`, `getting-started/concepts.mdx`
+   and `public/llms.txt`.
+4. Models that the SD adds or drops, and retirements, go through
+   `src/shared/lib/retirements.ts` and the changelog as usual.
+
+Archived versions (`src/content/docs/v1*/` and their legacy pricing JSON) are
+frozen and are not updated.
