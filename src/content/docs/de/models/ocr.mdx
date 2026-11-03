@@ -1,0 +1,15 @@
+---
+title: "OCR-Modelle"
+description: "OCR-Vorschau-Modelle auf AI Foundation Services, die gescannte Dokumente, PDFs und Fotos in Markdown, Tabellen und strukturierten Text umwandeln."
+---
+
+import ModelsComparison from '../../../../components/ModelsComparison.astro';
+import ModelPick from '../../../../components/ModelPick.astro';
+
+Wandeln Sie gescannte Dokumente, PDFs und Fotos in Markdown, HTML-Tabellen und LaTeX um. Diese Modelle erhalten als Eingabe das Bild einer Seite oder eines Seitenelements. Verfügbar über `POST /chat/completions`.
+
+Weiter: [OCR](/de/guides/ocr) · [Vorschau-Modelle](/de/models/preview) · [Alle Modelle](/de/models)
+
+<ModelPick useCase="ocr" />
+
+<ModelsComparison capabilityFilter="accepts-only-image" />
