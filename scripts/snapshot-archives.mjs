@@ -3,6 +3,12 @@
 //   node scripts/snapshot-archives.mjs [--base https://docs.llmhub.t-systems.net]
 //       every version in src/archivedVersions.mjs, paths from
 //       scripts/prod-sitemap.txt; replaces archive/ completely
+//   node scripts/snapshot-archives.mjs --version v1-3-0 [--base <url>]
+//       adds (or refreshes) one version: its EN and DE paths from the live
+//       sitemap of <base> (sitemap-index.xml), or crawled from /v1-3-0/ and
+//       /de/v1-3-0/ when the sitemap lacks them (a crawl finds only pages
+//       that another page of the version links to); the other versions stay
+//       as they are; missing paths are added to scripts/prod-sitemap.txt
 //   node scripts/snapshot-archives.mjs --pagefind-only [--base <url>]
 //       refreshes only the archived search index (below); pages stay as they are
 //
@@ -45,11 +51,15 @@ const option = (...names) => {
 	return index === -1 ? undefined : args[index + 1];
 };
 const origin = (option('--base', '--origin') || 'https://docs.llmhub.t-systems.net').replace(/\/$/, '');
+const singleVersion = option('--version');
 const pagefindOnly = args.includes('--pagefind-only');
+if (singleVersion !== undefined && !/^v\d+(?:-\d+)*$/.test(singleVersion)) {
+	throw new Error(`--version needs a version slug such as v1-3-0, got "${singleVersion}"`);
+}
 
-// The archived version prefixes (src/archivedVersions.mjs). A path is archived
-// when its first segment (after an optional /de) is one of these.
-const ARCHIVED_VERSIONS = archivedVersions.map(({ slug }) => slug);
+// The archived version prefixes (src/archivedVersions.mjs, plus --version). A
+// path is archived when its first segment (after an optional /de) is one of these.
+const ARCHIVED_VERSIONS = [...new Set([...archivedVersions.map(({ slug }) => slug), ...(singleVersion ? [singleVersion] : [])])];
 const ARCHIVE_PREFIX = '/_archive';
 const PAGEFIND_PATH = `${ARCHIVE_PREFIX}/pagefind/`;
 const versionPath = (versions) => new RegExp(`^/(?:de/)?(?:${versions.join('|')})(?:/|$)`);
@@ -283,12 +293,81 @@ async function snapshotPagefind() {
 	return true;
 }
 
+// Every <loc> of the live sitemap (sitemap-index.xml and the sitemaps it lists),
+// as paths.
+async function liveSitemap() {
+	const paths = [];
+	const read = async (path) => {
+		let xml;
+		try {
+			xml = (await get(path)).toString('utf8');
+		} catch {
+			return;
+		}
+		for (const [, loc] of xml.matchAll(/<loc>\s*([^<\s]+)\s*<\/loc>/g)) {
+			const url = new URL(loc.replace(/&amp;/g, '&'));
+			if (url.origin !== origin) continue;
+			if (url.pathname.endsWith('.xml')) await read(url.pathname);
+			else paths.push(url.pathname);
+		}
+	};
+	await read('/sitemap-index.xml');
+	return paths;
+}
+
+// The version's pages, crawled from its EN and DE start pages through <a href>.
+async function crawl(version) {
+	const inVersion = versionPath([version]);
+	const seen = new Set();
+	let queue = [`/${version}/`, `/de/${version}/`];
+	while (queue.length) {
+		const batch = queue.filter((path) => !seen.has(path));
+		batch.forEach((path) => seen.add(path));
+		const found = [];
+		await pool(batch, async (path) => {
+			let page;
+			try {
+				page = (await get(path)).toString('utf8');
+			} catch {
+				seen.delete(path);
+				return;
+			}
+			for (const [, , dq, sq] of page.matchAll(/<a\s[^>]*href\s*=\s*("([^"]*)"|'([^']*)')/gi)) {
+				let url;
+				try {
+					url = new URL((dq ?? sq).replace(/&amp;/g, '&'), origin + path);
+				} catch {
+					continue;
+				}
+				if (url.origin === origin && inVersion.test(url.pathname) && isPagePath(url.pathname)) found.push(url.pathname);
+			}
+		});
+		queue = [...new Set(found)].filter((path) => !seen.has(path));
+	}
+	return [...seen].sort();
+}
+
 // The archived pages to fetch.
-function pagesToFetch() {
-	return readFileSync(sitemapFile, 'utf8')
+async function pagesToFetch() {
+	const sitemap = readFileSync(sitemapFile, 'utf8')
 		.split('\n')
 		.map((line) => line.trim())
-		.filter((path) => path && archivedPath.test(path));
+		.filter(Boolean);
+	if (!singleVersion) return sitemap.filter((path) => archivedPath.test(path));
+
+	const inVersion = versionPath([singleVersion]);
+	let pages = (await liveSitemap()).filter((path) => inVersion.test(path));
+	if (pages.length) console.log(`${singleVersion}: ${pages.length} pages in ${origin}/sitemap-index.xml`);
+	else {
+		pages = await crawl(singleVersion);
+		console.log(`${singleVersion}: not in the sitemap, ${pages.length} pages crawled from /${singleVersion}/ and /de/${singleVersion}/`);
+	}
+	const added = pages.filter((path) => !sitemap.includes(path));
+	if (added.length) {
+		writeFileSync(sitemapFile, `${[...sitemap, ...added].sort().join('\n')}\n`);
+		console.log(`Added ${added.length} paths to scripts/prod-sitemap.txt.`);
+	}
+	return pages;
 }
 
 // Files below a directory, with their total size.
@@ -356,8 +435,8 @@ production still serves the archives as they should be frozen), run:
 
     node scripts/snapshot-archives.mjs
 
-It replaces this directory completely. To refresh only the search index, run
-it with \`--pagefind-only\`.
+It replaces this directory completely. To add one version, or to refresh
+only the search index, see the usage at the top of the script.
 `,
 	);
 }
@@ -385,16 +464,21 @@ async function main() {
 		return;
 	}
 
-	const pages = pagesToFetch();
+	const pages = await pagesToFetch();
 	console.log(`Archived pages to fetch: ${pages.length}`);
-	for (const version of ARCHIVED_VERSIONS) {
+	for (const version of singleVersion ? [singleVersion] : ARCHIVED_VERSIONS) {
 		const en = pages.filter((path) => path.startsWith(`/${version}/`)).length;
 		const de = pages.filter((path) => path.startsWith(`/de/${version}/`)).length;
 		console.log(`  ${version}: ${en} EN, ${de} DE`);
 	}
 	if (!pages.length) throw new Error('No pages to fetch.');
 
-	rmSync(outDir, { recursive: true, force: true });
+	if (singleVersion) {
+		rmSync(join(outDir, singleVersion), { recursive: true, force: true });
+		rmSync(join(outDir, 'de', singleVersion), { recursive: true, force: true });
+	} else {
+		rmSync(outDir, { recursive: true, force: true });
+	}
 	mkdirSync(outDir, { recursive: true });
 
 	const html = new Map();
@@ -490,7 +574,7 @@ async function main() {
 		pageBytes += Buffer.byteLength(next);
 	}
 
-	for (const version of ARCHIVED_VERSIONS) dates[version] = today;
+	for (const version of singleVersion ? [singleVersion] : ARCHIVED_VERSIONS) dates[version] = today;
 	if (await snapshotPagefind()) dates.pagefind = today;
 	writeFileSync(datesFile, `${JSON.stringify(dates, null, '\t')}\n`);
 	writeReadme(dates);

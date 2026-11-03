@@ -92,8 +92,9 @@ integration in `astro.config.mjs`). The version select in the header lists them
   archives as they should stay. The archived pages' search uses production's
   Pagefind index, stored with them in `archive/_archive/pagefind/`;
   `node scripts/snapshot-archives.mjs --pagefind-only` refreshes only that.
-- There is no procedure yet for freezing a new version: the script snapshots
-  versions production already serves under a version path.
+- To freeze a new version, follow "How to archive a new version" in
+  [`AGENTS.md`](AGENTS.md): `node scripts/snapshot-archives.mjs --version <slug>`
+  snapshots one version that its source serves under a version path.
 
 The current changelog stays a living document; each archived version's changelog
 is part of its snapshot.

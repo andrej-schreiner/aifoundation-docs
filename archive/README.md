@@ -23,5 +23,5 @@ production still serves the archives as they should be frozen), run:
 
     node scripts/snapshot-archives.mjs
 
-It replaces this directory completely. To refresh only the search index, run
-it with `--pagefind-only`.
+It replaces this directory completely. To add one version, or to refresh
+only the search index, see the usage at the top of the script.

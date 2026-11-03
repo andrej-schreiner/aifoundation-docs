@@ -168,6 +168,29 @@ There is no lint script yet: raw values, invented props and contrast are
 *guidance only* and checked in review. Do not switch a check off to make it
 pass; fix the code, or say in the change why the check is wrong.
 
+## How to archive a new version
+
+Archived versions are frozen copies of what production served, never rebuilt
+from content. Before a deployed version is replaced:
+
+1. Snapshot it: `node scripts/snapshot-archives.mjs --version v1-3-0
+   [--base https://docs.llmhub.t-systems.net]` (the version's slug, and the
+   site that serves it, EN and DE, under `/v1-3-0/` and `/de/v1-3-0/`). The
+   script takes the version's paths from that site's sitemap (or crawls from
+   the version root; a crawl misses pages nothing links to), adds them to
+   `scripts/prod-sitemap.txt`, writes `archive/v1-3-0/`, `archive/de/v1-3-0/`
+   and their assets, and refreshes the archived search index
+   (`archive/_archive/pagefind/`) only if it has every archived version. The
+   other versions stay as they are.
+2. Add the version to the version select's options in
+   `src/archivedVersions.mjs` (`VersionSelect.astro` and `astro dev` read it).
+3. Build and preview, then `bun run check:urls http://127.0.0.1:4379`: no BAD
+   URL, and every path of the new version `OK-200` (the archive check). Search
+   on the version's start page, EN and DE.
+4. Commit `archive/` as the script wrote it, with the sitemap and
+   `archivedVersions.mjs`. Update the archived page count above and the version
+   lists in `README.md`, `GAPS.md` (row 25) and the design system page.
+
 ## Where things are
 
 | What | Where |
