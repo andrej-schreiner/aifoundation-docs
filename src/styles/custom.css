@@ -14,19 +14,6 @@
 	justify-content: flex-start;
 }
 
-/* .plans-table: src/styles/table.css. */
-
-.sort-icon {
-	display: inline;
-	margin-left: 4px;
-	opacity: 0.4;
-}
-
-.sort-icon.active {
-	opacity: 1;
-	color: var(--aifs-color-brand-text);
-}
-
 /* Worldwide "flag" — flag-icons has no globe, so `.fi-globe` composes with the
    library's `.fi` box and paints an SVG globe through a mask, which means it
    picks up the surrounding text colour in both light and dark themes. Used

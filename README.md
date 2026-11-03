@@ -89,9 +89,12 @@ integration in `astro.config.mjs`). The version select in the header lists them
 - Do not edit `archive/` by hand. `node scripts/snapshot-archives.mjs` fetches
   the archived pages listed in `scripts/prod-sitemap.txt` from production again
   and replaces the directory; run it only while production still serves the
-  archives as they should stay.
-- There is no procedure yet for freezing a new version: the script snapshots
-  versions production already serves under a version path.
+  archives as they should stay. The archived pages' search uses production's
+  Pagefind index, stored with them in `archive/_archive/pagefind/`;
+  `node scripts/snapshot-archives.mjs --pagefind-only` refreshes only that.
+- To freeze a new version, follow "How to archive a new version" in
+  [`AGENTS.md`](AGENTS.md): `node scripts/snapshot-archives.mjs --version <slug>`
+  snapshots one version that its source serves under a version path.
 
 The current changelog stays a living document; each archived version's changelog
 is part of its snapshot.
@@ -111,8 +114,9 @@ When a new SD version is published, check the docs against it in the same change
 2. Compare every `inputTokenPerMinuteLimit`, `outputTokenPerMinuteLimit` and
    `requestPerMinuteLimit` in the current pricing JSON,
    `src/components/PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json`
-   (it feeds `PlansPage.astro` and `ModelsComparison.astro`). A value the SD does
-   not list is `null`, which the tables show as "—".
+   (it feeds `PlansPage.astro` and `ModelsComparison.astro`; it is the rate plans
+   export of the AIFS Serving UI's Plans page). A value the SD does not list is
+   `null`, which the tables show as "—".
 3. Check the figures written into the pages, EN and DE together:
    `reference/rate-limits.mdx` (plan table and per-model examples), `faq.mdx`
    ("What are the rate limits?"), and the wording in `plans/index.mdx`,

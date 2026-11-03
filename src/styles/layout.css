@@ -267,8 +267,9 @@ main:has(> .qp-stack) > .content-panel:nth-child(1 of .content-panel) {
 	box-sizing: border-box;
 }
 
-/* The version notice is a max-content bar. On a phone that becomes a 560px
-   strip and the page scrolls sideways. */
+/* A paragraph led by an icon (an aside's title, p.starlight-aside__title)
+   stays inside the column and wraps, so it never makes the page scroll
+   sideways. */
 .content-panel p:has(> svg) {
 	width: auto;
 	max-width: 100%;

@@ -7,6 +7,7 @@ import rehypeInlineCodeBreaks from './src/plugins/rehype-inline-code-breaks.mjs'
 import rehypeNowrapTerms from './src/plugins/rehype-nowrap-terms.mjs';
 import { ecWrapPoints } from './src/plugins/ec-wrap-points.mjs';
 import { ecFrameTitles } from './src/plugins/ec-frame-titles.mjs';
+import { archivedVersions } from './src/archivedVersions.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
@@ -89,16 +90,18 @@ function rehypeMarkdownTables() {
  * snapshots of production in archive/ (scripts/snapshot-archives.mjs,
  * archive/README.md), not built from the content. After the build, and after
  * Starlight's search index (so the archives stay out of the current search),
- * archive/ is copied verbatim into dist/. A file Astro already wrote at a
- * snapshot path fails the build. `astro dev` serves the snapshot files too.
+ * archive/ is copied verbatim into dist/ (except README.md and snapshots.json).
+ * A file Astro already wrote at a snapshot path fails the build. `astro dev`
+ * serves the snapshot files too, for the versions in src/archivedVersions.mjs.
  */
 function archiveSnapshots() {
 	const source = fileURLToPath(new URL('./archive/', import.meta.url));
+	const snapshotPath = new RegExp(`^/(?:(?:de/)?(?:${archivedVersions.map(({ slug }) => slug).join('|')})|_archive)/`);
 	const files = (directory, prefix = '') =>
 		readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
 			entry.isDirectory()
 				? files(join(directory, entry.name), `${prefix}${entry.name}/`)
-				: entry.name === 'README.md' && !prefix
+				: ['README.md', 'snapshots.json'].includes(entry.name) && !prefix
 					? []
 					: [`${prefix}${entry.name}`],
 		);
@@ -108,7 +111,7 @@ function archiveSnapshots() {
 			'astro:server:setup': ({ server }) => {
 				server.middlewares.use((req, res, next) => {
 					const path = decodeURIComponent((req.url ?? '').split(/[?#]/)[0]);
-					if (!/^\/(?:de\/)?(?:v1(?:-1-0|-2-0)?|_archive)\//.test(path) || path.includes('..')) return next();
+					if (!snapshotPath.test(path) || path.includes('..')) return next();
 					const file = join(source, path.endsWith('/') ? `${path}index.html` : path);
 					if (!existsSync(file) || !statSync(file).isFile()) return next();
 					const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.woff': 'font/woff' };
