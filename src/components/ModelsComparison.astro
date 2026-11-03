@@ -1386,11 +1386,15 @@ const rowDataPayload = rows.map((m) => ({
     const shownBoxes = (group: HTMLElement) =>
       [...group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')].filter((i) => !i.closest('label')?.hidden);
 
+    // Only narrowed filters go in the state: a filter at "All" never hides a
+    // row, not even one whose field is unset (no inputs, no location).
     function readState(): FilterState {
       const state: FilterState = new Map();
       for (const def of filterDefs) {
         const group = panelGroup(def.id);
         if (!group) continue;
+        const shown = shownBoxes(group);
+        if (shown.every((i) => i.checked)) continue;
         const checked = new Set<string>();
         group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
           if (input.checked) checked.add(input.value);
@@ -1441,8 +1445,9 @@ const rowDataPayload = rows.map((m) => ({
           // Row passes this filter if ANY of its values is checked.
           if (!values.some((v) => checked.has(v))) return false;
         } else {
+          // A narrowed filter keeps only rows known to match; unset is not.
           const raw = row[def.field];
-          if (raw == null || raw === '') continue;
+          if (raw == null || raw === '') return false;
           const v = valueToString(raw);
           if (!checked.has(v)) return false;
         }
