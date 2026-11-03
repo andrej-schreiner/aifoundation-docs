@@ -1,38 +1,59 @@
 // Freezes the archived docs versions as static snapshots of production.
 //
-//   node scripts/snapshot-archives.mjs [--origin https://docs.llmhub.t-systems.net]
+//   node scripts/snapshot-archives.mjs [--base https://docs.llmhub.t-systems.net]
+//       every version in src/archivedVersions.mjs, paths from
+//       scripts/prod-sitemap.txt; replaces archive/ completely
+//   node scripts/snapshot-archives.mjs --pagefind-only [--base <url>]
+//       refreshes only the archived search index (below); pages stay as they are
 //
-// Reads every archived path (EN and DE) from scripts/prod-sitemap.txt, fetches
-// each page's HTML from production (GET only, at most 4 requests at a time,
-// with retries), collects every same-origin asset the pages use (stylesheets,
-// scripts, images, srcset, preloads, icons, manifest, CSS url(...) such as fonts,
-// and the chunks the scripts import, transitively) and writes it all to
-// archive/. The build copies archive/ verbatim into dist/ (astro.config.mjs,
-// "archive-snapshots"), after the search index is built.
+// (--origin is accepted as another name for --base.)
+//
+// Fetches each page's HTML from production (GET only, at most 4 requests at a
+// time, with retries), collects every same-origin asset the pages use
+// (stylesheets, scripts, images, srcset, preloads, icons, manifest, CSS url(...)
+// such as fonts, and the chunks the scripts import, transitively) and writes it
+// all to archive/. The build copies archive/ verbatim into dist/
+// (astro.config.mjs, "archive-snapshots"), after the search index is built.
+//
+// Search: the archived pages search production's Pagefind index, filtered by
+// their version (VersionSearch). That index (pagefind.js, entry, metadata,
+// wasm, and every index, filter and fragment file the metadata lists) is
+// stored in archive/_archive/pagefind/, so the current site's /pagefind/ (which
+// has no archived pages) stays its own. The index is only replaced when the new
+// one still has every archived version.
 //
 // Changes made to the production files, and nothing else:
 // - asset URLs point to /_archive/<original path> (stored in archive/_archive/),
 //   so they never collide with the current build's /_astro/;
+// - the search script's Pagefind bundle path points to /_archive/pagefind/;
 // - every page gets <meta name="robots" content="noindex, nofollow"> if it has
 //   no robots meta.
 //
-// Re-running replaces the snapshot completely (idempotent).
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+// Re-running gives the same result for the same production files.
+import { existsSync, mkdirSync, readdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { gunzipSync } from 'node:zlib';
 import { archivedVersions } from '../src/archivedVersions.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const outDir = join(root, 'archive');
+const sitemapFile = join(root, 'scripts/prod-sitemap.txt');
 const args = process.argv.slice(2);
-const originArg = args.includes('--origin') ? args[args.indexOf('--origin') + 1] : undefined;
-const origin = (originArg || 'https://docs.llmhub.t-systems.net').replace(/\/$/, '');
+const option = (...names) => {
+	const index = args.findIndex((arg) => names.includes(arg));
+	return index === -1 ? undefined : args[index + 1];
+};
+const origin = (option('--base', '--origin') || 'https://docs.llmhub.t-systems.net').replace(/\/$/, '');
+const pagefindOnly = args.includes('--pagefind-only');
 
 // The archived version prefixes (src/archivedVersions.mjs). A path is archived
 // when its first segment (after an optional /de) is one of these.
 const ARCHIVED_VERSIONS = archivedVersions.map(({ slug }) => slug);
 const ARCHIVE_PREFIX = '/_archive';
-const archivedPath = new RegExp(`^/(?:de/)?(?:${ARCHIVED_VERSIONS.join('|')})(?:/|$)`);
+const PAGEFIND_PATH = `${ARCHIVE_PREFIX}/pagefind/`;
+const versionPath = (versions) => new RegExp(`^/(?:de/)?(?:${versions.join('|')})(?:/|$)`);
+const archivedPath = versionPath(ARCHIVED_VERSIONS);
 
 const CONCURRENCY = 4;
 const RETRIES = 4;
@@ -129,22 +150,249 @@ function jsRefs(text) {
 }
 
 // Rewrites root-relative asset paths in a CSS or JS file to the archive prefix.
+// The search script's Pagefind bundle path (bundlePath:`${base}/pagefind/`) to
+// the archived index.
 function rewriteAssetText(text) {
-	return text.replace(/(?<![\w./-])\/_astro\//g, `${ARCHIVE_PREFIX}/_astro/`);
+	return text
+		.replace(/(?<![\w./-])\/_astro\//g, `${ARCHIVE_PREFIX}/_astro/`)
+		.replace(/(bundlePath:`\$\{[^}`]*\})\/pagefind\//g, `$1${PAGEFIND_PATH}`);
+}
+
+// Minimal CBOR decoder, enough for Pagefind's metadata and filter files.
+function decodeCbor(buffer) {
+	let pos = 0;
+	const length = (info) => {
+		if (info < 24) return info;
+		const size = { 24: 1, 25: 2, 26: 4, 27: 8 }[info];
+		if (!size) throw new Error(`CBOR: unsupported length ${info}`);
+		const value = size === 8 ? Number(buffer.readBigUInt64BE(pos)) : buffer.readUIntBE(pos, size);
+		pos += size;
+		return value;
+	};
+	const item = () => {
+		const byte = buffer[pos++];
+		const major = byte >> 5;
+		const info = byte & 31;
+		if (major === 7) {
+			const simple = { 20: false, 21: true, 22: null, 23: undefined };
+			if (info in simple) return simple[info];
+			const size = { 25: 2, 26: 4, 27: 8 }[info];
+			if (!size) throw new Error(`CBOR: unsupported simple value ${info}`);
+			const value = size === 2 ? 0 : size === 4 ? buffer.readFloatBE(pos) : buffer.readDoubleBE(pos);
+			pos += size;
+			return value;
+		}
+		if (info === 31) {
+			const parts = [];
+			if (major === 5) {
+				const map = {};
+				while (buffer[pos] !== 0xff) map[item()] = item();
+				pos++;
+				return map;
+			}
+			while (buffer[pos] !== 0xff) parts.push(item());
+			pos++;
+			return major === 3 ? parts.join('') : parts;
+		}
+		const n = length(info);
+		if (major === 0) return n;
+		if (major === 1) return -1 - n;
+		if (major === 2 || major === 3) {
+			const bytes = buffer.subarray(pos, pos + n);
+			pos += n;
+			return major === 3 ? bytes.toString('utf8') : bytes;
+		}
+		if (major === 4) return Array.from({ length: n }, item);
+		if (major === 5) {
+			const map = {};
+			for (let i = 0; i < n; i++) map[item()] = item();
+			return map;
+		}
+		return item(); // tag: the tagged value
+	};
+	return item();
+}
+
+// A Pagefind file's content: gzip, then the "pagefind_dcd" signature, then CBOR.
+function pagefindData(body) {
+	const data = gunzipSync(body);
+	const signature = 'pagefind_dcd';
+	if (data.subarray(0, signature.length).toString('latin1') !== signature) throw new Error('not a Pagefind data file');
+	return decodeCbor(data.subarray(signature.length));
+}
+
+// Production's Pagefind index, every file pagefind.js loads, into
+// archive/_archive/pagefind/. Discovered from pagefind-entry.json (languages,
+// their metadata hash and wasm) and each language's metadata (pages, which
+// are the fragment hashes; index chunks; filters). Kept only if its version
+// filter has every archived version; else the stored index stays.
+async function snapshotPagefind() {
+	const base = '/pagefind/';
+	const files = new Map();
+	const fetchFile = async (name, optional = false) => {
+		try {
+			files.set(name, await get(base + name));
+		} catch (error) {
+			if (!optional) throw error;
+		}
+	};
+	await fetchFile('pagefind.js');
+	await fetchFile('pagefind-entry.json');
+	const entry = JSON.parse(files.get('pagefind-entry.json').toString('utf8'));
+	const versionsFound = new Set();
+	const pagesPerLanguage = {};
+	for (const [language, { hash, wasm }] of Object.entries(entry.languages)) {
+		await fetchFile(`pagefind.${hash}.pf_meta`);
+		if (wasm) await fetchFile(`wasm.${wasm}.pagefind`);
+		const [, pages, chunks, filters] = pagefindData(files.get(`pagefind.${hash}.pf_meta`));
+		pagesPerLanguage[language] = pages.length;
+		const names = [
+			...chunks.map(([, , chunk]) => `index/${chunk}.pf_index`),
+			...filters.map(([, filter]) => `filter/${filter}.pf_filter`),
+			...pages.map(([page]) => `fragment/${page}.pf_fragment`),
+		];
+		await pool(names, (name) => fetchFile(name));
+		for (const [name, filter] of filters) {
+			if (name !== 'version') continue;
+			// [filter name, [[value, page numbers], …]]
+			const [, values] = pagefindData(files.get(`filter/${filter}.pf_filter`));
+			for (const [value] of values) versionsFound.add(value);
+		}
+	}
+	await fetchFile('wasm.unknown.pagefind', true);
+
+	const lacking = ARCHIVED_VERSIONS.filter((version) => !versionsFound.has(version));
+	const target = join(outDir, PAGEFIND_PATH);
+	if (lacking.length) {
+		console.log(`Pagefind index NOT updated: production's index has no pages for ${lacking.join(', ')}.`);
+		return existsSync(target);
+	}
+	const temporary = `${target.replace(/\/$/, '')}.new`;
+	rmSync(temporary, { recursive: true, force: true });
+	let bytes = 0;
+	for (const [name, body] of files) {
+		const file = join(temporary, name);
+		mkdirSync(dirname(file), { recursive: true });
+		writeFileSync(file, body);
+		bytes += body.length;
+	}
+	rmSync(target, { recursive: true, force: true });
+	renameSync(temporary, target);
+	const counts = Object.entries(pagesPerLanguage).map(([language, count]) => `${language} ${count}`).join(', ');
+	console.log(`Wrote the Pagefind index: ${files.size} files (${(bytes / 1048576).toFixed(1)} MB), pages ${counts}.`);
+	return true;
+}
+
+// The archived pages to fetch.
+function pagesToFetch() {
+	return readFileSync(sitemapFile, 'utf8')
+		.split('\n')
+		.map((line) => line.trim())
+		.filter((path) => path && archivedPath.test(path));
+}
+
+// Files below a directory, with their total size.
+function tally(directory, filter = () => true) {
+	let count = 0;
+	let bytes = 0;
+	const walk = (dir, rel) => {
+		if (!existsSync(dir)) return;
+		for (const entry of readdirSync(dir, { withFileTypes: true })) {
+			const path = `${rel}/${entry.name}`;
+			if (entry.isDirectory()) walk(join(dir, entry.name), path);
+			else if (filter(path)) {
+				count++;
+				bytes += statSync(join(dir, entry.name)).size;
+			}
+		}
+	};
+	walk(directory, '');
+	return { count, bytes };
+}
+
+const mb = (bytes) => `${(bytes / 1048576).toFixed(1)} MB`;
+
+// archive/README.md, from what archive/ holds. The fetch dates are kept in
+// archive/snapshots.json (per version, and for the search index).
+function writeReadme(dates) {
+	const pages = ARCHIVED_VERSIONS.reduce(
+		(sum, version) => {
+			for (const dir of [version, `de/${version}`]) {
+				const { count, bytes } = tally(join(outDir, dir), (path) => path.endsWith('/index.html'));
+				sum.count += count;
+				sum.bytes += bytes;
+			}
+			return sum;
+		},
+		{ count: 0, bytes: 0 },
+	);
+	const assets = tally(join(outDir, ARCHIVE_PREFIX), (path) => !path.startsWith('/pagefind/'));
+	const search = tally(join(outDir, PAGEFIND_PATH));
+	const fetched = ARCHIVED_VERSIONS.map((slug) => `/${slug}/ ${dates[slug] ?? 'unknown'}`).join(', ');
+	writeFileSync(
+		join(outDir, 'README.md'),
+		`# Archived docs versions (static snapshot)
+
+Frozen copies of the archived versions of the docs, exactly as production
+(${origin}) served them. They are not generated from the current
+content or components; the build copies this directory verbatim into dist/
+(the \`archive-snapshots\` integration in \`astro.config.mjs\`).
+
+- Versions: ${ARCHIVED_VERSIONS.map((slug) => `/${slug}/`).join(', ')} and their /de/ equivalents
+- Pages: ${pages.count} (${mb(pages.bytes)}), from \`scripts/prod-sitemap.txt\`
+- Assets: ${assets.count} files (${mb(assets.bytes)}) in \`_archive/\`, at their production path under \`/_archive\`
+- Search: production's Pagefind index, ${search.count} files (${mb(search.bytes)}) in \`_archive/pagefind/\`, fetched ${dates.pagefind ?? 'unknown'}
+- Source: ${origin}, fetched by \`scripts/snapshot-archives.mjs\`: ${fetched}
+
+Changes made to the production files, and nothing else: asset URLs point to
+\`/_archive/…\` instead of \`/…\` (so they never collide with the current
+build's \`/_astro/\`), the search script loads Pagefind from \`/_archive/pagefind/\`
+instead of \`/pagefind/\` (the archived pages search production's index, which
+has them, filtered by their version; the current site's \`/pagefind/\` has no
+archived pages), and each page has \`<meta name="robots" content="noindex, nofollow">\`.
+
+Do not edit these files by hand. To refresh the snapshot (only while
+production still serves the archives as they should be frozen), run:
+
+    node scripts/snapshot-archives.mjs
+
+It replaces this directory completely. To refresh only the search index, run
+it with \`--pagefind-only\`.
+`,
+	);
 }
 
 async function main() {
-	const sitemap = readFileSync(join(root, 'scripts/prod-sitemap.txt'), 'utf8')
-		.split('\n')
-		.map((line) => line.trim())
-		.filter(Boolean);
-	const pages = sitemap.filter((path) => archivedPath.test(path));
-	console.log(`Archived pages in the production sitemap: ${pages.length}`);
+	const datesFile = join(outDir, 'snapshots.json');
+	const dates = existsSync(datesFile) ? JSON.parse(readFileSync(datesFile, 'utf8')) : {};
+	const today = new Date().toISOString().slice(0, 10);
+
+	if (pagefindOnly) {
+		if (await snapshotPagefind()) dates.pagefind = today;
+		// The search script, already in archive/, gets the archived bundle path.
+		const astroDir = join(outDir, ARCHIVE_PREFIX, '_astro');
+		for (const name of readdirSync(astroDir).filter((file) => /\.m?js$/.test(file))) {
+			const file = join(astroDir, name);
+			const text = readFileSync(file, 'utf8');
+			const next = rewriteAssetText(text);
+			if (next !== text) {
+				writeFileSync(file, next);
+				console.log(`Pagefind bundle path rewritten in _archive/_astro/${name}.`);
+			}
+		}
+		writeFileSync(datesFile, `${JSON.stringify(dates, null, '\t')}\n`);
+		writeReadme(dates);
+		return;
+	}
+
+	const pages = pagesToFetch();
+	console.log(`Archived pages to fetch: ${pages.length}`);
 	for (const version of ARCHIVED_VERSIONS) {
 		const en = pages.filter((path) => path.startsWith(`/${version}/`)).length;
 		const de = pages.filter((path) => path.startsWith(`/de/${version}/`)).length;
 		console.log(`  ${version}: ${en} EN, ${de} DE`);
 	}
+	if (!pages.length) throw new Error('No pages to fetch.');
 
 	rmSync(outDir, { recursive: true, force: true });
 	mkdirSync(outDir, { recursive: true });
@@ -154,7 +402,6 @@ async function main() {
 		html.set(path, (await get(path)).toString('utf8'));
 	});
 	console.log(`Fetched ${html.size} pages.`);
-
 	// Assets: start from the pages, then follow CSS and JS references.
 	const assets = new Map();
 	const queue = new Set();
@@ -243,36 +490,13 @@ async function main() {
 		pageBytes += Buffer.byteLength(next);
 	}
 
-	const date = new Date().toISOString().slice(0, 10);
-	writeFileSync(
-		join(outDir, 'README.md'),
-		`# Archived docs versions (static snapshot)
+	for (const version of ARCHIVED_VERSIONS) dates[version] = today;
+	if (await snapshotPagefind()) dates.pagefind = today;
+	writeFileSync(datesFile, `${JSON.stringify(dates, null, '\t')}\n`);
+	writeReadme(dates);
 
-Frozen copies of the archived versions of the docs, exactly as production
-(${origin}) served them on ${date}. They are not generated from the current
-content or components; the build copies this directory verbatim into dist/
-(the \`archive-snapshots\` integration in \`astro.config.mjs\`).
-
-- Versions: ${ARCHIVED_VERSIONS.map((slug) => `/${slug}/`).join(', ')} and their /de/ equivalents
-- Pages: ${html.size} (${(pageBytes / 1048576).toFixed(1)} MB), from \`scripts/prod-sitemap.txt\`
-- Assets: ${assetCount} files (${(assetBytes / 1048576).toFixed(1)} MB) in \`_archive/\`, at their production path under \`/_archive\`
-- Source: ${origin}, fetched ${date} by \`scripts/snapshot-archives.mjs\`
-
-Changes made to the production files, and nothing else: asset URLs point to
-\`/_archive/…\` instead of \`/…\` (so they never collide with the current
-build's \`/_astro/\`), and each page has \`<meta name="robots" content="noindex, nofollow">\`.
-
-Do not edit these files by hand. To refresh the snapshot (only while
-production still serves the archives as they should be frozen), run:
-
-    node scripts/snapshot-archives.mjs
-
-It replaces this directory completely.
-`,
-	);
-
-	console.log(`Wrote ${html.size} pages (${(pageBytes / 1048576).toFixed(1)} MB), noindex meta added to ${noindexAdded}.`);
-	console.log(`Wrote ${assetCount} assets (${(assetBytes / 1048576).toFixed(1)} MB).`);
+	console.log(`Wrote ${html.size} pages (${mb(pageBytes)}), noindex meta added to ${noindexAdded}.`);
+	console.log(`Wrote ${assetCount} assets (${mb(assetBytes)}).`);
 	if (missing.length) {
 		console.log(`Assets not fetched (${missing.length}):`);
 		for (const line of missing) console.log(`  ${line}`);

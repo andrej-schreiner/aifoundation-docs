@@ -89,8 +89,9 @@ function rehypeMarkdownTables() {
  * snapshots of production in archive/ (scripts/snapshot-archives.mjs,
  * archive/README.md), not built from the content. After the build, and after
  * Starlight's search index (so the archives stay out of the current search),
- * archive/ is copied verbatim into dist/. A file Astro already wrote at a
- * snapshot path fails the build. `astro dev` serves the snapshot files too.
+ * archive/ is copied verbatim into dist/ (except README.md and snapshots.json).
+ * A file Astro already wrote at a snapshot path fails the build. `astro dev`
+ * serves the snapshot files too.
  */
 function archiveSnapshots() {
 	const source = fileURLToPath(new URL('./archive/', import.meta.url));
@@ -98,7 +99,7 @@ function archiveSnapshots() {
 		readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
 			entry.isDirectory()
 				? files(join(directory, entry.name), `${prefix}${entry.name}/`)
-				: entry.name === 'README.md' && !prefix
+				: ['README.md', 'snapshots.json'].includes(entry.name) && !prefix
 					? []
 					: [`${prefix}${entry.name}`],
 		);

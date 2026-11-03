@@ -89,7 +89,9 @@ integration in `astro.config.mjs`). The version select in the header lists them
 - Do not edit `archive/` by hand. `node scripts/snapshot-archives.mjs` fetches
   the archived pages listed in `scripts/prod-sitemap.txt` from production again
   and replaces the directory; run it only while production still serves the
-  archives as they should stay.
+  archives as they should stay. The archived pages' search uses production's
+  Pagefind index, stored with them in `archive/_archive/pagefind/`;
+  `node scripts/snapshot-archives.mjs --pagefind-only` refreshes only that.
 - There is no procedure yet for freezing a new version: the script snapshots
   versions production already serves under a version path.
 
