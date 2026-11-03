@@ -215,11 +215,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'image',
     useCase: { en: 'Image generation', de: 'Bildgenerierung' },
-    // Gemini 3 Pro Image left the catalog: SD v1.25 does not list it (hiddenModels.ts).
+    // No alternative: the live docs recommend no image model, so Gemini 3 Pro
+    // Image is in the catalog but not picked here (product owner, 2026-11-03).
     recommended: 'gpt-image-2',
     notes: {
-      en: 'GPT Image 2 runs on Azure Sweden. It is the only image-generation model in the catalog; none runs on T-Cloud.',
-      de: 'GPT Image 2 läuft auf Azure Schweden. Es ist das einzige Modell für Bildgenerierung im Katalog; keines läuft auf T-Cloud.',
+      en: 'GPT Image 2 runs on Azure Sweden. No image-generation model runs on T-Cloud.',
+      de: 'GPT Image 2 läuft auf Azure Schweden. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
     },
     guide: '/guides/image-generation',
   },

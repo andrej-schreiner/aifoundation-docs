@@ -32,3 +32,26 @@ export function parseLocation(deploymentRegion: string | undefined | null, isDE:
   if (parts[0] === 'otc' && raw === 'germany') return { name: `${name} (EU)`, code: COUNTRY_CODES[raw] };
   return { name, code: COUNTRY_CODES[raw] || '' };
 }
+
+// Models whose data is processed in the EU though their server location is
+// worldwide (product owner, 2026-11-03).
+const DATA_PROCESSING_EU = new Set(['claude-haiku-5.5', 'claude-haiku-5.5-long-context', 'claude-fable-5.1']);
+
+// Where a model's data is processed, as the model cards show it beside the
+// server location: T-Cloud in Germany (EU), a worldwide region worldwide (the
+// provider may process data outside the EU/EEA, see
+// /reference/enterprise-trust), any other region in the EU. Only worldwide
+// carries a glyph; Germany and EU stay text-only.
+export function parseDataProcessing(
+  exactModelName: string | undefined,
+  deploymentRegion: string | undefined | null,
+  isDE: boolean,
+): { name: string; code: string } {
+  const parts = (deploymentRegion ?? '').toLowerCase().split('-');
+  if (parts.length < 2) return { name: '', code: '' };
+  if (parts[0] === 'otc') return { name: isDE ? 'Deutschland (EU)' : 'Germany (EU)', code: '' };
+  if (parts[1] === 'worldwide' && !DATA_PROCESSING_EU.has((exactModelName ?? '').toLowerCase())) {
+    return { name: isDE ? 'Weltweit' : 'Worldwide', code: 'globe' };
+  }
+  return { name: 'EU', code: '' };
+}
