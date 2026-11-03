@@ -1,6 +1,8 @@
 ---
-// Site part, not for reuse. Starlight's Header slot (astro.config.mjs): logo,
-// search, version, theme and language selects, and the API key button.
+// Site part, not for reuse. Starlight's Header slot (astro.config.mjs): logo
+// (the T, the site name and under it the subline "Technical Documentation",
+// hidden on phones below 31rem), search, version, theme and language
+// selects, and the API key button.
 import config from 'virtual:starlight/user-config';
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
@@ -14,6 +16,7 @@ const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/d
 // menu (MobileMenuFooter) and keep the search icon.
 const menu = isDE ? 'Menü' : 'Menu';
 const home = isDE ? '/de/' : '/';
+const subline = isDE ? 'Technische Dokumentation' : 'Technical Documentation';
 const cta = isDE ? 'API-Key' : 'Get API key';
 const ctaAria = isDE
 	? 'API-Key generieren (öffnet in neuem Tab)'
@@ -23,13 +26,16 @@ const showSearch =
 ---
 
 <div class="ts-header">
-	<a class="ts-brand" href={home} aria-label="AI Foundation Services">
+	<a class="ts-brand" href={home} aria-label={`AI Foundation Services, ${subline}`}>
 		<span class="ts-mark">
 			<img src="/img/favicon_180x180.png" width="28" height="28" alt="" />
 		</span>
 		<span class="ts-word">
-			<span class="ts-word-full">AI Foundation Services</span>
-			<span class="ts-word-short">AIFS</span>
+			<span class="ts-word-title">
+				<span class="ts-word-full">AI Foundation Services</span>
+				<span class="ts-word-short">AIFS</span>
+			</span>
+			<span class="ts-word-sub">{subline}</span>
 		</span>
 	</a>
 	<div class="ts-search" data-search-home>{showSearch && <Search />}</div>
@@ -87,11 +93,21 @@ const showSearch =
 		object-fit: contain;
 	}
 
+	/* The site name, and under it the subline: smaller, regular, muted. */
 	.ts-word {
+		display: flex;
+		flex-direction: column;
 		font-size: 1.125rem;
 		font-weight: 700;
 		line-height: 1.1;
 		white-space: nowrap;
+	}
+
+	.ts-word-sub {
+		font-size: var(--aifs-text-small-font-size);
+		font-weight: var(--aifs-text-small-font-weight);
+		line-height: var(--aifs-text-small-line-height);
+		color: var(--aifs-color-text-muted);
 	}
 
 	.ts-word-short {
@@ -208,6 +224,14 @@ const showSearch =
 
 		.ts-tools > :global(*:not(.ts-cta)) {
 			display: none !important;
+		}
+	}
+
+	/* Phones below 31rem: beside the T, the search and the button there is
+	   room for the short name only, so the subline goes. */
+	@media (max-width: 30.99rem) {
+		.ts-word-sub {
+			display: none;
 		}
 	}
 
