@@ -12,6 +12,7 @@ import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
 import starlightVersions from 'starlight-versions';
 import archivedVersions from './src/redirects/archived-versions.json' with { type: 'json' };
+import { isArchived } from './src/archives.mjs';
 
 // The design-system page is a draft unless AIFS_PREVIEW_DESIGN_SYSTEM=1.
 // The content store caches that draft flag, so drop the store when the flag changes.
@@ -198,7 +199,7 @@ export default defineConfig({
 			},
 		},
 		sitemap({
-			filter: (page) => !page.includes('/v1-2-0'),
+			filter: (page) => !isArchived(new URL(page).pathname),
 		}),
 		starlight({
 			title: 'AI Foundation Services',
