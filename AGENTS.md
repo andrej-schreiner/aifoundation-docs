@@ -74,7 +74,7 @@ Site parts, not for reuse (Starlight slots and single-page tables):
 - **One page layout.** Every page: On this page beside a **fluid content
   column** (`src/styles/layout.css`). The column fills the rest of the row
   at every window width, with no maximum width (`--sl-content-width` is
-  100%, in `layout.css`); its side padding is `aifs.layout.sheet-padding`, from 120rem
+  100%, in `layout.css`; only its running text stops at the measure); its side padding is `aifs.layout.sheet-padding`, from 120rem
   `aifs.layout.sheet-padding-wide`, and from 80rem it keeps the chat
   launcher's clearance at its end edge. A wide element (the models table)
   fits the column and never scrolls sideways: it shows more columns as the
@@ -89,7 +89,11 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   `aifs.layout.grid-action-gap` (24px) above a button under a grid. Card
   grids fit as many columns of at least `aifs.layout.card-min-width` as the
   column has room for (`auto-fit`), so they use a wide window.
-- **Text width**: running text fills the fluid column; there is no measure.
+- **Text width**: running text (paragraphs, lists, headings, quotes, asides)
+  stops at the measure, `aifs.layout.measure` (45rem, about 79ch), at the
+  column's start edge; never centre it. Tables, code, figures, cards, tabs,
+  steps' code, the banners and the components keep the full column. The
+  rule is in `layout.css`; do not cap text yourself.
 - **Announcements** (`PreviewModelsBanner`): one banner each, at the top of
   the content column with its edges, no backdrop behind them; each has its
   own close button and session memory.

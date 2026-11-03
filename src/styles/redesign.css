@@ -398,8 +398,9 @@ textarea {
 	border-color: var(--aifs-color-border-standard);
 }
 
-/* Plans intro, cards, and note share the table's content width. */
-.sl-markdown-content:has(.plans-page) > div {
+/* Plans intro, cards, and note share the table's content width. Headings
+   are running text: they stop at the measure (layout.css). */
+.sl-markdown-content:has(.plans-page) > div:not(.sl-heading-wrapper) {
 	max-width: none !important;
 	width: 100%;
 }
