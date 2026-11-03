@@ -1,13 +1,12 @@
 // Models dropped from the catalog tables. Pricing exports have used both
-// `gpt-5-codex` and `GPT-5-Codex` (and the same for Mistral Medium 3), so the
-// match is case-insensitive.
+// `gpt-5-codex` and `GPT-5-Codex`, so the match is case-insensitive. Models
+// with a retirement date are in retirements.ts instead.
 const HIDDEN_MODELS = [
   'gpt-4.1-nano',
   'gpt-4o-mini',
   'gpt-5-codex',
   'gpt-5-nano',
   'mistral-large-2411',
-  'mistral-medium-3',
   'o1',
 ];
 

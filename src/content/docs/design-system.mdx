@@ -786,6 +786,7 @@ It uses the table's look (`aifs.table.*`) in the compact density, everything lef
 - **Logos:** the Logo component at its default size (32px).
 - **Cards:** below 36rem of the column's width (a container query) each model is a card: the main values as label–value rows, the details below a **Show details** button in the same rows. That includes desktop windows of about 72–75rem, where On this page beside the column leaves it under 36rem.
 - **Numbers:** prices, context and limits use the page's number format (German pages: 0,60 and 400.000).
+- **Retirements:** a model stays in every preset until its retirement date in `src/shared/lib/retirements.ts` (the dates on Deprecations), and drops out from that date at build time. The model cards, Recommended models and the reasoning table use the same list.
 
 <Showcase label="Use case preset: ModelsComparison category=&quot;embeddings&quot;" block>
 

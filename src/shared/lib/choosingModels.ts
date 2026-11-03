@@ -1,6 +1,7 @@
 import pricingData from '../../components/PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { cloudLabelFor } from './cloudLabelOverrides';
 import { isHiddenModel } from './hiddenModels';
+import { isRetiredModel } from './retirements';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
 export const LAST_REVIEWED = '2026-11-02';
@@ -12,34 +13,6 @@ export function reviewedLabel(isDE: boolean): string {
   const [year, month, day] = LAST_REVIEWED.split('-').map(Number);
   const name = (isDE ? REVIEWED_MONTHS_DE : REVIEWED_MONTHS_EN)[month - 1];
   return isDE ? `${day}. ${name} ${year}` : `${day} ${name} ${year}`;
-}
-
-/**
- * exact ids whose display names are on /models/deprecations for 2026-10-31
- * or 2026-11-30. They stay out of every recommendation.
- */
-export const RETIRING_MODEL_IDS = new Set(
-  [
-    'gpt-5-nano',
-    'gpt-5-mini',
-    'gpt-5.4-mini',
-    'gpt-5',
-    'gpt-5-codex',
-    'gpt-5.4',
-    'gpt-5.5',
-    'claude-haiku-4.5',
-    'claude-sonnet-4.6',
-    'claude-opus-4.6',
-    'claude-opus-4.8',
-    'gemini-3-pro',
-    'gemini-3-pro-long-context',
-    // gemini-3-flash retires 2026-11-30; remove then.
-  ].map((id) => id.toLowerCase()),
-);
-
-/** Models retiring on 2026-10-31 or 2026-11-30. They stay on the deprecations page only. */
-export function isRetiringModel(exactModelName: string | undefined): boolean {
-  return RETIRING_MODEL_IDS.has((exactModelName ?? '').toLowerCase());
 }
 
 interface Quota {
@@ -70,7 +43,7 @@ const byId = new Map<string, ModelFact>();
 for (const pkg of pricingData as Package[]) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const id = entry.exactModelName;
-    if (isHiddenModel(id) || isRetiringModel(id)) continue;
+    if (isHiddenModel(id) || isRetiredModel(id)) continue;
     const existing = byId.get(id);
     if (existing) {
       if (pkg.packageName === 'Test' && existing.preview === false) {
@@ -117,7 +90,7 @@ function hostingFor(id: string, region: string): string {
 export function modelFact(id: string): ModelFact {
   const fact = byId.get(id);
   if (!fact) {
-    throw new Error(`choosingModels: ${id} is missing, hidden, or scheduled to retire`);
+    throw new Error(`choosingModels: ${id} is missing, hidden, or retired`);
   }
   return fact;
 }

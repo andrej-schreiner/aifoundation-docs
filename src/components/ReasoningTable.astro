@@ -4,26 +4,8 @@
 import reasoningEffortData from '../data/reasoning-effort.json';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
+import { isRetiredModel } from '../shared/lib/retirements';
 import { withWrapPoints } from '../plugins/wrap-points.mjs';
-
-const RETIRING = new Set(
-  [
-    'gpt-5-nano',
-    'gpt-5-mini',
-    'gpt-5.4-mini',
-    'gpt-5',
-    'gpt-5-codex',
-    'gpt-5.4',
-    'gpt-5.5',
-    'claude-haiku-4.5',
-    'claude-sonnet-4.6',
-    'claude-opus-4.6',
-    'claude-opus-4.8',
-    'gemini-3-pro',
-    'gemini-3-pro-long-context',
-    // gemini-3-flash retires 2026-11-30; remove then.
-  ].map((id) => id.toLowerCase()),
-);
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const names = new Map<string, string>();
@@ -36,7 +18,7 @@ for (const pkg of pricingData as Array<{ modelQuotaConfigs: Array<{ exactModelNa
 const models = reasoningEffortData.models as Record<string, { values: string[]; default?: string | null }>;
 const rows = Object.entries(models)
   .filter(([id, entry]) => {
-    if (isHiddenModel(id) || RETIRING.has(id.toLowerCase())) return false;
+    if (isHiddenModel(id) || isRetiredModel(id)) return false;
     return Array.isArray(entry.values) && entry.values.length > 0 && names.has(id);
   })
   .map(([id, entry]) => ({

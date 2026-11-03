@@ -8,7 +8,7 @@
  * Rank comes from the catalog itself: T-Cloud (`otc-`) before hyperscalers,
  * then generation and size tokens in the provider's name, the premium tier,
  * published token price only as a tie-break inside one family, and the
- * successor column on /models/scheduled-for-retirement and /models/retired.
+ * successor column on /models/deprecations.
  * No benchmark scores.
  *
  * Rows marked "unsure" are the ones where two of those signals disagree.
