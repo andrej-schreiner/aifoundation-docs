@@ -284,14 +284,11 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   //    calling "Supported" (developers.openai.com model page).
   //  - Claude Haiku 5.5, Fable 5.1: "Text and images → text"; Anthropic's
   //    models overview: all current models support tool use. Streaming not stated.
-  //  - Mistral Medium 3.5: multimodal (text, image) in, text out; function
-  //    calling listed on its model card. Streaming not stated.
   //  - Gemini 4 Argon: text, image, audio, video and PDF in (no Video member,
   //    PDF is a document type), text out; function calling supported.
   //    Streaming not stated as a capability.
   'gpt-6-astra':                        { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: true, toolCalling: true },
   'gpt-6-astra-long-context':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: true, toolCalling: true },
-  'mistral-medium-3.5':                 { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },
   'claude-haiku-5.5':                   { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },
   'claude-haiku-5.5-long-context':      { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },
   'claude-fable-5.1':                   { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },

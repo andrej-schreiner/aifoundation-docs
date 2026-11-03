@@ -57,7 +57,6 @@ export const MODEL_CATALOG_ORDER = [
   'Claude Sonnet 5.5', // Newest Sonnet. Retirement table: replaces Claude 4.6 Sonnet and Claude 4.5 Haiku.
   'Claude Sonnet 5', // Previous Sonnet. Retirement table: replaces retired Claude 4.5 Sonnet.
   'GPT-5.6 Terra', // Price sits between 5.6 Sol and 5.6 Luna. Unsure: the name has no size token.
-  'Mistral Medium 3.5', // SD v1.25, Medium tier. Successor by name of Mistral Medium 3.
   'Gemini 3 Pro Image', // Pro image model. Unsure: placed after chat mids because it is a different task, not a smaller Gemini.
   'GPT Image 2', // Image model. Retirement table: replaces GPT Image 1.
 

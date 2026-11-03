@@ -13,7 +13,6 @@ export const SD_V125_MODEL_IDS = [
   'Qwen3-Reranker-4B',
   'gpt-6-astra',
   'gpt-6-astra-long-context',
-  'mistral-medium-3.5',
   'claude-haiku-5.5',
   'claude-haiku-5.5-long-context',
   'claude-fable-5.1',
