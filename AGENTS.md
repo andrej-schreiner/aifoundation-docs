@@ -48,7 +48,7 @@ exist. Do not invent one.
 | Code block | fenced Markdown code | long lines wrap; shell languages get the terminal frame ("Terminal", "PowerShell", "Command Prompt"), other languages their name as the title (`src/plugins/ec-frame-titles.mjs`), except where that title would repeat its tab's label; `title="file.py"` only where the page names that file; `text` blocks have no header |
 
 Site parts, not for reuse (Starlight slots and single-page tables):
-`SiteHeader`, `Footer`, `ArchiveBanner`, `PageTitle`, `MobileMenuFooter`,
+`SiteHeader`, `Footer`, `Banner`, `VersionSelect`, `MobileMenuFooter`,
 `PreviewModelsBanner`, `ChoosingModels`, `ReasoningTable`. Design-system page helpers
 (`src/components/design/*`) are for that page only.
 
@@ -97,8 +97,8 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   rule is in `layout.css`; do not cap text yourself.
 - **Announcements** (`PreviewModelsBanner`): one banner each, at the top of
   the content column with its edges, no backdrop behind them; each has its
-  own close button and session memory. Current pages only: archived
-  pages have the archive bar (`ArchiveBanner`) instead, with the same edges.
+  own close button and session memory. Every built page is a current one:
+  the archived versions are static snapshots (below) with their own notices.
 - **Next steps**: a page's "Next:" links are link cards in a
   `<div class="link-card-row">` (as on the home page's Integrations), the
   link texts as titles; no "Next:" line of text links.
@@ -154,7 +154,8 @@ component or token, and ask. A GAP note is a good result, not a failure.
 ## Before you commit
 
 1. `bun run tokens` — if you touched tokens (fails on broken aliases).
-2. `bun run build` — must complete (currently 379 pages).
+2. `bun run build` — must complete (currently 101 pages built, plus the
+   278 archived pages copied from `archive/`).
    If you moved, renamed or removed a page: `bun run check:urls <preview URL>`
    must report no BAD URL (add a redirect in `astro.config.mjs`).
 3. Look at what you changed in the browser (`bun run dev`, port 4321;
@@ -172,7 +173,7 @@ pass; fix the code, or say in the change why the check is wrong.
 | What | Where |
 |---|---|
 | Docs pages (EN / DE) | `src/content/docs/`, `src/content/docs/de/` |
-| Archived v1.0.0, v1.1.0, v1.2.0 pages (frozen, do not restyle) | `src/content/docs/v1/`, `src/content/docs/v1-1-0/`, `src/content/docs/v1-2-0/` |
+| Archived v1.0.0, v1.1.0, v1.2.0 pages (static snapshots of production, EN and DE; never edit by hand, refresh with `node scripts/snapshot-archives.mjs`, see `archive/README.md`) | `archive/` (copied verbatim into `dist/` by the build); versions listed in `src/archivedVersions.mjs` |
 | Components | `src/components/` |
 | Tokens (source / generated) | `tokens/*.json` → `src/styles/tokens.css` |
 | Styles per component | `src/styles/*.css` (registered in `astro.config.mjs` → `customCss`) |

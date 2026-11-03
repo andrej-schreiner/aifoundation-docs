@@ -171,8 +171,7 @@
 	color: var(--aifs-select-icon);
 }
 
-.ts-header select,
-.ts-header starlight-version-select label select {
+.ts-header select {
 	box-sizing: border-box;
 	height: var(--aifs-select-height);
 	/* One width for all three. Sized to their content, each was as wide as its

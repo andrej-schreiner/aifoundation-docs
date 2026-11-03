@@ -44,7 +44,7 @@ site-search button > svg {
 	--aifs-icon: url('../assets/icons/scale/action/search/default.svg');
 }
 
-starlight-version-select svg.label-icon {
+aifs-version-select svg.label-icon {
 	--aifs-icon: url('../assets/icons/scale/action/changelog/default.svg');
 }
 

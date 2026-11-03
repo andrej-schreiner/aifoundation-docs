@@ -1,5 +1,5 @@
 // @ts-check
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
@@ -10,9 +10,6 @@ import { ecFrameTitles } from './src/plugins/ec-frame-titles.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
-import starlightVersions from 'starlight-versions';
-import archivedVersions from './src/redirects/archived-versions.json' with { type: 'json' };
-import { isArchived } from './src/archives.mjs';
 
 // The design-system page is a draft unless AIFS_PREVIEW_DESIGN_SYSTEM=1.
 // The content store caches that draft flag, so drop the store when the flag changes.
@@ -87,6 +84,54 @@ function rehypeMarkdownTables() {
 	}
 }
 
+/**
+ * The archived versions (/v1/, /v1-1-0/, /v1-2-0/ and /de/…) are static
+ * snapshots of production in archive/ (scripts/snapshot-archives.mjs,
+ * archive/README.md), not built from the content. After the build, and after
+ * Starlight's search index (so the archives stay out of the current search),
+ * archive/ is copied verbatim into dist/. A file Astro already wrote at a
+ * snapshot path fails the build. `astro dev` serves the snapshot files too.
+ */
+function archiveSnapshots() {
+	const source = fileURLToPath(new URL('./archive/', import.meta.url));
+	const files = (directory, prefix = '') =>
+		readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
+			entry.isDirectory()
+				? files(join(directory, entry.name), `${prefix}${entry.name}/`)
+				: entry.name === 'README.md' && !prefix
+					? []
+					: [`${prefix}${entry.name}`],
+		);
+	return {
+		name: 'archive-snapshots',
+		hooks: {
+			'astro:server:setup': ({ server }) => {
+				server.middlewares.use((req, res, next) => {
+					const path = decodeURIComponent((req.url ?? '').split(/[?#]/)[0]);
+					if (!/^\/(?:de\/)?(?:v1(?:-1-0|-2-0)?|_archive)\//.test(path) || path.includes('..')) return next();
+					const file = join(source, path.endsWith('/') ? `${path}index.html` : path);
+					if (!existsSync(file) || !statSync(file).isFile()) return next();
+					const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.woff': 'font/woff' };
+					const type = types[(file.match(/\.[a-z0-9]+$/i) || [''])[0].toLowerCase()];
+					if (type) res.setHeader('Content-Type', type);
+					res.end(readFileSync(file));
+				});
+			},
+			'astro:build:done': ({ dir, logger }) => {
+				if (!existsSync(source)) throw new Error('archive/ is missing: run node scripts/snapshot-archives.mjs');
+				const target = fileURLToPath(dir);
+				const list = files(source);
+				const collisions = list.filter((file) => existsSync(join(target, file)));
+				if (collisions.length) {
+					throw new Error(`The build wrote files at archive snapshot paths: ${collisions.slice(0, 10).join(', ')}`);
+				}
+				for (const file of list) cpSync(join(source, file), join(target, file));
+				logger.info(`Copied ${list.length} archive snapshot files.`);
+			},
+		},
+	};
+}
+
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
@@ -95,7 +140,6 @@ export default defineConfig({
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
 	redirects: {
-		...archivedVersions,
 		'/Quickstart': '/getting-started/quickstart',
 		// The catalog is a section of the Models page.
 		'/models/catalog': '/models/#catalog',
@@ -202,9 +246,7 @@ export default defineConfig({
 				},
 			},
 		},
-		sitemap({
-			filter: (page) => !isArchived(new URL(page).pathname),
-		}),
+		sitemap(),
 		starlight({
 			title: 'AI Foundation Services',
 			head: [
@@ -352,12 +394,10 @@ export default defineConfig({
 				},
 			],
 			components: {
-				Banner: './src/components/ArchiveBanner.astro',
+				Banner: './src/components/Banner.astro',
 				Footer: './src/components/Footer.astro',
 				Header: './src/components/SiteHeader.astro',
 				MobileMenuFooter: './src/components/MobileMenuFooter.astro',
-				// Starlight's title without starlight-versions' note (the archive bar has it).
-				PageTitle: './src/components/PageTitle.astro',
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',
@@ -366,7 +406,6 @@ export default defineConfig({
 			favicon: '/img/favicon_180x180.png',
 			// tokens.css is generated from tokens/ (bun run tokens) and loaded last, so the
 			// Starlight variables it sets win over the hand-set ones in the other two.
-			routeMiddleware: './src/starlightRouteData.ts',
 			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/data-table.css', './src/styles/tooltip.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
@@ -381,18 +420,6 @@ export default defineConfig({
 				// title unless the page gives a real file name (ec-frame-titles.mjs).
 				plugins: [ecWrapPoints(), ecFrameTitles()],
 			},
-			plugins: [
-				starlightVersions({
-					// No "(Archived)": archived pages carry a banner, and the suffix set the
-					// width of every header select (a select is as wide as its longest option).
-					// Labels and order as on production: Latest, v1.0.0, v1.1.0, v1.2.0.
-					versions: [
-						{ slug: 'v1', label: 'v1.0.0' },
-						{ slug: 'v1-1-0', label: 'v1.1.0' },
-						{ slug: 'v1-2-0', label: 'v1.2.0' },
-					],
-				}),
-			],
 			defaultLocale: 'root',
 			locales: {
 				root: { label: 'English', lang: 'en' },
@@ -486,5 +513,6 @@ export default defineConfig({
 				},
 		],
 		}),
+		archiveSnapshots(),
 	],
 });

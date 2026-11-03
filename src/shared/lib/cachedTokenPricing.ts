@@ -21,14 +21,13 @@ const LANGUAGE_MODEL_CATEGORIES: ReadonlySet<ModelCategory> = new Set(['llms', '
 /**
  * Whether cached-token pricing is published for a model, derived from its
  * deployment region and primary category. `otc-*` is T-Cloud Public;
- * everything else is external. Pass `null` as the category only for archived
- * pages, which keep their original region-only output.
+ * everything else is external.
  */
 export function hasCachedTokenPricing(
   deploymentRegion: string | null | undefined,
-  modelCategory: ModelCategory | null,
+  modelCategory: ModelCategory,
 ): boolean {
-  if (modelCategory !== null && !LANGUAGE_MODEL_CATEGORIES.has(modelCategory)) return false;
+  if (!LANGUAGE_MODEL_CATEGORIES.has(modelCategory)) return false;
   return (deploymentRegion ?? '').toLowerCase().startsWith('otc');
 }
 
@@ -40,7 +39,7 @@ export function hasCachedTokenPricing(
 export function cachedInputPrice(
   inputPricePerMillionTokens: number | null | undefined,
   deploymentRegion: string | null | undefined,
-  modelCategory: ModelCategory | null,
+  modelCategory: ModelCategory,
 ): number | null {
   if (!hasCachedTokenPricing(deploymentRegion, modelCategory)) return null;
   if (inputPricePerMillionTokens == null) return null;
