@@ -5,7 +5,6 @@
 const HIDDEN_MODELS = [
   // Not in service description v1.25 (no price, limit or model list entry)
   // and no retirement date (Andrej, 2026-11-03).
-  'gemini-3-pro-image',
   'gpt-4.1-nano',
   'gpt-4o-mini',
   'gpt-5-codex',
