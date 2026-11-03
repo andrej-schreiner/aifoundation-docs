@@ -172,8 +172,8 @@ const t = {
   thOutputPrice: isDE ? 'Output-Token-Preis' : 'Output token price',
   thCachedInputPrice: isDE ? 'Cached-Input-Token-Preis' : 'Cached input token price',
   cachedPriceNote: isDE
-    ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle.`
-    : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only.`,
+    ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Sprachmodelle, nicht für Embedding-, Reranking- und Speech-to-Text-Modelle.`
+    : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted language models only, not to embedding, reranking or speech-to-text models.`,
   cachedPriceUnavailable: '—',
   priceTba: isDE ? 'Preis folgt' : 'Pricing to be announced',
   worldwideLocationNote: isDE

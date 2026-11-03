@@ -6,8 +6,8 @@ description: "Wiederholte Prompt-Präfixe auf AI Foundation Services wiederverwe
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-:::note[Caching ist bei T-Cloud-gehosteten Modellen standardmäßig aktiviert]
-Gemäß [Leistungsbeschreibung](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (§ 2.3.1) ist die Cache-Funktion für die von der Telekom selbst betriebenen Modelle **standardmäßig eingeschaltet** und kann jederzeit ein- oder ausgeschaltet werden — pro Anfrage über `save_cache`, wie unten beschrieben.
+:::note[Caching ist bei T-Cloud-gehosteten Sprachmodellen standardmäßig aktiviert]
+Gemäß [Leistungsbeschreibung](/files/Leistungsbeschreibung-LLM-Serving-Service.pdf) (§ 2.3.1) ist die Cache-Funktion für die von der Telekom selbst betriebenen Modelle **standardmäßig eingeschaltet** und kann jederzeit ein- oder ausgeschaltet werden — pro Anfrage über `save_cache`, wie unten beschrieben. Embedding-, Reranking- und Speech-to-Text-Modelle unterstützen kein Caching.
 :::
 
 Prefix Caching ermöglicht es dem Modell, bereits geleistete Arbeit für den Anfang eines Prompts wiederzuverwenden. Wenn zwei Anfragen mit denselben Tokens beginnen — einem langen System-Prompt, einem Dokument, einem Werkzeugkatalog — muss der gemeinsame Teil nicht erneut verarbeitet werden. Das senkt die Zeit bis zum ersten Token und, bei Modellen mit separater Abrechnung zwischengespeicherter Tokens, auch die Kosten der Anfrage.
@@ -313,8 +313,8 @@ Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden mit **15 % des no
 
 Beispiel: GLM 5.3 kostet 1,40 € pro Million Input-Tokens, zwischengespeicherte Prompt-Tokens also 0,21 € pro Million.
 
-:::note[Nur T-Cloud-gehostete Modelle]
-Der Preis von 15 % für zwischengespeicherte Tokens gilt für **T-Cloud-gehostete Sprachmodelle** — also die im [Modellvergleich](/de/models) mit `T-Cloud` gekennzeichneten Modelle. Modelle externer Anbieter (Azure, GCP) sowie Embedding- und Speech-to-Text-Modelle zeigen in der Cached-Preis-Spalte einen Strich (—).
+:::note[Nur T-Cloud-gehostete Sprachmodelle]
+Der Preis von 15 % für zwischengespeicherte Tokens gilt für **T-Cloud-gehostete Sprachmodelle** — also die im [Modellvergleich](/de/models) mit `T-Cloud` gekennzeichneten Modelle. Modelle externer Anbieter (Azure, GCP) sowie Embedding-, Reranking- und Speech-to-Text-Modelle zeigen in der Cached-Preis-Spalte einen Strich (—). Embedding-, Reranking- und Speech-to-Text-Modelle unterstützen kein Caching.
 :::
 
 Der Preis pro Modell steht in der Spalte **Cached-Input-Token-Preis** auf jeder [Tarifseite](/de/plans) sowie in der Spalte **Cache €/M** im [Modellvergleich](/de/models).
