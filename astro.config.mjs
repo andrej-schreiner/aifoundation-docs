@@ -438,7 +438,7 @@ export default defineConfig({
 						{ label: 'Structured outputs', translations: { de: 'Strukturierte Ausgaben' }, slug: 'guides/structured-outputs' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
 						{ label: 'Image input', translations: { de: 'Bildeingabe' }, slug: 'guides/multimodal' },
-						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
+						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr' },
 						{ label: 'Embeddings & RAG', translations: { de: 'Embeddings & RAG' }, slug: 'guides/embeddings' },
 						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 						{ label: 'Prefix caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },

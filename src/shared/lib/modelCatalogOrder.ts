@@ -34,8 +34,8 @@ export const MODEL_CATALOG_ORDER = [
   'BGE-M3', // Embedding, no newer generation token than Qwen3 Embedding.
   'Jina Embeddings v2 Base DE', // Embedding v2, Base size, 8K context.
   'Qwen3-Reranker-4B', // Reranker (SD v1.25), 4B. Next to the embeddings it is used with.
-  'LightOnOCR-3-4B', // OCR preview, generation 3, 4B. Added the same day as PaddleOCR — order is the generation number only.
-  'PaddleOCR-VL-1.6', // OCR preview, version 1.6. Same changelog entry as LightOnOCR.
+  'LightOnOCR-3-4B', // OCR, generation 3, 4B. Added the same day as PaddleOCR — order is the generation number only.
+  'PaddleOCR-VL-1.6', // OCR, version 1.6. Same changelog entry as LightOnOCR.
   'Whisper Large v3', // Audio, Large v3.
   'Whisper Large v3 Turbo', // Same generation, Turbo variant, so after the full Large.
 
