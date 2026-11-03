@@ -421,6 +421,7 @@ export default defineConfig({
 						{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
 						{ label: 'Vision', translations: { de: 'Vision' }, slug: 'models/vision' },
 						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'models/ocr' },
+						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'models/decisions' },
 						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
 						{ label: 'Speech-to-text', translations: { de: 'Spracherkennung' }, slug: 'models/audio' },
 						{ label: 'Image generation', translations: { de: 'Bildgenerierung' }, slug: 'models/image-generation' },

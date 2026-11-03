@@ -17,6 +17,7 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import { resolvePrimaryCategory, type ModelCategory } from '../shared/lib/modelCategories';
+import { endpointsFor, type ModelEndpoint } from '../shared/lib/modelEndpoints';
 import { formatDecimalText, formatEuro, type NumberLocale } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
 import PlanTag from './PlanTag.astro';
@@ -40,8 +41,10 @@ type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generati
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
 // so a category-only model would hide it from /models/vision. OCR is the
 // other: its models take an image and no text (see the overrides below), so
-// /models/ocr lists the models whose only input is Image.
-type CapabilityFilter = 'accepts-image' | 'accepts-only-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
+// /models/ocr lists the models whose only input is Image. Decisions is an
+// endpoint, not a modality: /models/decisions lists the models that serve
+// /decisions (shared/lib/modelEndpoints).
+type CapabilityFilter = 'accepts-image' | 'accepts-only-image' | 'accepts-audio' | 'emits-audio' | 'emits-image' | 'serves-decisions';
 // One table for every list of models. A preset picks its columns and filters:
 //   catalog  All models: every attribute, Category included.
 //   useCase  The "For …" pages: as catalog, without Category.
@@ -343,6 +346,8 @@ interface CompiledModel {
   /** Lowercase catalog tier. Only `premium` is shown; Standard is omitted. */
   modelTier: string;
   capabilities: Capabilities;
+  /** Endpoints beyond the category default, where the docs state them (modelEndpoints). */
+  endpoints: ModelEndpoint[];
   /** Where it runs: a place name and its flag code; blank while hosting is unconfirmed. */
   location: string;
   locationCode: string;
@@ -411,6 +416,7 @@ for (const pkg of pricingData as Array<{
       plans: [pkg.packageName],
       modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
+      endpoints: endpointsFor(exactModelName),
       ...(() => {
         const where = hostingUnconfirmed(exactModelName) || !deploymentRegion
           ? { name: '', code: '' }
@@ -443,6 +449,7 @@ function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined):
     case 'accepts-audio': return inputs.includes('Audio');
     case 'emits-audio':   return outputs.includes('Audio');
     case 'emits-image':   return outputs.includes('Image');
+    case 'serves-decisions': return m.endpoints.includes('decisions');
   }
 }
 
@@ -493,6 +500,7 @@ function planRow(planName: string, pm: PlanModel): TableRow {
       plans: [],
       modelTier: 'standard',
       capabilities,
+      endpoints: endpointsFor(pm.exactModelName),
       location: '',
       locationCode: '',
       termsOfUseUrl: '',

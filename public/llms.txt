@@ -17,6 +17,7 @@
 - GLM 5.3 (`GLM-5.3`) on T-Cloud, in the shared rate plans, from 2 November 2026. Input €1.40 / output €4.40 per 1M tokens.
 - DeepSeek 4.1 Flash (`DeepSeek-V4.1-Flash-preview`) is a preview model from 2 November 2026, hosted on T-Cloud in Germany, within the EU, free on any active plan.
 - Claude Haiku 5.5, Claude Fable 5.1, GPT-6 Astra, Mistral Medium 3.5, Gemini 4 Argon and Qwen3-Reranker-4B are in the catalog with the prices and limits of Service Description v1.25. Their model ids are not published yet.
+- [Decision models](https://docs.llmhub.t-systems.net/models/decisions): Models that serve `/decisions`: d3 and DiffusionGemma 26B A4B (both preview).
 - [Preview models](https://docs.llmhub.t-systems.net/models/preview): Decision and DeepSeek 4.1 Flash preview models are free on any active plan.
 - [Deprecations](https://docs.llmhub.t-systems.net/models/deprecations): Upcoming retirements and models already retired.
 

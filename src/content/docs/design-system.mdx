@@ -801,12 +801,12 @@ The `plan` preset is shown under Plan page below.
 |---|---|---|
 | `columns` | `catalog`, `useCase`, `plan` | `plan` with `plans`; `useCase` with `category` or `capabilityFilter`; else `catalog` |
 | `category` | `llms`, `coding`, `vision`, `embeddings`, `reranking`, `audio`, `image-generation`: only that category | all models |
-| `capabilityFilter` | `accepts-image`: models that take images (For vision); `accepts-only-image`: models whose only input is an image (For OCR) | – |
+| `capabilityFilter` | `accepts-image`: models that take images (For vision); `accepts-only-image`: models whose only input is an image (For OCR); `serves-decisions`: models that serve `/decisions`, from `src/shared/lib/modelEndpoints.ts` (For decisions) | – |
 | `plans` | the plans and their models, as `PlansPage` builds them (`plan` preset) | – |
 | `plan` | the plan shown first (package name, such as `Essential`) | the first plan |
 | `planLocked` | `true`: one plan, no plan field (a single plan's page) | `false` |
 
-Used in: the Models page, section All models (`catalog`), For chat & reasoning, coding, vision, OCR, embeddings, audio and images (`useCase`), and through `PlansPage` on Plans & pricing, each plan's page and Preview models (`plan`).
+Used in: the Models page, section All models (`catalog`), For chat & reasoning, coding, vision, OCR, decisions, embeddings, audio and images (`useCase`), and through `PlansPage` on Plans & pricing, each plan's page and Preview models (`plan`).
 
 </ComponentCard>
 
