@@ -588,6 +588,9 @@ const t = {
   priceImageInput: isDE ? 'Bild' : 'Image',
   unitPrice: isDE ? 'pro 1 Mio. Tokens' : 'per 1M tokens',
   unitContext: isDE ? 'Tokens' : 'tokens',
+  // A price tier's prompt limit, on the context cell of a tiered row.
+  tierUpTo: isDE ? 'Preise für Prompts bis {limit} Tokens' : 'Prices for prompts up to {limit} tokens',
+  tierOver: isDE ? 'Preise für Prompts über {limit} Tokens' : 'Prices for prompts over {limit} tokens',
   sortBy: isDE ? 'Nach {label} sortieren' : 'Sort by {label}',
   sortLabel: isDE ? 'Sortieren nach' : 'Sort by',
   sortDefault: isDE ? 'Empfohlene Reihenfolge' : 'Recommended order',
@@ -733,6 +736,18 @@ function formatContextLabel(raw: string | null | undefined): string {
   if (compact === '102400') return formatDecimalText('102.4K', numberLocale);
   if (/^1050k$/i.test(compact)) return formatDecimalText('1.05M', numberLocale);
   return text;
+}
+
+/**
+ * A row priced for one prompt length (its name ends in "(≤272k)" or
+ * "(>272k)") shows the model's full context window; this note gives the
+ * tier's prompt limit. Archived pages keep their original output.
+ */
+function priceTierNote(m: CompiledModel): string | null {
+  if (isArchive) return null;
+  const match = /\((≤|>)\s*(\d+)k\)\s*$/i.exec(m.displayModelName);
+  if (!match) return null;
+  return (match[1] === '≤' ? t.tierUpTo : t.tierOver).replace('{limit}', `${match[2]}K`);
 }
 
 function blankContext(raw: string | null | undefined): boolean {
@@ -1193,8 +1208,15 @@ const rowDataPayload = rows.map((m) => ({
                 return capCell(m.capabilities.streaming);
               case 'tools':
                 return capCell(m.capabilities.toolCalling);
-              case 'context':
-                return formatContextLabel(m.contextWindow);
+              case 'context': {
+                const label = formatContextLabel(m.contextWindow);
+                const tierNote = priceTierNote(m);
+                return tierNote ? (
+                  <Tooltip text={tierNote} maxWidth="16rem">
+                    <span class="mc-context-tier">{label}<Icon name="alert-information" size={16} /></span>
+                  </Tooltip>
+                ) : label;
+              }
               case 'reasoningEffort':
                 return m.reasoningEffort.length > 0
                   ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
@@ -2499,6 +2521,14 @@ const rowDataPayload = rows.map((m) => ({
 
   .models-comparison .mc-muted {
     color: var(--aifs-color-text-muted);
+  }
+
+  /* A tiered row's context: the value, then the info icon of its tooltip. */
+  .models-comparison .mc-context-tier {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--aifs-button-icon-gap-small);
+    white-space: nowrap;
   }
 
   /* Two input prices (text, image): one per line, at the cell's end edge. */
