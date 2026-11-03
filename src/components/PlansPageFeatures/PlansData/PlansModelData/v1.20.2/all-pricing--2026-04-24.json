@@ -1052,7 +1052,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:qwen3-reranker-4b",
+        "exactModelName": "Qwen/Qwen3-Reranker-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 600000,
@@ -1065,7 +1065,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Qwen3-Reranker-4B",
         "modelLabel": "Qwen reranker (T-Cloud Public)",
-        "contextWindow": null,
+        "contextWindow": "32K",
+        "maxOutputTokens": null,
         "termsOfUseUrl": "https://www.apache.org/licenses/LICENSE-2.0.html",
         "dataProtectionUrl": null,
         "aiModelId": null,
@@ -1076,7 +1077,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:mistral-medium-3.5",
+        "exactModelName": "mistral-medium-3.5",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 120000,
@@ -1089,7 +1090,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Mistral Medium 3.5",
         "modelLabel": "Mistral LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "256K",
+        "maxOutputTokens": null,
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -1100,7 +1102,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-haiku-5.5",
+        "exactModelName": "claude-haiku-5.5",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 6750000,
@@ -1113,7 +1115,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Haiku 5.5 (≤100k)",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -1124,7 +1127,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-haiku-5.5-long-context",
+        "exactModelName": "claude-haiku-5.5-long-context",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 6750000,
@@ -1137,7 +1140,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Haiku 5.5 (>100k)",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -1148,7 +1152,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gemini-4-argon",
+        "exactModelName": "gemini-4-argon",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": "Dynamic Shared Quota",
@@ -1161,7 +1165,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Gemini 4 Argon",
         "modelLabel": "Google LLM (GCP)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "64K",
         "termsOfUseUrl": "https://cloud.google.com/terms/aup",
         "dataProtectionUrl": "https://cloud.google.com/terms/cloud-privacy-notice",
         "aiModelId": null,
@@ -2398,7 +2403,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:qwen3-reranker-4b",
+        "exactModelName": "Qwen/Qwen3-Reranker-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 1200000,
@@ -2411,7 +2416,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Qwen3-Reranker-4B",
         "modelLabel": "Qwen reranker (T-Cloud Public)",
-        "contextWindow": null,
+        "contextWindow": "32K",
+        "maxOutputTokens": null,
         "termsOfUseUrl": "https://www.apache.org/licenses/LICENSE-2.0.html",
         "dataProtectionUrl": null,
         "aiModelId": null,
@@ -2422,7 +2428,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gpt-6-astra",
+        "exactModelName": "gpt-6-astra",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 1500000,
@@ -2435,7 +2441,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "GPT-6 Astra (≤272k)",
         "modelLabel": "OpenAI LLM (Azure Sweden)",
-        "contextWindow": null,
+        "contextWindow": "1050K",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure/MCA#ServiceSpecificTerms",
         "dataProtectionUrl": "https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA",
         "aiModelId": null,
@@ -2446,7 +2453,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gpt-6-astra-long-context",
+        "exactModelName": "gpt-6-astra-long-context",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 1500000,
@@ -2459,7 +2466,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "GPT-6 Astra (>272k)",
         "modelLabel": "OpenAI LLM (Azure Sweden)",
-        "contextWindow": null,
+        "contextWindow": "1050K",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure/MCA#ServiceSpecificTerms",
         "dataProtectionUrl": "https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA",
         "aiModelId": null,
@@ -2470,7 +2478,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:mistral-medium-3.5",
+        "exactModelName": "mistral-medium-3.5",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 240000,
@@ -2483,7 +2491,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Mistral Medium 3.5",
         "modelLabel": "Mistral LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "256K",
+        "maxOutputTokens": null,
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -2494,7 +2503,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-haiku-5.5",
+        "exactModelName": "claude-haiku-5.5",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 13500000,
@@ -2507,7 +2516,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Haiku 5.5 (≤100k)",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -2518,7 +2528,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-haiku-5.5-long-context",
+        "exactModelName": "claude-haiku-5.5-long-context",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 13500000,
@@ -2531,7 +2541,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Haiku 5.5 (>100k)",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -2542,7 +2553,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-fable-5.1",
+        "exactModelName": "claude-fable-5.1",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 1800000,
@@ -2555,7 +2566,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Fable 5.1",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -2566,7 +2578,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gemini-4-argon",
+        "exactModelName": "gemini-4-argon",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": "Dynamic Shared Quota",
@@ -2579,7 +2591,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Gemini 4 Argon",
         "modelLabel": "Google LLM (GCP)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "64K",
         "termsOfUseUrl": "https://cloud.google.com/terms/aup",
         "dataProtectionUrl": "https://cloud.google.com/terms/cloud-privacy-notice",
         "aiModelId": null,
@@ -3816,7 +3829,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:qwen3-reranker-4b",
+        "exactModelName": "Qwen/Qwen3-Reranker-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 2000000,
@@ -3829,7 +3842,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Qwen3-Reranker-4B",
         "modelLabel": "Qwen reranker (T-Cloud Public)",
-        "contextWindow": null,
+        "contextWindow": "32K",
+        "maxOutputTokens": null,
         "termsOfUseUrl": "https://www.apache.org/licenses/LICENSE-2.0.html",
         "dataProtectionUrl": null,
         "aiModelId": null,
@@ -3840,7 +3854,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gpt-6-astra",
+        "exactModelName": "gpt-6-astra",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 2500000,
@@ -3853,7 +3867,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "GPT-6 Astra (≤272k)",
         "modelLabel": "OpenAI LLM (Azure Sweden)",
-        "contextWindow": null,
+        "contextWindow": "1050K",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure/MCA#ServiceSpecificTerms",
         "dataProtectionUrl": "https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA",
         "aiModelId": null,
@@ -3864,7 +3879,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gpt-6-astra-long-context",
+        "exactModelName": "gpt-6-astra-long-context",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 2500000,
@@ -3877,7 +3892,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "GPT-6 Astra (>272k)",
         "modelLabel": "OpenAI LLM (Azure Sweden)",
-        "contextWindow": null,
+        "contextWindow": "1050K",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://www.microsoft.com/licensing/terms/productoffering/MicrosoftAzure/MCA#ServiceSpecificTerms",
         "dataProtectionUrl": "https://www.microsoft.com/licensing/docs/view/Microsoft-Products-and-Services-Data-Protection-Addendum-DPA",
         "aiModelId": null,
@@ -3888,7 +3904,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:mistral-medium-3.5",
+        "exactModelName": "mistral-medium-3.5",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 400000,
@@ -3901,7 +3917,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Mistral Medium 3.5",
         "modelLabel": "Mistral LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "256K",
+        "maxOutputTokens": null,
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -3912,7 +3929,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-haiku-5.5",
+        "exactModelName": "claude-haiku-5.5",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 22500000,
@@ -3925,7 +3942,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Haiku 5.5 (≤100k)",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -3936,7 +3954,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-haiku-5.5-long-context",
+        "exactModelName": "claude-haiku-5.5-long-context",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 22500000,
@@ -3949,7 +3967,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Haiku 5.5 (>100k)",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -3960,7 +3979,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:claude-fable-5.1",
+        "exactModelName": "claude-fable-5.1",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 3000000,
@@ -3973,7 +3992,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Claude Fable 5.1",
         "modelLabel": "Anthropic LLM (GCP / Azure)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "128K",
         "termsOfUseUrl": "https://cloud.google.com/terms/services",
         "dataProtectionUrl": "https://cloud.google.com/terms/data-processing-terms",
         "aiModelId": null,
@@ -3984,7 +4004,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "sd:gemini-4-argon",
+        "exactModelName": "gemini-4-argon",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": "Dynamic Shared Quota",
@@ -3997,7 +4017,8 @@
         "modelQuotaMetadata": null,
         "displayModelName": "Gemini 4 Argon",
         "modelLabel": "Google LLM (GCP)",
-        "contextWindow": null,
+        "contextWindow": "1M",
+        "maxOutputTokens": "64K",
         "termsOfUseUrl": "https://cloud.google.com/terms/aup",
         "dataProtectionUrl": "https://cloud.google.com/terms/cloud-privacy-notice",
         "aiModelId": null,

@@ -5,21 +5,26 @@
 export const GLM_53_ID = 'GLM-5.3';
 export const DEEPSEEK_41_FLASH_ID = 'DeepSeek-V4.1-Flash-preview';
 
-// Models listed in service description v1.25 (prices and limits, §7.2) that
-// have no published API model id yet. Their key in the pricing data starts
-// with `sd:` and is a placeholder, not an id: it is never shown or copied.
-// Replace the key with the real id once it is published.
-const UNPUBLISHED_ID_PREFIX = 'sd:';
-export const SD_V125_MODEL_KEYS = [
-  'sd:qwen3-reranker-4b',
-  'sd:gpt-6-astra',
-  'sd:gpt-6-astra-long-context',
-  'sd:mistral-medium-3.5',
-  'sd:claude-haiku-5.5',
-  'sd:claude-haiku-5.5-long-context',
-  'sd:claude-fable-5.1',
-  'sd:gemini-4-argon',
+// Models listed in service description v1.25 (prices and limits, §7.2), new
+// on 2026-11-03. Their specs come from the vendors' model pages (2026-11-03).
+// TODO(andrej): confirm the ids. Claude, GPT, Gemini and Mistral follow the
+// ids of the same vendor's models here (claude-sonnet-5.5, gpt-6-luna,
+// gemini-3.8-flash, mistral-medium-3); Qwen3-Reranker-4B has the
+// vendor's Hugging Face id.
+export const SD_V125_MODEL_IDS = [
+  'Qwen/Qwen3-Reranker-4B',
+  'gpt-6-astra',
+  'gpt-6-astra-long-context',
+  'mistral-medium-3.5',
+  'claude-haiku-5.5',
+  'claude-haiku-5.5-long-context',
+  'claude-fable-5.1',
+  'gemini-4-argon',
 ] as const;
+
+// A model listed before its API id is published gets a key starting with
+// `sd:` in the pricing data: a placeholder, never shown or copied. None now.
+const UNPUBLISHED_ID_PREFIX = 'sd:';
 
 /** False while the model's key is a placeholder: show no id and no copy button. */
 export function apiIdPublished(exactModelName: string | undefined): boolean {
@@ -35,7 +40,7 @@ export function hostingUnconfirmed(exactModelName: string | undefined): boolean 
 
 // The one place that decides which models carry the "New" tag (catalog,
 // featured cards, plans list, category pages). Empty the set to remove them.
-const NEW_MODELS = new Set<string>([GLM_53_ID, DEEPSEEK_41_FLASH_ID, ...SD_V125_MODEL_KEYS]);
+const NEW_MODELS = new Set<string>([GLM_53_ID, DEEPSEEK_41_FLASH_ID, ...SD_V125_MODEL_IDS]);
 
 export function isNewModel(exactModelName: string | undefined): boolean {
   return NEW_MODELS.has(exactModelName ?? '');
