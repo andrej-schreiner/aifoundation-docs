@@ -2,7 +2,8 @@
 // Site part, not for reuse. Starlight's Header slot (astro.config.mjs): logo
 // (the T, the site name and under it the subline "Technical Documentation",
 // hidden on phones below 31rem), search, version, theme and language
-// selects, and the API key button.
+// selects, and the API key button (in English "API key" below 22.5rem, as
+// short as the German "API-Key").
 import config from 'virtual:starlight/user-config';
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
@@ -18,6 +19,9 @@ const menu = isDE ? 'Menü' : 'Menu';
 const home = isDE ? '/de/' : '/';
 const subline = isDE ? 'Technische Dokumentation' : 'Technical Documentation';
 const cta = isDE ? 'API-Key' : 'Get API key';
+// Below 22.5rem "Get API key" does not fit beside "AIFS" and the search
+// button; the aria-label keeps the full name.
+const ctaShort = isDE ? 'API-Key' : 'API key';
 const ctaAria = isDE
 	? 'API-Key generieren (öffnet in neuem Tab)'
 	: 'Get API key (opens in a new tab)';
@@ -52,7 +56,8 @@ const showSearch =
 			<LanguageSelect />
 		</div>
 		<Button class="ts-cta" href="https://apikey.llmhub.t-systems.net/login" target="_blank" rel="noopener noreferrer" ariaLabel={ctaAria}>
-			{cta}
+			<span class="ts-cta-full">{cta}</span>
+			<span class="ts-cta-short">{ctaShort}</span>
 		</Button>
 	</div>
 </div>
@@ -110,7 +115,8 @@ const showSearch =
 		color: var(--aifs-color-text-muted);
 	}
 
-	.ts-word-short {
+	.ts-word-short,
+	.ts-cta-short {
 		display: none;
 	}
 
@@ -241,6 +247,18 @@ const showSearch =
 		}
 
 		.ts-word-short {
+			display: inline;
+		}
+	}
+
+	/* Narrow phones, below 22.5rem (360px): the short button label, so
+	   "AIFS", the search button and the button keep their gaps. */
+	@media (max-width: 22.49rem) {
+		.ts-cta-full {
+			display: none;
+		}
+
+		.ts-cta-short {
 			display: inline;
 		}
 	}
