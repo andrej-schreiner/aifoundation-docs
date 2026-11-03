@@ -308,8 +308,10 @@ main:has(> :is(.qp-stack, .archive-stack)) > .content-panel:nth-child(1 of .cont
 /* Vertical rhythm, on Telekom's 8px scale (--aifs-rhythm-* tokens): the gap
    grows with the size of the break, about 1.5x a step. 16px between
    paragraphs (Starlight's --sl-content-gap-y, set in tokens.css), 32px around
-   blocks and components, 72, 48 or 32px before a heading and 12px after it,
-   so a heading sits with its section and sections separate. Unlayered, so
+   blocks and components, 72, 48 or 32px before a heading (48 and 40px below
+   50rem) and 12px after it and after the page title, so a heading sits with
+   its section and sections separate. The same scale on every page: no page
+   or component sets margins between content blocks itself. Unlayered, so
    these win over Starlight's content layer; :where() keeps the block rule
    below the heading rules. */
 .content-panel {
@@ -329,7 +331,7 @@ main > .content-panel:nth-child(1 of .content-panel) :where(h1) {
 }
 
 main > .content-panel:nth-child(2 of .content-panel) {
-	padding-top: 12px;
+	padding-top: var(--aifs-rhythm-after-heading);
 }
 
 /* A clear break between the content and the previous and next links. */
@@ -338,7 +340,7 @@ main > .content-panel:nth-child(2 of .content-panel) {
 }
 
 footer.sl-flex {
-	gap: 12px;
+	gap: var(--aifs-layout-grid-gap);
 }
 
 footer.sl-flex .meta {
@@ -358,7 +360,7 @@ footer.sl-flex .meta:not(:has(*)) {
    component's <script> often sits between it and the next paragraph), which
    a "block + *" rule would land on instead. */
 .sl-markdown-content
-	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content, .hero-badges, .link-card-row, .choose-desktop, .models-comparison, .plans-page, .available-models) {
+	> :where(.expressive-code, .starlight-aside, table, .aifs-table-scroll, starlight-tabs, .card-grid, .sl-steps, .sl-link-card, details, figure, .not-content, .hero-badges, .link-card-row, .choose-root, .models-comparison, .plans-page, .available-models) {
 	margin-block: var(--aifs-rhythm-block);
 }
 
@@ -388,6 +390,12 @@ footer.sl-flex .meta:not(:has(*)) {
 
 .sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
 	margin-top: var(--aifs-rhythm-heading-3);
+}
+
+@media (max-width: 50rem) {
+	.sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
+		margin-top: var(--aifs-rhythm-heading-3-compact);
+	}
 }
 
 .sl-markdown-content > :is(h4, h5, h6, .sl-heading-wrapper:is(.level-h4, .level-h5, .level-h6)) {

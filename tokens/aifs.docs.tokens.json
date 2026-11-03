@@ -285,7 +285,7 @@
     },
     "rhythm": {
       "$type": "dimension",
-      "$description": "Vertical spacing in the content, on Telekom's 8px scale. Gaps grow with the size of the break, about 1.5× a step: 12 after a heading, 16 within running text, 32 around a block or before a minor heading, 48 before a subsection, 72 before a section, 96 at the page's end. A section break is then clearly more than any gap inside a section, and a heading sits closer to its own content than to what comes before it.",
+      "$description": "Vertical spacing in the content, on Telekom's 8px scale, the same on every page (layout.css). Gaps grow with the size of the break, about 1.5× a step: 12 after a heading or the page title, 16 within running text, 32 around a block or before a minor heading, 48 before a subsection, 72 before a section, 96 at the page's end; below 50rem 40 before a subsection and 48 before a section. A section break is then clearly more than any gap inside a section, and a heading sits closer to its own content than to what comes before it.",
       "panel-padding-y": { "$value": "{spacing.composition.space-10}", "$description": "32px above and below the title area and the content area." },
       "stack": { "$value": "{spacing.composition.space-08}", "$description": "24px between the parts of a panel: banners, title, content, pagination, footer." },
       "flow": {
@@ -298,8 +298,9 @@
       "heading-2-compact": { "$value": "{spacing.composition.space-14}", "$description": "48px before a section heading on narrow screens (below 50rem), where 72px would push content apart." },
       "page-end": { "$value": "{spacing.composition.space-21}", "$description": "96px between the content and the previous and next links: the page is over, the way on starts." },
       "heading-3": { "$value": "{spacing.composition.space-14}", "$description": "48px before a subsection heading." },
+      "heading-3-compact": { "$value": "{spacing.composition.space-12}", "$description": "40px before a subsection heading on narrow screens (below 50rem): still more than a block gap, less than the compact section break." },
       "heading-4": { "$value": "{spacing.composition.space-10}", "$description": "32px before a minor heading: never less than a block gap." },
-      "after-heading": { "$value": "{spacing.composition.space-05}", "$description": "12px between a heading and what it introduces, so it sits with its section." }
+      "after-heading": { "$value": "{spacing.composition.space-05}", "$description": "12px between a heading and what it introduces, so it sits with its section; also between the page title and the page's first content." }
     },
     "sidebar-nav": {
       "$description": "Site navigation, aligned with Scale's sidebar navigation (telekom/scale@e90165a, sidebar-nav*.css). Each first- and second-level entry is a row with a line under it; the third level is condensed, with a line on its left and a bar on the current page.",

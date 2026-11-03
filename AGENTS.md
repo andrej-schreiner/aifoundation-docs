@@ -81,10 +81,11 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   column grows (main columns, a details row, cards below 36rem). There is
   no breakout band. Do not set `tableOfContents: false` to make room, and
   do not give the column or a page a max-width of its own.
-- **Vertical rhythm** (`aifs.rhythm.*`): 12 after a heading · 16 between
-  paragraphs · 32 around blocks and components · 32/48/72 before h4/h3/h2 ·
-  96 before previous/next. Do not set margins between content blocks
-  yourself; `src/styles/layout.css` does.
+- **Vertical rhythm** (`aifs.rhythm.*`): 12 after a heading and after the
+  page title · 16 between paragraphs · 32 around blocks and components ·
+  32/48/72 before h4/h3/h2 (40/48 before h3/h2 below 50rem) · 96 before
+  previous/next. Do not set margins between content blocks yourself, in a
+  page or a component; `src/styles/layout.css` does.
 - **Grids**: `aifs.layout.grid-gap` (16px) across and down;
   `aifs.layout.grid-action-gap` (24px) above a button under a grid. Card
   grids fit as many columns of at least `aifs.layout.card-min-width` as the
