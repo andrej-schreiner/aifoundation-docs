@@ -2,6 +2,7 @@ import pricingData from '../../components/PlansPageFeatures/PlansData/PlansModel
 import { cloudLabelFor } from './cloudLabelOverrides';
 import { isHiddenModel } from './hiddenModels';
 import { isRetiredModel } from './retirements';
+import { apiIdPublished } from './launchModels';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
 export const LAST_REVIEWED = '2026-11-03';
@@ -91,6 +92,10 @@ export function modelFact(id: string): ModelFact {
   const fact = byId.get(id);
   if (!fact) {
     throw new Error(`choosingModels: ${id} is missing, hidden, or retired`);
+  }
+  // A pick shows its id with a copy button, so it needs a published one.
+  if (!apiIdPublished(id)) {
+    throw new Error(`choosingModels: ${id} has no published model id`);
   }
   return fact;
 }

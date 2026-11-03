@@ -23,7 +23,8 @@ const REGION_DE: Record<string, string> = {
 export function parseLocation(deploymentRegion: string | undefined | null, isDE: boolean): { name: string; code: string } {
   const region = deploymentRegion ?? '';
   const parts = region.toLowerCase().split('-');
-  if (parts.length < 2) return { name: region, code: '' };
+  // A region that names only the cloud (`gcp`) has no published place.
+  if (parts.length < 2) return { name: '', code: '' };
   const raw = parts[1];
   const english = raw.charAt(0).toUpperCase() + raw.slice(1);
   const name = isDE ? (REGION_DE[raw] ?? english) : english;
