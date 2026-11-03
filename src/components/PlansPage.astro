@@ -2,7 +2,7 @@
 // The plans page: rate plan cards, then the plan's models in ModelsComparison
 // (plan preset). `selectedPlanId` shows one plan; without it, every plan with a
 // plan field.
-import { parseLocation as parseRegionLocation } from '../shared/lib/location';
+import { parseDataProcessing, parseLocation as parseRegionLocation } from '../shared/lib/location';
 import currentPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-01-19.json';
 import ModelsComparison from './ModelsComparison.astro';
@@ -395,6 +395,7 @@ function mapModelRow(
   cloudProvider: string,
   serverLocation: string,
   locationCode: string,
+  dataProcessing: { name: string; code: string },
   isSubRow: boolean,
 ) {
   const exactModelName = model.exactModelName ?? fallbackModel.exactModelName;
@@ -439,6 +440,8 @@ function mapModelRow(
     dataProtectionUrl: model.dataProtectionUrl ?? fallbackModel.dataProtectionUrl ?? '',
     serverLocation,
     locationCode,
+    dataProcessing: dataProcessing.name,
+    dataProcessingCode: dataProcessing.code,
     inputTokenMin: model.inputTokenPerMinuteLimit ?? fallbackModel.inputTokenPerMinuteLimit,
     outputTokenMin: model.outputTokenPerMinuteLimit ?? fallbackModel.outputTokenPerMinuteLimit,
     rpm: model.requestPerMinuteLimit ?? fallbackModel.requestPerMinuteLimit,
@@ -464,10 +467,13 @@ const plansData = allPricing
         const { name: locName, code: locCode } = unconfirmed
           ? { name: '', code: '' }
           : parseLocation(m.deploymentRegion);
-        const rows: any[] = [mapModelRow(m, m, modelHost, cloudProvider, locName, locCode, false)];
+        const processing = unconfirmed
+          ? { name: '', code: '' }
+          : parseDataProcessing(m.exactModelName, m.deploymentRegion, isDE);
+        const rows: any[] = [mapModelRow(m, m, modelHost, cloudProvider, locName, locCode, processing, false)];
         if (m.modelQuotaMetadata?.data) {
           for (const sub of m.modelQuotaMetadata.data) {
-            rows.push(mapModelRow(sub, m, modelHost, cloudProvider, locName, locCode, true));
+            rows.push(mapModelRow(sub, m, modelHost, cloudProvider, locName, locCode, processing, true));
           }
         }
         return rows;

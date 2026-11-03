@@ -27,7 +27,7 @@ import Icon from './Icon.astro';
 import Flag from './Flag.astro';
 import Tag from './Tag.astro';
 import Selector from './Selector.astro';
-import { parseLocation } from '../shared/lib/location';
+import { parseDataProcessing, parseLocation } from '../shared/lib/location';
 // Per-model reasoning_effort values from the platform datasheet; refreshed by
 // scripts/fetch-model-parameters.mjs before each build, kept as last known good.
 import reasoningEffortData from '../data/reasoning-effort.json';
@@ -59,6 +59,8 @@ interface PlanModel {
   modelTier?: string;
   serverLocation?: string;
   locationCode?: string;
+  dataProcessing?: string;
+  dataProcessingCode?: string;
   inputPrice: number | null;
   /** A second input price for image input, where the SD gives one (GPT Image 2). */
   imageInputPrice?: number | null;
@@ -364,6 +366,9 @@ interface CompiledModel {
   /** Where it runs: a place name and its flag code; blank while hosting is unconfirmed. */
   location: string;
   locationCode: string;
+  /** Where its data is processed (Germany, EU or worldwide); blank while hosting is unconfirmed. */
+  dataProcessing: string;
+  dataProcessingCode: string;
   termsOfUseUrl: string;
   dataProtectionUrl: string;
 }
@@ -432,10 +437,17 @@ for (const pkg of pricingData as Array<{
       capabilities,
       endpoints: endpointsFor(exactModelName),
       ...(() => {
-        const where = hostingUnconfirmed(exactModelName) || !deploymentRegion
+        const unconfirmed = hostingUnconfirmed(exactModelName) || !deploymentRegion;
+        const where = unconfirmed ? { name: '', code: '' } : parseLocation(deploymentRegion, isDE);
+        const processing = unconfirmed
           ? { name: '', code: '' }
-          : parseLocation(deploymentRegion, isDE);
-        return { location: where.name, locationCode: where.code };
+          : parseDataProcessing(exactModelName, deploymentRegion, isDE);
+        return {
+          location: where.name,
+          locationCode: where.code,
+          dataProcessing: processing.name,
+          dataProcessingCode: processing.code,
+        };
       })(),
       termsOfUseUrl: (entry.termsOfUseUrl as string) ?? '',
       dataProtectionUrl: (entry.dataProtectionUrl as string) ?? '',
@@ -518,6 +530,8 @@ function planRow(planName: string, pm: PlanModel): TableRow {
       endpoints: endpointsFor(pm.exactModelName),
       location: '',
       locationCode: '',
+      dataProcessing: '',
+      dataProcessingCode: '',
       termsOfUseUrl: '',
       dataProtectionUrl: '',
     };
@@ -536,6 +550,8 @@ function planRow(planName: string, pm: PlanModel): TableRow {
     modelTier: String(pm.modelTier || base.modelTier).toLowerCase(),
     location: pm.serverLocation ?? base.location,
     locationCode: pm.locationCode ?? base.locationCode,
+    dataProcessing: pm.dataProcessing ?? base.dataProcessing,
+    dataProcessingCode: pm.dataProcessingCode ?? base.dataProcessingCode,
     termsOfUseUrl: pm.termsOfUseUrl || base.termsOfUseUrl,
     dataProtectionUrl: pm.dataProtectionUrl || base.dataProtectionUrl,
     rpm: pm.rpm ?? null,
@@ -633,6 +649,7 @@ const t = {
   reasoningTokensUnknown: '—',
   // Plan preset
   colLocation: isDE ? 'Standort' : 'Location',
+  colDataProcessing: isDE ? 'Datenverarbeitung' : 'Data processing',
   colRequests: isDE ? 'Anfragen' : 'Requests',
   colTokensPerMinute: 'Tokens',
   unitPerMinute: isDE ? 'pro Minute' : 'per minute',
@@ -815,6 +832,7 @@ const columns: Column[] = ([
   { key: 'provider', label: t.colProvider, cls: '', presets: ALL_PRESETS },
   { key: 'cloud', label: t.colCloud, cls: '', presets: ALL_PRESETS },
   { key: 'location', label: t.colLocation, cls: '', presets: ALL_PRESETS },
+  { key: 'dataProcessing', label: t.colDataProcessing, cls: '', sortable: false, presets: ALL_PRESETS },
   { key: 'input', label: t.colInputTypes, cls: '', presets: MODEL_PAGES },
   { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming, presets: MODEL_PAGES },
   { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools, presets: MODEL_PAGES },
@@ -828,7 +846,9 @@ const columns: Column[] = ([
   { key: 'tpm', label: t.colTokensPerMinute, unit: t.unitPerMinute, cls: 'num', tooltip: t.tooltipLimits, mark: '*', presets: ['plan'] },
   { key: 'plans', label: t.colPlans, cls: '', presets: MODEL_PAGES },
   { key: 'links', label: t.colLinks, cls: '', sortable: false, presets: ['plan'] },
-] as Column[]).filter((c) => c.presets.includes(preset));
+] as Column[])
+  // Archived pages keep their original columns: no data processing.
+  .filter((c) => c.presets.includes(preset) && !(isArchive && c.key === 'dataProcessing'));
 const show = (key: string) => columns.some((c) => c.key === key);
 
 // The table fits its room: it shows the columns below as cells (the model
@@ -844,7 +864,7 @@ const PRIMARY_COLUMNS: Record<ColumnPreset, string[]> = {
 // window. Each step of width (container queries below: 1 from 51rem,
 // 2 from 64rem, 3 from 82rem) moves these columns out of the details into
 // the row; the details keep the rest. The reasoning columns (long code
-// values) and the legal links stay in the details.
+// values), data processing and the legal links stay in the details.
 const EXTRA_COLUMNS: Record<ColumnPreset, Record<string, 1 | 2 | 3>> = {
   catalog: { input: 1, output: 1, plans: 2, cachedInputPrice: 2, location: 3, streaming: 3, tools: 3 },
   useCase: { input: 1, output: 1, plans: 2, cachedInputPrice: 2, location: 3, streaming: 3, tools: 3 },
@@ -1193,6 +1213,10 @@ const rowDataPayload = rows.map((m) => ({
               case 'location':
                 return m.location
                   ? <span class="mc-location__value">{m.locationCode && <Flag code={m.locationCode} size={16} decorative />}{m.location}</span>
+                  : <span class="mc-muted">—</span>;
+              case 'dataProcessing':
+                return m.dataProcessing
+                  ? <span class="mc-location__value">{m.dataProcessingCode && <Flag code={m.dataProcessingCode} size={16} decorative />}{m.dataProcessing}</span>
                   : <span class="mc-muted">—</span>;
               case 'input':
               case 'output': {
