@@ -99,7 +99,8 @@ export interface ChoiceRow {
   id: string;
   useCase: { en: string; de: string };
   recommended: string;
-  alternative: string;
+  /** Second model; absent when the catalog has only one model for the use case. */
+  alternative?: string;
   /** Third model for the compact block on a category page. */
   also?: string;
   notes: { en: string; de: string };
@@ -209,11 +210,11 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'image',
     useCase: { en: 'Image generation', de: 'Bildgenerierung' },
+    // Gemini 3 Pro Image left the catalog: SD v1.25 does not list it (hiddenModels.ts).
     recommended: 'gpt-image-2',
-    alternative: 'gemini-3-pro-image',
     notes: {
-      en: 'GPT Image 2 runs on Azure Sweden. Gemini 3 Pro Image runs on Google Cloud worldwide. No image-generation model runs on T-Cloud.',
-      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
+      en: 'GPT Image 2 runs on Azure Sweden. It is the only image-generation model in the catalog; none runs on T-Cloud.',
+      de: 'GPT Image 2 läuft auf Azure Schweden. Es ist das einzige Modell für Bildgenerierung im Katalog; keines läuft auf T-Cloud.',
     },
     guide: '/guides/image-generation',
   },
@@ -221,12 +222,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
 
 for (const row of CHOICE_ROWS) {
   const recommended = modelFact(row.recommended);
-  const alternative = modelFact(row.alternative);
+  const alternative = row.alternative ? modelFact(row.alternative) : undefined;
   if (row.also) modelFact(row.also);
   if (!recommended.tcloud && row.id !== 'image') {
     throw new Error(`choosingModels: ${row.id} recommended model is not on T-Cloud`);
   }
-  if (row.id === 'image' && (recommended.tcloud || alternative.tcloud)) {
+  if (row.id === 'image' && (recommended.tcloud || alternative?.tcloud)) {
     throw new Error('choosingModels: an image model is marked T-Cloud');
   }
 }
