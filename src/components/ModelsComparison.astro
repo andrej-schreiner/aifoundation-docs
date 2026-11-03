@@ -540,16 +540,13 @@ const t = {
   newTag: isDE ? 'Neu' : 'New',
   colContext: isDE ? 'Kontext' : 'Context',
   colReasoningEffort: 'Reasoning',
-  colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
-  colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
-  colCachedPrice: isDE ? 'Cache €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
-  // Table headers: the unit goes under the label, so the cells hold plain
-  // numbers (the cards repeat the unit in their labels).
+  // Table headers: the unit goes under the label; the cells hold the price
+  // with its € sign (the cards repeat the unit in their labels).
   headInputPrice: isDE ? 'Eingabe' : 'Input',
   headOutputPrice: isDE ? 'Ausgabe' : 'Output',
   headCachedPrice: isDE ? 'Cache-Eingabe' : 'Cached input',
-  unitPrice: isDE ? '€ / 1 Mio. Tokens' : '€ / 1M tokens',
+  unitPrice: isDE ? 'pro 1 Mio. Tokens' : 'per 1M tokens',
   unitContext: isDE ? 'Tokens' : 'tokens',
   sortBy: isDE ? 'Nach {label} sortieren' : 'Sort by {label}',
   sortLabel: isDE ? 'Sortieren nach' : 'Sort by',
@@ -663,11 +660,6 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 function formatPrice(n: number | null | undefined): string {
   if (n == null) return t.priceTba;
   return formatEuro(n, 2, numberLocale);
-}
-
-/** Table cells: the header carries "€ per 1M tokens", so the cell is the number. */
-function tableNumber(text: string): string {
-  return text.replace('€', '');
 }
 
 function formatCachedPrice(m: CompiledModel): string {
@@ -820,7 +812,7 @@ const tableColumns = rowColumns
   .filter((c) => PRIMARY_COLUMNS[preset].includes(c.key) || extraStep(c.key))
   .map((c) => (extraStep(c.key) ? { ...c, cls: `${c.cls} mc-x mc-x${extraStep(c.key)}`.trim() } : c));
 const detailColumns: Column[] = rowColumns.filter((c) => !PRIMARY_COLUMNS[preset].includes(c.key));
-/** A card's row label: the column's label with its unit ("Input (€ / 1M tokens)"). */
+/** A card's row label: the column's label with its unit ("Input (per 1M tokens)"). */
 const cardLabel = (c: Column) => `${c.label}${c.unit ? ` (${c.unit})` : ''}${c.mark ? ` ${c.mark}` : ''}`;
 // The sort field lists every sortable column, so the details' values and the
 // cards (no header to click) can be sorted too.
@@ -1174,11 +1166,11 @@ const rowDataPayload = rows.map((m) => ({
                   </span>
                 );
               case 'inputPrice':
-                return m.inputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : tableNumber(formatPrice(m.inputPricePerMillionTokens));
+                return m.inputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : formatPrice(m.inputPricePerMillionTokens);
               case 'outputPrice':
-                return m.outputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : tableNumber(formatPrice(m.outputPricePerMillionTokens));
+                return m.outputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : formatPrice(m.outputPricePerMillionTokens);
               case 'cachedInputPrice':
-                return tableNumber(formatCachedPrice(m));
+                return formatCachedPrice(m);
               case 'rpm':
                 return formatLimit(m.rpm);
               case 'tpm':
@@ -1861,11 +1853,25 @@ const rowDataPayload = rows.map((m) => ({
       }
     }
 
+    // A click anywhere on a row toggles its details, as its Show details
+    // button does. The button stays the one control for keyboard and screen
+    // readers; the row is only a larger pointer target. Clicks on the row's
+    // own controls (links, buttons, tooltip triggers) and the end of a text
+    // selection inside the row are left alone.
+    const ROW_CONTROLS = 'a, button, input, select, textarea, label, summary, [tabindex], [contenteditable]';
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
       const btn = target?.closest('button.mc-more__btn') as HTMLButtonElement | null;
-      if (!btn || !root.contains(btn)) return;
-      setDetails(btn, btn.getAttribute('aria-expanded') !== 'true');
+      if (btn && root.contains(btn)) {
+        setDetails(btn, btn.getAttribute('aria-expanded') !== 'true');
+        return;
+      }
+      const tr = target?.closest<HTMLTableRowElement>('tr[data-key]');
+      if (!tr || !root.contains(tr) || target?.closest(ROW_CONTROLS)) return;
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed && selection.toString().trim() !== '' && tr.contains(selection.anchorNode)) return;
+      const rowBtn = tr.querySelector<HTMLButtonElement>('button.mc-more__btn');
+      if (rowBtn) setDetails(rowBtn, rowBtn.getAttribute('aria-expanded') !== 'true');
     });
 
     // An open filter menu stays inside the window: near the end edge it
@@ -2177,7 +2183,7 @@ const rowDataPayload = rows.map((m) => ({
     white-space: nowrap;
   }
 
-  /* Header units wrap at their spaces ("€ / 1 Mio." / "Tokens"): the
+  /* Header units wrap at their spaces ("pro 1 Mio." / "Tokens"): the
      headers stay at most three short lines. */
   .models-comparison-table :global(.mc-sort-unit) {
     white-space: normal;
@@ -2268,6 +2274,12 @@ const rowDataPayload = rows.map((m) => ({
 
   .models-comparison .models-comparison-table tbody tr.mc-detail:hover {
     background: transparent;
+  }
+
+  /* The whole row opens its details (the click handler in the script), so
+     it shows the pointer; the hover fill is the table's (table.css). */
+  .models-comparison .models-comparison-table tbody tr[data-key] {
+    cursor: pointer;
   }
 
   .models-comparison-table tr.mc-detail > td {
@@ -2542,9 +2554,18 @@ const rowDataPayload = rows.map((m) => ({
       background: var(--aifs-card-background);
     }
 
-    /* Touch can leave :hover stuck on the last card. Cards have no hover fill. */
+    /* Touch can leave :hover stuck on the last card. Cards have no hover
+       fill; with a mouse, the card's frame takes the LinkCard's hover
+       colour, the open card's details too. */
     .models-comparison .models-comparison-table tbody tr:hover {
       background: var(--aifs-card-background);
+    }
+
+    @media (hover: hover) {
+      .models-comparison .models-comparison-table tbody tr[data-key]:hover,
+      .models-comparison .models-comparison-table tbody tr[data-key].mc-open:hover + tr.mc-detail {
+        border-color: var(--aifs-card-border-hovered);
+      }
     }
 
     /* Open: the card goes on in the details row below it. */
