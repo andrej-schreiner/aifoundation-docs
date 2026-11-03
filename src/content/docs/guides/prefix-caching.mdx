@@ -205,7 +205,7 @@ This requires the structured content-block form of a message (a list of parts in
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-5",
+        model="claude-sonnet-5.5",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ This requires the structured content-block form of a message (a list of parts in
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-5",
+        "model": "claude-sonnet-5.5",
         "messages": [
           {
             "role": "system",
@@ -311,7 +311,7 @@ Prompt tokens served from the prefix cache are billed at **15% of the model's no
 | Remaining prompt tokens | Full input token price |
 | Completion tokens (never cached) | Full output token price |
 
-For example, GLM 5.2 is priced at €1.50 per million input tokens, so its cached prompt tokens cost €0.225 per million.
+For example, GLM 5.3 is priced at €1.40 per million input tokens, so its cached prompt tokens cost €0.21 per million.
 
 :::note[T-Cloud-hosted models only]
 The 15% cached-token price applies to **T-Cloud-hosted language models** — the models tagged `T-Cloud` in the [models comparison](/models). Models served from external providers (Azure, GCP), and embedding and speech-to-text models, show a dash (—) in the cached price column.

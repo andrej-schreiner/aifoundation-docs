@@ -2,9 +2,10 @@ import pricingData from '../../components/PlansPageFeatures/PlansData/PlansModel
 import { cloudLabelFor } from './cloudLabelOverrides';
 import { isHiddenModel } from './hiddenModels';
 import { isRetiredModel } from './retirements';
+import { apiIdPublished } from './launchModels';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
-export const LAST_REVIEWED = '2026-11-02';
+export const LAST_REVIEWED = '2026-11-03';
 
 const REVIEWED_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const REVIEWED_MONTHS_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -92,6 +93,10 @@ export function modelFact(id: string): ModelFact {
   if (!fact) {
     throw new Error(`choosingModels: ${id} is missing, hidden, or retired`);
   }
+  // A pick shows its id with a copy button, so it needs a published one.
+  if (!apiIdPublished(id)) {
+    throw new Error(`choosingModels: ${id} has no published model id`);
+  }
   return fact;
 }
 
@@ -99,7 +104,8 @@ export interface ChoiceRow {
   id: string;
   useCase: { en: string; de: string };
   recommended: string;
-  alternative: string;
+  /** Second model; absent when the catalog has only one model for the use case. */
+  alternative?: string;
   /** Third model for the compact block on a category page. */
   also?: string;
   notes: { en: string; de: string };
@@ -128,11 +134,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'reasoning',
     useCase: { en: 'Reasoning and complex tasks', de: 'Komplexe Aufgaben' },
+    // GLM 5.3 replaces GLM 5.2, which retires on 2026-11-30 (Andrej, 2026-11-03).
     recommended: 'GLM-5.3',
-    alternative: 'GLM-5.2',
+    alternative: 'GLM-5.3-Flash',
     notes: {
-      en: 'GLM 5.3 and GLM 5.2 run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max.',
-      de: 'GLM 5.3 und GLM 5.2 laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max.',
+      en: 'GLM 5.3 and GLM 5.3 Flash run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max on GLM 5.3, and low, high, and max on GLM 5.3 Flash.',
+      de: 'GLM 5.3 und GLM 5.3 Flash laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max bei GLM 5.3 und low, high und max bei GLM 5.3 Flash.',
     },
     guide: '/guides/reasoning',
   },
@@ -166,8 +173,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     recommended: 'LightOnOCR-3-4B-Preview',
     alternative: 'PaddleOCR-VL-1.6-Preview',
     notes: {
-      en: 'Both are preview models on T-Cloud. Context windows are 32K and 128K.',
-      de: 'Beide sind Vorschau-Modelle auf T-Cloud. Die Kontextfenster sind 32K und 128K.',
+      en: 'Both run on T-Cloud, in the Essential, Professional and Agentic plans. Context windows are 32K and 128K.',
+      de: 'Beide laufen auf T-Cloud, in den Tarifen Essential, Professional und Agentic. Die Kontextfenster sind 32K und 128K.',
     },
     guide: '/guides/ocr',
   },
@@ -208,11 +215,11 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'image',
     useCase: { en: 'Image generation', de: 'Bildgenerierung' },
+    // Gemini 3 Pro Image left the catalog: SD v1.25 does not list it (hiddenModels.ts).
     recommended: 'gpt-image-2',
-    alternative: 'gemini-3-pro-image',
     notes: {
-      en: 'GPT Image 2 runs on Azure Sweden. Gemini 3 Pro Image runs on Google Cloud worldwide. No image-generation model runs on T-Cloud.',
-      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
+      en: 'GPT Image 2 runs on Azure Sweden. It is the only image-generation model in the catalog; none runs on T-Cloud.',
+      de: 'GPT Image 2 läuft auf Azure Schweden. Es ist das einzige Modell für Bildgenerierung im Katalog; keines läuft auf T-Cloud.',
     },
     guide: '/guides/image-generation',
   },
@@ -220,12 +227,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
 
 for (const row of CHOICE_ROWS) {
   const recommended = modelFact(row.recommended);
-  const alternative = modelFact(row.alternative);
+  const alternative = row.alternative ? modelFact(row.alternative) : undefined;
   if (row.also) modelFact(row.also);
   if (!recommended.tcloud && row.id !== 'image') {
     throw new Error(`choosingModels: ${row.id} recommended model is not on T-Cloud`);
   }
-  if (row.id === 'image' && (recommended.tcloud || alternative.tcloud)) {
+  if (row.id === 'image' && (recommended.tcloud || alternative?.tcloud)) {
     throw new Error('choosingModels: an image model is marked T-Cloud');
   }
 }

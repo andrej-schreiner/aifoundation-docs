@@ -65,14 +65,16 @@ function richHtml(text: string): string {
     .join('');
 }
 
-function where(recommended: string, alternative: string): string {
+function where(recommended: string, alternative: string | undefined): string {
   const a = place(modelFact(recommended).hosting);
+  if (!alternative) return a;
   const b = place(modelFact(alternative).hosting);
   return a === b ? a : `${a} · ${b}`;
 }
 
-function contextCell(recommended: string, alternative: string): string {
+function contextCell(recommended: string, alternative: string | undefined): string {
   const a = modelFact(recommended).context;
+  if (!alternative) return contextLabel(a);
   const b = modelFact(alternative).context;
   if (!a || !b) return contextLabel(a || b);
   return a === b ? a : `${a} · ${b}`;
@@ -97,7 +99,7 @@ function contextCell(recommended: string, alternative: string): string {
       <tbody>
         {CHOICE_ROWS.map((row) => {
           const recommended = modelFact(row.recommended);
-          const alternative = modelFact(row.alternative);
+          const alternative = row.alternative ? modelFact(row.alternative) : undefined;
           return (
             <tr>
               <td>{isDE ? row.useCase.de : row.useCase.en}</td>
@@ -108,8 +110,7 @@ function contextCell(recommended: string, alternative: string): string {
                 </span>
               </td>
               <td>
-                {alternative.name}
-                {alternative.preview ? ` (${t.preview})` : ''}
+                {alternative ? `${alternative.name}${alternative.preview ? ` (${t.preview})` : ''}` : '—'}
               </td>
               <td>{where(row.recommended, row.alternative)}</td>
               <td>{contextCell(row.recommended, row.alternative)}</td>
@@ -125,7 +126,7 @@ function contextCell(recommended: string, alternative: string): string {
 <ul class="choose-cards">
   {CHOICE_ROWS.map((row) => {
     const recommended = modelFact(row.recommended);
-    const alternative = modelFact(row.alternative);
+    const alternative = row.alternative ? modelFact(row.alternative) : undefined;
     return (
       <li class="choose-card">
         <p class="choose-card__case">{isDE ? row.useCase.de : row.useCase.en}</p>
@@ -138,8 +139,7 @@ function contextCell(recommended: string, alternative: string): string {
         </p>
         <p>
           <span class="choose-k">{t.alternative}</span>
-          {alternative.name}
-          {alternative.preview ? ` (${t.preview})` : ''}
+          {alternative ? `${alternative.name}${alternative.preview ? ` (${t.preview})` : ''}` : '—'}
         </p>
         <p>
           <span class="choose-k">{t.where}</span>

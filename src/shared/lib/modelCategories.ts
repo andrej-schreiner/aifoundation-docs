@@ -1,4 +1,4 @@
-export type ModelCategory = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generation';
+export type ModelCategory = 'llms' | 'coding' | 'embeddings' | 'reranking' | 'audio' | 'image-generation';
 
 // PRIMARY_CATEGORY = each model's *home* category. Sparse on purpose: only
 // models whose primary purpose is NOT general-purpose LLM appear here.
@@ -30,6 +30,8 @@ const PRIMARY_CATEGORY: Record<string, ModelCategory> = {
   'PaddleOCR-VL-1.6-Preview': 'llms',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
+  // Reranker: SD v1.25 model type "Reranker". Not an LLM, so not on /models/llms.
+  'sd:qwen3-reranker-4b': 'reranking',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
   // /models/llms.
   'gemini-3-pro-image': 'image-generation',

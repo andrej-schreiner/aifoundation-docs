@@ -17,6 +17,7 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import { resolvePrimaryCategory, type ModelCategory } from '../shared/lib/modelCategories';
+import { endpointsFor, type ModelEndpoint } from '../shared/lib/modelEndpoints';
 import { formatDecimalText, formatEuro, type NumberLocale } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
 import PlanTag from './PlanTag.astro';
@@ -40,8 +41,10 @@ type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generati
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
 // so a category-only model would hide it from /models/vision. OCR is the
 // other: its models take an image and no text (see the overrides below), so
-// /models/ocr lists the models whose only input is Image.
-type CapabilityFilter = 'accepts-image' | 'accepts-only-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
+// /models/ocr lists the models whose only input is Image. Decisions is an
+// endpoint, not a modality: /models/decisions lists the models that serve
+// /decisions (shared/lib/modelEndpoints).
+type CapabilityFilter = 'accepts-image' | 'accepts-only-image' | 'accepts-audio' | 'emits-audio' | 'emits-image' | 'serves-decisions';
 // One table for every list of models. A preset picks its columns and filters:
 //   catalog  All models: every attribute, Category included.
 //   useCase  The "For …" pages: as catalog, without Category.
@@ -129,7 +132,7 @@ function deriveCategories(primary: Category, caps: Capabilities, extra: Category
   if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
   if (caps.outputModalities.includes('Image')) cats.add('image-generation');
   if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
-  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings'];
+  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings', 'reranking'];
   return ORDER.filter((c) => cats.has(c));
 }
 
@@ -168,6 +171,8 @@ const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
   embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
   audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
   'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
+  // Only one reranker so far, and its input and output are not in the repo data.
+  reranking:          { inputModalities: [],                outputModalities: [],         streaming: null,  toolCalling: null  },
 };
 
 // Per-model overrides for cases where the category default + inferCreator
@@ -218,7 +223,7 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // d3 (preview) is a decision model: /decisions only, Text+Image in. It
   // generates no text, so no streaming and no tool calling.
   'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
-  // OCR models (preview): page or element image in, Markdown / text out. Image
+  // OCR models: page or element image in, Markdown / text out. Image
   // only: the text part of a request is a fixed mode keyword (LightOnOCR:
   // none or "grounding"; PaddleOCR-VL: a task prompt such as "OCR:"), not
   // free text, so you cannot send text or ask questions about the image.
@@ -266,6 +271,17 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // and streams partial images. Gemini 3 Pro Image accepts text+image and emits
   // both an image and accompanying text; per Google's docs it does NOT stream.
   'gpt-image-2':                   { inputModalities: ['Text', 'Image'], streaming: true },
+
+  // Models from service description v1.25 (launchModels.ts): the SD gives the
+  // model type (LLM), cloud, plans, limits and prices only. Input and output
+  // types, streaming and tool calling are unset until they are published.
+  'sd:gpt-6-astra':                     { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
+  'sd:gpt-6-astra-long-context':        { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
+  'sd:mistral-medium-3.5':              { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
+  'sd:claude-haiku-5.5':                { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
+  'sd:claude-haiku-5.5-long-context':   { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
+  'sd:claude-fable-5.1':                { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
+  'sd:gemini-4-argon':                  { inputModalities: [], outputModalities: [], streaming: null, toolCalling: null },
   'gemini-3-pro-image':            {
     inputModalities: ['Text', 'Image'],
     outputModalities: ['Image', 'Text'],
@@ -330,6 +346,8 @@ interface CompiledModel {
   /** Lowercase catalog tier. Only `premium` is shown; Standard is omitted. */
   modelTier: string;
   capabilities: Capabilities;
+  /** Endpoints beyond the category default, where the docs state them (modelEndpoints). */
+  endpoints: ModelEndpoint[];
   /** Where it runs: a place name and its flag code; blank while hosting is unconfirmed. */
   location: string;
   locationCode: string;
@@ -398,6 +416,7 @@ for (const pkg of pricingData as Array<{
       plans: [pkg.packageName],
       modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
+      endpoints: endpointsFor(exactModelName),
       ...(() => {
         const where = hostingUnconfirmed(exactModelName) || !deploymentRegion
           ? { name: '', code: '' }
@@ -430,6 +449,7 @@ function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined):
     case 'accepts-audio': return inputs.includes('Audio');
     case 'emits-audio':   return outputs.includes('Audio');
     case 'emits-image':   return outputs.includes('Image');
+    case 'serves-decisions': return m.endpoints.includes('decisions');
   }
 }
 
@@ -480,6 +500,7 @@ function planRow(planName: string, pm: PlanModel): TableRow {
       plans: [],
       modelTier: 'standard',
       capabilities,
+      endpoints: endpointsFor(pm.exactModelName),
       location: '',
       locationCode: '',
       termsOfUseUrl: '',
@@ -646,6 +667,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   embeddings: 'Embedding',
   audio: 'Audio',
   'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image generation',
+  reranking: 'Reranker',
 };
 
 const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {

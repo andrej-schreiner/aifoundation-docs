@@ -30,6 +30,7 @@ For plan prices and rate limits, see [Plans & pricing](/plans).
 - **Embeddings** — Convert text to vectors for semantic search, clustering, and RAG.
 - **Audio** — Speech-to-text models for transcription and translation.
 - **Images** — Generate images from text prompts.
+- **Decisions** — Typed answers instead of text from `/decisions`, for agent steps such as tool routing. See [Decision models](/models/decisions).
 
 For data-handling details, see [Enterprise Trust](/reference/enterprise-trust).
 
@@ -108,7 +109,7 @@ print(models.data[0].meta_data)
 
 | Category | Examples | Use case |
 |---|---|---|
-| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5, Qwen 3.6 | Text generation, chat, reasoning, image input (Text, Image) |
+| **LLM** | GPT-OSS 120B, GLM 5.3, Claude Sonnet 5.5, Qwen 3.6 | Text generation, chat, reasoning, image input (Text, Image) |
 | **Embedding** | jina-embeddings-v2-base-de, text-embedding-bge-m3 | Semantic search, RAG |
 | **Audio/STT** | whisper-large-v3, whisper-large-v3-turbo | Speech-to-text, translation |
 | **Image generation** | gpt-image-2 | Image creation from text prompts |

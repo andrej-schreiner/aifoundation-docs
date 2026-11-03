@@ -205,7 +205,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-5",
+        model="claude-sonnet-5.5",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ Dafür ist die strukturierte Blockform einer Nachricht nötig (eine Liste von Te
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-5",
+        "model": "claude-sonnet-5.5",
         "messages": [
           {
             "role": "system",
@@ -311,7 +311,7 @@ Prompt-Tokens, die aus dem Prefix-Cache bedient werden, werden mit **15 % des no
 | Übrige Prompt-Tokens | Voller Input-Token-Preis |
 | Completion-Tokens (nie zwischengespeichert) | Voller Output-Token-Preis |
 
-Beispiel: GLM 5.2 kostet 1,50 € pro Million Input-Tokens, zwischengespeicherte Prompt-Tokens also 0,225 € pro Million.
+Beispiel: GLM 5.3 kostet 1,40 € pro Million Input-Tokens, zwischengespeicherte Prompt-Tokens also 0,21 € pro Million.
 
 :::note[Nur T-Cloud-gehostete Modelle]
 Der Preis von 15 % für zwischengespeicherte Tokens gilt für **T-Cloud-gehostete Sprachmodelle** — also die im [Modellvergleich](/de/models) mit `T-Cloud` gekennzeichneten Modelle. Modelle externer Anbieter (Azure, GCP) sowie Embedding- und Speech-to-Text-Modelle zeigen in der Cached-Preis-Spalte einen Strich (—).

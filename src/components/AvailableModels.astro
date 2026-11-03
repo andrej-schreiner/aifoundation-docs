@@ -11,7 +11,7 @@ import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { isRetiredModel } from '../shared/lib/retirements';
-import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
+import { apiIdPublished, hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { FEATURED_MODEL_IDS, isPreviewOnly, modelPrices } from '../shared/lib/modelCards';
 import { formatEuro } from '../shared/lib/displayFormat';
 
@@ -215,7 +215,7 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
               {model.preview && <Tag size="small">{t.preview}</Tag>}
               {pricing && model.premium && <Tag size="small">{t.premium}</Tag>}
             </h3>
-            {!pricing && (
+            {!pricing && apiIdPublished(model.modelId) && (
               <Button
                 variant="ghost"
                 size="small"
