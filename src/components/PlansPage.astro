@@ -417,6 +417,7 @@ function mapModelRow(
     catalogRank: catalogRank(displayName),
     subName: localizeSubName(model.modelLabel || ''),
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
+    imageInputPrice: model.imageInputPricePerMillionTokens ?? fallbackModel.imageInputPricePerMillionTokens ?? null,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
     isNew: isNewModel(exactModelName),
     // Embedding models return vectors, not tokens: they show an input price only.
