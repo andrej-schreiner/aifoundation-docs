@@ -3,12 +3,17 @@ title: "Coding models"
 description: "Code-tuned language models on AI Foundation Services. Filter by cloud, provider, plan, and features."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 import ModelPick from '../../../components/ModelPick.astro';
 
 Models tagged for code completion, refactoring, and review. They use the same Chat Completions endpoint as the other chat models.
 
-Next: [Function calling](/guides/function-calling) · [Integrations](/integrations) · [Recommended models](/getting-started/choosing-a-model)
+<div class="link-card-row">
+  <LinkCard title="Function calling" href="/guides/function-calling" />
+  <LinkCard title="Integrations" href="/integrations" />
+  <LinkCard title="Recommended models" href="/getting-started/choosing-a-model" />
+</div>
 
 <ModelPick useCase="coding" />
 

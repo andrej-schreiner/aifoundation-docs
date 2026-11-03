@@ -3,12 +3,17 @@ title: "Image generation"
 description: "Image generation models on AI Foundation Services that turn text prompts (and optionally images) into images."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 import ModelPick from '../../../components/ModelPick.astro';
 
 Generate images from text prompts and optional reference images. These are partner models. Available via `POST /images/generations`.
 
-Next: [Image generation guide](/guides/image-generation) · [All models](/models) · [Plans](/plans)
+<div class="link-card-row">
+  <LinkCard title="Image generation guide" href="/guides/image-generation" />
+  <LinkCard title="All models" href="/models" />
+  <LinkCard title="Plans" href="/plans" />
+</div>
 
 <ModelPick useCase="image" />
 

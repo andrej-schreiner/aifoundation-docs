@@ -3,12 +3,16 @@ title: "Audio (speech-to-text)"
 description: "Whisper-family speech-to-text models on AI Foundation Services for transcription and translation. Filter by cloud, plan, and features."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 import ModelPick from '../../../components/ModelPick.astro';
 
 Whisper-family models for transcription and translation. Available via `POST /audio/transcriptions` and `POST /audio/translations`.
 
-Next: [Speech-to-text guide](/guides/audio) · [All models](/models)
+<div class="link-card-row">
+  <LinkCard title="Speech-to-text guide" href="/guides/audio" />
+  <LinkCard title="All models" href="/models" />
+</div>
 
 <ModelPick useCase="audio" />
 

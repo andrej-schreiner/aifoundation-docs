@@ -3,12 +3,17 @@ title: "OCR-Modelle"
 description: "OCR-Modelle auf AI Foundation Services, die gescannte Dokumente, PDFs und Fotos in Markdown, Tabellen und strukturierten Text umwandeln."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Wandeln Sie gescannte Dokumente, PDFs und Fotos in Markdown, HTML-Tabellen und LaTeX um. Diese Modelle erhalten als Eingabe das Bild einer Seite oder eines Seitenelements. Verfügbar über `POST /chat/completions`.
 
-Weiter: [OCR](/de/guides/ocr) · [Tarife](/de/plans) · [Alle Modelle](/de/models)
+<div class="link-card-row">
+  <LinkCard title="OCR" href="/de/guides/ocr" />
+  <LinkCard title="Tarife" href="/de/plans" />
+  <LinkCard title="Alle Modelle" href="/de/models" />
+</div>
 
 <ModelPick useCase="ocr" />
 

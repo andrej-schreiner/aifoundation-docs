@@ -99,6 +99,9 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   the content column with its edges, no backdrop behind them; each has its
   own close button and session memory. Current pages only: archived
   pages have the archive bar (`ArchiveBanner`) instead, with the same edges.
+- **Next steps**: a page's "Next:" links are link cards in a
+  `<div class="link-card-row">` (as on the home page's Integrations), the
+  link texts as titles; no "Next:" line of text links.
 - **Site navigation**: every sidebar group starts open (no `collapsed` in
   `astro.config.mjs`); a visitor can close groups with the chevrons.
 - **One models table**: every list of models is `ModelsComparison` with a

@@ -527,6 +527,7 @@ Starlight's `LinkCard` and `Card` in one frame: the chrome surface, a subtle bor
 
 - **Link card** points to another page. The whole card is the link; the arrow sits at the end, centred on the text. On hover and focus the border turns magenta and the arrow moves a little; keyboard focus adds the button's focus ring.
 - **Card** only informs, so it has no hover. Its icon is drawn in the text colour.
+- **Next steps** after a page's intro or its last section are link cards in a `link-card-row`, as in the home page's Integrations section: the link texts as card titles, a description only where one was written for the card (never a made-up one). The quickstart, Coding agent setup and the model pages use them in place of a "Next:" line of text links.
 - **Previous and next links** at the end of every page (Starlight's pagination) are link cards too: "Previous" or "Next" in the description colour, the page title as the card title, the arrow at the outer edge, moving outward on hover. Starlight renders them; they are restyled in `redesign.css`. This page has none; see the end of [Authentication](/getting-started/authentication/).
 
 Several cards go in a `CardGrid`: one column, then two equal columns from 768px.
@@ -565,7 +566,7 @@ Several cards go in a `CardGrid`: one column, then two equal columns from 768px.
 | `Card` | `title`, `icon` (a Starlight icon name); text in the slot | A short point that needs no link |
 | `CardGrid` | cards in the slot | Two or more cards side by side |
 
-Used in: the home page, Get started, Guides, Integrations, Plans and API transition (link cards, often in a `CardGrid`); the previous and next links on every page with a sidebar. The plain `Card` is not used on a page yet.
+Used in: the home page, Get started, Guides, Integrations, Plans and API transition (link cards, often in a `CardGrid`); the next-step rows on the quickstart, Coding agent setup and the model pages; the previous and next links on every page with a sidebar. The plain `Card` is not used on a page yet.
 
 </ComponentCard>
 
