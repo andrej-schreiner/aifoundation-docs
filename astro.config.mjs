@@ -352,6 +352,8 @@ export default defineConfig({
 				Footer: './src/components/Footer.astro',
 				Header: './src/components/SiteHeader.astro',
 				MobileMenuFooter: './src/components/MobileMenuFooter.astro',
+				// Starlight's title without starlight-versions' note (the archive bar has it).
+				PageTitle: './src/components/PageTitle.astro',
 			},
 			logo: {
 				src: './src/assets/favicon_180x180.png',

@@ -1,0 +1,8 @@
+---
+// Site part, not for reuse. Starlight's PageTitle slot (astro.config.mjs): Starlight's
+// own title, without the note starlight-versions adds under it on archived pages
+// ("This content is for vX…"). The archive bar (ArchiveBanner.astro) already says it.
+import Default from '@astrojs/starlight/components/PageTitle.astro';
+---
+
+<Default><slot /></Default>
