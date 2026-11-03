@@ -151,6 +151,8 @@ component or token, and ask. A GAP note is a good result, not a failure.
 
 1. `bun run tokens` — if you touched tokens (fails on broken aliases).
 2. `bun run build` — must complete (currently 373 pages).
+   If you moved, renamed or removed a page: `bun run check:urls <preview URL>`
+   must report no BAD URL (add a redirect in `astro.config.mjs`).
 3. Look at what you changed in the browser (`bun run dev`, port 4321;
    or `bun run dev --port 4322` in a worktree): light **and** dark mode,
    **375px and 1440px**, English **and** German. No page may scroll sideways.
