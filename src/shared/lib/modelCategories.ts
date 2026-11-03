@@ -31,7 +31,7 @@ const PRIMARY_CATEGORY: Record<string, ModelCategory> = {
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Reranker: SD v1.25 model type "Reranker". Not an LLM, so not on /models/llms.
-  'Qwen/Qwen3-Reranker-4B': 'reranking',
+  'Qwen3-Reranker-4B': 'reranking',
   // Image generation: outputs Image. Primary 'image-generation' keeps them off
   // /models/llms.
   'gemini-3-pro-image': 'image-generation',

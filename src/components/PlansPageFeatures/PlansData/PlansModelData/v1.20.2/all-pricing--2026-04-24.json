@@ -1052,7 +1052,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "Qwen/Qwen3-Reranker-4B",
+        "exactModelName": "Qwen3-Reranker-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 600000,
@@ -2403,7 +2403,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "Qwen/Qwen3-Reranker-4B",
+        "exactModelName": "Qwen3-Reranker-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 1200000,
@@ -3829,7 +3829,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "Qwen/Qwen3-Reranker-4B",
+        "exactModelName": "Qwen3-Reranker-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 2000000,
