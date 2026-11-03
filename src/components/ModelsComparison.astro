@@ -38,8 +38,10 @@ type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generati
 // Capability-derived filter for pages where "show me every model that can do
 // X" beats curating a category list. Vision is the motivating case: an LLM
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
-// so a category-only model would hide it from /models/vision.
-type CapabilityFilter = 'accepts-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
+// so a category-only model would hide it from /models/vision. OCR is the
+// other: its models take an image and no text (see the overrides below), so
+// /models/ocr lists the models whose only input is Image.
+type CapabilityFilter = 'accepts-image' | 'accepts-only-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
 // One table for every list of models. A preset picks its columns and filters:
 //   catalog  All models: every attribute, Category included.
 //   useCase  The "For …" pages: as catalog, without Category.
@@ -424,6 +426,7 @@ function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined):
   const outputs = m.capabilities.outputModalities;
   switch (cap) {
     case 'accepts-image': return inputs.includes('Image');
+    case 'accepts-only-image': return inputs.length === 1 && inputs[0] === 'Image';
     case 'accepts-audio': return inputs.includes('Audio');
     case 'emits-audio':   return outputs.includes('Audio');
     case 'emits-image':   return outputs.includes('Image');
