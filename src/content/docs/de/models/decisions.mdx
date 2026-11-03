@@ -3,12 +3,17 @@ title: "Decision-Modelle"
 description: "Modelle auf AI Foundation Services, die den Endpunkt /decisions bedienen und typisierte Antworten (eine Wahrscheinlichkeit, eine Auswahl oder einen Score) statt Text liefern."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Modelle für die Decisions-API. Sie liefern typisierte Antworten (eine Wahrscheinlichkeit, eine Option aus einer Liste oder eine Stufe auf einer Skala) statt Text, für Agentenschritte wie Tool-Routing, Freigabeprüfungen und Grounding-Checks. Verfügbar über `POST /decisions`.
 
-Weiter: [Decisions](/de/guides/decisions) · [API-Endpunkte](/de/reference/api-endpoints) · [Alle Modelle](/de/models)
+<div class="link-card-row">
+  <LinkCard title="Decisions" href="/de/guides/decisions" />
+  <LinkCard title="API-Endpunkte" href="/de/reference/api-endpoints" />
+  <LinkCard title="Alle Modelle" href="/de/models" />
+</div>
 
 <ModelPick useCase="decisions" />
 

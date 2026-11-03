@@ -3,12 +3,17 @@ title: "Decision models"
 description: "Models on AI Foundation Services that serve the /decisions endpoint and return typed answers (a probability, a choice or a score) instead of text."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 import ModelPick from '../../../components/ModelPick.astro';
 
 Models that serve the Decisions API. They return typed answers (a probability, one option from a list, or a level on a rubric) instead of text, for agent steps such as tool routing, approval gates and grounding checks. Available via `POST /decisions`.
 
-Next: [Decisions guide](/guides/decisions) · [API endpoints](/reference/api-endpoints) · [All models](/models)
+<div class="link-card-row">
+  <LinkCard title="Decisions guide" href="/guides/decisions" />
+  <LinkCard title="API endpoints" href="/reference/api-endpoints" />
+  <LinkCard title="All models" href="/models" />
+</div>
 
 <ModelPick useCase="decisions" />
 

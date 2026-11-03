@@ -10,6 +10,9 @@
 //   title. A file name is never made up: a block only gets one through title=
 //   where the text names the file.
 // - text, plain fences and unknown languages: the plain code frame, no header.
+// - Inside a Starlight <TabItem>, an automatic title that only repeats the
+//   tab's label (case-insensitive: tab "Python" over a Python block) is left
+//   out; the frame stays. Explicit titles are kept.
 // - Archived pages (v1, v1-1-0, v1-2-0) are frozen: their blocks keep the plain
 //   frame when untitled, as before.
 const TERMINAL_TITLES = {
@@ -53,6 +56,53 @@ const LANGUAGE_LABELS = {
 
 const ARCHIVED = /[\\/]content[\\/]docs[\\/](?:de[\\/])?v1(?:-1-0|-2-0)?[\\/]/;
 
+// Tab label of each code block in a document, in the order rehype-expressive-
+// code numbers them (groupIndex). Read once per document, before the first
+// block is rendered and replaced in the tree.
+const tabLabelsByRoot = new WeakMap();
+
+function isCodeBlock(node) {
+	const code = node.children?.[0];
+	return (
+		node.tagName === 'pre' &&
+		node.children.length === 1 &&
+		code.type === 'element' &&
+		code.tagName === 'code' &&
+		code.children?.[0]?.type === 'text'
+	);
+}
+
+function tabLabels(root) {
+	const labels = [];
+	const walk = (node, label) => {
+		if (node.type === 'element' && isCodeBlock(node)) labels.push(label);
+		if (
+			(node.type === 'mdxJsxFlowElement' || node.type === 'mdxJsxTextElement') &&
+			node.name === 'TabItem'
+		) {
+			const attr = node.attributes?.find((a) => a.name === 'label');
+			label = typeof attr?.value === 'string' ? attr.value : null;
+		}
+		for (const child of node.children ?? []) walk(child, label);
+	};
+	walk(root, null);
+	return labels;
+}
+
+function tabLabelOf(codeBlock) {
+	const doc = codeBlock.parentDocument;
+	if (!doc?.documentRoot || !doc.positionInDocument) return null;
+	let labels = tabLabelsByRoot.get(doc.documentRoot);
+	if (!labels) {
+		labels = tabLabels(doc.documentRoot);
+		tabLabelsByRoot.set(doc.documentRoot, labels);
+	}
+	return labels[doc.positionInDocument.groupIndex] ?? null;
+}
+
+const repeatsTab = (title, tabLabel) =>
+	tabLabel != null && title.trim().toLowerCase() === tabLabel.trim().toLowerCase();
+
 export function ecFrameTitles() {
 	return {
 		name: 'aifs-frame-titles',
@@ -66,13 +116,15 @@ export function ecFrameTitles() {
 					return;
 				}
 				if (frame !== 'auto') return;
+				const tabLabel = tabLabelOf(codeBlock);
 				const terminalTitle = TERMINAL_TITLES[language];
 				if (terminalTitle) {
 					props.frame = 'terminal';
-					if (!props.title) props.title = terminalTitle;
+					if (!props.title && !repeatsTab(terminalTitle, tabLabel)) props.title = terminalTitle;
 					return;
 				}
-				if (!props.title && LANGUAGE_LABELS[language]) props.title = LANGUAGE_LABELS[language];
+				const label = LANGUAGE_LABELS[language];
+				if (!props.title && label && !repeatsTab(label, tabLabel)) props.title = label;
 				props.frame = 'code';
 			},
 		},

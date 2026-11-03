@@ -580,7 +580,7 @@ Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), wi
 - **A file name** only where the page names the file the code goes into ("Create `~/.continue/.env`", "opens an empty `config.yaml`"): add `title="…"` after the language. Never make one up: a plausible but wrong file name misleads.
 - **Otherwise the language** as the title: Python, JavaScript, TypeScript, JSON, YAML, Markdown and so on. No `title` needed; it is set from the language.
 - **No header** for `text` blocks and fences without a language (output, a URL, a formula), and on archived pages, which are frozen.
-- In **tabs** the block keeps its header: the tab names the choice, the header the kind of code.
+- In **tabs** the block keeps its header, unless the automatic title would only repeat the tab's label (case-insensitive): a Python block on a "Python" tab has no title, so a code block has no header bar and a terminal block keeps its frame without a title. A `title=` you set is always kept.
 - **Highlight** only the lines the text talks about.
 
 <Showcase label="With a file name" block>
@@ -642,6 +642,7 @@ curl https://llm-server.llmhub.t-systems.net/v2/models \
 | ` ```python title="chat.py" ` | The file name in the title bar |
 | ` ```python ` | "Python" in the title bar |
 | ` ```bash ` | The terminal frame, titled "Terminal" |
+| ` ```python ` on a "Python" tab | No title: it would repeat the tab label |
 | ` ```text ` | No title bar |
 | ` ```python {2,4} ` | Highlights lines 2 and 4 |
 | ` ```js ins={3} del={2} ` | Marks line 3 as added and line 2 as removed |

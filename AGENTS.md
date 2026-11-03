@@ -45,7 +45,7 @@ exist. Do not invent one.
 | Models table (the only one: Models page, use cases, plans) | `ModelsComparison.astro` | `columns` catalog · useCase · plan; `category`; `capabilityFilter`; `plans`, `plan`, `planLocked` (plan preset) |
 | Plans page (rate plans + its models table) | `PlansPage.astro` (renders `ModelsComparison` with the plan preset) | `selectedPlanId` |
 | Aside, card, link card, card grid, tabs, steps, file tree | Starlight's own (`:::note`, `<Card>`, `<LinkCard>`, `<CardGrid>`, `<Tabs>`, `<Steps>`, `<FileTree>`) | restyled to our tokens; use them as Starlight documents them |
-| Code block | fenced Markdown code | long lines wrap; shell languages get the terminal frame ("Terminal", "PowerShell", "Command Prompt"), other languages their name as the title (`src/plugins/ec-frame-titles.mjs`); `title="file.py"` only where the page names that file; `text` blocks have no header |
+| Code block | fenced Markdown code | long lines wrap; shell languages get the terminal frame ("Terminal", "PowerShell", "Command Prompt"), other languages their name as the title (`src/plugins/ec-frame-titles.mjs`), except where that title would repeat its tab's label; `title="file.py"` only where the page names that file; `text` blocks have no header |
 
 Site parts, not for reuse (Starlight slots and single-page tables):
 `SiteHeader`, `Footer`, `ArchiveBanner`, `PageTitle`, `MobileMenuFooter`,
