@@ -113,8 +113,9 @@ When a new SD version is published, check the docs against it in the same change
 2. Compare every `inputTokenPerMinuteLimit`, `outputTokenPerMinuteLimit` and
    `requestPerMinuteLimit` in the current pricing JSON,
    `src/components/PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json`
-   (it feeds `PlansPage.astro` and `ModelsComparison.astro`). A value the SD does
-   not list is `null`, which the tables show as "—".
+   (it feeds `PlansPage.astro` and `ModelsComparison.astro`; it is the rate plans
+   export of the AIFS Serving UI's Plans page). A value the SD does not list is
+   `null`, which the tables show as "—".
 3. Check the figures written into the pages, EN and DE together:
    `reference/rate-limits.mdx` (plan table and per-model examples), `faq.mdx`
    ("What are the rate limits?"), and the wording in `plans/index.mdx`,

@@ -381,7 +381,6 @@ html:not([data-has-sidebar]) .meta {
 	}
 }
 
-.plans-table th a,
 .models-comparison-table thead th a,
 .sl-markdown-content th a {
 	color: inherit;
@@ -409,8 +408,6 @@ textarea {
 .sl-markdown-content:has(.plans-page) .link-card-row,
 .plans-page,
 .plans-page .rate-plans-section,
-.plans-page .table-wrapper,
-.plans-table,
 .models-comparison,
 .models-comparison__scroll,
 .models-comparison-table {
@@ -433,7 +430,6 @@ sup {
 }
 
 .sl-markdown-content sup a,
-.plans-table sup a,
 .plan-tile sup a,
 .models-comparison-table sup a,
 .starlight-aside sup a {
