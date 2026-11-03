@@ -2,10 +2,12 @@
 // Recommended models for one use case, built on the model card
 // (AvailableModels): the same frame and header (logo, name, copy
 // button with its success tooltip), plus the model ID as code under the
-// name, then label–value rows for context and hosting. Tokens:
+// name, smaller and muted, then the facts (context, hosting) under a
+// divider, each a small muted label above its value. Tokens:
 // aifs.model-card.*.
 import { choiceById, picksFor } from '../shared/lib/choosingModels';
 import { creatorNameFor } from '../shared/lib/logos';
+import { withWrapPoints } from '../plugins/wrap-points.mjs';
 import Logo from './Logo.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
@@ -89,7 +91,7 @@ function place(hosting: string): string {
                 {model.name}
                 {model.preview && <Tag size="small">{t.preview}</Tag>}
               </h3>
-              <code class="model-pick__id">{model.id}</code>
+              <code class="model-pick__id" set:html={withWrapPoints(model.id)} />
             </div>
             <Button
               variant="ghost"
@@ -106,14 +108,14 @@ function place(hosting: string): string {
               <Icon slot="success" name="action-checkmark" size={16} />
             </Button>
           </div>
-          <dl class="model-pick__rows">
+          <dl class="model-pick__facts">
             {model.context && (
-              <div class="model-pick__row">
+              <div class="model-pick__fact">
                 <dt>{t.context}</dt>
                 <dd>{model.context}</dd>
               </div>
             )}
-            <div class="model-pick__row">
+            <div class="model-pick__fact">
               <dt>{t.hosting}</dt>
               <dd>
                 <Tag size="small" color={model.hosting.startsWith('T-Cloud') ? 'magenta' : 'standard'} href={`${prefix}/reference/enterprise-trust`}>
@@ -174,13 +176,17 @@ function place(hosting: string): string {
   }
 
   /* The model card's frame; it only informs, so it has no hover. A size
-     container, so the copy tooltip stays inside the card. */
+     container, so the copy tooltip stays inside the card. Each card spans
+     two rows of the list (subgrid): the headers of a row of cards share
+     one height, so their facts start on one line, and the cards are as
+     tall as the tallest. */
   .model-pick__card {
     container-type: inline-size;
     --aifs-tooltip-inset: var(--aifs-model-card-padding);
-    display: flex;
-    flex-direction: column;
-    gap: var(--aifs-model-card-gap);
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: var(--aifs-model-card-gap);
     margin: 0;
     padding: var(--aifs-model-card-padding);
     border: var(--aifs-model-card-border-width) solid var(--aifs-model-card-border);
@@ -189,15 +195,19 @@ function place(hosting: string): string {
     color: var(--aifs-model-card-value);
   }
 
+  /* First the name, then the model ID under it, smaller and muted. */
   .model-pick__head {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--aifs-model-card-logo-gap);
   }
 
   .model-pick__title {
     flex: 1;
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-model-card-stack-gap);
   }
 
   .model-pick__name {
@@ -212,12 +222,18 @@ function place(hosting: string): string {
     color: var(--aifs-model-card-value);
   }
 
-  .model-pick__id {
+  /* Wraps only at its wrap points (after - . / _), never inside a word.
+     Without the inline-code frame of the Markdown content, so it stays
+     secondary to the name. */
+  .model-pick .model-pick__id {
     display: block;
-    font-size: var(--aifs-code-block-font-size);
     width: fit-content;
     max-width: 100%;
-    overflow-wrap: anywhere;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
     color: var(--aifs-model-card-label);
   }
 
@@ -225,33 +241,38 @@ function place(hosting: string): string {
     flex: none;
   }
 
-  .model-pick__rows {
-    display: flex;
-    flex-direction: column;
-    gap: var(--aifs-model-card-row-gap);
-    margin: 0;
-  }
-
-  /* If a card is too narrow, the value wraps under its label and stays at
-     the end edge. */
-  .model-pick__row {
+  /* The facts under a divider, side by side while they fit: each a small
+     muted label above its value. */
+  .model-pick__facts {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--aifs-model-card-row-gap);
+    align-content: flex-start;
+    gap: var(--aifs-model-card-row-gap) var(--aifs-model-card-gap);
+    margin: 0;
+    padding-top: var(--aifs-model-card-gap);
+    border-top: var(--aifs-model-card-border-width) solid var(--aifs-layout-divider);
+  }
+
+  .model-pick__fact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aifs-model-card-stack-gap);
     margin: 0;
   }
 
-  .model-pick__row dt {
-    flex: none;
+  .model-pick__fact dt {
+    margin: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
     color: var(--aifs-model-card-label);
     font-weight: normal;
     white-space: nowrap;
   }
 
-  .model-pick__row dd {
-    margin: 0 0 0 auto;
+  .model-pick__fact dd {
+    margin: 0;
+    padding: 0;
     font-weight: var(--aifs-model-card-value-font-weight);
   }
 

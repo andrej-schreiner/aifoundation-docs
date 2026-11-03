@@ -411,6 +411,7 @@
 	--aifs-model-card-gap: 16px;
 	--aifs-model-card-grid-gap: 16px;
 	--aifs-model-card-row-gap: 8px;
+	--aifs-model-card-stack-gap: 4px;
 	--aifs-model-card-logo-padding: 2px;
 	--aifs-model-card-logo-gap: 12px;
 	--aifs-model-card-flag-size: 20px;
@@ -929,6 +930,7 @@
 	--aifs-model-card-gap: 16px;
 	--aifs-model-card-grid-gap: 16px;
 	--aifs-model-card-row-gap: 8px;
+	--aifs-model-card-stack-gap: 4px;
 	--aifs-model-card-logo-padding: 2px;
 	--aifs-model-card-logo-gap: 12px;
 	--aifs-model-card-flag-size: 20px;
