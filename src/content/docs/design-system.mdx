@@ -770,6 +770,8 @@ The one table for every list of models: All models, the "For …" pages and the 
 
 Filters: `catalog` and `useCase` filter by provider, cloud, input, output, streaming, tools and plan (`catalog` also by category); `plan` by provider, cloud, location and input and output price. On the plans overview a plan field comes first and switches the rows; a filter then offers only that plan's values.
 
+A filter at All hides no model, not even one with that value unset (no inputs listed, no location). Once narrowed, a filter keeps only the models whose value is set and chosen, and the count reads **Showing N of M**.
+
 - **Filter row:** three filters, the most general first (`catalog`: category, provider, plans; `useCase`: provider, cloud, plans; `plan`: provider, cloud, location), then **All filters (n)**: a panel at the window's end edge with every filter, as checkboxes, and **Show N models** / **Clear all** at its foot. It is a modal dialog: focus moves in, Escape closes it, the page behind is dimmed and inert, and focus returns to the button. Tokens: `aifs.filter-panel.*`.
 - **Applied filters:** under the row, one chip per narrowed filter ("Provider: OpenAI, Google"); a chip removes its filter, **Clear all** removes them all. They replace the Reset button.
 - **Phones:** no fields in the row, only a **Filters (n)** button that opens the same panel at full width; the chips wrap.
