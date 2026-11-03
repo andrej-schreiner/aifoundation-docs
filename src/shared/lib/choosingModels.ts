@@ -4,7 +4,7 @@ import { isHiddenModel } from './hiddenModels';
 import { isRetiredModel } from './retirements';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
-export const LAST_REVIEWED = '2026-11-02';
+export const LAST_REVIEWED = '2026-11-03';
 
 const REVIEWED_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const REVIEWED_MONTHS_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -128,11 +128,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'reasoning',
     useCase: { en: 'Reasoning and complex tasks', de: 'Komplexe Aufgaben' },
+    // GLM 5.3 replaces GLM 5.2, which retires on 2026-11-30 (Andrej, 2026-11-03).
     recommended: 'GLM-5.3',
-    alternative: 'GLM-5.2',
+    alternative: 'GLM-5.3-Flash',
     notes: {
-      en: 'GLM 5.3 and GLM 5.2 run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max.',
-      de: 'GLM 5.3 und GLM 5.2 laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max.',
+      en: 'GLM 5.3 and GLM 5.3 Flash run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max on GLM 5.3, and low, high, and max on GLM 5.3 Flash.',
+      de: 'GLM 5.3 und GLM 5.3 Flash laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max bei GLM 5.3 und low, high und max bei GLM 5.3 Flash.',
     },
     guide: '/guides/reasoning',
   },
