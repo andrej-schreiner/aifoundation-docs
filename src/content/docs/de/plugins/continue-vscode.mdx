@@ -24,19 +24,19 @@ Nach der ersten Installation öffnen Sie das Continue-Plugin für AI Engineer un
 
 1. Wählen Sie eine Modell-ID aus [Verfügbare Modelle](/de/models):
 
-```yaml
+```yaml title="config.yaml"
 model: gpt-oss-120b
 ```
 
 2. Stellen Sie die Basis-URL ein:
 
-```yaml
+```yaml title="config.yaml"
 apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
 ```
 
 3. Erzeugen Sie einen API-Schlüssel unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard) und verweisen Sie aus einem Continue-Secret darauf:
 
-```yaml
+```yaml title="config.yaml"
 apiKey: ${{ secrets.OPENAI_API_KEY }}
 ```
 
@@ -44,14 +44,14 @@ apiKey: ${{ secrets.OPENAI_API_KEY }}
 
 4. Weisen Sie dem Modell eine oder mehrere Rollen zu, zum Beispiel `chat`, `edit`, `apply`, `autocomplete` oder `embed`:
 
-```yaml
+```yaml title="config.yaml"
 roles:
   - chat
 ```
 
 ### Beispiel `config.yaml`
 
-```yaml
+```yaml title="config.yaml"
 name: Local Config
 version: 1.0.0
 schema: v1
@@ -102,7 +102,7 @@ Unter macOS und Windows übernimmt VS Code Shell-Variablen in der Regel **nicht*
 
 Legen Sie `~/.continue/.env` mit Ihrem Schlüssel an:
 
-```dotenv
+```dotenv title="~/.continue/.env"
 OPENAI_API_KEY=gen-************************************************
 ```
 

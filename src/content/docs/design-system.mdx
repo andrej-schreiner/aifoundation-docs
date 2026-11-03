@@ -573,10 +573,13 @@ Used in: the home page, Get started, Guides, Integrations, Plans and API transit
 
 #### Code block
 
-Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a plain code area, and tinted lines for highlights and diffs. Every block uses the terminal frame, whatever its language: a title bar with three window dots, and the file name in it when there is one (set as the default in `astro.config.mjs`). Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
+Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a plain code area, and tinted lines for highlights and diffs. Every block says what it is in a header bar, so code stands apart from the cards around it (`src/plugins/ec-frame-titles.mjs`, registered in `astro.config.mjs`). Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
 
-- **With a file name** when the code goes into a file. Add `title="…"` after the language; it appears in the title bar.
-- **Without** for examples that are not saved anywhere.
+- **Shell commands** (`bash`, `sh`, `shell`, `console`, `powershell`, `cmd` …) get the terminal frame, with three window dots and the title **Terminal**; PowerShell blocks are titled **PowerShell**, Command Prompt blocks **Command Prompt** (a `bash` block on a CMD tab gets `title="Command Prompt"`).
+- **A file name** only where the page names the file the code goes into ("Create `~/.continue/.env`", "opens an empty `config.yaml`"): add `title="…"` after the language. Never make one up: a plausible but wrong file name misleads.
+- **Otherwise the language** as the title: Python, JavaScript, TypeScript, JSON, YAML, Markdown and so on. No `title` needed; it is set from the language.
+- **No header** for `text` blocks and fences without a language (output, a URL, a formula), and on archived pages, which are frozen.
+- In **tabs** the block keeps its header: the tab names the choice, the header the kind of code.
 - **Highlight** only the lines the text talks about.
 
 <Showcase label="With a file name" block>
@@ -593,7 +596,7 @@ response = client.chat.completions.create(
 
 </Showcase>
 
-<Showcase label="Without a file name" block>
+<Showcase label="Language as the title (no file name)" block>
 
 ```json
 { "model": "gpt-oss-120b", "stream": true }
@@ -624,7 +627,7 @@ const client = new OpenAI({
 
 </Showcase>
 
-<Showcase label="Shell command" block>
+<Showcase label="Shell command: terminal frame" block>
 
 ```bash
 curl https://llm-server.llmhub.t-systems.net/v2/models \
@@ -636,6 +639,9 @@ curl https://llm-server.llmhub.t-systems.net/v2/models \
 | In Markdown | Effect |
 |---|---|
 | ` ```python title="chat.py" ` | The file name in the title bar |
+| ` ```python ` | "Python" in the title bar |
+| ` ```bash ` | The terminal frame, titled "Terminal" |
+| ` ```text ` | No title bar |
 | ` ```python {2,4} ` | Highlights lines 2 and 4 |
 | ` ```js ins={3} del={2} ` | Marks line 3 as added and line 2 as removed |
 | ` ```diff ` | A diff, with `+` and `-` at the line starts |
