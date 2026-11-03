@@ -15,10 +15,13 @@ function localizeDigits(text: string, locale: NumberLocale): string {
   return text.replace(/[.,]/g, (mark) => (mark === '.' ? ',' : '.'));
 }
 
-/** Euro amounts share one spelling: €0.00, €0.05, no space after the symbol. German: 0,05 € with a no-break space. */
+/**
+ * Euro amounts share one spelling: €0.00, €0.05, no space after the symbol. German: 0,05 € with a no-break space.
+ * With more than two digits, trailing zeros are dropped (€0.0225, €0.3); zero stays €0.00 like every other zero price.
+ */
 export function formatEuro(value: number | null | undefined, digits = 2, locale: NumberLocale = 'en'): string {
   if (value == null) return 'xx';
-  const text = digits <= 2 ? value.toFixed(2) : value.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '');
+  const text = digits <= 2 || value === 0 ? value.toFixed(2) : value.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '');
   if (locale === 'de') return `${localizeDigits(text, 'de')}${EURO_SUFFIX_DE}`;
   return `€${text}`;
 }

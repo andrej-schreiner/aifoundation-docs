@@ -690,7 +690,9 @@ function formatCachedPrice(m: CompiledModel): string {
   if (value == null) return 'xx';
   // A cached price is 15% of the input price, so two decimals would round most
   // of them to a misleading value (0.225 → 0.22, 0.0075 → 0.01). Keep up to
-  // four decimals and drop trailing zeros.
+  // four decimals and drop trailing zeros. Archived pages keep their original
+  // "€0" for a zero cached price; current pages write €0.00 like every zero.
+  if (isArchive && value === 0) return '€0';
   return formatEuro(value, 4, numberLocale);
 }
 
