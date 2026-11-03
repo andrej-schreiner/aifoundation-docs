@@ -1,6 +1,8 @@
 ---
 // Model cards in a grid: one card per catalog model with its logo, name, hosting
 // and a copy button for the model ID. Used on the home page and Models overview.
+// The name is the primary line; the facts follow under a divider, each a small
+// muted label above its stronger value, like the prices.
 import Flag from './Flag.astro';
 import Logo from './Logo.astro';
 import Button from './Button.astro';
@@ -233,12 +235,12 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
             )}
           </div>
           {model.showHosting !== false && model.provider && (
-            <dl class="model-card__rows">
-              <div class="model-card__row">
+            <dl class="model-card__facts">
+              <div class="model-card__fact">
                 <dt>{t.cloud}</dt>
                 <dd><Tag size="small" color={model.provider === 'T-Cloud' ? 'magenta' : 'standard'}>{model.provider}</Tag></dd>
               </div>
-              <div class="model-card__row">
+              <div class="model-card__fact">
                 <dt>{t.serverLocation}</dt>
                 <dd class="model-card__place">
                   {model.countryCode && <Flag code={model.countryCode} size={20} decorative />}
@@ -246,7 +248,7 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
                 </dd>
               </div>
               {model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
-                <div class="model-card__row">
+                <div class="model-card__fact">
                   <dt>{t.dataProcessing}</dt>
                   <dd class="model-card__place">
                     {model.dataProcessingCode && <Flag code={model.dataProcessingCode} size={20} decorative />}
@@ -339,15 +341,18 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
     }
   }
 
-  /* As on ai.t-systems.net/models: a header row (logo, name, copy), then
-     label–value rows with the value at the end edge. */
+  /* A header row (logo, name, copy), then the facts under a divider. Each
+     card spans the rows it uses of the grid (subgrid): header, facts and,
+     on the overview, prices. So the dividers and prices of a row of cards
+     line up, and the cards are as tall as the tallest. */
   .model-card {
     /* A size container, so the copy tooltip stays inside the card. */
     container-type: inline-size;
     --aifs-tooltip-inset: var(--aifs-model-card-padding);
-    display: flex;
-    flex-direction: column;
-    gap: var(--aifs-model-card-gap);
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: var(--aifs-model-card-gap);
     padding: var(--aifs-model-card-padding);
     border: var(--aifs-model-card-border-width) solid var(--aifs-model-card-border);
     border-radius: var(--aifs-model-card-radius);
@@ -356,11 +361,16 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
     text-align: start;
   }
 
+  .model-card--priced {
+    grid-row: span 3;
+  }
+
   .model-card--hidden {
     display: none;
   }
 
   .model-card__head {
+    grid-row: 1;
     display: flex;
     align-items: center;
     gap: var(--aifs-model-card-logo-gap);
@@ -380,26 +390,31 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
     color: var(--aifs-model-card-value);
   }
 
-  .model-card__rows {
-    display: flex;
-    flex-direction: column;
-    gap: var(--aifs-model-card-row-gap);
-    margin: 0;
-  }
-
-  /* If a card is still too narrow, the value wraps under its label and stays
-     at the end edge. */
-  .model-card__row {
+  /* The facts under a divider, side by side while they fit: each a small
+     muted label above its value, as the prices below. */
+  .model-card__facts {
+    grid-row: 2;
+    align-self: start;
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--aifs-model-card-row-gap);
+    gap: var(--aifs-model-card-row-gap) var(--aifs-model-card-gap);
+    margin: 0;
+    padding-top: var(--aifs-model-card-gap);
+    border-top: var(--aifs-model-card-border-width) solid var(--aifs-layout-divider);
+  }
+
+  .model-card__fact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aifs-model-card-stack-gap);
     margin: 0;
   }
 
-  .model-card__row dt {
-    flex: none;
+  .model-card__fact dt {
+    margin: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
     color: var(--aifs-model-card-label);
     font-weight: normal;
     white-space: nowrap;
@@ -411,17 +426,22 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
     display: flex;
     flex-wrap: wrap;
     gap: var(--aifs-model-card-row-gap) var(--aifs-model-card-gap);
-    margin: auto 0 0;
+    grid-row: 3;
+    align-self: end;
+    margin: 0;
   }
 
   .model-card__prices > div {
     display: grid;
+    gap: var(--aifs-model-card-stack-gap);
     margin: 0;
   }
 
   .model-card__prices dt {
     margin: 0;
     font-size: var(--aifs-text-small-font-size);
+    font-weight: normal;
+    line-height: var(--aifs-text-small-line-height);
     color: var(--aifs-model-card-label);
     white-space: nowrap;
   }
@@ -429,17 +449,20 @@ const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, lim
   .model-card__prices dd,
   .model-card__free {
     margin: 0;
+    padding: 0;
     font-weight: var(--aifs-model-card-name-font-weight);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
 
   .model-card__free {
-    margin-top: auto;
+    grid-row: 3;
+    align-self: end;
   }
 
-  .model-card__row dd {
-    margin: 0 0 0 auto;
+  .model-card__fact dd {
+    margin: 0;
+    padding: 0;
   }
 
   .model-card__place {

@@ -714,7 +714,7 @@ The message goes in the slot.
 
 #### Model card
 
-One available model, as on ai.t-systems.net/models: a header row with the creator logo (the Logo component, large), the model name and a copy button for the model ID; below it, label–value rows with the value at the end edge. The cloud is a small tag (T-Cloud magenta, others standard), the server location a 20px flag and the country in bold. A third row, Data processing, appears only when it differs from the server location. Preview models get a small tag after the name. The card only informs, so it has no hover. Tokens: `aifs.model-card.*`; the frame aliases `aifs.card.*`.
+One available model: a header row with the creator logo (the Logo component, large), the model name as the primary line (bold) and a copy button for the model ID; below a divider, the facts side by side while they fit, each a small muted label above its value. The cloud is a small tag (T-Cloud magenta, others standard), the server location a 20px flag and the country in bold. A third fact, Data processing, appears only when it differs from the server location. Preview models get a small tag after the name. In a row of cards each card spans the grid's rows (subgrid), so the dividers and the prices line up and the cards are as tall as the tallest. The card only informs, so it has no hover. Tokens: `aifs.model-card.*` (`stack-gap`, 4px, between a label and its value); the frame aliases `aifs.card.*`.
 
 The copy button uses the button's success state: the icon turns into a green tick, a tooltip says what was copied, and a live region announces it. Click it to try.
 
@@ -737,7 +737,7 @@ The copy button uses the button's success state: the icon turns into a green tic
 
 The grid's columns follow the grid's own width (a container query), not the window's, so the cards never get narrower than their longest row.
 
-**Recommended models** (`ModelPick`) use the same card for the picks at the top of each model page. The model ID is shown as code under the name, because people come there to choose a model and copy its ID; the rows are Context and Hosting, and the hosting tag links to Enterprise Trust. A note and a link to the matching guide follow the cards.
+**Recommended models** (`ModelPick`) use the same card for the picks at the top of each model page. The model ID is shown as code under the name, smaller and muted, because people come there to choose a model and copy its ID; it wraps only at its wrap points (after `-`, `.`, `/`, `_`), never inside a word. The facts are Context and Hosting, and the hosting tag links to Enterprise Trust. A note and a link to the matching guide follow the cards.
 
 <Showcase label="Recommended models: ModelPick useCase=&quot;chat&quot;" block>
 
