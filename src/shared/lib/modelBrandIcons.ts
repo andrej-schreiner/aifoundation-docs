@@ -6,6 +6,7 @@ import MistralIcon from '../../assets/icons/model-brand/icon-mistral.svg?url';
 import AlibabaCloudIcon from '../../assets/icons/model-brand/qwen2.png?url';
 import NvidiaIcon from '../../assets/icons/model-brand/nvidia.svg?url';
 import ZhipuIcon from '../../assets/icons/model-brand/zhipu.svg?url';
+import DeepSeekIcon from '../../assets/icons/model-brand/deepseek.png?url';
 // import JinaAIIcon from '../../assets/icons/model-brand/other.svg?url';
 // import BAAIIcon from '../../assets/icons/model-brand/other.svg?url';
 import TSystemsIcon from '../../assets/icons/model-brand/t-systems.png?url';
@@ -23,6 +24,7 @@ export const modelBrandIcons: Record<string, string> = {
   'Alibaba Cloud': AlibabaCloudIcon,
   NVIDIA: NvidiaIcon,
   'Zhipu AI': ZhipuIcon,
+  DeepSeek: DeepSeekIcon,
   // 'Jina AI': JinaAIIcon,
   // BAAI: BAAIIcon,
   'T-Systems': TSystemsIcon,

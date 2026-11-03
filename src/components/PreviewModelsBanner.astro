@@ -1,8 +1,9 @@
 ---
 // Site-wide announcement bars — currently the API transition notice (linking
-// to /api-transition) above GLM 5.3 going live on the paid plans (linking to
-// /plans).
-// It replaced the Qwen3-Reranker-4B preview bar, which replaced the OCR
+// to /api-transition) above the DeepSeek V4.1 Flash preview model (linking to
+// /plans/test).
+// It replaced the GLM 5.3 production bar (live on the paid plans), which
+// replaced the Qwen3-Reranker-4B preview bar, which replaced the OCR
 // preview bar (LightOnOCR-3-4B / PaddleOCR-VL-1.6), which
 // replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
@@ -41,11 +42,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'glm53LiveBannerDismissed',
+        key: 'deepseekV41PreviewBannerDismissed',
         badge: 'Neu',
-        msg: 'Jetzt live: <b>GLM 5.3</b> von Z.ai in allen kostenpflichtigen Tarifen — für Coding und agentische Aufgaben, mit 1M Kontextfenster, gehostet in Deutschland.',
-        cta: 'Zu den Tarifen',
-        href: `${prefix}/plans`,
+        msg: 'Neu in der Preview: <b>DeepSeek V4.1 Flash</b> — mit 1M Kontextfenster, Text- und Bildeingabe, Function Calling und Reasoning, gehostet in Deutschland. Kostenlos testbar.',
+        cta: 'DeepSeek testen',
+        href: `${prefix}/plans/test`,
       },
     ]
   : [
@@ -57,11 +58,11 @@ const bars = isDE
         href: `${prefix}/api-transition`,
       },
       {
-        key: 'glm53LiveBannerDismissed',
+        key: 'deepseekV41PreviewBannerDismissed',
         badge: 'New',
-        msg: 'Now live: <b>GLM 5.3</b> from Z.ai on all paid plans — built for coding and agentic tasks, with a 1M context window, hosted in Germany.',
-        cta: 'View plans',
-        href: `${prefix}/plans`,
+        msg: 'New in preview: <b>DeepSeek V4.1 Flash</b> — a 1M context window, text and image input, function calling and reasoning, hosted in Germany. Free to try.',
+        cta: 'Try DeepSeek',
+        href: `${prefix}/plans/test`,
       },
     ];
 ---

@@ -14,6 +14,7 @@ export type CreatorKey =
   | 'Alibaba Cloud'
   | 'NVIDIA'
   | 'Zhipu AI'
+  | 'DeepSeek'
   | 'BAAI'
   | 'Jina AI'
   | 'T-Systems'
@@ -30,6 +31,7 @@ const PROVIDER_NAMES: Record<CreatorKey, string> = {
   'Alibaba Cloud': 'Alibaba',
   NVIDIA: 'NVIDIA',
   'Zhipu AI': 'Zhipu AI',
+  DeepSeek: 'DeepSeek',
   BAAI: 'BAAI',
   'Jina AI': 'Jina AI',
   'T-Systems': 'T-Systems',

@@ -2563,6 +2563,33 @@
     "childrenPackages": [],
     "modelQuotaConfigs": [
       {
+        "exactModelName": "DeepSeek-V4.1-Flash-Preview",
+        "inputTokenPerMinute": 0,
+        "outputTokenPerMinute": 0,
+        "inputTokenPerMinuteLimit": "dynamic",
+        "outputTokenPerMinuteLimit": "dynamic",
+        "lifetimeTokenLimit": 0,
+        "requestPerMinute": 0,
+        "requestPerMinuteLimit": "dynamic",
+        "inputPricePerMillionTokens": 0.0,
+        "outputPricePerMillionTokens": 0.0,
+        "modelQuotaMetadata": {
+          "quotaType": "Dynamic",
+          "note": "Limits are dynamically allocated for test models"
+        },
+        "displayModelName": "DeepSeek V4.1 Flash",
+        "modelLabel": "Test model (T-Cloud Public)",
+        "contextWindow": "1M",
+        "termsOfUseUrl": "https://choosealicense.com/licenses/mit/",
+        "dataProtectionUrl": "https://www.telekom.de/datenschutzhinweise/view/381.html",
+        "aiModelId": 990183,
+        "deploymentRegion": "otc-germany",
+        "modelQuotaConfigId": 990183,
+        "createdAt": "2026-11-03T10:00:00.000000",
+        "updatedAt": "2026-11-03T10:00:00.000000",
+        "modelTier": "standard"
+      },
+      {
         "exactModelName": "d3-preview",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
@@ -2618,7 +2645,7 @@
       }
     ],
     "createdAt": "2026-04-23T10:00:00.000000",
-    "updatedAt": "2026-10-09T10:00:00.000000",
+    "updatedAt": "2026-11-03T10:00:00.000000",
     "userId": 53,
     "username": "test"
   }

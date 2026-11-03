@@ -8,6 +8,10 @@ import PlansPage from '../../../components/PlansPage.astro';
 
 <div style="max-width: 54rem;">
 
+:::tip[New in preview: DeepSeek V4.1 Flash]
+**DeepSeek V4.1 Flash** (`DeepSeek-V4.1-Flash-Preview`) from DeepSeek is a general-purpose model with a 1M context window and up to 32K output tokens. It takes text and image input. Through `/chat/completions` it supports streaming, function calling and reasoning: the model's thinking comes back in `reasoning_content`. See [Chat Completions](/guides/chat-completions), [Function Calling](/guides/function-calling) and [Reasoning](/guides/reasoning).
+:::
+
 :::tip[New in preview: d3]
 **d3** (`d3-preview`) is a 27B decision model from the open-weight Decision 3.0 family of vLLM Semantic Router. It is the recommended model for **Decisions**: `/decisions` returns typed answers (a probability, a choice or a score) instead of text, for fast agent steps such as tool routing, approval gates and grounding checks. It takes text and image input. d3 serves `/decisions` only; it does not generate text. See [Decisions](/guides/decisions).
 

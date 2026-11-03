@@ -130,6 +130,7 @@ type Creator =
   | 'Mistral'
   | 'Alibaba Cloud'
   | 'Zhipu AI'
+  | 'DeepSeek'
   | 'T-Systems'
   | 'Other';
 type InputModality = 'Text' | 'Image' | 'Audio';
@@ -149,6 +150,7 @@ function inferCreator(exactModelName: string): Creator {
   if (/^Mistral-/i.test(n) || /^mistral-/i.test(n)) return 'Mistral';
   if (/^Qwen/i.test(n)) return 'Alibaba Cloud';
   if (/^GLM-/i.test(n)) return 'Zhipu AI';
+  if (/^DeepSeek-/i.test(n)) return 'DeepSeek';
   if (/^claude-/i.test(n)) return 'Anthropic';
   if (/^(diffusion)?gemma-/i.test(n)) return 'Google Gemma';
   if (/^gemini-/i.test(n)) return 'Google';
@@ -218,6 +220,9 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // DiffusionGemma 26B A4B (preview) takes Text+Image on chat completions and
   // on /decisions.
   'diffusiongemma-26B-A4B-it-Preview': { inputModalities: ['Text', 'Image'] },
+  // DeepSeek V4.1 Flash (preview) takes Text+Image on chat completions
+  // (checked against prod on 2026-11-03), with streaming and tool calling.
+  'DeepSeek-V4.1-Flash-Preview': { inputModalities: ['Text', 'Image'] },
   // d3 (preview) is a decision model: /decisions only, Text+Image in. It
   // generates no text, so no streaming and no tool calling.
   'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
