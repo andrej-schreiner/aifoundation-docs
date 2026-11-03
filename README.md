@@ -38,6 +38,8 @@ bun run preview
 
 This command is used to preview the production build locally.
 
+With the preview running, `bun run check:urls http://localhost:4321` checks that every production URL (`scripts/prod-sitemap.txt`) returns 200 or redirects to an existing page and anchor.
+
 ### Deployment
 
 The deployment to GitHub Pages is automated using GitHub Actions.
