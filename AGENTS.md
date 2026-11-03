@@ -48,7 +48,7 @@ exist. Do not invent one.
 | Code block | fenced Markdown code | long lines wrap; `title="file.py"` gives a header bar with the file name, untitled blocks have none |
 
 Site parts, not for reuse (Starlight slots and single-page tables):
-`SiteHeader`, `Footer`, `ArchiveBanner`, `MobileMenuFooter`,
+`SiteHeader`, `Footer`, `ArchiveBanner`, `PageTitle`, `MobileMenuFooter`,
 `PreviewModelsBanner`, `ChoosingModels`, `ReasoningTable`. Design-system page helpers
 (`src/components/design/*`) are for that page only.
 
@@ -96,7 +96,8 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   rule is in `layout.css`; do not cap text yourself.
 - **Announcements** (`PreviewModelsBanner`): one banner each, at the top of
   the content column with its edges, no backdrop behind them; each has its
-  own close button and session memory.
+  own close button and session memory. Current pages only: archived
+  pages have the archive bar (`ArchiveBanner`) instead, with the same edges.
 - **Site navigation**: every sidebar group starts open (no `collapsed` in
   `astro.config.mjs`); a visitor can close groups with the chevrons.
 - **One models table**: every list of models is `ModelsComparison` with a

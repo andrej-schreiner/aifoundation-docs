@@ -1,7 +1,15 @@
 ---
 // Site part, not for reuse. Starlight's Banner slot (astro.config.mjs): on archived
-// pages (every version in starlightVersions), a bar that links to the current docs;
-// elsewhere the page's own banner.
+// pages (every version in starlightVersions), a bar with the version's label that
+// links to the same page in the current docs where one exists, and to the home page;
+// on current pages the announcements (PreviewModelsBanner) instead. Archived pages
+// show no announcements: they are about the current site. The page's own banner
+// follows either way.
+//
+// The bar is the only version notice: starlight-versions' own note under the title
+// is left out (PageTitle.astro). It sits in a stack with the content column's
+// padding, so it has the column's edges at every window width (layout.css).
+import { getCollection } from 'astro:content';
 import versionsConfig from 'virtual:starlight-versions-config';
 import PreviewModelsBanner from './PreviewModelsBanner.astro';
 
@@ -12,26 +20,54 @@ const versionSlug = path.replace(/^\/de(?=\/|$)/, '').split('/')[1];
 const archived = versionsConfig.versions.find((version) => version.slug === versionSlug);
 const label = archived ? (archived.label ?? archived.slug) : '';
 const home = isDE ? '/de/' : '/';
+
+// The same page in the current docs: the path without the version segment, if a
+// current page (not an archived one, not a draft) has it. The overview's is the home page.
+let latest: string | undefined;
+if (archived) {
+	const candidate = path.replace(`/${archived.slug}`, '').replace(/\/?$/, '/');
+	const archivedSlugs = versionsConfig.versions.map((version) => version.slug);
+	const pages = await getCollection('docs', ({ id, data }) => {
+		const first = id.replace(/^de(?=\/|$)\/?/, '').split('/')[0];
+		return !data.draft && !archivedSlugs.includes(first);
+	});
+	const exists = pages.some(({ id }) => `/${id.replace(/(^|\/)index$/, '')}/`.replace(/\/+/g, '/') === candidate);
+	if (exists && candidate !== home) latest = candidate;
+}
 ---
 
 {
 	archived && (
-		<div class="sl-banner" data-pagefind-ignore>
-			{isDE ? (
-				<>
-					Archivierte Fassung ({label}). Die aktuelle Dokumentation ist die{' '}
-					<a href={home}>Startseite</a>.
-				</>
-			) : (
-				<>
-					Archived snapshot ({label}). For current documentation, start at the{' '}
-					<a href={home}>home page</a>.
-				</>
-			)}
+		<div class="archive-stack" data-pagefind-ignore>
+			<div class="sl-banner">
+				{isDE ? (
+					latest ? (
+						<>
+							Archivierte Fassung ({label}). Zur aktuellen Dokumentation:{' '}
+							<a href={latest}>diese Seite in der neuesten Fassung</a> oder die <a href={home}>Startseite</a>.
+						</>
+					) : (
+						<>
+							Archivierte Fassung ({label}). Die aktuelle Dokumentation ist die{' '}
+							<a href={home}>Startseite</a>.
+						</>
+					)
+				) : latest ? (
+					<>
+						Archived snapshot ({label}). For current documentation, see{' '}
+						<a href={latest}>this page in the latest version</a> or start at the <a href={home}>home page</a>.
+					</>
+				) : (
+					<>
+						Archived snapshot ({label}). For current documentation, start at the{' '}
+						<a href={home}>home page</a>.
+					</>
+				)}
+			</div>
 		</div>
 	)
 }
-<PreviewModelsBanner />
+{!archived && <PreviewModelsBanner />}
 {banner && <div class="sl-banner" data-pagefind-ignore set:html={banner.content} />}
 
 <style>

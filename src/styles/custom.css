@@ -14,6 +14,14 @@
 	justify-content: flex-start;
 }
 
+/* The action links under the v1.0.0 overview's hero (archived content, plain
+   links): a row with the grid gap between them, wrapping on narrow columns. */
+.hero-ctas {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--aifs-layout-grid-gap);
+}
+
 /* .plans-table: src/styles/table.css. */
 
 .sort-icon {
