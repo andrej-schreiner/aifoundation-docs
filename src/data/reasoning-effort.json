@@ -336,7 +336,7 @@
       "values": [],
       "source": "https://docs.cloud.google.com/vertex-ai/generative-ai/docs/partner-models/mistral/mistral-medium-3",
       "verified": "2026-10-12",
-      "note": "Not a reasoning model; reasoning_effort is not supported. Mistral documents it only for Mistral Small 4, Medium 3.5 and later."
+      "note": "Not a reasoning model; reasoning_effort is not supported."
     },
     "o3": {
       "values": [

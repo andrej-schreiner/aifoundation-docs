@@ -7,15 +7,12 @@ export const DEEPSEEK_41_FLASH_ID = 'DeepSeek-V4.1-Flash-preview';
 
 // Models listed in service description v1.25 (prices and limits, §7.2), new
 // on 2026-11-03. Their specs come from the vendors' model pages (2026-11-03).
-// TODO(andrej): confirm the ids. Claude, GPT, Gemini and Mistral follow the
-// ids of the same vendor's models here (claude-sonnet-5.5, gpt-6-luna,
-// gemini-3.8-flash, mistral-medium-3); Qwen3-Reranker-4B has the
-// vendor's Hugging Face id.
+// Ids as on the live production docs (docs.llmhub.t-systems.net/models/,
+// 2026-11-03) where it lists the model.
 export const SD_V125_MODEL_IDS = [
-  'Qwen/Qwen3-Reranker-4B',
+  'Qwen3-Reranker-4B',
   'gpt-6-astra',
   'gpt-6-astra-long-context',
-  'mistral-medium-3.5',
   'claude-haiku-5.5',
   'claude-haiku-5.5-long-context',
   'claude-fable-5.1',

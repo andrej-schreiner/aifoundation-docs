@@ -6,7 +6,7 @@ description: "Security, compliance, data sovereignty, and AI Act alignment for A
 AI Foundation Services gives you a single OpenAI-compatible API across two clearly separated categories of models — those operated by Telekom in Germany, within the EU, and those forwarded to third-party providers under their own terms. This page summarizes the trust and compliance posture; the [Service Description (PDF)](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf) is the binding source.
 
 :::tip[No training on customer data]
-For every model hosted by Telekom, **customer prompts and responses are not permanently stored and are never used to train or fine-tune any model**. Prefix caching keeps processed requests for a limited time so repeat requests are answered faster; it is on by default and can be switched off. See [Prefix caching](/guides/prefix-caching).
+For every model hosted by Telekom, **customer prompts and responses are not permanently stored and are never used to train or fine-tune any model**. On language models, prefix caching keeps processed requests for a limited time so repeat requests are answered faster; it is on by default and can be switched off. See [Prefix caching](/guides/prefix-caching).
 :::
 
 
@@ -15,7 +15,7 @@ For every model hosted by Telekom, **customer prompts and responses are not perm
 | Aspect | Category 1 (EU-operated) | Category 2 (Third-party) |
 |---|---|---|
 | **Processing location** | Germany&nbsp;(EU) | Determined by third-party provider; may be worldwide |
-| **Storage** | Not permanently stored (short-lived prefix cache, can be switched off) | Per third-party provider's terms |
+| **Storage** | Not permanently stored (short-lived prefix cache on language models, can be switched off) | Per third-party provider's terms |
 | **Visibility** | Not viewable by Telekom or third parties | Per third-party provider's terms |
 | **Training use** | Not used for model training | Per third-party provider's terms |
 | **Encryption in transit** | TLS-secured (HTTPS) | TLS-secured (HTTPS) |
@@ -74,14 +74,14 @@ Forwarded by Telekom directly to the third-party provider, who runs the model on
 
 - OpenAI GPT-5.6 Sol and GPT-5.6 Terra — on Microsoft Azure (Sweden)
 - OpenAI GPT-6 Luna — on Microsoft Azure (Sweden)
-- OpenAI GPT-6.1 Sol — on Microsoft Azure (worldwide)
+- OpenAI GPT-6.1 Sol — on Microsoft Azure (Sweden)
 - OpenAI GPT-6 Astra — on Microsoft Azure (Sweden)
 - OpenAI GPT Image 2 — on Microsoft Azure (Sweden)
 - OpenAI Ada Text Embedding — on Microsoft Azure (France)
 - Anthropic Claude Sonnet 5.5 and Claude Opus 5.5 — on Google Cloud (europe-west1) or Microsoft Azure
-- Anthropic Claude Haiku 5.5 and Claude Fable 5.1, Mistral Medium 3.5 — on Google Cloud or Microsoft Azure
+- Anthropic Claude Haiku 5.5 and Claude Fable 5.1 — on Google Cloud (worldwide) or Microsoft Azure
 - Google Gemini 3.5 Flash and Gemini 3.8 Flash — on Google Cloud (worldwide)
-- Google Gemini 4 Argon — on Google Cloud
+- Google Gemini 4 Argon — on Google Cloud (worldwide)
 
 For these models:
 
