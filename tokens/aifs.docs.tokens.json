@@ -238,6 +238,10 @@
         "$value": { "value": 14, "unit": "rem" },
         "$description": "Table of contents (On this page), 224px. Next to the site navigation, so both lists sit where the pointer already is."
       },
+      "measure": {
+        "$value": { "value": 45, "unit": "rem" },
+        "$description": "Widest line of running text: 720px, about 79ch of TeleNeo at 16px (1ch is 9.15px), in the 75 to 80ch the owner asked for (2026-11-03). Paragraphs, lists, headings, quotes and asides stop here, at the column's start edge; tables, code, cards, figures and components keep the full column. In rem, not ch: DTCG dimensions are px or rem only. On the 8px grid."
+      },
       "grid-gap": { "$value": "{spacing.composition.space-06}", "$description": "16px between the items of every grid on a page, across and down: card rows, card grids, model cards, recommended models, plan tiles, previous and next." },
       "card-min-width": { "$value": { "value": 20, "unit": "rem" }, "$description": "320px: the narrowest card in a card grid or link-card row. The grid fits as many columns as the fluid column has room for." },
       "grid-action-gap": { "$value": "{spacing.composition.space-08}", "$description": "24px between a grid and a button below it, such as Show more models." },

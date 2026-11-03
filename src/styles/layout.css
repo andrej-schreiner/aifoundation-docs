@@ -4,7 +4,8 @@
    where the pointer already is. Widths are --aifs-layout-* tokens from
    tokens.css, which also fill --sl-sidebar-width.
    The content column is fluid: it fills the rest of the row at every
-   width, with no cap on it or on the text. --sl-content-width is 100%
+   width, with no cap on it; running text stops at the measure (below).
+   --sl-content-width is 100%
    (below), not a token: a fraction of the row is not a design value, and
    DTCG dimensions are px or rem only. Starlight sizes .sl-container with it.
 
@@ -274,6 +275,26 @@ main:has(> .qp-stack) > .content-panel:nth-child(1 of .content-panel) {
 	min-width: 0;
 	white-space: normal;
 	overflow-wrap: anywhere;
+}
+
+/* Line length: running text (paragraphs, lists, headings, quotes, asides)
+   stops at the measure, aifs.layout.measure (720px, about 79ch of TeleNeo at
+   16px), at the column's start edge, so it lines up with the tables below
+   it. Everything else keeps the full column: tables, code blocks, figures,
+   card grids, link cards, the tab bar, steps (their text stops, their code
+   does not), the file tree and the components. Text inside those is left
+   alone. .content-panel and :is() lift this above the 100% caps on headings
+   (rhythm.css) and on paragraphs with an icon (above). */
+.content-panel .sl-markdown-content
+	:is(p, ul, ol, dl, blockquote, h2, h3, h4, h5, h6, .sl-heading-wrapper, .starlight-aside):not(
+		:where(
+			.not-content, .not-content *, table *, .aifs-table-scroll *, .expressive-code *, figure *,
+			.card-grid *, .link-card-row *, .sl-link-card *, .sl-steps, starlight-tabs [role="tablist"],
+			starlight-tabs [role="tablist"] *, starlight-file-tree *, .models-comparison *, .plans-page *,
+			.available-models *, .model-pick *, .choose-root *, .hero-badges *
+		)
+	) {
+	max-width: min(100%, var(--aifs-layout-measure));
 }
 
 

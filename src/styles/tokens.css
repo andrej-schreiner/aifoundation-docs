@@ -95,6 +95,7 @@
 	--aifs-header-settings-offset: 4px;
 	--aifs-layout-sidebar-width: 17.5rem;
 	--aifs-layout-toc-width: 14rem;
+	--aifs-layout-measure: 45rem;
 	--aifs-layout-grid-gap: 16px;
 	--aifs-layout-card-min-width: 20rem;
 	--aifs-layout-grid-action-gap: 24px;
@@ -612,6 +613,7 @@
 	--aifs-header-settings-offset: 4px;
 	--aifs-layout-sidebar-width: 17.5rem;
 	--aifs-layout-toc-width: 14rem;
+	--aifs-layout-measure: 45rem;
 	--aifs-layout-grid-gap: 16px;
 	--aifs-layout-card-min-width: 20rem;
 	--aifs-layout-grid-action-gap: 24px;
