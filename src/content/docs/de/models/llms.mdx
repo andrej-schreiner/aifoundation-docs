@@ -3,12 +3,17 @@ title: "Chat & Reasoning (LLMs)"
 description: "Sprachmodelle auf AI Foundation Services für allgemeine Chats, Reasoning und Textgenerierung. Filtern nach Cloud, Anbieter, Tarif und Funktionen."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Allgemeine Textgenerierung, Konversationsagenten und Reasoning. Die meisten LLMs auf AI Foundation Services akzeptieren mehrsprachige Eingaben und unterstützen Streaming sowie Tool-/Function-Calling.
 
-Weiter: [Chat](/de/guides/chat-completions) · [Empfohlene Modelle](/de/getting-started/choosing-a-model) · [Tarife](/de/plans)
+<div class="link-card-row">
+  <LinkCard title="Chat" href="/de/guides/chat-completions" />
+  <LinkCard title="Empfohlene Modelle" href="/de/getting-started/choosing-a-model" />
+  <LinkCard title="Tarife" href="/de/plans" />
+</div>
 
 <ModelPick useCase="chat" />
 

@@ -27,19 +27,19 @@ Nach der ersten Installation öffnen Sie das Continue-Plugin für AI Engineer un
 
 1. Wählen Sie eine Modell-ID aus [Verfügbare Modelle](/de/models):
 
-```yaml
+```yaml title="config.yaml"
 model: gpt-oss-120b
 ```
 
 2. Stellen Sie die Basis-URL ein:
 
-```yaml
+```yaml title="config.yaml"
 apiBase: https://llm-server.llmhub.t-systems.net/v2/coding
 ```
 
 3. Erzeugen Sie einen API-Schlüssel unter [LLM Serving API Keys](https://apikey.llmhub.t-systems.net/dashboard):
 
-```yaml
+```yaml title="config.yaml"
 apiKey: ${{ secrets.OPENAI_API_KEY }}
 ```
 
@@ -47,7 +47,7 @@ Speichern Sie den Schlüssel in ~/.continue/.env als OPENAI_API_KEY=… .
 
 4. Weisen Sie dem Modell eine oder mehrere Rollen zu, zum Beispiel `chat`, `edit`, `apply`, `autocomplete` oder `embed`:
 
-```yaml
+```yaml title="config.yaml"
 roles:
   - chat
 ```
@@ -55,7 +55,7 @@ roles:
 :::note[Nur Windows]
 Wenn Sie IntelliJ oder PyCharm unter Windows verwenden, tragen Sie die Proxy-Einstellungen in die Konfigurationsdatei ein:
 
-```yaml
+```yaml title="config.yaml"
 requestOptions:
   proxy: http://proxy.example.com:8080
 ```
@@ -63,7 +63,7 @@ requestOptions:
 
 ### Beispiel `config.yaml`
 
-```yaml
+```yaml title="config.yaml"
 name: Local Config
 version: 1.0.0
 schema: v1

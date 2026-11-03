@@ -3,6 +3,7 @@ title: "Coding-Agenten einrichten"
 description: "Einen Coding-Agenten oder ein IDE-Plugin mit API-Schlüssel, Coding-Basis-URL und Coding-Modell an AI Foundation Services anbinden."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Alle Coding-Werkzeuge unten verbinden sich auf dieselbe Weise mit AI Foundation Services: API-Schlüssel, Coding-Basis-URL und Modell-ID.
@@ -38,4 +39,8 @@ API Key      = your_api_key_here
 Model        = GLM-5.3
 ```
 
-Weiter: [Empfohlene Modelle](/de/getting-started/choosing-a-model) · [Coding-Modelle](/de/models/coding) · [Function Calling](/de/guides/function-calling)
+<div class="link-card-row">
+  <LinkCard title="Empfohlene Modelle" href="/de/getting-started/choosing-a-model" />
+  <LinkCard title="Coding-Modelle" href="/de/models/coding" />
+  <LinkCard title="Function Calling" href="/de/guides/function-calling" />
+</div>

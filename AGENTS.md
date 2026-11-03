@@ -45,7 +45,7 @@ exist. Do not invent one.
 | Models table (the only one: Models page, use cases, plans) | `ModelsComparison.astro` | `columns` catalog · useCase · plan; `category`; `capabilityFilter`; `plans`, `plan`, `planLocked` (plan preset) |
 | Plans page (rate plans + its models table) | `PlansPage.astro` (renders `ModelsComparison` with the plan preset) | `selectedPlanId` |
 | Aside, card, link card, card grid, tabs, steps, file tree | Starlight's own (`:::note`, `<Card>`, `<LinkCard>`, `<CardGrid>`, `<Tabs>`, `<Steps>`, `<FileTree>`) | restyled to our tokens; use them as Starlight documents them |
-| Code block | fenced Markdown code | long lines wrap; `title="file.py"` gives a header bar with the file name, untitled blocks have none |
+| Code block | fenced Markdown code | long lines wrap; shell languages get the terminal frame ("Terminal", "PowerShell", "Command Prompt"), other languages their name as the title (`src/plugins/ec-frame-titles.mjs`), except where that title would repeat its tab's label; `title="file.py"` only where the page names that file; `text` blocks have no header |
 
 Site parts, not for reuse (Starlight slots and single-page tables):
 `SiteHeader`, `Footer`, `ArchiveBanner`, `PageTitle`, `MobileMenuFooter`,
@@ -81,10 +81,11 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   column grows (main columns, a details row, cards below 36rem). There is
   no breakout band. Do not set `tableOfContents: false` to make room, and
   do not give the column or a page a max-width of its own.
-- **Vertical rhythm** (`aifs.rhythm.*`): 12 after a heading · 16 between
-  paragraphs · 32 around blocks and components · 32/48/72 before h4/h3/h2 ·
-  96 before previous/next. Do not set margins between content blocks
-  yourself; `src/styles/layout.css` does.
+- **Vertical rhythm** (`aifs.rhythm.*`): 12 after a heading and after the
+  page title · 16 between paragraphs · 32 around blocks and components ·
+  32/48/72 before h4/h3/h2 (40/48 before h3/h2 below 50rem) · 96 before
+  previous/next. Do not set margins between content blocks yourself, in a
+  page or a component; `src/styles/layout.css` does.
 - **Grids**: `aifs.layout.grid-gap` (16px) across and down;
   `aifs.layout.grid-action-gap` (24px) above a button under a grid. Card
   grids fit as many columns of at least `aifs.layout.card-min-width` as the
@@ -98,6 +99,9 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   the content column with its edges, no backdrop behind them; each has its
   own close button and session memory. Current pages only: archived
   pages have the archive bar (`ArchiveBanner`) instead, with the same edges.
+- **Next steps**: a page's "Next:" links are link cards in a
+  `<div class="link-card-row">` (as on the home page's Integrations), the
+  link texts as titles; no "Next:" line of text links.
 - **Site navigation**: every sidebar group starts open (no `collapsed` in
   `astro.config.mjs`); a visitor can close groups with the chevrons.
 - **One models table**: every list of models is `ModelsComparison` with a

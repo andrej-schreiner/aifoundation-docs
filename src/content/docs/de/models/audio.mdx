@@ -3,12 +3,16 @@ title: "Audio (Spracherkennung)"
 description: "Whisper-basierte Sprache-zu-Text-Modelle auf AI Foundation Services für Transkription und Übersetzung. Filtern nach Cloud, Tarif und Funktionen."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Whisper-basierte Modelle für Transkription und Übersetzung. Verfügbar über `POST /audio/transcriptions` und `POST /audio/translations`.
 
-Weiter: [Spracherkennung](/de/guides/audio) · [Alle Modelle](/de/models)
+<div class="link-card-row">
+  <LinkCard title="Spracherkennung" href="/de/guides/audio" />
+  <LinkCard title="Alle Modelle" href="/de/models" />
+</div>
 
 <ModelPick useCase="audio" />
 

@@ -527,6 +527,7 @@ Starlight's `LinkCard` and `Card` in one frame: the chrome surface, a subtle bor
 
 - **Link card** points to another page. The whole card is the link; the arrow sits at the end, centred on the text. On hover and focus the border turns magenta and the arrow moves a little; keyboard focus adds the button's focus ring.
 - **Card** only informs, so it has no hover. Its icon is drawn in the text colour.
+- **Next steps** after a page's intro or its last section are link cards in a `link-card-row`, as in the home page's Integrations section: the link texts as card titles, a description only where one was written for the card (never a made-up one). The quickstart, Coding agent setup and the model pages use them in place of a "Next:" line of text links.
 - **Previous and next links** at the end of every page (Starlight's pagination) are link cards too: "Previous" or "Next" in the description colour, the page title as the card title, the arrow at the outer edge, moving outward on hover. Starlight renders them; they are restyled in `redesign.css`. This page has none; see the end of [Authentication](/getting-started/authentication/).
 
 Several cards go in a `CardGrid`: one column, then two equal columns from 768px.
@@ -565,7 +566,7 @@ Several cards go in a `CardGrid`: one column, then two equal columns from 768px.
 | `Card` | `title`, `icon` (a Starlight icon name); text in the slot | A short point that needs no link |
 | `CardGrid` | cards in the slot | Two or more cards side by side |
 
-Used in: the home page, Get started, Guides, Integrations, Plans and API transition (link cards, often in a `CardGrid`); the previous and next links on every page with a sidebar. The plain `Card` is not used on a page yet.
+Used in: the home page, Get started, Guides, Integrations, Plans and API transition (link cards, often in a `CardGrid`); the next-step rows on the quickstart, Coding agent setup and the model pages; the previous and next links on every page with a sidebar. The plain `Card` is not used on a page yet.
 
 </ComponentCard>
 
@@ -573,10 +574,13 @@ Used in: the home page, Get started, Guides, Integrations, Plans and API transit
 
 #### Code block
 
-Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a plain code area, and tinted lines for highlights and diffs. Every block uses the terminal frame, whatever its language: a title bar with three window dots, and the file name in it when there is one (set as the default in `astro.config.mjs`). Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
+Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a plain code area, and tinted lines for highlights and diffs. Every block says what it is in a header bar, so code stands apart from the cards around it (`src/plugins/ec-frame-titles.mjs`, registered in `astro.config.mjs`). Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
 
-- **With a file name** when the code goes into a file. Add `title="…"` after the language; it appears in the title bar.
-- **Without** for examples that are not saved anywhere.
+- **Shell commands** (`bash`, `sh`, `shell`, `console`, `powershell`, `cmd` …) get the terminal frame, with three window dots and the title **Terminal**; PowerShell blocks are titled **PowerShell**, Command Prompt blocks **Command Prompt** (a `bash` block on a CMD tab gets `title="Command Prompt"`).
+- **A file name** only where the page names the file the code goes into ("Create `~/.continue/.env`", "opens an empty `config.yaml`"): add `title="…"` after the language. Never make one up: a plausible but wrong file name misleads.
+- **Otherwise the language** as the title: Python, JavaScript, TypeScript, JSON, YAML, Markdown and so on. No `title` needed; it is set from the language.
+- **No header** for `text` blocks and fences without a language (output, a URL, a formula), and on archived pages, which are frozen.
+- In **tabs** the block keeps its header, unless the automatic title would only repeat the tab's label (case-insensitive): a Python block on a "Python" tab has no title, so a code block has no header bar and a terminal block keeps its frame without a title. A `title=` you set is always kept.
 - **Highlight** only the lines the text talks about.
 
 <Showcase label="With a file name" block>
@@ -593,7 +597,7 @@ response = client.chat.completions.create(
 
 </Showcase>
 
-<Showcase label="Without a file name" block>
+<Showcase label="Language as the title (no file name)" block>
 
 ```json
 { "model": "gpt-oss-120b", "stream": true }
@@ -624,7 +628,7 @@ const client = new OpenAI({
 
 </Showcase>
 
-<Showcase label="Shell command" block>
+<Showcase label="Shell command: terminal frame" block>
 
 ```bash
 curl https://llm-server.llmhub.t-systems.net/v2/models \
@@ -636,6 +640,10 @@ curl https://llm-server.llmhub.t-systems.net/v2/models \
 | In Markdown | Effect |
 |---|---|
 | ` ```python title="chat.py" ` | The file name in the title bar |
+| ` ```python ` | "Python" in the title bar |
+| ` ```bash ` | The terminal frame, titled "Terminal" |
+| ` ```python ` on a "Python" tab | No title: it would repeat the tab label |
+| ` ```text ` | No title bar |
 | ` ```python {2,4} ` | Highlights lines 2 and 4 |
 | ` ```js ins={3} del={2} ` | Marks line 3 as added and line 2 as removed |
 | ` ```diff ` | A diff, with `+` and `-` at the line starts |
@@ -957,6 +965,19 @@ One page layout (`layout.css`, tokens `aifs.layout.*`):
 - **Sheet:** white, edge to edge, no frame, from just under the header. Below it, the footer on the backdrop, revealed as the sheet ends.
 - **Content:** On this page in a column on the sheet, then the **fluid content column**: it fills the rest of the row at every window width, with no maximum width (`--sl-content-width` is 100%, in `layout.css`; there is no content-width token). Code, Markdown tables, figures, cards, tabs, steps and the models table use its full width. Its side padding is `aifs.layout.sheet-padding` (40px) from 72rem and `aifs.layout.sheet-padding-wide` (64px) from 120rem; from 80rem it keeps the chat launcher's clearance at its end edge. Card grids and link-card rows fit as many columns of at least `aifs.layout.card-min-width` (320px) as there is room for. Below 72rem On this page is a menu above the content.
 - **Measure:** running text stops at `aifs.layout.measure` (45rem, 720px, about 79ch of TeleNeo at 16px): paragraphs, lists, headings (with their anchor link), quotes and asides inside the Markdown content. It stays at the column's start edge, not centred, so it lines up with a table or code block below it. Not capped: tables, code blocks, figures, card grids and link cards, the tab bar, steps (their text stops at the measure, their code does not), the file tree, the banners and the components (models table, plan tiles, featured models, recommended models). Text inside table cells, cards and components keeps their width. A rem value, not `80ch`: DTCG dimensions are px or rem only (GAPS row 21).
+- **Vertical rhythm:** one spacing scale on every page, from the `aifs.rhythm.*` tokens on Telekom's 8px scale, set in `layout.css` only; pages and components do not add margins between content blocks. The gap grows with the size of the break:
+
+  | Gap | Token | Value |
+  |---|---|---|
+  | After a heading, and after the page title | `aifs.rhythm.after-heading` | 12px |
+  | Between paragraphs and lists | `aifs.rhythm.flow` | 16px |
+  | Around a block: code, table, aside, tabs, card grid or link-card row, steps, component | `aifs.rhythm.block` | 32px |
+  | Before an h4 | `aifs.rhythm.heading-4` | 32px |
+  | Before an h3 | `aifs.rhythm.heading-3` (`heading-3-compact` below 50rem) | 48px (40px) |
+  | Before an h2, or a component that opens a section | `aifs.rhythm.heading-2` (`heading-2-compact` below 50rem) | 72px (48px) |
+  | Before previous and next | `aifs.rhythm.page-end` | 96px |
+
+  Block margins collapse with their neighbour's, so a heading after a code block keeps its own gap, not the sum.
 - **No breakout band** any more: with a fluid column a wide element (the models table) simply fits the column.
 - **Announcement banners** (`PreviewModelsBanner`, a site part): one banner per announcement at the top of the content column, on the sheet, above the title, with the column's edges and width at every window width; no band or backdrop behind them. Each is a region with its own label and has a tag, the text, a link and its own close button. **New**: magenta tag, magenta accent line and a faint magenta tint; **Notice**: standard tag, informational blue accent line and tint, as a note aside. They fade in (opacity only, not with reduced motion) the first time in a session. Each close is remembered for the session on its own; focus moves to the remaining banner's close button, or to the page title after the last. Current pages only; archived pages show none. Tokens: `aifs.notice.*`.
 - **Archive bar** (`ArchiveBanner`, a site part): on archived pages (v1.0.0, v1.1.0, v1.2.0) only, the one version notice, in the place of the announcement banners, with the content column's edges and width at every window width. It names the version and links to the same page in the current docs where one exists, and to the home page. starlight-versions' own note under the title is left out (`PageTitle`).

@@ -3,12 +3,17 @@ title: "Vision-Modelle"
 description: "Modelle auf AI Foundation Services, die Bilder als Eingabe akzeptieren. Filtern nach Cloud, Anbieter, Tarif und Funktionen."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Modelle, die Bilder als Eingabe akzeptieren. Chat-Modelle nehmen Bilder zusammen mit Text über den Standard-Chat-Completions-Endpunkt entgegen, als Bildinhalte in der Nachricht.
 
-Weiter: [Bildeingabe](/de/guides/multimodal) · [OCR-Modelle](/de/models/ocr) · [Alle Modelle](/de/models)
+<div class="link-card-row">
+  <LinkCard title="Bildeingabe" href="/de/guides/multimodal" />
+  <LinkCard title="OCR-Modelle" href="/de/models/ocr" />
+  <LinkCard title="Alle Modelle" href="/de/models" />
+</div>
 
 <ModelPick useCase="vision" />
 
