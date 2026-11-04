@@ -27,7 +27,7 @@ export const MODEL_CATALOG_ORDER = [
   'GPT-OSS 120B', // 120B open model, 128K context. Documented replacement for retired Llama 3.3 70B.
   'DiffusionGemma 26B A4B', // Preview, 26B diffusion/decision model (changelog 2026-10). Specialized, so after the GA chat models.
   'd3', // Preview 27B decision model (changelog 2026-10). Same placement call as DiffusionGemma.
-  'DeepSeek V4.1 Flash', // Preview on T-Cloud, launching 2026-11-02; ranked with the preview models, not the GA ones.
+  'DeepSeek V4.1 Flash', // Preview on T-Cloud, launched 2026-11-03; ranked with the preview models, not the GA ones.
 
   // --- T-Cloud: embeddings, then OCR, then audio ---
   'Qwen3 Embedding 8B', // Newest embedding (changelog 2026-10), 8B, 32K.
