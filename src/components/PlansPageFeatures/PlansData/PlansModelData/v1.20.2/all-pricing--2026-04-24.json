@@ -2425,7 +2425,7 @@
         "modelQuotaConfigId": null,
         "createdAt": null,
         "updatedAt": null,
-        "modelTier": "standard"
+        "modelTier": "premium"
       },
       {
         "exactModelName": "gpt-6-astra-long-context",
@@ -2450,7 +2450,7 @@
         "modelQuotaConfigId": null,
         "createdAt": null,
         "updatedAt": null,
-        "modelTier": "standard"
+        "modelTier": "premium"
       },
       {
         "exactModelName": "claude-haiku-5.5",
@@ -2525,7 +2525,7 @@
         "modelQuotaConfigId": null,
         "createdAt": null,
         "updatedAt": null,
-        "modelTier": "standard"
+        "modelTier": "premium"
       },
       {
         "exactModelName": "gemini-4-argon",
@@ -3826,7 +3826,7 @@
         "modelQuotaConfigId": null,
         "createdAt": null,
         "updatedAt": null,
-        "modelTier": "standard"
+        "modelTier": "premium"
       },
       {
         "exactModelName": "gpt-6-astra-long-context",
@@ -3851,7 +3851,7 @@
         "modelQuotaConfigId": null,
         "createdAt": null,
         "updatedAt": null,
-        "modelTier": "standard"
+        "modelTier": "premium"
       },
       {
         "exactModelName": "claude-haiku-5.5",
@@ -3926,7 +3926,7 @@
         "modelQuotaConfigId": null,
         "createdAt": null,
         "updatedAt": null,
-        "modelTier": "standard"
+        "modelTier": "premium"
       },
       {
         "exactModelName": "gemini-4-argon",
