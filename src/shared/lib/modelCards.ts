@@ -6,7 +6,7 @@ import { resolvePrimaryCategory } from './modelCategories';
 /**
  * The featured model cards on /models/ and the overview, in order: new
  * models, then the top pick per category (CHOICE_ROWS in choosingModels).
- * The order is explicit (Andrej, 2026-10-31): GLM 5.3 first, DeepSeek 4.1
+ * The order is explicit (Andrej, 2026-10-31): GLM 5.3 first, DeepSeek V4.1
  * Flash second; GPT-OSS 120B is never first. Nothing here is sorted.
  */
 export const FEATURED_MODEL_IDS: readonly string[] = [

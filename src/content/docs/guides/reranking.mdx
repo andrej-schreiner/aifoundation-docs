@@ -1,0 +1,245 @@
+---
+title: "Reranking"
+description: "Sort search results by relevance to a query with the Qwen3-Reranker-4B model, to improve RAG and search quality."
+---
+
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+A reranker scores how well each document answers a query and returns the documents sorted by that score. Use it as the second step of a search or RAG pipeline: retrieve 20 to 100 candidates quickly with [embeddings](/guides/embeddings) or keyword search, then let the reranker pick the few that really answer the question before you pass them to a chat model.
+
+The reranker reads the query and each document together, so it catches relevance that embedding similarity misses, at the cost of one model call per query–document pair.
+
+:::note[Prerequisites]
+- An API key ([get one here](https://apikey.llmhub.t-systems.net/))
+- `OPENAI_API_KEY` and `OPENAI_BASE_URL` set as in the [Quickstart](/getting-started/quickstart)
+:::
+
+**What you'll learn:**
+- How to rerank documents with curl, Python and Node.js
+- How to call the endpoint with the Cohere SDK
+- How to add reranking to a retrieve-then-generate pipeline
+
+
+## Supported model
+
+| <span class="sr-only">Aspect</span> | **Qwen3-Reranker-4B** |
+|---|---|
+| Model ID | `Qwen3-Reranker-4B` |
+| Made by | [Qwen](https://huggingface.co/Qwen/Qwen3-Reranker-4B) (Alibaba Cloud) |
+| Endpoint | `POST /v2/rerank` (also `/v1/rerank`) |
+| Languages | 100+ languages. Tested by us on German, and on German and Chinese queries over English documents |
+| Context window | 32K tokens per query–document pair |
+| License | Apache 2.0 |
+| Price per 1M tokens (input / output) | €0.05 / €0.05 |
+
+The model is available on the Essential, Professional and Agentic plans; see [Plans & pricing](/plans) for the rate limits of each plan. It is hosted on T-Cloud Public in Germany.
+
+
+## Basic usage
+
+Send a `query` and a list of `documents`. The response lists the documents from most to least relevant, each with its position in your list (`index`) and a `relevance_score` between 0 and 1.
+
+<Tabs>
+  <TabItem value="curl" label="curl" default>
+    ```bash
+    curl -X POST "$OPENAI_BASE_URL/rerank" \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: application/json" \
+      -d '{
+        "model": "Qwen3-Reranker-4B",
+        "query": "What is the capital of Germany?",
+        "documents": [
+          "Paris is the capital of France.",
+          "Berlin is the capital and largest city of Germany.",
+          "Bananas are rich in potassium."
+        ],
+        "top_n": 2
+      }'
+    ```
+  </TabItem>
+  <TabItem value="python" label="Python">
+    ```python showLineNumbers
+    from openai import OpenAI
+
+    client = OpenAI()
+
+    documents = [
+        "Paris is the capital of France.",
+        "Berlin is the capital and largest city of Germany.",
+        "Bananas are rich in potassium.",
+    ]
+
+    # Rerank is not part of the OpenAI API, so call it with the client's generic post().
+    response = client.post(
+        "/rerank",
+        body={
+            "model": "Qwen3-Reranker-4B",
+            "query": "What is the capital of Germany?",
+            "documents": documents,
+            "top_n": 2,
+        },
+        cast_to=object,  # return the JSON body as a dict
+    )
+
+    for result in response["results"]:
+        print(f"{result['relevance_score']:.4f}  [{result['index']}] {result['document']['text']}")
+    print("Token usage:", response["usage"])
+    ```
+  </TabItem>
+  <TabItem value="node" label="Node.js">
+    ```javascript showLineNumbers
+    const response = await fetch(`${process.env.OPENAI_BASE_URL}/rerank`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "Qwen3-Reranker-4B",
+        query: "What is the capital of Germany?",
+        documents: [
+          "Paris is the capital of France.",
+          "Berlin is the capital and largest city of Germany.",
+          "Bananas are rich in potassium.",
+        ],
+        top_n: 2,
+      }),
+    });
+    if (!response.ok) throw new Error(`${response.status} ${await response.text()}`);
+
+    const { results, usage } = await response.json();
+    for (const r of results) {
+      console.log(r.relevance_score.toFixed(4), `[${r.index}]`, r.document.text);
+    }
+    console.log("Token usage:", usage);
+    ```
+  </TabItem>
+</Tabs>
+
+**Example output (Python):**
+```
+0.9830  [1] Berlin is the capital and largest city of Germany.
+0.0000  [0] Paris is the capital of France.
+Token usage: {'prompt_tokens': 258, 'total_tokens': 258, 'completion_tokens': 0}
+```
+
+**Response (curl):**
+```json
+{
+  "id": "score-283f1d15-f206-4d7c-b55f-9d0c31141ae8",
+  "model": "Qwen3-Reranker-4B",
+  "usage": {"prompt_tokens": 258, "total_tokens": 258, "completion_tokens": 0},
+  "results": [
+    {"index": 1, "document": {"text": "Berlin is the capital and largest city of Germany.", "multi_modal": null}, "relevance_score": 0.9829727411270142},
+    {"index": 0, "document": {"text": "Paris is the capital of France.", "multi_modal": null}, "relevance_score": 1.0335657862015069e-05}
+  ]
+}
+```
+
+### Request parameters
+
+| Parameter | Type | Description |
+|---|---|---|
+| `model` | string | `Qwen3-Reranker-4B` |
+| `query` | string | The search query or question |
+| `documents` | array of strings | The candidates to score. Send at least one |
+| `top_n` | integer | Optional. Return only the best `n` documents. Omit it, or send `0`, to get all of them |
+| `truncate_prompt_tokens` | integer | Optional. Cut each query–document pair to this many tokens, for long documents (see [Tips and limits](#tips-and-limits)) |
+
+
+## With the Cohere SDK
+
+The endpoint is compatible with the Cohere and Jina rerank APIs, so the Cohere SDK works without changes. `cohere.ClientV2` calls `/v2/rerank` and `cohere.Client` calls `/v1/rerank`; both add the path themselves, so pass the base URL **without** `/v2`.
+
+```python showLineNumbers
+import os
+
+import cohere
+
+# The Cohere SDK adds /v2/rerank itself, so pass the base URL without /v2.
+co = cohere.ClientV2(
+    api_key=os.environ["OPENAI_API_KEY"],
+    base_url=os.environ["OPENAI_BASE_URL"].removesuffix("/v2"),
+)
+
+response = co.rerank(
+    model="Qwen3-Reranker-4B",
+    query="What is the capital of Germany?",
+    documents=[
+        "Paris is the capital of France.",
+        "Berlin is the capital and largest city of Germany.",
+        "Bananas are rich in potassium.",
+    ],
+    top_n=2,
+)
+
+for result in response.results:
+    print(f"{result.relevance_score:.4f}  [{result.index}]")
+```
+
+Other tools that support a Cohere- or Jina-compatible rerank endpoint can use the same model: point them at `https://llm-server.llmhub.t-systems.net/v2/rerank` with your API key.
+
+
+## Retrieve, then rerank
+
+A typical RAG pipeline embeds the query, keeps the closest candidates, and reranks them so only the most relevant ones reach the chat model. This example uses [Qwen3 Embedding 8B](/guides/embeddings) for retrieval (`pip install openai numpy`).
+
+```python showLineNumbers
+import numpy as np
+from openai import OpenAI
+
+client = OpenAI()
+
+query = "How many vacation days do part-time employees get?"
+documents = [
+    "Full-time employees receive 30 vacation days per calendar year.",
+    "Part-time employees receive vacation days in proportion to their working days per week.",
+    "Vacation requests must be submitted in the HR portal at least two weeks in advance.",
+    "The canteen is open from 11:30 to 14:00 on working days.",
+    "Employees working four days a week receive 24 vacation days per year.",
+    "Sick days do not count as vacation days if a doctor's note is submitted.",
+]
+
+# 1. Retrieve: embed the query and the documents, keep the closest candidates.
+emb = client.embeddings.create(model="qwen3-embedding-8b", input=[query] + documents)
+vectors = np.array([d.embedding for d in emb.data])
+vectors /= np.linalg.norm(vectors, axis=1, keepdims=True)
+similarity = vectors[1:] @ vectors[0]
+candidates = [documents[i] for i in np.argsort(-similarity)[:4]]
+
+# 2. Rerank: score each candidate against the query, keep the best two.
+reranked = client.post(
+    "/rerank",
+    body={"model": "Qwen3-Reranker-4B", "query": query, "documents": candidates, "top_n": 2},
+    cast_to=object,
+)
+for r in reranked["results"]:
+    print(f"{r['relevance_score']:.4f}  {r['document']['text']}")
+
+# 3. Pass these documents to your chat model as context.
+context = [r["document"]["text"] for r in reranked["results"]]
+```
+
+**Example output:**
+```
+0.9972  Part-time employees receive vacation days in proportion to their working days per week.
+0.9938  Employees working four days a week receive 24 vacation days per year.
+```
+
+In production you would keep the document embeddings in a vector store instead of embedding them on every request.
+
+
+## Tips and limits
+
+- **Every document is billed, even with `top_n`.** `top_n` only shortens the response. Each query–document pair is one model input: the query, the document and about 70 tokens of the model's prompt template. Rerank tens of candidates, not your whole corpus.
+- **Scores are for ranking.** They are comparable within one request. If you filter by a threshold, choose it from your own data.
+- **Long documents are cut, not rejected.** A pair longer than the context window is truncated and scored on the part that fits. Send `truncate_prompt_tokens` (for example 4096) to cut long pairs earlier, and faster, or split long documents into chunks.
+- **Many documents per request are fine.** 100 documents return in under two seconds, 500 in about three.
+- **Documents always come back.** Each result includes `document.text`; Cohere's `return_documents` parameter is ignored.
+- **No queued variant.** `/queue/rerank` does not exist; retry on `429` instead.
+
+
+## Next steps
+
+- [Embeddings and RAG](/guides/embeddings) — Retrieve candidates for reranking
+- [Plans & pricing](/plans) — Prices and rate limits per plan

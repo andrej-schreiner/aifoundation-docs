@@ -209,10 +209,6 @@ export default defineConfig({
 		'/de/guides/asynchronous-requests': '/de/guides/reliability#queued-requests',
 		'/guides/rag': '/guides/embeddings#rag',
 		'/de/guides/rag': '/de/guides/embeddings#rag',
-		// The Reranking guide is not on this site; reranking is the second step
-		// of the RAG pipeline in the Embeddings guide.
-		'/guides/reranking': '/guides/embeddings#rag',
-		'/de/guides/reranking': '/de/guides/embeddings#rag',
 		'/guides/visual-rag': '/models/deprecations#visual-rag',
 		'/de/guides/visual-rag': '/de/models/deprecations#visual-rag',
 		'/api-transition/requests': '/api-transition#requests',
@@ -364,7 +360,7 @@ export default defineConfig({
 					// Hide a dismissed notice before first paint so the bars
 					// do not pop in and push the page down.
 					tag: 'script',
-					content: `(function(){try{var keys=['apiTransitionBannerDismissed','glm53DeepseekLaunchDismissed'];var nav=performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='reload'){keys.forEach(function(k){sessionStorage.removeItem(k);});}keys.forEach(function(k){if(sessionStorage.getItem(k)==='1')document.documentElement.classList.add('qp-off-'+k);});}catch(e){}})();`,
+					content: `(function(){try{var keys=['apiTransitionBannerDismissed','glm53DeepseekV41Dismissed'];var nav=performance.getEntriesByType('navigation')[0];if(nav&&nav.type==='reload'){keys.forEach(function(k){sessionStorage.removeItem(k);});}keys.forEach(function(k){if(sessionStorage.getItem(k)==='1')document.documentElement.classList.add('qp-off-'+k);});}catch(e){}})();`,
 				},
 				{
 					// Theme switches happen at once. Without this, every element with a colour
@@ -472,6 +468,7 @@ export default defineConfig({
 						{ label: 'Image input', translations: { de: 'Bildeingabe' }, slug: 'guides/multimodal' },
 						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr' },
 						{ label: 'Embeddings & RAG', translations: { de: 'Embeddings & RAG' }, slug: 'guides/embeddings' },
+						{ label: 'Reranking', translations: { de: 'Reranking' }, slug: 'guides/reranking' },
 						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 						{ label: 'Prefix caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
 						{ label: 'Errors & reliability', translations: { de: 'Fehler & Zuverlässigkeit' }, slug: 'guides/reliability' },
