@@ -13,6 +13,7 @@ Major changes to AI Foundation Services — new models, feature updates, and dep
 
 - New models on the Essential, Professional and Agentic plans: **Claude Haiku 5.5** (`claude-haiku-5.5`, `claude-haiku-5.5-long-context`), **Gemini 4 Argon** (`gemini-4-argon`), and the reranker **Qwen3-Reranker-4B** (`Qwen3-Reranker-4B`), hosted on T-Cloud. **Claude Fable 5.1** (`claude-fable-5.1`) and **GPT-6 Astra** (`gpt-6-astra`, `gpt-6-astra-long-context`) on Professional and Agentic. See [Plans & pricing](/plans).
 - **Claude Haiku 5.5** is priced by context length, with separate rates above 100k input tokens; **GPT-6 Astra** above 272k input tokens.
+- New preview model: **DeepSeek V4.1 Flash** (`DeepSeek-V4.1-Flash-Preview`) from DeepSeek, with a 1M context window, text and image input, streaming, function calling and reasoning. Hosted on T-Cloud in Germany, within the EU, free on any active plan. See [Preview models](/models/preview).
 - New guide [Reranking](/guides/reranking): `POST /rerank` with Qwen3-Reranker-4B, compatible with the Cohere and Jina rerank APIs.
 - New page [Decision models](/models/decisions): the models that serve the Decisions API (`POST /decisions`).
 
@@ -21,11 +22,6 @@ Major changes to AI Foundation Services — new models, feature updates, and dep
 ### Added
 
 - New model on the Essential, Professional and Agentic plans: **GLM 5.3** (`GLM-5.3`), hosted on T-Cloud, with a 1M context window. See [Plans & pricing](/plans).
-- New preview model: **DeepSeek V4.1 Flash** (`DeepSeek-V4.1-Flash-Preview`) from DeepSeek, with a 1M context window, text and image input, streaming, function calling and reasoning. Hosted on T-Cloud in Germany, within the EU, free on any active plan. See [Preview models](/models/preview).
-
-### Retired
-
-- Retired on 2026-10-31: GPT-5 nano / GPT-5 mini / GPT 5.4 mini (replacement GPT-6 Luna); GPT-5 / GPT-5 Codex / GPT 5.4 / GPT 5.5 (replacement GPT-6.1 Sol); Claude 4.5 Haiku / Claude 4.6 Sonnet (replacement Claude Sonnet 5.5); Claude 4.6 Opus / Claude Opus 4.8 (replacement Claude Opus 5.5); Gemini 3 Pro (≤200k) (replacement Gemini 3.1 Pro (≤200k)); Gemini 3 Pro (>200k) (replacement Gemini 3.1 Pro (>200k)). See [Deprecations](/models/deprecations).
 
 ### Changed
 
