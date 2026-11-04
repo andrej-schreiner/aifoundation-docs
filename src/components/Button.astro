@@ -1,6 +1,14 @@
 ---
 // Button with Scale's API (scale-button): variant, size, icon only, link or
 // button. Styles live in src/styles/button.css.
+//
+// Success state: put what the button shows after it worked (for a copy
+// button, a tick) into the `success` slot, then set data-state="success" on
+// the button from a script, and remove it again after a moment. Announce the
+// result in a live region too: the swap alone is only visual.
+// successTooltip adds a Scale-style tooltip that shows during that state,
+// such as "Copied: GLM-5.3"; it is hidden from screen readers, which hear
+// the live region instead.
 import type { HTMLAttributes } from 'astro/types';
 
 type Props = {
@@ -14,6 +22,10 @@ type Props = {
 	disabled?: boolean;
 	type?: 'button' | 'submit' | 'reset';
 	ariaLabel?: string;
+	/** Tooltip shown while data-state="success" is set. */
+	successTooltip?: string;
+	/** `top` (centred) or `top-end` (end edges aligned, for a button in a corner). */
+	tooltipPlacement?: 'top' | 'top-end';
 	class?: string;
 } & Omit<HTMLAttributes<'button'> & HTMLAttributes<'a'>, 'type' | 'class' | 'disabled'>;
 
@@ -25,6 +37,8 @@ const {
 	disabled = false,
 	type = 'button',
 	ariaLabel,
+	successTooltip,
+	tooltipPlacement = 'top',
 	class: className,
 	...rest
 } = Astro.props;
@@ -36,6 +50,8 @@ const classes = [
 	iconOnly && 'aifs-button--icon-only',
 	className,
 ];
+
+const hasSuccess = Astro.slots.has('success');
 ---
 
 {
@@ -53,7 +69,23 @@ const classes = [
 		</a>
 	) : (
 		<button class:list={classes} type={type} disabled={disabled} aria-label={ariaLabel} {...rest}>
-			<slot />
+			{hasSuccess ? (
+				<>
+					<span class="aifs-button__content">
+						<slot />
+					</span>
+					<span class="aifs-button__success">
+						<slot name="success" />
+					</span>
+				</>
+			) : (
+				<slot />
+			)}
+			{successTooltip && (
+				<span class:list={['aifs-tooltip', tooltipPlacement === 'top-end' && 'aifs-tooltip--top-end']} aria-hidden="true">
+					{successTooltip}
+				</span>
+			)}
 		</button>
 	)
 }

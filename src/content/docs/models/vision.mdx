@@ -1,0 +1,20 @@
+---
+title: "Vision models"
+description: "Models on AI Foundation Services that accept image input. Filter by cloud, provider, plan, and features."
+---
+
+import { LinkCard } from '@astrojs/starlight/components';
+import ModelsComparison from '../../../components/ModelsComparison.astro';
+import ModelPick from '../../../components/ModelPick.astro';
+
+Models that accept image input. Chat models take images alongside text on the standard Chat Completions endpoint, with image content parts.
+
+<div class="link-card-row">
+  <LinkCard title="Image input" href="/guides/multimodal" />
+  <LinkCard title="OCR models" href="/models/ocr" />
+  <LinkCard title="All models" href="/models" />
+</div>
+
+<ModelPick useCase="vision" />
+
+<ModelsComparison capabilityFilter="accepts-image" />

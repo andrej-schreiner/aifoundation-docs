@@ -3,12 +3,16 @@ title: "Embedding models"
 description: "Embedding models on AI Foundation Services for semantic search, clustering, and RAG. Filter by cloud, provider, and plan."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../components/ModelsComparison.astro';
 import ModelPick from '../../../components/ModelPick.astro';
 
 Convert text to dense vectors for semantic search, clustering, and retrieval-augmented generation. Available via `POST /embeddings`.
 
-Next: [Embeddings and RAG](/guides/embeddings) · [Recommended models](/getting-started/choosing-a-model)
+<div class="link-card-row">
+  <LinkCard title="Embeddings and RAG" href="/guides/embeddings" />
+  <LinkCard title="Recommended models" href="/getting-started/choosing-a-model" />
+</div>
 
 <ModelPick useCase="embeddings" />
 

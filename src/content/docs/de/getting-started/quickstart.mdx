@@ -3,7 +3,7 @@ title: "Quickstart"
 description: "API-Schlüssel holen, zwei Umgebungsvariablen setzen und die erste Anfrage an AI Foundation Services senden, in drei Schritten."
 ---
 
-import { TabItem, Tabs } from '@astrojs/starlight/components';
+import { TabItem, Tabs, LinkCard } from '@astrojs/starlight/components';
 
 Die erste Anfrage in drei Schritten. Lieber eine Oberfläche? Nutzen Sie den [Playground](https://playground.llmhub.t-systems.net/).
 
@@ -27,7 +27,7 @@ Einen kostenlosen Test-Schlüssel erstellen Sie im [API-Schlüssel-Portal](https
     ```
   </TabItem>
   <TabItem value="windows-cmd" label="CMD">
-    ```bash
+    ```bash title="Command Prompt"
     setx OPENAI_API_KEY "your_api_key_here"
     setx OPENAI_BASE_URL "https://llm-server.llmhub.t-systems.net/v2"
     ```
@@ -76,4 +76,10 @@ Einen kostenlosen Test-Schlüssel erstellen Sie im [API-Schlüssel-Portal](https
   </TabItem>
 </Tabs>
 
-Weiter: [Authentifizierung](/de/getting-started/authentication) · [Coding-Agenten einrichten](/de/getting-started/coding-agents) · [Empfohlene Modelle](/de/getting-started/choosing-a-model) · [Umstieg von OpenAI](/de/guides/migrate-from-openai) · [API-Referenz](/de/reference/api-endpoints)
+<div class="link-card-row">
+  <LinkCard title="Authentifizierung" href="/de/getting-started/authentication" />
+  <LinkCard title="Coding-Agenten einrichten" href="/de/getting-started/coding-agents" />
+  <LinkCard title="Empfohlene Modelle" href="/de/getting-started/choosing-a-model" />
+  <LinkCard title="Umstieg von OpenAI" href="/de/guides/migrate-from-openai" />
+  <LinkCard title="API-Referenz" href="/de/reference/api-endpoints" />
+</div>

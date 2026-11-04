@@ -1,17 +1,16 @@
 // @ts-check
-import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import rehypeTableScroll from './src/plugins/rehype-table-scroll.mjs';
 import rehypeInlineCodeBreaks from './src/plugins/rehype-inline-code-breaks.mjs';
 import rehypeNowrapTerms from './src/plugins/rehype-nowrap-terms.mjs';
 import { ecWrapPoints } from './src/plugins/ec-wrap-points.mjs';
-import { ecUntitledFrame } from './src/plugins/ec-untitled-frame.mjs';
+import { ecFrameTitles } from './src/plugins/ec-frame-titles.mjs';
+import { archivedVersions } from './src/archivedVersions.mjs';
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import starlight from '@astrojs/starlight';
-import starlightVersions from 'starlight-versions';
-import archivedVersions from './src/redirects/archived-versions.json' with { type: 'json' };
 
 // The design-system page is a draft unless AIFS_PREVIEW_DESIGN_SYSTEM=1.
 // The content store caches that draft flag, so drop the store when the flag changes.
@@ -86,6 +85,56 @@ function rehypeMarkdownTables() {
 	}
 }
 
+/**
+ * The archived versions (/v1/, /v1-1-0/, /v1-2-0/ and /de/…) are static
+ * snapshots of production in archive/ (scripts/snapshot-archives.mjs,
+ * archive/README.md), not built from the content. After the build, and after
+ * Starlight's search index (so the archives stay out of the current search),
+ * archive/ is copied verbatim into dist/ (except README.md and snapshots.json).
+ * A file Astro already wrote at a snapshot path fails the build. `astro dev`
+ * serves the snapshot files too, for the versions in src/archivedVersions.mjs.
+ */
+function archiveSnapshots() {
+	const source = fileURLToPath(new URL('./archive/', import.meta.url));
+	const snapshotPath = new RegExp(`^/(?:(?:de/)?(?:${archivedVersions.map(({ slug }) => slug).join('|')})|_archive)/`);
+	const files = (directory, prefix = '') =>
+		readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
+			entry.isDirectory()
+				? files(join(directory, entry.name), `${prefix}${entry.name}/`)
+				: ['README.md', 'snapshots.json'].includes(entry.name) && !prefix
+					? []
+					: [`${prefix}${entry.name}`],
+		);
+	return {
+		name: 'archive-snapshots',
+		hooks: {
+			'astro:server:setup': ({ server }) => {
+				server.middlewares.use((req, res, next) => {
+					const path = decodeURIComponent((req.url ?? '').split(/[?#]/)[0]);
+					if (!snapshotPath.test(path) || path.includes('..')) return next();
+					const file = join(source, path.endsWith('/') ? `${path}index.html` : path);
+					if (!existsSync(file) || !statSync(file).isFile()) return next();
+					const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.woff2': 'font/woff2', '.woff': 'font/woff' };
+					const type = types[(file.match(/\.[a-z0-9]+$/i) || [''])[0].toLowerCase()];
+					if (type) res.setHeader('Content-Type', type);
+					res.end(readFileSync(file));
+				});
+			},
+			'astro:build:done': ({ dir, logger }) => {
+				if (!existsSync(source)) throw new Error('archive/ is missing: run node scripts/snapshot-archives.mjs');
+				const target = fileURLToPath(dir);
+				const list = files(source);
+				const collisions = list.filter((file) => existsSync(join(target, file)));
+				if (collisions.length) {
+					throw new Error(`The build wrote files at archive snapshot paths: ${collisions.slice(0, 10).join(', ')}`);
+				}
+				for (const file of list) cpSync(join(source, file), join(target, file));
+				logger.info(`Copied ${list.length} archive snapshot files.`);
+			},
+		},
+	};
+}
+
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
@@ -94,8 +143,10 @@ export default defineConfig({
 	site: 'https://docs.llmhub.t-systems.net',
 	base: '/',
 	redirects: {
-		...archivedVersions,
 		'/Quickstart': '/getting-started/quickstart',
+		// The catalog is a section of the Models page.
+		'/models/catalog': '/models/#catalog',
+		'/de/models/catalog': '/de/models/#katalog',
 		'/Introduction': '/',
 		'/Model Serving/langchain': '/integrations/langchain',
 		'/Services and Pricing': '/plans',
@@ -108,24 +159,24 @@ export default defineConfig({
 		'/de/category/model-serving': '/de/guides',
 		'/getting-started/models': '/models',
 		'/de/getting-started/models': '/de/models',
-		// Renamed when the page stopped describing /queue as asynchronous.
-		// Archived versions and external links still use the old path.
-		'/plans/basic': '/plans',
-		'/de/plans/basic': '/de/plans',
-		'/plans/standard-1000': '/plans',
-		'/de/plans/standard-1000': '/de/plans',
-		'/plans/standard-2000': '/plans',
-		'/de/plans/standard-2000': '/de/plans',
-		'/plans/standard-3000': '/plans',
-		'/de/plans/standard-3000': '/de/plans',
-		'/plans/standard-4000': '/plans',
-		'/de/plans/standard-4000': '/de/plans',
+		// Basic and Standard 1000–4000 are retired plans. Only the v1.0.0 archive
+		// still lists their models and prices.
+		'/plans/basic': '/v1/plans/basic',
+		'/de/plans/basic': '/de/v1/plans/basic',
+		'/plans/standard-1000': '/v1/plans/standard-1000',
+		'/de/plans/standard-1000': '/de/v1/plans/standard-1000',
+		'/plans/standard-2000': '/v1/plans/standard-2000',
+		'/de/plans/standard-2000': '/de/v1/plans/standard-2000',
+		'/plans/standard-3000': '/v1/plans/standard-3000',
+		'/de/plans/standard-3000': '/de/v1/plans/standard-3000',
+		'/plans/standard-4000': '/v1/plans/standard-4000',
+		'/de/plans/standard-4000': '/de/v1/plans/standard-4000',
 		'/plans/test': '/models/preview',
 		'/de/plans/test': '/de/models/preview',
-		'/plans/service-models': '/plans/dedicated',
-		'/de/plans/service-models': '/de/plans/dedicated',
-		'/models/comparison': '/models',
-		'/de/models/comparison': '/de/models',
+		'/plans/service-models': '/plans/dedicated#comparison',
+		'/de/plans/service-models': '/de/plans/dedicated#comparison',
+		'/models/comparison': '/models/#catalog',
+		'/de/models/comparison': '/de/models/#katalog',
 		'/models/scheduled-for-retirement': '/models/deprecations#upcoming',
 		'/de/models/scheduled-for-retirement': '/de/models/deprecations#upcoming',
 		'/models/retired': '/models/deprecations#retired',
@@ -138,8 +189,6 @@ export default defineConfig({
 		'/de/smartchat/local-chat': 'https://docs.smartchat.ai.t-systems.net',
 		'/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
 		'/de/smartchat/global-chat': 'https://docs.smartchat.ai.t-systems.net',
-		'/models/vision': '/models',
-		'/de/models/vision': '/de/models',
 		'/plugins/roo-code': '/plugins/cline',
 		'/de/plugins/roo-code': '/de/plugins/cline',
 		'/plans/essential': '/plans#essential',
@@ -154,12 +203,18 @@ export default defineConfig({
 		'/de/guides/modalities': '/de/guides/multimodal',
 		'/guides/queued-requests': '/guides/reliability#queued-requests',
 		'/de/guides/queued-requests': '/de/guides/reliability#queued-requests',
+		// Renamed when the page stopped describing /queue as asynchronous.
+		// Archived versions and external links still use the old path.
 		'/guides/asynchronous-requests': '/guides/reliability#queued-requests',
 		'/de/guides/asynchronous-requests': '/de/guides/reliability#queued-requests',
 		'/guides/rag': '/guides/embeddings#rag',
 		'/de/guides/rag': '/de/guides/embeddings#rag',
-		'/guides/visual-rag': '/guides/embeddings#visual-rag',
-		'/de/guides/visual-rag': '/de/guides/embeddings#visual-rag',
+		// The Reranking guide is not on this site; reranking is the second step
+		// of the RAG pipeline in the Embeddings guide.
+		'/guides/reranking': '/guides/embeddings#rag',
+		'/de/guides/reranking': '/de/guides/embeddings#rag',
+		'/guides/visual-rag': '/models/deprecations#visual-rag',
+		'/de/guides/visual-rag': '/de/models/deprecations#visual-rag',
 		'/api-transition/requests': '/api-transition#requests',
 		'/de/api-transition/requests': '/de/api-transition#anfragen',
 		'/api-transition/responses': '/api-transition#responses',
@@ -194,20 +249,20 @@ export default defineConfig({
 				},
 			},
 		},
-		sitemap({
-			filter: (page) => !page.includes('/v1-2-0'),
-		}),
+		sitemap(),
 		starlight({
 			title: 'AI Foundation Services',
 			head: [
 				{
 					// Puts "On this page" on the same baseline as the page title.
-					// The title's height above the fold varies (the announcement box
-					// above it, which can be closed; a title over two lines), so CSS
-					// can't know the offset. Measures both baselines and sets
+					// The title's height above the fold varies (the announcement
+					// banners above it, which can be closed; a title over two lines),
+					// so CSS can't know the offset. Measures both baselines and sets
 					// --aifs-toc-offset on the root; layout.css applies it as a margin
-					// on the sticky column. The ResizeObserver on the title panel
-					// re-measures when the box is closed (the panel's padding changes).
+					// on the sticky column. Re-measures when the title panel or the
+					// column (main, which holds the banners) changes size, and on the
+					// aifs:banner-dismissed event from PreviewModelsBanner: closing a
+					// banner moves the title panel without resizing it.
 					tag: 'script',
 					content: `(() => {
 	const wide = matchMedia('(min-width: 72rem)');
@@ -239,10 +294,36 @@ export default defineConfig({
 	};
 	const start = () => {
 		align();
+		const observer = new ResizeObserver(align);
 		const panel = document.querySelector('.main-pane .content-panel');
-		if (panel) new ResizeObserver(align).observe(panel);
+		const sheet = document.querySelector('.main-pane > main');
+		if (panel) observer.observe(panel, { box: 'border-box' });
+		if (sheet) observer.observe(sheet);
+		document.addEventListener('aifs:banner-dismissed', align);
 		wide.addEventListener('change', align);
 		document.fonts?.ready.then(align);
+	};
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+	else start();
+})();`,
+				},
+				{
+					// Below 72rem On this page is a bar under the header; a long
+					// current heading wraps, so the bar can grow. Its real height
+					// goes to --aifs-mobile-toc-actual, and the scroll padding
+					// (custom.css) uses it, so a jump to a heading lands below the
+					// bar however many lines it has.
+					tag: 'script',
+					content: `(() => {
+	const start = () => {
+		const bar = document.querySelector('mobile-starlight-toc nav');
+		if (!bar) return;
+		const root = document.documentElement;
+		new ResizeObserver(() => {
+			const h = bar.getBoundingClientRect().height;
+			if (h > 0) root.style.setProperty('--aifs-mobile-toc-actual', Math.ceil(h) + 'px');
+			else root.style.removeProperty('--aifs-mobile-toc-actual');
+		}).observe(bar);
 	};
 	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
 	else start();
@@ -296,6 +377,18 @@ export default defineConfig({
 					content: `(function(){var r=document.documentElement;new MutationObserver(function(){r.setAttribute('data-theme-switching','');requestAnimationFrame(function(){requestAnimationFrame(function(){r.removeAttribute('data-theme-switching');});});}).observe(r,{attributes:true,attributeFilter:['data-theme']});})();`,
 				},
 				{
+					// Sidebar groups start open. Starlight keeps the groups a visitor
+					// closed in sessionStorage ('sl-sidebar-state') and restores them on
+					// the next page; a state stored before the groups opened by default
+					// (when every group started closed) would still close them, so it is
+					// dropped once per session, marked by a versioned key. Runs in <head>,
+					// before the sidebar restores its state. Only needed for sessions
+					// that began before the groups opened by default: remove it once
+					// those have expired (sessionStorage ends with the tab).
+					tag: 'script',
+					content: `(function(){try{var v='aifsSidebarDefaultOpen1';if(sessionStorage.getItem(v)!=='1'){sessionStorage.removeItem('sl-sidebar-state');sessionStorage.setItem(v,'1');}}catch(e){}})();`,
+				},
+				{
 					// Sidebar groups are collapsible (Starlight's <details>, state kept in
 					// sessionStorage). The group holding the current page is always open,
 					// even if it was closed earlier in the session.
@@ -304,7 +397,7 @@ export default defineConfig({
 				},
 			],
 			components: {
-				Banner: './src/components/ArchiveBanner.astro',
+				Banner: './src/components/Banner.astro',
 				Footer: './src/components/Footer.astro',
 				Header: './src/components/SiteHeader.astro',
 				MobileMenuFooter: './src/components/MobileMenuFooter.astro',
@@ -316,8 +409,7 @@ export default defineConfig({
 			favicon: '/img/favicon_180x180.png',
 			// tokens.css is generated from tokens/ (bun run tokens) and loaded last, so the
 			// Starlight variables it sets win over the hand-set ones in the other two.
-			routeMiddleware: './src/starlightRouteData.ts',
-			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
+			customCss: ['./src/styles/custom.css', './src/styles/redesign.css', './src/styles/aside.css', './src/styles/button.css', './src/styles/code-block.css', './src/styles/file-tree.css', './src/styles/icons.css', './src/styles/layout.css', './src/styles/notification.css', './src/styles/select.css', './src/styles/sidebar-nav.css', './src/styles/table.css', './src/styles/tag.css', './src/styles/tabs.css', './src/styles/data-table.css', './src/styles/tooltip.css', './src/styles/tokens.css', './src/styles/rhythm.css'],
 			expressiveCode: {
 				themes: ['github-light', 'github-dark'],
 				defaultProps: {
@@ -326,25 +418,22 @@ export default defineConfig({
 					hangingIndent: 2,
 				},
 				// Wrapped lines break only at spaces or at punctuation boundaries,
-				// never between two letters or digits (adds <wbr>). Untitled
-				// blocks get no header bar (ec-untitled-frame.mjs).
-				plugins: [ecWrapPoints(), ecUntitledFrame()],
+				// never between two letters or digits (adds <wbr>). Shell blocks
+				// get the terminal frame, other blocks their language as the
+				// title unless the page gives a real file name (ec-frame-titles.mjs).
+				plugins: [ecWrapPoints(), ecFrameTitles()],
 			},
-			plugins: [
-				starlightVersions({
-					versions: [{ slug: 'v1-2-0', label: 'v1.2.0 (Archived)' }],
-				}),
-			],
 			defaultLocale: 'root',
 			locales: {
 				root: { label: 'English', lang: 'en' },
 				de: { label: 'Deutsch', lang: 'de' },
 			},
 			sidebar: [
+				// Every group starts open (Starlight's default, no `collapsed`); the
+				// chevrons still close them. See the sidebar-state script in `head`.
 				{
 					label: 'Get started',
 					translations: { de: 'Erste Schritte' },
-					collapsed: false,
 					items: [
 						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'index' },
 						{ label: 'Quickstart', translations: { de: 'Quickstart' }, slug: 'getting-started/quickstart' },
@@ -357,11 +446,13 @@ export default defineConfig({
 				{
 					label: 'Models',
 					translations: { de: 'Modelle' },
-					collapsed: false,
 					items: [
 						{ label: 'All models', translations: { de: 'Alle Modelle' }, slug: 'models' },
 						{ label: 'Chat & reasoning', translations: { de: 'Chat & Reasoning' }, slug: 'models/llms' },
 						{ label: 'Coding', translations: { de: 'Coding' }, slug: 'models/coding' },
+						{ label: 'Vision', translations: { de: 'Vision' }, slug: 'models/vision' },
+						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'models/ocr' },
+						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'models/decisions' },
 						{ label: 'Embeddings', translations: { de: 'Embeddings' }, slug: 'models/embeddings' },
 						{ label: 'Speech-to-text', translations: { de: 'Spracherkennung' }, slug: 'models/audio' },
 						{ label: 'Image generation', translations: { de: 'Bildgenerierung' }, slug: 'models/image-generation' },
@@ -371,7 +462,6 @@ export default defineConfig({
 				{
 					label: 'API usage',
 					translations: { de: 'API-Nutzung' },
-					collapsed: false,
 					items: [
 						{ label: 'Authentication', translations: { de: 'Authentifizierung' }, slug: 'getting-started/authentication' },
 						{ label: 'Chat', translations: { de: 'Chat' }, slug: 'guides/chat-completions' },
@@ -380,7 +470,7 @@ export default defineConfig({
 						{ label: 'Structured outputs', translations: { de: 'Strukturierte Ausgaben' }, slug: 'guides/structured-outputs' },
 						{ label: 'Reasoning', translations: { de: 'Reasoning' }, slug: 'guides/reasoning' },
 						{ label: 'Image input', translations: { de: 'Bildeingabe' }, slug: 'guides/multimodal' },
-						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
+						{ label: 'OCR', translations: { de: 'OCR' }, slug: 'guides/ocr' },
 						{ label: 'Embeddings & RAG', translations: { de: 'Embeddings & RAG' }, slug: 'guides/embeddings' },
 						{ label: 'Decisions', translations: { de: 'Decisions' }, slug: 'guides/decisions', badge: { text: { en: 'Preview', de: 'Vorschau' }, variant: 'note' } },
 						{ label: 'Prefix caching', translations: { de: 'Prefix Caching' }, slug: 'guides/prefix-caching' },
@@ -391,7 +481,6 @@ export default defineConfig({
 				{
 					label: 'Integrations',
 					translations: { de: 'Integrationen' },
-					collapsed: false,
 					items: [
 						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
 						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
@@ -401,7 +490,6 @@ export default defineConfig({
 				{
 					label: 'Trust & compliance',
 					translations: { de: 'Vertrauen & Compliance' },
-					collapsed: false,
 					items: [
 						{ label: 'Enterprise Trust & certifications', translations: { de: 'Enterprise Trust & Zertifizierungen' }, slug: 'reference/enterprise-trust' },
 						{ label: 'Service levels', translations: { de: 'Service-Level' }, slug: 'reference/service-levels' },
@@ -410,7 +498,6 @@ export default defineConfig({
 				{
 					label: 'Plans & pricing',
 					translations: { de: 'Tarife & Preise' },
-					collapsed: false,
 					items: [
 						{ label: 'Plans', translations: { de: 'Tarife' }, slug: 'plans' },
 						{ label: 'Dedicated serving', translations: { de: 'Dedicated Serving' }, slug: 'plans/dedicated' },
@@ -420,7 +507,6 @@ export default defineConfig({
 				{
 					label: 'Resources',
 					translations: { de: 'Ressourcen' },
-					collapsed: false,
 					items: [
 						{ label: 'Changelog', translations: { de: 'Änderungsprotokoll' }, slug: 'changelog' },
 						{ label: 'Deprecations', translations: { de: 'Abkündigungen' }, slug: 'models/deprecations' },
@@ -430,5 +516,6 @@ export default defineConfig({
 				},
 		],
 		}),
+		archiveSnapshots(),
 	],
 });

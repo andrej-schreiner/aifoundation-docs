@@ -3,12 +3,17 @@ title: "Bildgenerierung"
 description: "Bildgenerierungs-Modelle auf AI Foundation Services, die Textprompts (und optional Bilder) in Bilder umwandeln."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Erzeugen Sie Bilder aus Textprompts und optionalen Referenzbildern. Das sind Partnermodelle. Verfügbar über `POST /images/generations`.
 
-Weiter: [Bildgenerierung](/de/guides/image-generation) · [Alle Modelle](/de/models) · [Tarife](/de/plans)
+<div class="link-card-row">
+  <LinkCard title="Bildgenerierung" href="/de/guides/image-generation" />
+  <LinkCard title="Alle Modelle" href="/de/models" />
+  <LinkCard title="Tarife" href="/de/plans" />
+</div>
 
 <ModelPick useCase="image" />
 

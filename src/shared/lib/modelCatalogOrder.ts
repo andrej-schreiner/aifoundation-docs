@@ -8,7 +8,7 @@
  * Rank comes from the catalog itself: T-Cloud (`otc-`) before hyperscalers,
  * then generation and size tokens in the provider's name, the premium tier,
  * published token price only as a tie-break inside one family, and the
- * successor column on /models/scheduled-for-retirement and /models/retired.
+ * successor column on /models/deprecations.
  * No benchmark scores.
  *
  * Rows marked "unsure" are the ones where two of those signals disagree.
@@ -33,18 +33,23 @@ export const MODEL_CATALOG_ORDER = [
   'Qwen3 Embedding 8B', // Newest embedding (changelog 2026-10), 8B, 32K.
   'BGE-M3', // Embedding, no newer generation token than Qwen3 Embedding.
   'Jina Embeddings v2 Base DE', // Embedding v2, Base size, 8K context.
-  'LightOnOCR-3-4B', // OCR preview, generation 3, 4B. Added the same day as PaddleOCR — order is the generation number only.
-  'PaddleOCR-VL-1.6', // OCR preview, version 1.6. Same changelog entry as LightOnOCR.
+  'Qwen3-Reranker-4B', // Reranker (SD v1.25), 4B. Next to the embeddings it is used with.
+  'LightOnOCR-3-4B', // OCR, generation 3, 4B. Added the same day as PaddleOCR — order is the generation number only.
+  'PaddleOCR-VL-1.6', // OCR, version 1.6. Same changelog entry as LightOnOCR.
   'Whisper Large v3', // Audio, Large v3.
   'Whisper Large v3 Turbo', // Same generation, Turbo variant, so after the full Large.
 
   // --- Hyperscalers: flagship (Opus / Pro / Sol / full GPT), newest first ---
   'GPT-6.1 Sol (≤272k)', // Newest OpenAI flagship. Retirement table: replaces GPT-5 through GPT 5.5.
   'GPT-6.1 Sol (>272k)', // Same model, long-context price.
+  'GPT-6 Astra (≤272k)', // SD v1.25, Professional and Agentic only, highest OpenAI token price. Unsure: no generation or successor signal against 6.1 Sol.
+  'GPT-6 Astra (>272k)', // Same model, long-context price.
   'Claude Opus 5.5', // Newest Opus. Retirement table: replaces Opus 4.6 and Opus 4.8. Premium tier.
+  'Claude Fable 5.1', // SD v1.25. Successor of Fable 5 (/models/deprecations), same token price.
   'Claude Fable 5', // Premium, generation 5, highest token price in the catalog. Unsure: the name is not Opus/Sonnet/Haiku, and it is not the documented Opus successor.
   'Claude Opus 5', // Previous Opus. Retirement table: replaces retired Claude 4.5 Opus.
   'GPT-5.6 Sol', // Generation 5.6, Sol — the same name as the GPT-6.1 flagship. Highest price of the three 5.6 names.
+  'Gemini 4 Argon', // SD v1.25. Retirement table: replaces Gemini 3 Pro and Gemini 3.1 Pro.
   'Gemini 3.1 Pro (≤200k)', // Newer Pro (3.1). Retirement table: replaces Gemini 3 Pro.
   'Gemini 3.1 Pro (>200k)', // Same model, long-context price.
 
@@ -59,6 +64,8 @@ export const MODEL_CATALOG_ORDER = [
   'GPT-6 Luna (≤272k)', // Newest small GPT. Retirement table: replaces GPT-5 nano, GPT-5 mini, and GPT 5.4 mini.
   'GPT-6 Luna (>272k)', // Same model, long-context price.
   'GPT-5.6 Luna', // 5.6 small name. Lowest token price of the three 5.6 names.
+  'Claude Haiku 5.5 (≤100k)', // SD v1.25, Haiku is Anthropic's small tier.
+  'Claude Haiku 5.5 (>100k)', // Same model, long-context price.
   'Gemini 3.8 Flash', // Newest Flash. Retirement table: replaces Gemini 3 Flash.
   'Gemini 3.5 Flash', // Previous Flash generation.
 

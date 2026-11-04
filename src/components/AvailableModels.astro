@@ -1,25 +1,34 @@
 ---
+// Model cards in a grid: one card per catalog model with its logo, name, hosting
+// and a copy button for the model ID. Used on the home page and Models overview.
+// The name is the primary line; the facts follow under a divider, each a small
+// muted label above its stronger value, like the prices.
 import Flag from './Flag.astro';
+import Logo from './Logo.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
+import Tag from './Tag.astro';
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { compareCatalogName } from '../shared/lib/modelCatalogOrder';
-import { creatorLogoFor, creatorNameFor } from '../shared/lib/logos';
+import { creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
-import { isRetiringModel } from '../shared/lib/choosingModels';
-import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
+import { isRetiredModel } from '../shared/lib/retirements';
+import { apiIdPublished, hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { FEATURED_MODEL_IDS, isPreviewOnly, modelPrices } from '../shared/lib/modelCards';
 import { formatEuro } from '../shared/lib/displayFormat';
+import { parseDataProcessing } from '../shared/lib/location';
 
 // Locale detection (mirrors PlansPage.astro pattern)
 interface Props {
   showHeading?: boolean;
-  /** Only the first few cards, no "Show more": the full catalog follows on the page. */
+  /** Render only the first `limit` cards, without the Show more toggle. */
+  limit?: number;
+  /** Only the featured cards, in their own order, no "Show more": the full catalog follows on the page. */
   featured?: boolean;
   /** Per-1M token prices on each card (the overview); no copy button. */
   pricing?: boolean;
 }
-const { showHeading = true, featured = false, pricing = false } = Astro.props;
+const { showHeading = true, limit, featured = false, pricing = false } = Astro.props;
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 
 const t = {
@@ -40,13 +49,13 @@ const t = {
   // announce in German.
   copyTitleTemplate: isDE ? 'Modell-ID kopieren: {id}' : 'Copy model ID: {id}',
   copyAriaTemplate: isDE ? 'Modell-ID {id} kopieren' : 'Copy model ID {id}',
-  copiedAriaTemplate: isDE ? 'Kopiert: {id}' : 'Copied {id}',
+  copiedAriaTemplate: isDE ? 'Kopiert: {id}' : 'Copied: {id}',
   modelsCountAriaTemplate: isDE ? '{count} Modelle insgesamt' : '{count} models total',
 };
 
 // Models not present in the pricing JSON but that should still appear on the
 // featured grid. Keep this list current: entries for retired models (see
-// /models/retired) render dead cards. Empty is fine.
+// /models/deprecations) render dead cards. Empty is fine.
 const EXTRA_MODELS: Array<{
   modelId: string;
   name: string;
@@ -83,11 +92,9 @@ function parseRegion(region: string): {
   provider: string;
   hosted: string;
   countryCode: string;
-  dataProcessing: string;
-  dataProcessingCode: string;
 } {
   if (!region) {
-    return { provider: '', hosted: '', countryCode: '', dataProcessing: '', dataProcessingCode: '' };
+    return { provider: '', hosted: '', countryCode: '' };
   }
   const parts = region.split('-');
   const raw = parts[0].toLowerCase();
@@ -95,7 +102,6 @@ function parseRegion(region: string): {
   const provider = PROVIDER_MAP[raw] ?? raw.charAt(0).toUpperCase() + raw.slice(1);
 
   let country = parts[1] ?? '';
-  const isWorldwide = country.toLowerCase() === 'worldwide';
   country = country.charAt(0).toUpperCase() + country.slice(1).toLowerCase();
   const regionDe: Record<string, string> = {
     Germany: 'Deutschland',
@@ -110,17 +116,7 @@ function parseRegion(region: string): {
   const countryCode = getCountryCode(country);
   // T-Cloud data stays in Germany, within the EU.
   if (raw === 'otc') country = isDE ? 'Deutschland\u00a0(EU)' : 'Germany\u00a0(EU)';
-
-  // A `worldwide` region means the third-party provider may run the model —
-  // and process the data — outside the EU/EEA. See /reference/enterprise-trust.
-  const dataProcessing = raw === 'otc'
-    ? country
-    : isWorldwide
-      ? (isDE ? 'Weltweit' : 'Worldwide')
-      : 'EU';
-  // Only worldwide processing carries a glyph; Germany and EU stay text-only.
-  const dataProcessingCode = isWorldwide ? 'globe' : '';
-  return { provider, hosted: country, countryCode, dataProcessing, dataProcessingCode };
+  return { provider, hosted: country, countryCode };
 }
 
 // Pull from the Agentic and Test plans so preview-only models (e.g. Gemma 4) are included.
@@ -134,7 +130,6 @@ interface ModelCard {
   modelId: string;
   name: string;
   creator: string;
-  logo: string;
   provider: string;
   hosted: string;
   countryCode: string;
@@ -147,17 +142,20 @@ interface ModelCard {
 
 // Build model cards from pricing data (filtering out offline models)
 const pricingModels: ModelCard[] = configs
-  .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName) && !isRetiringModel(c.exactModelName))
+  .filter((c: { exactModelName: string }) => !isHiddenModel(c.exactModelName) && !isRetiredModel(c.exactModelName))
   .map((c: { exactModelName: string; displayModelName: string; deploymentRegion: string; modelTier?: string; isPreview: boolean }) => {
-    const { provider, hosted, countryCode, dataProcessing, dataProcessingCode } = parseRegion(
+    const { provider, hosted, countryCode } = parseRegion(c.deploymentRegion);
+    // Data processing: see shared/lib/location (Germany, EU or worldwide).
+    const { name: dataProcessing, code: dataProcessingCode } = parseDataProcessing(
+      c.exactModelName,
       c.deploymentRegion,
+      isDE,
     );
     const creator = creatorNameFor(c.exactModelName, c.displayModelName);
     return {
       modelId: c.exactModelName,
       name: c.displayModelName,
       creator,
-      logo: creatorLogoFor(c.exactModelName, c.displayModelName),
       provider: CLOUD_OVERRIDES[c.exactModelName] ?? provider,
       hosted,
       countryCode,
@@ -186,7 +184,7 @@ const INITIAL_COUNT = 6;
 const featuredModels = FEATURED_MODEL_IDS.map((id) => sortedModels.find((m) => m.modelId === id)).filter(
   (m): m is ModelCard => Boolean(m),
 );
-const cardModels = featured ? featuredModels : sortedModels;
+const cardModels = featured ? featuredModels : limit ? sortedModels.slice(0, limit) : sortedModels;
 ---
 
 <div class="available-models">
@@ -198,62 +196,62 @@ const cardModels = featured ? featuredModels : sortedModels;
       </span>
     </h2>
   )}
-  <span id="copy-status" class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
-  <div class="models-grid" id="models-grid">
+  <span class="copy-status" role="status" aria-live="polite" aria-atomic="true"></span>
+  <div class="models-grid" id={limit ? undefined : 'models-grid'}>
     {
       cardModels.map((model, index) => (
-        <div class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT, 'model-card--priced': pricing }]} data-index={index}>
-          {!pricing && <Button
-            variant="ghost"
-            size="small"
-            iconOnly
-            class="model-card__copy"
-            data-model-id={model.modelId}
-            data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
-            title={t.copyTitleTemplate.replace('{id}', model.modelId)}
-            ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}>
-            <Icon name="action-copy-paste" size={16} class="icon-copy" />
-            <Icon name="action-checkmark" size={16} class="icon-check" />
-          </Button>}
-          <h3 class="model-card__name">
-            {model.creator.startsWith('Google') ? (
-              <span class="model-card__mark model-card__mark--zoom" style={`background-image:url("${model.logo}")`} role="img" aria-label={model.creator} title={model.creator} />
-            ) : (
-              <span class="model-card__mark">
-                <img
-                  class="model-card__logo"
-                  src={model.logo}
-                  alt={model.creator === 'Other' ? '' : model.creator}
-                  title={model.creator === 'Other' ? undefined : model.creator}
-                  width="20"
-                  height="20"
-                />
-              </span>
-            )}
-            <span class="model-card__title">
+        <article class:list={['model-card', { 'model-card--hidden': index >= INITIAL_COUNT, 'model-card--priced': pricing }]} data-index={index}>
+          <div class="model-card__head">
+            <Logo name={model.creator} size="large" />
+            <h3 class="model-card__name">
               {model.name}
-              {isNewModel(model.modelId) && <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span>}
-              {model.preview && <span class="aifs-tag aifs-tag--small">{t.preview}</span>}
-              {pricing && model.premium && <span class="aifs-tag aifs-tag--small">{t.premium}</span>}
-            </span>
-          </h3>
+              {isNewModel(model.modelId) && <Tag size="small" color="magenta">{t.newTag}</Tag>}
+              {model.preview && <Tag size="small">{t.preview}</Tag>}
+              {pricing && model.premium && <Tag size="small">{t.premium}</Tag>}
+            </h3>
+            {!pricing && apiIdPublished(model.modelId) && (
+              <Button
+                variant="ghost"
+                size="small"
+                iconOnly
+                class="model-card__copy"
+                data-model-id={model.modelId}
+                data-copied-label={t.copiedAriaTemplate.replace('{id}', model.modelId)}
+                title={t.copyTitleTemplate.replace('{id}', model.modelId)}
+                ariaLabel={t.copyAriaTemplate.replace('{id}', model.modelId)}
+                successTooltip={t.copiedAriaTemplate.replace('{id}', model.modelId)}
+                tooltipPlacement="top-end">
+                <Icon name="action-copy-paste" size={16} />
+                <Icon slot="success" name="action-checkmark" size={16} />
+              </Button>
+            )}
+          </div>
           {model.showHosting !== false && model.provider && (
-          <p class="model-card__where">
-            <span>{model.provider}</span>
-            <span aria-hidden="true">·</span>
-            {model.countryCode && <Flag code={model.countryCode} size={16} decorative />}
-            <span>{model.hosted}</span>
-          </p>
-          )}
-          {model.showHosting !== false && model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
-            <p class="model-card__where model-card__where--extra">
-              <span class="model-card__k">{t.dataProcessing}</span>
-              {model.dataProcessingCode && <Flag code={model.dataProcessingCode} size={16} decorative />}
-              <span>{model.dataProcessing}</span>
-            </p>
+            <dl class="model-card__facts">
+              <div class="model-card__fact">
+                <dt>{t.cloud}</dt>
+                <dd><Tag size="small" color={model.provider === 'T-Cloud' ? 'magenta' : 'standard'}>{model.provider}</Tag></dd>
+              </div>
+              <div class="model-card__fact">
+                <dt>{t.serverLocation}</dt>
+                <dd class="model-card__place">
+                  {model.countryCode && <Flag code={model.countryCode} size={20} decorative />}
+                  <span>{model.hosted}</span>
+                </dd>
+              </div>
+              {model.hosted.trim().toLowerCase() !== model.dataProcessing.trim().toLowerCase() && (
+                <div class="model-card__fact">
+                  <dt>{t.dataProcessing}</dt>
+                  <dd class="model-card__place">
+                    {model.dataProcessingCode && <Flag code={model.dataProcessingCode} size={20} decorative />}
+                    <span>{model.dataProcessing}</span>
+                  </dd>
+                </div>
+              )}
+            </dl>
           )}
           {pricing && (isPreviewOnly(model.modelId) ? (
-            <p class="model-card__prices model-card__free">{t.free}</p>
+            <p class="model-card__free">{t.free}</p>
           ) : (() => {
             const p = modelPrices(model.modelId);
             const euro = (value: number | null, digits = 2) => formatEuro(value, digits, isDE ? 'de' : 'en');
@@ -265,7 +263,7 @@ const cardModels = featured ? featuredModels : sortedModels;
               </dl>
             );
           })())}
-        </div>
+        </article>
       ))
     }
   </div>
@@ -289,19 +287,22 @@ const cardModels = featured ? featuredModels : sortedModels;
 
 <style>
   .available-models {
-    margin-top: var(--aifs-rhythm-heading-2);
-    margin-bottom: 8px;
+    /* The grid follows its own width, not the window's, so it also fits a
+       narrow column such as a design-system showcase. */
+    container-type: inline-size;
+    /* Spacing around it: layout.css (a section when it has its heading). */
   }
 
   .models-heading {
-    margin: 0 0 8px;
+    margin: 0 0 var(--aifs-rhythm-after-heading);
     line-height: 1.2;
   }
 
   .models-count {
     font-size: 0.75em;
     font-weight: 400;
-    color: var(--sl-color-gray-3);
+    color: var(--aifs-color-text-muted);
+    font-variant-numeric: tabular-nums;
     vertical-align: middle;
   }
 
@@ -311,193 +312,168 @@ const cardModels = featured ? featuredModels : sortedModels;
 
   .models-grid {
     display: grid;
-    gap: 8px;
-    /* As many ~15rem cards as the column holds: three in a wide column, two
-       beside the table of contents, one on phones. */
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+    gap: var(--aifs-model-card-grid-gap);
+    grid-template-columns: 1fr;
     align-items: stretch;
   }
 
+  /* A card needs about 19.5rem for its longest rows (Server Location,
+     globe, Worldwide; the three prices), so: two columns from 40rem, three
+     from 52rem. Container
+     queries cannot read custom properties, so these are rem, not tokens. */
+  @container (min-width: 40rem) {
+    .models-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @container (min-width: 52rem) {
+    .models-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  /* A header row (logo, name, copy), then the facts under a divider. Each
+     card spans the rows it uses of the grid (subgrid): header, facts and,
+     on the overview, prices. So the dividers and prices of a row of cards
+     line up, and the cards are as tall as the tallest. */
   .model-card {
-    position: relative;
-    background: var(--sl-color-black);
-    color: var(--sl-color-white);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: var(--aifs-table-radius, 8px);
-    padding: 10px 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    /* A size container, so the copy tooltip stays inside the card. */
+    container-type: inline-size;
+    --aifs-tooltip-inset: var(--aifs-model-card-padding);
+    display: grid;
+    grid-row: span 2;
+    grid-template-rows: subgrid;
+    row-gap: var(--aifs-model-card-gap);
+    padding: var(--aifs-model-card-padding);
+    border: var(--aifs-model-card-border-width) solid var(--aifs-model-card-border);
+    border-radius: var(--aifs-model-card-radius);
+    background: var(--aifs-model-card-background);
+    color: var(--aifs-model-card-value);
     text-align: start;
-    line-height: 1.2;
   }
 
-  :global(:root[data-theme='dark']) .model-card {
-    background: var(--aifs-color-surface-chrome);
-    border-color: var(--aifs-color-border-subtle);
-  }
-
-  .model-card:hover {
-    border-color: var(--aifs-color-action-background);
+  .model-card--priced {
+    grid-row: span 3;
   }
 
   .model-card--hidden {
     display: none;
   }
 
+  .model-card__head {
+    grid-row: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--aifs-model-card-logo-gap);
+  }
+
   .model-card__name {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-    line-height: 1.2;
-    color: var(--sl-color-white);
-    padding-right: 1.75rem;
-    display: flex;
-    flex-wrap: nowrap;
-    align-items: baseline;
-    gap: 6px;
-  }
-
-  /* 20px tile on the title line. Google's mark is mostly margin, so it is scaled up. */
-  .model-card__mark {
-    width: 20px;
-    height: 20px;
-    flex: 0 0 20px;
-    align-self: center;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    box-sizing: border-box;
-    padding: 2px;
-    border: 1px solid var(--aifs-color-border-subtle);
-    border-radius: 4px;
-    background: var(--aifs-color-logo-background);
-  }
-
-  /* Google's mark is mostly margin: scale it inside the tile, as in the catalog. */
-  .model-card__mark--zoom {
-    padding: 0;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 175%;
-  }
-
-  .model-card__logo {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-  }
-
-  .model-card__mark--zoom .model-card__logo {
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    object-fit: contain;
-  }
-
-  /* Badges drop under the name when the card is narrow, instead of running
-     under the copy button. */
-  .model-card__title {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 2px 6px;
+    flex: 1;
     min-width: 0;
-  }
-
-  .model-card__where {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 4px;
-    margin: 0 0 0 26px;
-    padding: 0 2.5rem 0 0;
-    font-size: 0.8125rem;
-    line-height: 1.3;
+    gap: var(--aifs-model-card-row-gap);
+    margin: 0;
+    font-size: var(--aifs-model-card-name-font-size);
+    font-weight: var(--aifs-model-card-name-font-weight);
+    line-height: 1.25;
+    color: var(--aifs-model-card-value);
   }
 
-  .model-card__where--extra {
-    color: var(--aifs-color-text-muted);
+  /* The facts under a divider, side by side while they fit: each a small
+     muted label above its value, as the prices below. */
+  .model-card__facts {
+    grid-row: 2;
+    align-self: start;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aifs-model-card-row-gap) var(--aifs-model-card-gap);
+    margin: 0;
+    padding-top: var(--aifs-model-card-gap);
+    border-top: var(--aifs-model-card-border-width) solid var(--aifs-layout-divider);
   }
 
-  .model-card__k {
-    color: var(--aifs-color-text-muted);
+  .model-card__fact {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aifs-model-card-stack-gap);
+    margin: 0;
   }
 
-  /* Overview: no copy button, so the name and host lines use the full width;
-     prices sit at the foot of the card so they line up across a row. */
-  .model-card--priced .model-card__name,
-  .model-card--priced .model-card__where {
-    padding-right: 0;
+  .model-card__fact dt {
+    margin: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+    color: var(--aifs-model-card-label);
+    font-weight: normal;
+    white-space: nowrap;
   }
 
+  /* Overview cards (pricing): the per-1M prices at the foot of the card, so
+     they line up across a row of cards. */
   .model-card__prices {
     display: flex;
     flex-wrap: wrap;
-    gap: 2px 14px;
-    margin: auto 0 0 26px;
-    padding-top: 6px;
+    gap: var(--aifs-model-card-row-gap) var(--aifs-model-card-gap);
+    grid-row: 3;
+    align-self: end;
+    margin: 0;
   }
 
   .model-card__prices > div {
     display: grid;
+    gap: var(--aifs-model-card-stack-gap);
     margin: 0;
   }
 
   .model-card__prices dt {
     margin: 0;
-    font-size: 0.75rem;
-    line-height: 1rem;
-    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+    font-weight: normal;
+    line-height: var(--aifs-text-small-line-height);
+    color: var(--aifs-model-card-label);
     white-space: nowrap;
   }
 
-  .model-card__prices dd {
+  .model-card__prices dd,
+  .model-card__free {
     margin: 0;
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 700;
+    padding: 0;
+    font-weight: var(--aifs-model-card-name-font-weight);
     white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
 
   .model-card__free {
-    font-size: 0.875rem;
-    line-height: 1.25rem;
-    font-weight: 700;
+    grid-row: 3;
+    align-self: end;
   }
 
-  .model-card__preview-tag {
-    font-weight: 500;
-    color: var(--sl-color-text-accent);
+  .model-card__fact dd {
+    margin: 0;
+    padding: 0;
   }
 
-  /* The Button component draws this one (ghost, small, icon only); here it is
-     only placed in the card's corner. :global because the button element
-     belongs to Button.astro, not to this component's scope. */
+  .model-card__place {
+    display: flex;
+    align-items: center;
+    gap: var(--aifs-model-card-row-gap);
+    font-weight: var(--aifs-model-card-value-font-weight);
+  }
+
+  .model-card__place :global(.flag) {
+    width: var(--aifs-model-card-flag-size);
+    height: var(--aifs-model-card-flag-size);
+  }
+
+  /* The Button component draws this one (ghost, small, icon only); it sits at
+     the end of the header row. :global because the button element belongs to
+     Button.astro, not to this component's scope. */
   .model-card :global(.model-card__copy) {
-    position: absolute;
-    top: 4px;
-    right: 4px;
-  }
-
-  .model-card :global(.model-card__copy .icon-check) {
-    display: none;
-    color: var(--aifs-color-success);
-  }
-
-  .model-card :global(.model-card__copy[data-copied] .icon-copy) {
-    display: none;
-  }
-
-  .model-card :global(.model-card__copy[data-copied] .icon-check) {
-    display: inline;
-  }
-
-  .model-card :global(.model-card__copy[data-copied]) {
-    color: var(--aifs-color-success);
+    flex: none;
   }
 
   .copy-status {
@@ -509,30 +485,22 @@ const cardModels = featured ? featuredModels : sortedModels;
     white-space: nowrap;
   }
 
-  .model-card__details {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.85rem;
-    color: var(--sl-color-gray-2, var(--sl-color-white));
-  }
-
-  .model-card__provider {
-    font-weight: 500;
-  }
-
-  /* Drawn by the Button component (secondary); centred under the grid here. */
+  /* Drawn by the Button component (secondary); centred under the grid here,
+     with the gap a button keeps below a grid. */
   :global(.models-toggle) {
     display: flex;
-    margin: 8px auto 0;
+    margin: var(--aifs-layout-grid-action-gap) auto 0;
   }
 </style>
 
 <script>
   function setup() {
     const toggle = document.getElementById('models-toggle') as HTMLButtonElement | null;
-    if (toggle) {
+    if (toggle) setupToggle(toggle);
+    setupCopy();
+  }
 
+  function setupToggle(toggle: HTMLButtonElement) {
     const total = Number(toggle.dataset.total);
     const initial = Number(toggle.dataset.initial);
     const showMoreTemplate = toggle.dataset.showMoreTemplate ?? 'Show more ({count} more)';
@@ -551,26 +519,28 @@ const cardModels = featured ? featuredModels : sortedModels;
       toggle.textContent = expanded ? showLess : showMoreTemplate.replace('{count}', String(total - initial));
       toggle.setAttribute('aria-expanded', String(expanded));
     });
-    }
+  }
 
+  function setupCopy() {
     // Copy model ID to clipboard with visual + accessible feedback.
     // The button's `data-copied-label` carries the localized "Copied: <id>"
     // string so the live-region announcement matches the page locale.
-    const copyStatus = document.getElementById('copy-status');
     document.querySelectorAll<HTMLButtonElement>('.model-card__copy').forEach((btn) => {
+      // One live region per card block, so several blocks on a page each announce.
+      const copyStatus = btn.closest('.available-models')?.querySelector('.copy-status');
       btn.addEventListener('click', async () => {
         const modelId = btn.dataset.modelId;
         if (!modelId) return;
         try {
           await navigator.clipboard.writeText(modelId);
-          // Visual feedback: swap icon for 1500ms
-          btn.setAttribute('data-copied', '');
+          // Button's success state swaps in the tick for 1500ms.
+          btn.dataset.state = 'success';
           const originalLabel = btn.getAttribute('aria-label') ?? '';
           const copiedLabel = btn.dataset.copiedLabel ?? `Copied ${modelId}`;
           btn.setAttribute('aria-label', copiedLabel);
           if (copyStatus) copyStatus.textContent = copiedLabel;
           setTimeout(() => {
-            btn.removeAttribute('data-copied');
+            delete btn.dataset.state;
             btn.setAttribute('aria-label', originalLabel);
             if (copyStatus) copyStatus.textContent = '';
           }, 1500);

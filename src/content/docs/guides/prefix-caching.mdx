@@ -6,15 +6,15 @@ description: "Reuse repeated prompt prefixes on AI Foundation Services to cut ti
 
 import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-:::note[Caching is on by default on T-Cloud-hosted models]
-Per the [Service Description](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf) (§ 2.3.1), the cache function is **enabled by default** for the models Telekom operates itself, and you can switch it on or off at any time — per request, with `save_cache`, as described below.
+:::note[Caching is on by default on T-Cloud-hosted language models]
+Per the [Service Description](/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf) (§ 2.3.1), the cache function is **enabled by default** for the models Telekom operates itself, and you can switch it on or off at any time — per request, with `save_cache`, as described below. Embedding, reranking and speech-to-text models do not support caching.
 :::
 
 Prefix caching lets the model reuse the work it already did for the beginning of a prompt. When two requests start with the same tokens — a long system prompt, a document, a tool catalogue — the shared part does not have to be processed again, which lowers time-to-first-token and, for models that price cached tokens separately, the cost of the request.
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK or HTTP client installed ([Quickstart](/))
+- OpenAI SDK or HTTP client installed ([Quickstart](/getting-started/quickstart))
 - A workload with a repeated prompt prefix (system prompt, RAG context, few-shot examples, tool definitions)
 :::
 
@@ -205,7 +205,7 @@ This requires the structured content-block form of a message (a list of parts in
     DOCUMENT = open("contract.txt").read()
 
     response = client.chat.completions.create(
-        model="claude-sonnet-5",
+        model="claude-sonnet-5.5",
         messages=[
             {
                 "role": "system",
@@ -231,7 +231,7 @@ This requires the structured content-block form of a message (a list of parts in
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "claude-sonnet-5",
+        "model": "claude-sonnet-5.5",
         "messages": [
           {
             "role": "system",
@@ -311,10 +311,10 @@ Prompt tokens served from the prefix cache are billed at **15% of the model's no
 | Remaining prompt tokens | Full input token price |
 | Completion tokens (never cached) | Full output token price |
 
-For example, GLM 5.2 is priced at €1.50 per million input tokens, so its cached prompt tokens cost €0.225 per million.
+For example, GLM 5.3 is priced at €1.40 per million input tokens, so its cached prompt tokens cost €0.21 per million.
 
-:::note[T-Cloud-hosted models only]
-The 15% cached-token price applies to **T-Cloud-hosted language models** — the models tagged `T-Cloud` in the [models comparison](/models). Models served from external providers (Azure, GCP), and embedding and speech-to-text models, show a dash (—) in the cached price column.
+:::note[T-Cloud-hosted language models only]
+The 15% cached-token price applies to **T-Cloud-hosted language models** — the models tagged `T-Cloud` in the [models comparison](/models). Models served from external providers (Azure, GCP), and embedding, reranking and speech-to-text models, show a dash (—) in the cached price column. Embedding, reranking and speech-to-text models do not support caching.
 :::
 
 The per-model cached price is listed in the **Cached Input Token Price** column on each [rate plan page](/plans) and in the **Cached €/M** column of the [models comparison](/models).

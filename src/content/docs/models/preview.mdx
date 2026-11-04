@@ -1,18 +1,12 @@
 ---
 title: "Preview models"
-description: "Preview models on AI Foundation Services, including OCR and decision models. Free on any active plan, with dynamic rate limits and no SLA."
+description: "Preview models on AI Foundation Services, including decision models. Free on any active plan, with dynamic rate limits and no SLA."
 ---
 
 import PlansPage from '../../../components/PlansPage.astro';
 
-<div style="max-width: 54rem;">
-
 :::tip[New in preview: DeepSeek 4.1 Flash]
 **DeepSeek 4.1 Flash** (`DeepSeek-V4.1-Flash-preview`) accepts text and image and returns text. It is a preview model hosted on T-Cloud in Germany, within the EU, and, like the other preview models, free on any active plan.
-:::
-
-:::tip[New in preview: two OCR models]
-**LightOnOCR-3-4B** (`LightOnOCR-3-4B-Preview`) from LightOn, Paris (made in Europe), and **PaddleOCR-VL-1.6** (`PaddleOCR-VL-1.6-Preview`) turn scanned documents, PDFs and photos into Markdown, HTML tables and LaTeX. LightOnOCR reads a whole page per request, including handwriting; PaddleOCR-VL reads page elements and works best with the PaddleOCR pipeline. Both take image input through `/chat/completions`. See [OCR](/guides/ocr).
 :::
 
 :::tip[New in preview: d3]
@@ -28,11 +22,7 @@ import PlansPage from '../../../components/PlansPage.astro';
 RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the conditions that apply.
 :::
 
-</div>
-
 <PlansPage selectedPlanId="Test" sectionTitle="Preview models" modelsSectionTitle="Our Models" />
-
-<div style="max-width: 54rem;">
 
 <a id="rpm-tpm-notes"></a>
 
@@ -47,4 +37,3 @@ RPM and TPM values are marked with an asterisk <sup><a href="#rpm-tpm-notes">&as
 
 Customers requiring contractual guarantees on throughput, end-to-end latency, or time-to-first-token should consider [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 
-</div>

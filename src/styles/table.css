@@ -1,7 +1,8 @@
 /* Tables, aligned with Scale's table (telekom/scale@e90165a, table.css):
-   a grey header row with bold small text and rounded top corners, no outer
-   frame, a line under each row, a hover fill, and sortable headers. Every
-   value is an --aifs-table-* token from tokens.css.
+   a grey header row with bold small text, a line under each row, a hover
+   fill, and sortable headers. Deviation: a subtle outline with rounded
+   corners around the whole table (Scale has no outer frame). Every value is
+   an --aifs-table-* token from tokens.css.
 
    Two densities, as in Scale: default (16px cell padding) for Markdown
    tables, compact (8px) for the dense data tables (model table, model
@@ -14,6 +15,37 @@
 :is(.sl-markdown-content table, .plans-table, .models-comparison-table) {
 	border-collapse: separate;
 	border-spacing: 0;
+}
+
+/* A subtle outline with rounded corners around every table (a deviation
+   from Scale, which has none). The last row drops its line, so the bottom
+   edge is the outline alone, and its end cells round with it, so the hover
+   fill stays inside the corners. */
+.sl-markdown-content table:not(.plans-table):not(.models-comparison-table),
+.plans-table,
+.models-comparison-table {
+	border: var(--aifs-table-outline-width) solid var(--aifs-table-outline);
+	border-radius: var(--aifs-table-radius);
+}
+
+:is(.sl-markdown-content table, .plans-table, .models-comparison-table) tbody tr:last-child > td {
+	border-bottom: 0;
+}
+
+:is(.sl-markdown-content table, .plans-table, .models-comparison-table) tbody tr:last-child > td:first-child {
+	border-end-start-radius: var(--aifs-table-radius);
+}
+
+:is(.sl-markdown-content table, .plans-table, .models-comparison-table) tbody tr:last-child > td:last-child {
+	border-end-end-radius: var(--aifs-table-radius);
+}
+
+/* Tabular figures: every digit the same width, so prices, context sizes and
+   limits line up down a column. The site's fallback font (system-ui, while
+   TeleNeoWeb is not loaded) has proportional digits by default; TeleNeo's
+   are tabular already, so this changes nothing once it loads. */
+:is(.sl-markdown-content table, .plans-table, .models-comparison-table) :is(th, td) {
+	font-variant-numeric: tabular-nums;
 }
 
 /* Markdown tables span the content column, so every table on a page has
@@ -209,7 +241,6 @@
 /* Compact: the dense data tables. The rate plans table keeps the default.
    `tbody` lifts these above the shared rule, whose :is() counts as
    `.sl-markdown-content table`. */
-.models-table-section .plans-table tbody td,
 .models-comparison-table tbody td,
 .sl-markdown-content table.aifs-table--compact tbody td {
 	padding-block: var(--aifs-table-cell-padding-y-compact);
@@ -240,8 +271,10 @@
 }
 
 :is(.plans-table, .models-comparison-table) th[data-sort]:is(:focus-visible, :has(button:focus-visible)) {
-	outline: none;
-	box-shadow: inset 0 0 0 2px var(--aifs-table-focus);
+	/* Transparent outline: high contrast drops the shadow and paints this. */
+	outline: var(--aifs-button-focus-width) solid transparent;
+	outline-offset: calc(-1 * var(--aifs-button-focus-width));
+	box-shadow: inset 0 0 0 var(--aifs-button-focus-width) var(--aifs-table-focus);
 }
 
 :is(.plans-table, .models-comparison-table) th[data-sort] button:focus-visible {
@@ -341,4 +374,15 @@
 	.sl-markdown-content .aifs-table-scroll td[data-label='Host'] > code > wbr {
 		display: none;
 	}
+}
+
+/* A cell that is only a short API path (.md-path, set by
+   rehype-table-scroll.mjs; api-endpoints, Paths) never breaks: `/v2/coding`
+   is one value, and at 16 characters at most it fits the narrowest column. */
+.sl-markdown-content .aifs-table-scroll td.md-path > code {
+	white-space: nowrap;
+}
+
+.sl-markdown-content .aifs-table-scroll td.md-path > code > wbr {
+	display: none;
 }

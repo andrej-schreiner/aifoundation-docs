@@ -48,22 +48,7 @@
 
 .sidebar-content summary {
 	justify-content: space-between;
-	gap: 8px;
 	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
-	cursor: pointer;
-	list-style: none;
-	user-select: none;
-}
-
-.sidebar-content summary::-webkit-details-marker,
-.sidebar-content summary::marker {
-	display: none;
-	content: '';
-}
-
-/* Group headings toggle their group; the chevron sits at the right. */
-.sidebar-content summary > svg.caret {
-	flex: 0 0 auto;
 }
 
 .sidebar-content .large {
@@ -84,7 +69,9 @@
 /* Focus ring inside the row, as in Scale, so it isn't cut off by the
    column's edge. */
 .sidebar-content :is(a, summary):focus-visible {
-	outline: none;
+	/* Transparent outline: high contrast drops the shadow and paints this. */
+	outline: var(--aifs-sidebar-nav-focus-width) solid transparent;
+	outline-offset: calc(-1 * var(--aifs-sidebar-nav-focus-width));
 	box-shadow: inset 0 0 0 var(--aifs-sidebar-nav-focus-width) var(--aifs-sidebar-nav-focus);
 }
 
@@ -93,16 +80,10 @@
 	font-weight: var(--aifs-sidebar-nav-font-weight-group);
 }
 
-/* A top-level link (Overview) reads as a row, not as a group heading. */
-.sidebar-content .top-level > li > a {
-	font-weight: normal;
-	padding-inline-start: calc(var(--aifs-sidebar-nav-padding-start) + var(--aifs-sidebar-nav-nested-indent));
-}
-
-/* Plain text rows: no line under each link. The group headings keep their
-   bold label and a gap above them. */
-.sidebar-content .top-level > li + li:has(> details) {
-	margin-top: 12px;
+.sidebar-content .top-level > li > a,
+.sidebar-content .top-level > li > details > summary,
+.sidebar-content .top-level > li > details > ul > li > a {
+	border-bottom: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-row-border);
 }
 
 /* Level 2: regular, one step in. A group at this level has its line under
@@ -116,7 +97,9 @@
 	padding-inline-start: calc(var(--aifs-sidebar-nav-padding-start) + var(--aifs-sidebar-nav-nested-indent));
 }
 
-
+.sidebar-content .top-level > li > details > ul > li:has(> details) {
+	border-bottom: var(--aifs-border-width-standard) solid var(--aifs-sidebar-nav-row-border);
+}
 
 /* Level 3: condensed, behind a line that starts under the text above. */
 .sidebar-content .top-level > li > details > ul > li > details > ul {
@@ -178,30 +161,6 @@
    in magenta with the bar over the line. Smaller text than the site
    navigation, because the column is narrow and the list is secondary.
    Deeper headings step in by --depth, which Starlight sets per level. */
-@media (max-width: 71.99rem) {
-	.sidebar-content :is(a, summary) {
-		padding-block: 8px;
-		min-height: 40px;
-	}
-
-	.sidebar-content ul {
-		margin-block: 0;
-	}
-}
-
-/* Wide screens: compact 32px rows, so most of the list fits at 1440x900. */
-@media (min-width: 72rem) {
-	.sidebar-content :is(a, summary) {
-		box-sizing: border-box;
-		min-height: 32px;
-		padding-block: 6px;
-	}
-
-	.sidebar-content .top-level {
-		padding-top: 8px;
-	}
-}
-
 @media (min-width: 72rem) {
 	.right-sidebar-panel starlight-toc h2 {
 		margin: 0 0 var(--aifs-sidebar-nav-condensed-padding-y);
@@ -240,7 +199,8 @@
 	}
 
 	.right-sidebar-panel starlight-toc a:focus-visible {
-		outline: none;
+		outline: var(--aifs-sidebar-nav-focus-width) solid transparent;
+		outline-offset: calc(-1 * var(--aifs-sidebar-nav-focus-width));
 		box-shadow: inset 0 0 0 var(--aifs-sidebar-nav-focus-width) var(--aifs-sidebar-nav-focus);
 	}
 
@@ -255,12 +215,4 @@
 		inset-inline-start: calc(-1 * var(--aifs-border-width-standard));
 		border-inline-start: var(--aifs-sidebar-nav-indicator-width) solid currentColor;
 	}
-}
-
-/* Links with a badge (Preview, New): the badge follows the label, and the row
-   keeps the same end padding as the group headings so short labels and their
-   badge stay on one 32px line. */
-.sidebar-content a {
-	gap: 6px;
-	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
 }

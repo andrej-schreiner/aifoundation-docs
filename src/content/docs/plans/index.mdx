@@ -6,8 +6,6 @@ description: "Shared plans differ by throughput and Premium model access. The mi
 import { LinkCard } from '@astrojs/starlight/components';
 import PlansPage from '../../../components/PlansPage.astro';
 
-<div style="max-width: 54rem;">
-
 Shared plans use a monthly token revenue commitment. Usage above it is billed at list prices. Plans differ by throughput (TPM and RPM) and by Premium model access. Premium models such as Claude Opus are included on Professional and Agentic, not on Essential. Enterprise is a custom token commitment and custom rate limits. Create a trial key in the [API Key portal](https://apikey.llmhub.t-systems.net/). A trial key unlocks all models, including Premium. To order a plan, [contact us](mailto:ai@t-systems.com). For reserved hardware, see [Dedicated serving](/plans/dedicated).
 
 <a id="essential"></a>
@@ -21,32 +19,22 @@ Shared plans use a monthly token revenue commitment. Usage above it is billed at
 
 A shared plan is the multi-tenant API behind Essential, Professional, and Agentic. Capacity is pooled, and each plan publishes RPM and TPM ceilings on [Rate limits](/reference/rate-limits). [Dedicated serving](/plans/dedicated) reserves GPU hardware for your contract, including a private model that fits on that hardware.
 
-</div>
-
 <div class="link-card-row">
   <LinkCard title="Service Description (PDF)" href="/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf" description="Official, binding service description document." />
   <LinkCard title="Dedicated serving" href="/plans/dedicated#comparison" description="Side-by-side comparison of shared and dedicated serving, and when to pick which." />
 </div>
 
-<div style="max-width: 54rem;">
-
 :::note
 Pricing valid from August 1, 2026. Rate limits, and the RPM and TPM values in the model table, are marked with an asterisk <sup><a href="#rpm-tpm-notes">&ast;</a></sup> — click any asterisk for the full conditions.
 :::
 
-</div>
-
 <PlansPage />
-
-<div style="max-width: 54rem;">
 
 <a id="rpm-tpm-notes"></a>
 
-## Service note on rate limits
+## Rate limits are ceilings, not guarantees
 
 <sup>&ast;</sup> Published RPM and TPM figures are best-effort ceilings, not part of the [SLA](/reference/service-levels). The SLA covers API availability only.
 
-</div>
-
-[//]: # (To Update Model & Pricing in Plans Page, Please refer to the instructions present in index.js file)
-[//]: # (Path: 'src/components/PlansPageFeatures/PlansData/PlansModelData/index.js')
+[//]: # (Models and pricing on this page come from the pricing JSON, see README.md, "Rate limits: the Service Description is the source of truth")
+[//]: # (Path: 'src/components/PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json')

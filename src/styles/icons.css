@@ -44,7 +44,7 @@ site-search button > svg {
 	--aifs-icon: url('../assets/icons/scale/action/search/default.svg');
 }
 
-starlight-version-select svg.label-icon {
+aifs-version-select svg.label-icon {
 	--aifs-icon: url('../assets/icons/scale/action/changelog/default.svg');
 }
 
@@ -123,4 +123,27 @@ img.aifs-flag {
 	height: 0.875rem;
 	background: currentColor;
 	mask: url('../assets/icons/scale/navigation/external-link/default.svg') center / contain no-repeat;
+}
+
+/* Windows high contrast replaces background colours with the page colour,
+   which would blank every icon painted as a masked background. Opting
+   these out keeps currentColor, which is already the forced text colour. */
+@media (forced-colors: active) {
+	:is(
+			.sl-anchor-icon svg,
+			site-search button > svg,
+			header label > svg.label-icon,
+			header label > svg:is(.caret, .caret-icon),
+			.sidebar-content summary > svg.caret,
+			#starlight__mobile-toc .toggle svg.caret,
+			starlight-menu-button svg,
+			.pagination-links > a > svg,
+			.sl-link-card > svg.icon,
+			.model-links__icon,
+			.fi.fi-globe
+		),
+	.sidebar-content a[target='_blank']::after,
+	.starlight-aside__title::before {
+		forced-color-adjust: none;
+	}
 }

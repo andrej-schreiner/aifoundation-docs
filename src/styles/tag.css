@@ -7,7 +7,8 @@
    Use the Tag and PlanTag components (src/components/). Existing markup is
    mapped onto the same styles below, so the tables, which build their rows
    in scripts, need no new markup:
-   .plans-tag (table tags, small) and .hero-badge (homepage) → standard,
+   .plans-tag (table tags, small), .sl-badge (small in the sidebar) and
+   .hero-badge (homepage) → standard,
    .tag-tcloud → magenta, .tag-plan-<plan> → plan colour. */
 
 .aifs-tag,

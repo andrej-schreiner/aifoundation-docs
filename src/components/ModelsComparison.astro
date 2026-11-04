@@ -1,8 +1,12 @@
 ---
+// The models table, the only one on the site. Every attribute of every model; a
+// preset (`columns`: catalog, useCase, plan) picks the columns and filters. Used on
+// All models, the "For …" pages and (through PlansPage) the plans pages. Shared
+// look and behaviour: src/styles/data-table.css.
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
-import { creatorNameFor, getLogo } from '../shared/lib/logos';
+import { creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
-import { isRetiringModel } from '../shared/lib/choosingModels';
+import { isRetiredModel } from '../shared/lib/retirements';
 import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
@@ -13,10 +17,17 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import { resolvePrimaryCategory, type ModelCategory } from '../shared/lib/modelCategories';
+import { endpointsFor, type ModelEndpoint } from '../shared/lib/modelEndpoints';
 import { formatDecimalText, formatEuro, type NumberLocale } from '../shared/lib/displayFormat';
 import Tooltip from './Tooltip.astro';
+import PlanTag from './PlanTag.astro';
+import Logo from './Logo.astro';
 import Button from './Button.astro';
 import Icon from './Icon.astro';
+import Flag from './Flag.astro';
+import Tag from './Tag.astro';
+import Selector from './Selector.astro';
+import { parseDataProcessing, parseLocation } from '../shared/lib/location';
 // Per-model reasoning_effort values from the platform datasheet; refreshed by
 // scripts/fetch-model-parameters.mjs before each build, kept as last known good.
 import reasoningEffortData from '../data/reasoning-effort.json';
@@ -28,21 +39,69 @@ type CategoryProp = 'llms' | 'coding' | 'embeddings' | 'audio' | 'image-generati
 // Capability-derived filter for pages where "show me every model that can do
 // X" beats curating a category list. Vision is the motivating case: an LLM
 // like Gemini 3 Flash accepts image input but isn't *primary-purpose* vision,
-// so a category-only model would hide it from /models/vision.
-type CapabilityFilter = 'accepts-image' | 'accepts-audio' | 'emits-audio' | 'emits-image';
+// so a category-only model would hide it from /models/vision. OCR is the
+// other: its models take an image and no text (see the overrides below), so
+// /models/ocr lists the models whose only input is Image. Decisions is an
+// endpoint, not a modality: /models/decisions lists the models that serve
+// /decisions (shared/lib/modelEndpoints).
+type CapabilityFilter = 'accepts-image' | 'accepts-only-image' | 'accepts-audio' | 'emits-audio' | 'emits-image' | 'serves-decisions';
+// One table for every list of models. A preset picks its columns and filters:
+//   catalog  All models: every attribute, Category included.
+//   useCase  The "For …" pages: as catalog, without Category.
+//   plan     A plan's models (PlansPage): hosting, prices, this plan's
+//            limits per minute and the legal links; no capabilities.
+type ColumnPreset = 'catalog' | 'useCase' | 'plan';
+
+/** One plan's rows, as PlansPage builds them (plansData). */
+interface PlanModel {
+  exactModelName: string;
+  displayName: string;
+  modelTier?: string;
+  serverLocation?: string;
+  locationCode?: string;
+  dataProcessing?: string;
+  dataProcessingCode?: string;
+  inputPrice: number | null;
+  /** A second input price for image input, where the SD gives one (GPT Image 2). */
+  imageInputPrice?: number | null;
+  outputPrice: number | null;
+  cachedInputPrice: number | null;
+  cachedPricingPublished: boolean;
+  contextWindow?: string | number | null;
+  rpm?: number | string | null;
+  tpm?: number | string | null;
+  termsOfUseUrl?: string;
+  dataProtectionUrl?: string;
+}
+interface PlanData {
+  packageName: string;
+  label: string;
+  isFilterAvailable?: boolean;
+  models: PlanModel[];
+}
+
 interface Props {
   category?: CategoryProp;
   capabilityFilter?: CapabilityFilter;
+  /** Which columns and filters. Default: plan with `plans`, useCase with a category or capability filter, else catalog. */
+  columns?: ColumnPreset;
+  /** Plan preset only: the plans and their models. */
+  plans?: PlanData[];
+  /** Plan preset only: the plan shown first (packageName). */
+  plan?: string;
+  /** Plan preset only: show this one plan, without the plan field. */
+  planLocked?: boolean;
 }
-const { category: categoryFilter, capabilityFilter } = Astro.props as Props;
+const { category: categoryFilter, capabilityFilter, plans: planData = [], plan: initialPlan, planLocked = false } = Astro.props as Props;
+const preset: ColumnPreset =
+  Astro.props.columns ?? (planData.length > 0 ? 'plan' : categoryFilter || capabilityFilter ? 'useCase' : 'catalog');
+const isPlanPreset = preset === 'plan';
 
 // Locale detection (mirrors AvailableModels.astro / PlansPage.astro pattern)
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const localePrefix = isDE ? '/de' : '';
 // Display-only: German pages write 1,40 €. Row data for sort/filter keeps the raw numbers.
-// Archived versions (/v1…/) keep their original number format.
-const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
-const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
+const numberLocale: NumberLocale = isDE ? 'de' : 'en';
 
 // Each model's primary category lives in shared/lib/modelCategories, which
 // cached-token pricing reads too.
@@ -75,7 +134,7 @@ function deriveCategories(primary: Category, caps: Capabilities, extra: Category
   if (caps.inputModalities.includes('Audio') || caps.outputModalities.includes('Audio')) cats.add('audio');
   if (caps.outputModalities.includes('Image')) cats.add('image-generation');
   if (caps.outputModalities.includes('Vector')) cats.add('embeddings');
-  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings'];
+  const ORDER: Category[] = ['llms', 'coding', 'image-generation', 'audio', 'embeddings', 'reranking'];
   return ORDER.filter((c) => cats.has(c));
 }
 
@@ -88,7 +147,7 @@ interface Capabilities {
   creator: string;
   inputModalities: InputModality[];
   outputModalities: OutputModality[];
-  /** null: not in the repo data. The table shows an em dash and the mobile row hides it. */
+  /** null: not in the repo data. The table shows an em dash. */
   streaming: boolean | null;
   toolCalling: boolean | null;
 }
@@ -114,6 +173,10 @@ const CATEGORY_DEFAULTS: Record<Category, Omit<Capabilities, 'creator'>> = {
   embeddings:         { inputModalities: ['Text'],          outputModalities: ['Vector'], streaming: false, toolCalling: false },
   audio:              { inputModalities: ['Audio'],         outputModalities: ['Text'],   streaming: false, toolCalling: false },
   'image-generation': { inputModalities: ['Text'],          outputModalities: ['Image'],  streaming: false, toolCalling: false },
+  // Only one reranker so far (Qwen3-Reranker-4B): text in; it returns a
+  // relevance score, which has no output type here. Streaming and tool calling
+  // are not stated on its model card.
+  reranking:          { inputModalities: ['Text'],          outputModalities: [],         streaming: null,  toolCalling: null  },
 };
 
 // Per-model overrides for cases where the category default + inferCreator
@@ -164,7 +227,7 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // d3 (preview) is a decision model: /decisions only, Text+Image in. It
   // generates no text, so no streaming and no tool calling.
   'd3-preview': { inputModalities: ['Text', 'Image'], streaming: false, toolCalling: false },
-  // OCR models (preview): page or element image in, Markdown / text out. Image
+  // OCR models: page or element image in, Markdown / text out. Image
   // only: the text part of a request is a fixed mode keyword (LightOnOCR:
   // none or "grounding"; PaddleOCR-VL: a task prompt such as "OCR:"), not
   // free text, so you cannot send text or ask questions about the image.
@@ -212,6 +275,24 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // and streams partial images. Gemini 3 Pro Image accepts text+image and emits
   // both an image and accompanying text; per Google's docs it does NOT stream.
   'gpt-image-2':                   { inputModalities: ['Text', 'Image'], streaming: true },
+
+  // Models from service description v1.25 (launchModels.ts), from the
+  // vendors' model pages (2026-11-03).
+  // Streaming and tool calling are set only where the vendor's page states
+  // them; elsewhere they stay unset (a dash).
+  //  - GPT-6 Astra: text and image in, text out; streaming and function
+  //    calling "Supported" (developers.openai.com model page).
+  //  - Claude Haiku 5.5, Fable 5.1: "Text and images → text"; Anthropic's
+  //    models overview: all current models support tool use. Streaming not stated.
+  //  - Gemini 4 Argon: text, image, audio, video and PDF in (no Video member,
+  //    PDF is a document type), text out; function calling supported.
+  //    Streaming not stated as a capability.
+  'gpt-6-astra':                        { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: true, toolCalling: true },
+  'gpt-6-astra-long-context':           { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: true, toolCalling: true },
+  'claude-haiku-5.5':                   { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },
+  'claude-haiku-5.5-long-context':      { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },
+  'claude-fable-5.1':                   { inputModalities: ['Text', 'Image'], outputModalities: ['Text'], streaming: null, toolCalling: true },
+  'gemini-4-argon':                     { inputModalities: ['Text', 'Image', 'Audio'], outputModalities: ['Text'], streaming: null, toolCalling: true },
   'gemini-3-pro-image':            {
     inputModalities: ['Text', 'Image'],
     outputModalities: ['Image', 'Text'],
@@ -233,7 +314,7 @@ type CloudKey = 'T-Cloud' | 'Azure' | 'GCP' | 'Other';
 
 function resolveCloud(deploymentRegion: string): CloudKey {
   const region = (deploymentRegion ?? '').toLowerCase();
-  // Mirror normalization from ModelsTable.astro: Open Telekom Cloud / OTC → T-Cloud
+  // Open Telekom Cloud / OTC → T-Cloud
   if (region.startsWith('otc') || region === 'open telekom cloud' || region === 'otc') return 'T-Cloud';
   if (region.startsWith('azure')) return 'Azure';
   if (region.startsWith('gcp') || region.startsWith('google')) return 'GCP';
@@ -269,6 +350,8 @@ interface CompiledModel {
   reasoningEffort: string[];  // accepted reasoning_effort values; empty when none is published
   reasoningTokensUsage: ReasoningTokensUsage | null;  // where usage reports reasoning tokens; null = not documented
   inputPricePerMillionTokens: number | null;
+  /** Image input price, where the SD prices image input apart from text input; else null. */
+  imageInputPricePerMillionTokens: number | null;
   outputPricePerMillionTokens: number | null;
   cachedInputPricePerMillionTokens: number | null;
   cachedPricingPublished: boolean;
@@ -276,6 +359,16 @@ interface CompiledModel {
   /** Lowercase catalog tier. Only `premium` is shown; Standard is omitted. */
   modelTier: string;
   capabilities: Capabilities;
+  /** Endpoints beyond the category default, where the docs state them (modelEndpoints). */
+  endpoints: ModelEndpoint[];
+  /** Where it runs: a place name and its flag code; blank while hosting is unconfirmed. */
+  location: string;
+  locationCode: string;
+  /** Where its data is processed (Germany, EU or worldwide); blank while hosting is unconfirmed. */
+  dataProcessing: string;
+  dataProcessingCode: string;
+  termsOfUseUrl: string;
+  dataProtectionUrl: string;
 }
 
 // Datasheet model names are matched to exactModelName case-insensitively: the
@@ -308,7 +401,7 @@ for (const pkg of pricingData as Array<{
 }>) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const exactModelName = entry.exactModelName as string;
-    if (isHiddenModel(exactModelName) || isRetiringModel(exactModelName)) continue;
+    if (isHiddenModel(exactModelName) || isRetiredModel(exactModelName)) continue;
     const existing = byName.get(exactModelName);
     if (existing) {
       if (!existing.plans.includes(pkg.packageName)) existing.plans.push(pkg.packageName);
@@ -328,17 +421,33 @@ for (const pkg of pricingData as Array<{
       reasoningEffort: reasoningEffortByName.get(exactModelName.toLowerCase()) ?? [],
       reasoningTokensUsage: reasoningTokensUsageByName.get(exactModelName.toLowerCase()) ?? null,
       inputPricePerMillionTokens: (entry.inputPricePerMillionTokens as number) ?? null,
+      imageInputPricePerMillionTokens: (entry.imageInputPricePerMillionTokens as number) ?? null,
       outputPricePerMillionTokens: (entry.outputPricePerMillionTokens as number) ?? null,
-      // Archived pages keep their original output, so they skip the category check.
       cachedInputPricePerMillionTokens: cachedInputPrice(
         entry.inputPricePerMillionTokens as number | null,
         deploymentRegion,
-        isArchive ? null : category,
+        category,
       ),
-      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion, isArchive ? null : category),
+      cachedPricingPublished: hasCachedTokenPricing(deploymentRegion, category),
       plans: [pkg.packageName],
       modelTier: String(entry.modelTier || 'standard').toLowerCase(),
       capabilities,
+      endpoints: endpointsFor(exactModelName),
+      ...(() => {
+        const unconfirmed = hostingUnconfirmed(exactModelName) || !deploymentRegion;
+        const where = unconfirmed ? { name: '', code: '' } : parseLocation(deploymentRegion, isDE);
+        const processing = unconfirmed
+          ? { name: '', code: '' }
+          : parseDataProcessing(exactModelName, deploymentRegion, isDE);
+        return {
+          location: where.name,
+          locationCode: where.code,
+          dataProcessing: processing.name,
+          dataProcessingCode: processing.code,
+        };
+      })(),
+      termsOfUseUrl: (entry.termsOfUseUrl as string) ?? '',
+      dataProtectionUrl: (entry.dataProtectionUrl as string) ?? '',
     });
   }
 }
@@ -359,9 +468,11 @@ function matchesCapability(m: CompiledModel, cap: CapabilityFilter | undefined):
   const outputs = m.capabilities.outputModalities;
   switch (cap) {
     case 'accepts-image': return inputs.includes('Image');
+    case 'accepts-only-image': return inputs.length === 1 && inputs[0] === 'Image';
     case 'accepts-audio': return inputs.includes('Audio');
     case 'emits-audio':   return outputs.includes('Audio');
     case 'emits-image':   return outputs.includes('Image');
+    case 'serves-decisions': return m.endpoints.includes('decisions');
   }
 }
 
@@ -374,6 +485,92 @@ const allModels = [...byName.values()]
     return compareCatalogName(a.displayModelName, b.displayModelName);
   });
 
+// ---------------- Rows ----------------
+
+// A row is a model; in the plan preset, a model in one plan, since each plan
+// has its own prices and limits per minute. The rows of every plan are
+// rendered; the plan field shows one plan's rows at a time.
+interface TableRow extends CompiledModel {
+  key: string;
+  plan: string | null;
+  rpm: number | string | null;
+  tpm: number | string | null;
+}
+
+function compareRowOrder(a: CompiledModel, b: CompiledModel): number {
+  const rankDiff = CLOUD_RANK[a.cloud] - CLOUD_RANK[b.cloud];
+  if (rankDiff !== 0) return rankDiff;
+  return compareCatalogName(a.displayModelName, b.displayModelName);
+}
+
+function planRow(planName: string, pm: PlanModel): TableRow {
+  const base = byName.get(pm.exactModelName) ?? (() => {
+    const category = resolvePrimaryCategory(pm.exactModelName);
+    const capabilities = resolveCapabilities(pm.exactModelName, category);
+    return {
+      exactModelName: pm.exactModelName,
+      displayModelName: pm.displayName,
+      category,
+      categories: deriveCategories(category, capabilities),
+      cloud: 'Other' as CloudKey,
+      contextWindow: '—',
+      reasoningEffort: [],
+      reasoningTokensUsage: null,
+      inputPricePerMillionTokens: null,
+      imageInputPricePerMillionTokens: null,
+      outputPricePerMillionTokens: null,
+      cachedInputPricePerMillionTokens: null,
+      cachedPricingPublished: false,
+      plans: [],
+      modelTier: 'standard',
+      capabilities,
+      endpoints: endpointsFor(pm.exactModelName),
+      location: '',
+      locationCode: '',
+      dataProcessing: '',
+      dataProcessingCode: '',
+      termsOfUseUrl: '',
+      dataProtectionUrl: '',
+    };
+  })();
+  return {
+    ...base,
+    key: `${planName}|${pm.exactModelName}`,
+    plan: planName,
+    displayModelName: pm.displayName || base.displayModelName,
+    contextWindow: pm.contextWindow == null ? base.contextWindow : String(pm.contextWindow),
+    inputPricePerMillionTokens: pm.inputPrice ?? null,
+    imageInputPricePerMillionTokens: pm.imageInputPrice ?? null,
+    outputPricePerMillionTokens: pm.outputPrice ?? null,
+    cachedInputPricePerMillionTokens: pm.cachedInputPrice ?? null,
+    cachedPricingPublished: pm.cachedPricingPublished,
+    modelTier: String(pm.modelTier || base.modelTier).toLowerCase(),
+    location: pm.serverLocation ?? base.location,
+    locationCode: pm.locationCode ?? base.locationCode,
+    dataProcessing: pm.dataProcessing ?? base.dataProcessing,
+    dataProcessingCode: pm.dataProcessingCode ?? base.dataProcessingCode,
+    termsOfUseUrl: pm.termsOfUseUrl || base.termsOfUseUrl,
+    dataProtectionUrl: pm.dataProtectionUrl || base.dataProtectionUrl,
+    rpm: pm.rpm ?? null,
+    tpm: pm.tpm ?? null,
+  };
+}
+
+const rows: TableRow[] = isPlanPreset
+  ? planData.flatMap((p) => p.models.map((pm) => planRow(p.packageName, pm)).sort(compareRowOrder))
+  : allModels.map((m) => ({ ...m, key: m.exactModelName, plan: null, rpm: null, tpm: null }));
+
+// The plan shown first; the others' rows start hidden.
+const activePlan = isPlanPreset
+  ? (planData.find((p) => p.packageName === initialPlan) ?? planData[0])?.packageName ?? ''
+  : '';
+const activeRowCount = isPlanPreset ? rows.filter((r) => r.plan === activePlan).length : rows.length;
+const selectablePlans = planData.filter((p) => p.isFilterAvailable !== false);
+const showPlanField = isPlanPreset && !planLocked && selectablePlans.length > 1;
+// A plan with no models in the current catalog (an archived plan): say so
+// instead of an empty table.
+const planEmpty = isPlanPreset && activeRowCount === 0;
+
 // ---------------- Translations & formatters ----------------
 
 const t = {
@@ -384,28 +581,45 @@ const t = {
   colCloud: isDE ? 'Cloud' : 'Cloud',
   colInput: isDE ? 'Eingabe' : 'Input',
   colOutput: isDE ? 'Ausgabe' : 'Output',
+  // The modality columns, apart from the Input / Output price columns.
+  colInputTypes: isDE ? 'Eingabeformate' : 'Input types',
+  colOutputTypes: isDE ? 'Ausgabeformate' : 'Output types',
   colStreaming: 'Streaming',
   colTools: 'Tools',
   colFeatures: isDE ? 'Funktionen' : 'Features',
   newTag: isDE ? 'Neu' : 'New',
   colContext: isDE ? 'Kontext' : 'Context',
   colReasoningEffort: 'Reasoning',
-  colInputPrice: isDE ? 'Eingabe €/M' : 'In €/M',
-  colOutputPrice: isDE ? 'Ausgabe €/M' : 'Out €/M',
-  colCachedPrice: isDE ? 'Cache €/M' : 'Cached €/M',
   colPlans: isDE ? 'Tarife' : 'Plans',
+  // Table headers: the unit goes under the label; the cells hold the price
+  // with its € sign (the cards repeat the unit in their labels).
+  headInputPrice: isDE ? 'Eingabe' : 'Input',
+  headOutputPrice: isDE ? 'Ausgabe' : 'Output',
+  headCachedPrice: isDE ? 'Cache-Eingabe' : 'Cached input',
+  // A model with a separate image input price shows both input prices.
+  priceTextInput: isDE ? 'Text' : 'Text',
+  priceImageInput: isDE ? 'Bild' : 'Image',
+  unitPrice: isDE ? 'pro 1 Mio. Tokens' : 'per 1M tokens',
+  unitContext: isDE ? 'Tokens' : 'tokens',
+  // A price tier's prompt limit, on the context cell of a tiered row.
+  tierUpTo: isDE ? 'Preise für Prompts bis {limit} Tokens' : 'Prices for prompts up to {limit} tokens',
+  tierOver: isDE ? 'Preise für Prompts über {limit} Tokens' : 'Prices for prompts over {limit} tokens',
+  sortBy: isDE ? 'Nach {label} sortieren' : 'Sort by {label}',
+  sortLabel: isDE ? 'Sortieren nach' : 'Sort by',
+  sortDefault: isDE ? 'Empfohlene Reihenfolge' : 'Recommended order',
+  // A toggle: pressed sorts from the highest (or last) value down.
+  sortDescending: isDE ? 'Absteigend sortieren' : 'Sort descending',
+  supported: isDE ? 'Unterstützt' : 'Supported',
+  notSupported: isDE ? 'Nicht unterstützt' : 'Not supported',
   details: 'Details',
-  freeInPreview: isDE ? 'Kostenlos in der Vorschau' : 'Free in preview',
+  showDetails: isDE ? 'Details anzeigen' : 'Show details',
   priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
-  free: isDE ? 'Kostenlos' : 'Free',
-  perMillion: isDE ? 'pro 1M' : 'per 1M',
-  priceIn: isDE ? 'Ein' : 'In',
-  priceOut: isDE ? 'Aus' : 'Out',
   planPreview: isDE ? 'Vorschau' : 'Preview',
   // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
   previewPlans: isDE ? 'Kostenlos in jedem aktiven Tarif' : 'Free on any active plan',
   reset: isDE ? 'Filter zurücksetzen' : 'Reset filters',
-  showing: isDE ? 'Zeige' : 'Showing',
+  // German counts without a verb: "39 von 39 Modellen".
+  showing: isDE ? '' : 'Showing',
   of: isDE ? 'von' : 'of',
   models: isDE ? 'Modellen' : 'models',
   selected: isDE ? 'ausgewählt' : 'selected',
@@ -417,8 +631,8 @@ const t = {
     ? 'Funktions-/Tool-Aufrufe (OpenAI-kompatibel). Das Modell kann strukturierte Tool-Aufrufe zurückgeben.'
     : 'Function / tool calling (OpenAI-compatible). The model can return structured tool invocations.',
   tooltipCachedPrice: isDE
-    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Modelle.`
-    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted models only.`,
+    ? `Preis pro Million Prompt-Tokens, die aus dem Prefix-Cache bedient werden: ${CACHED_INPUT_PRICE_PERCENT} % des normalen Eingabepreises. Gilt nur für T-Cloud-gehostete Sprachmodelle.`
+    : `Price per million prompt tokens served from the prefix cache: ${CACHED_INPUT_PRICE_PERCENT}% of the normal input price. T-Cloud-hosted language models only.`,
   cachedPriceUnavailable: '—',
   tooltipReasoningEffort: isDE
     ? 'Zulässige Werte des Parameters reasoning_effort laut Modell-Datenblatt der Plattform. „-“: für dieses Modell sind keine Werte veröffentlicht. Siehe den Reasoning-Guide.'
@@ -430,19 +644,56 @@ const t = {
     : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
   reasoningTokensNotReported: isDE ? 'nicht gemeldet' : 'not reported',
   reasoningTokensUnknown: '—',
+  // Plan preset
+  colLocation: isDE ? 'Standort' : 'Location',
+  colDataProcessing: isDE ? 'Datenverarbeitung' : 'Data processing',
+  colRequests: isDE ? 'Anfragen' : 'Requests',
+  colTokensPerMinute: 'Tokens',
+  unitPerMinute: isDE ? 'pro Minute' : 'per minute',
+  tooltipLimits: isDE
+    ? 'Das Limit dieses Tarifs pro Minute. „dynamisch“: Vorschaumodelle teilen sich ein Kontingent, das sich nach der Auslastung richtet.'
+    : 'This plan’s limit per minute. "dynamic": preview models share a quota that follows the load.',
+  dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
+  colLinks: 'Links',
+  linkTermsOfUse: isDE ? 'Nutzungsbedingungen' : 'Terms of use',
+  linkDataProtection: isDE ? 'Datenschutz' : 'Data protection',
+  opensInNewTab: isDE ? '(öffnet in neuem Tab)' : '(opens in a new tab)',
+  ratePlan: isDE ? 'Tarif' : 'Rate plan',
+  filterInputPrice: isDE ? 'Eingabepreis' : 'Input price',
+  filterOutputPrice: isDE ? 'Ausgabepreis' : 'Output price',
+  priceUpTo2: isDE ? 'Bis 2 €' : 'Up to €2',
+  price2to5: isDE ? '2 bis 5 €' : '€2 to €5',
+  priceOver5: isDE ? 'Über 5 €' : 'Over €5',
+  // Filter panel and applied filters
+  allFilters: isDE ? 'Alle Filter' : 'All filters',
+  filters: isDE ? 'Filter' : 'Filters',
+  closeFilters: isDE ? 'Filter schließen' : 'Close filters',
+  showResults: isDE ? '{n} Modelle anzeigen' : 'Show {n} models',
+  clearAll: isDE ? 'Alle Filter entfernen' : 'Clear all',
+  appliedFilters: isDE ? 'Aktive Filter' : 'Applied filters',
+  removeFilter: isDE ? 'Filter {label} entfernen' : 'Remove filter {label}',
+  nSelected: isDE ? '{n} ausgewählt' : '{n} selected',
+  // Screen-reader names: the visible text first (label in name).
+  toggleCloud: isDE ? '{label}: im Cloud-Filter umschalten ({full})' : '{label}: toggle in the Cloud filter ({full})',
+  noEffortValues: isDE ? 'Keine reasoning_effort-Werte veröffentlicht' : 'No reasoning_effort values published',
+  notDocumented: isDE ? 'Nicht dokumentiert' : 'Not documented',
+  emptyPlan: isDE
+    ? 'Für diesen Tarif sind im aktuellen Katalog keine Modelle gelistet.'
+    : 'This plan has no models in the current catalog.',
+  emptyPlanLink: isDE ? 'Zu Tarife & Preise' : 'See Plans & Pricing',
 };
 
 const CLOUD_TOOLTIPS: Record<CloudKey, string> = isDE
   ? {
       'T-Cloud': 'Gehostet auf T-Cloud Public — der souveränen Infrastruktur der Telekom in Deutschland, innerhalb der EU.',
-      Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab.',
-      GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab.',
+      Azure:   'Gehostet auf Microsoft Azure. Die Region hängt vom Modell ab, siehe Standort.',
+      GCP:     'Gehostet auf Google Cloud Platform. Die Region hängt vom Modell ab, siehe Standort.',
       Other:   'Bei einem Drittanbieter gehostet.',
     }
   : {
       'T-Cloud': "Hosted on T-Cloud Public — Telekom's sovereign infrastructure in Germany, within the EU.",
-      Azure:   'Hosted on Microsoft Azure. The region depends on the model.',
-      GCP:     'Hosted on Google Cloud Platform. The region depends on the model.',
+      Azure:   'Hosted on Microsoft Azure. The region depends on the model; see Location.',
+      GCP:     'Hosted on Google Cloud Platform. The region depends on the model; see Location.',
       Other:   'Hosted by a third-party provider.',
     };
 
@@ -452,6 +703,7 @@ const CATEGORY_LABELS: Record<Category, string> = {
   embeddings: 'Embedding',
   audio: 'Audio',
   'image-generation': isDE ? 'Bild\u00ADgenerierung' : 'Image generation',
+  reranking: 'Reranker',
 };
 
 const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
@@ -483,10 +735,6 @@ function planHref(plan: string): string {
   return `${localePrefix}/plans/#${plan.toLowerCase()}`;
 }
 
-function planTagClass(plan: string): string {
-  return `tag-plan-${plan.toLowerCase()}`;
-}
-
 /** The Test catalog is the preview catalog. The tag says Preview; the plan id stays Test. */
 function planLabel(plan: string): string {
   return plan === 'Test' ? t.planPreview : plan;
@@ -502,6 +750,17 @@ function formatContextLabel(raw: string | null | undefined): string {
   return text;
 }
 
+/**
+ * A row priced for one prompt length (its name ends in "(≤272k)" or
+ * "(>272k)") shows the model's full context window; this note gives the
+ * tier's prompt limit.
+ */
+function priceTierNote(m: CompiledModel): string | null {
+  const match = /\((≤|>)\s*(\d+)k\)\s*$/i.exec(m.displayModelName);
+  if (!match) return null;
+  return (match[1] === '≤' ? t.tierUpTo : t.tierOver).replace('{limit}', `${match[2]}K`);
+}
+
 function blankContext(raw: string | null | undefined): boolean {
   const value = (raw ?? '').trim();
   const lower = value.toLowerCase();
@@ -512,74 +771,149 @@ function previewCatalog(m: CompiledModel): boolean {
   return m.plans.includes('Test');
 }
 
-/** Plans column tags. The name already carries the Preview tag, so Test gets no second one.
- *  Archived pages keep their original output. */
+/** Plans column tags. The name already carries the Preview tag, so Test gets no second one. */
 function shownPlans(m: CompiledModel): string[] {
-  return isArchive ? m.plans : m.plans.filter((p) => p !== 'Test');
+  return m.plans.filter((p) => p !== 'Test');
 }
 
-/** Line-2 price. Zero on a preview model is free, not €0.00. Unpublished prices are omitted. */
-function isEmbeddingOnly(m: CompiledModel): boolean {
-  return m.categories.length === 1 && m.categories[0] === 'embeddings';
+function detailsIdFor(key: string): string {
+  const scope = categoryFilter || capabilityFilter || preset;
+  return `mc-d-${scope}-${key.replace(/[^a-zA-Z0-9_-]+/g, '-')}`;
 }
 
-function mobilePriceLine(m: CompiledModel): string | null {
-  const input = m.inputPricePerMillionTokens;
-  // Embedding models return vectors, not tokens: input price only, as on the plans page.
-  const output = isEmbeddingOnly(m) ? null : m.outputPricePerMillionTokens;
-  if (input == null && output == null) return t.priceTba;
-  const inputFree = input == null || input === 0;
-  const outputFree = output == null || output === 0;
-  if (inputFree && outputFree) return previewCatalog(m) ? t.freeInPreview : t.free;
-  const bits: string[] = [];
-  if (input != null && input !== 0) bits.push(formatEuro(input, 2, numberLocale));
-  if (output != null && output !== 0) bits.push(formatEuro(output, 2, numberLocale));
-  if (bits.length === 0) return null;
-  return `${bits.join(' / ')} ${t.perMillion}`;
+/** Price filter buckets (plan preset), as the earlier plans table had them. */
+function priceBucket(price: number | null): string | null {
+  if (price == null) return null;
+  if (price <= 2) return '0-2';
+  if (price <= 5) return '2-5';
+  return '5+';
 }
 
-function cachedDetail(m: CompiledModel): string | null {
-  if (!m.cachedPricingPublished) return null;
-  const value = m.cachedInputPricePerMillionTokens;
-  if (value == null || value === 0) return null;
-  return formatEuro(value, 4, numberLocale);
+/** Requests and tokens per minute: a number, or "dynamic" for a shared quota. */
+function limitNumber(value: number | string | null): number | null {
+  if (value == null || value === '') return null;
+  const n = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(n) ? n : null;
 }
 
-function reasoningTokensDetail(m: CompiledModel): string | null {
-  if (m.reasoningTokensUsage === 'completion_tokens_details') return 'completion_tokens_details.reasoning_tokens';
-  if (m.reasoningTokensUsage === 'usage') return 'usage.reasoning_tokens';
-  if (m.reasoningTokensUsage === 'none') return t.reasoningTokensNotReported;
-  return null;
+function formatLimit(value: number | string | null): string {
+  const n = limitNumber(value);
+  if (n != null) return n.toLocaleString(numberLocale);
+  if (value == null || value === '') return '—';
+  return t.dynamicLimit;
 }
 
-function detailsIdFor(exactModelName: string): string {
-  const scope = categoryFilter || capabilityFilter || 'all';
-  return `mc-d-${scope}-${exactModelName.replace(/[^a-zA-Z0-9_-]+/g, '-')}`;
+// ---------------- Columns ----------------
+
+// Every column the table has, in order; a preset shows some of them.
+interface Column {
+  key: string;
+  label: string;
+  unit?: string;
+  cls: string;
+  tooltip?: string;
+  /** A footnote mark after the label (the plans page explains it below the table). */
+  mark?: string;
+  sortable?: boolean;
+  presets: ColumnPreset[];
 }
+const ALL_PRESETS: ColumnPreset[] = ['catalog', 'useCase', 'plan'];
+const MODEL_PAGES: ColumnPreset[] = ['catalog', 'useCase'];
+const columns: Column[] = ([
+  { key: 'model', label: t.colModel, cls: '', presets: ALL_PRESETS },
+  { key: 'category', label: t.colCategory, cls: '', presets: ['catalog'] },
+  { key: 'provider', label: t.colProvider, cls: '', presets: ALL_PRESETS },
+  { key: 'cloud', label: t.colCloud, cls: '', presets: ALL_PRESETS },
+  { key: 'location', label: t.colLocation, cls: '', presets: ALL_PRESETS },
+  { key: 'dataProcessing', label: t.colDataProcessing, cls: '', sortable: false, presets: ALL_PRESETS },
+  { key: 'input', label: t.colInputTypes, cls: '', presets: MODEL_PAGES },
+  { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming, presets: MODEL_PAGES },
+  { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools, presets: MODEL_PAGES },
+  { key: 'context', label: t.colContext, unit: t.unitContext, cls: 'num', presets: ALL_PRESETS },
+  { key: 'reasoningEffort', label: t.colReasoningEffort, cls: '', tooltip: t.tooltipReasoningEffort, presets: MODEL_PAGES },
+  { key: 'reasoningTokensUsage', label: t.colReasoningTokensUsage, cls: '', tooltip: t.tooltipReasoningTokensUsage, presets: MODEL_PAGES },
+  { key: 'inputPrice', label: t.headInputPrice, unit: t.unitPrice, cls: 'num', presets: ALL_PRESETS },
+  { key: 'outputPrice', label: t.headOutputPrice, unit: t.unitPrice, cls: 'num', presets: ALL_PRESETS },
+  { key: 'cachedInputPrice', label: t.headCachedPrice, unit: t.unitPrice, cls: 'num', tooltip: t.tooltipCachedPrice, mark: isPlanPreset ? '†' : undefined, presets: ALL_PRESETS },
+  { key: 'rpm', label: t.colRequests, unit: t.unitPerMinute, cls: 'num', tooltip: t.tooltipLimits, mark: '*', presets: ['plan'] },
+  { key: 'tpm', label: t.colTokensPerMinute, unit: t.unitPerMinute, cls: 'num', tooltip: t.tooltipLimits, mark: '*', presets: ['plan'] },
+  { key: 'plans', label: t.colPlans, cls: '', presets: MODEL_PAGES },
+  { key: 'links', label: t.colLinks, cls: '', sortable: false, presets: ['plan'] },
+] as Column[])
+  .filter((c) => c.presets.includes(preset));
+const show = (key: string) => columns.some((c) => c.key === key);
+
+// The table fits its room: it shows the columns below as cells (the model
+// cell carries the provider's logo) and every other column in a details row
+// under each model. Below 36rem the rows become cards, their cells
+// label–value rows, the details below a Details button.
+const PRIMARY_COLUMNS: Record<ColumnPreset, string[]> = {
+  catalog: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
+  useCase: ['model', 'cloud', 'context', 'inputPrice', 'outputPrice'],
+  plan: ['model', 'inputPrice', 'outputPrice', 'rpm', 'tpm'],
+};
+// The content column is fluid (layout.css), so the table grows with the
+// window. Each step of width (container queries below: 1 from 51rem,
+// 2 from 64rem, 3 from 82rem) moves these columns out of the details into
+// the row; the details keep the rest. The reasoning columns (long code
+// values), data processing and the legal links stay in the details.
+const EXTRA_COLUMNS: Record<ColumnPreset, Record<string, 1 | 2 | 3>> = {
+  catalog: { input: 1, output: 1, plans: 2, cachedInputPrice: 2, location: 3, streaming: 3, tools: 3 },
+  useCase: { input: 1, output: 1, plans: 2, cachedInputPrice: 2, location: 3, streaming: 3, tools: 3 },
+  plan: { cloud: 1, context: 1, cachedInputPrice: 2, location: 2, provider: 3 },
+};
+const extraStep = (key: string) => EXTRA_COLUMNS[preset][key];
+// Every column the rows can show; on model pages Output (not filterable as
+// a column of its own) follows Input.
+const rowColumns: Column[] = [...columns];
+if (show('input')) {
+  rowColumns.splice(rowColumns.findIndex((c) => c.key === 'input') + 1, 0, {
+    key: 'output',
+    label: t.colOutputTypes,
+    cls: '',
+    sortable: false,
+    presets: MODEL_PAGES,
+  });
+}
+// Cells in the row: the main columns, then the wide-screen ones (hidden
+// until there is room). The provider is the model cell's logo; its name is
+// in the logo's tooltip and in the details.
+const tableColumns = rowColumns
+  .filter((c) => PRIMARY_COLUMNS[preset].includes(c.key) || extraStep(c.key))
+  .map((c) => (extraStep(c.key) ? { ...c, cls: `${c.cls} mc-x mc-x${extraStep(c.key)}`.trim() } : c));
+const detailColumns: Column[] = rowColumns.filter((c) => !PRIMARY_COLUMNS[preset].includes(c.key));
+/** A card's row label: the column's label with its unit ("Input (per 1M tokens)"). */
+const cardLabel = (c: Column) => `${c.label}${c.unit ? ` (${c.unit})` : ''}${c.mark ? ` ${c.mark}` : ''}`;
+// The sort field lists every sortable column, so the details' values and the
+// cards (no header to click) can be sorted too.
+const sortOptions = columns.filter((c) => c.sortable !== false).map((c) => ({ key: c.key, label: cardLabel(c) }));
 
 // ---------------- Filter values (unique sets) ----------------
 
-// Unique-value sets per filter, pruned to only what's actually in the current row set.
+// Unique-value sets per filter, pruned to only what's actually in the row set.
 // Flatten across the multi-category set so the filter chip lists every
 // category any visible row belongs to, not just primary categories.
-const uniqueCategories = [...new Set(allModels.flatMap((m) => m.categories))];
-const uniqueProviders = [...new Set(allModels.map((m) => m.capabilities.creator))].sort();
+const uniqueCategories = [...new Set(rows.flatMap((m) => m.categories))];
+const uniqueProviders = [...new Set(rows.map((m) => m.capabilities.creator))].sort();
 const uniqueClouds = (['T-Cloud', 'Azure', 'GCP', 'Other'] as CloudKey[]).filter((c) =>
-  allModels.some((m) => m.cloud === c),
+  rows.some((m) => m.cloud === c),
 );
+const uniqueLocations = [...new Set(rows.map((m) => m.location).filter(Boolean))].sort();
 const uniqueInputs = (['Text', 'Image', 'Audio'] as InputModality[]).filter((mod) =>
-  allModels.some((m) => m.capabilities.inputModalities.includes(mod)),
+  rows.some((m) => m.capabilities.inputModalities.includes(mod)),
 );
 const uniqueOutputs = (['Text', 'Image', 'Audio', 'Vector'] as OutputModality[]).filter((mod) =>
-  allModels.some((m) => m.capabilities.outputModalities.includes(mod)),
+  rows.some((m) => m.capabilities.outputModalities.includes(mod)),
 );
 const uniquePlans = ['Essential', 'Professional', 'Agentic', 'Test'].filter((p) =>
-  allModels.some((m) => m.plans.includes(p)),
+  rows.some((m) => m.plans.includes(p)),
 );
+const PRICE_BUCKETS = ['0-2', '2-5', '5+'];
+const priceBucketLabel = (v: string) => (v === '0-2' ? t.priceUpTo2 : v === '2-5' ? t.price2to5 : t.priceOver5);
 
-// Filter chips, declared once. Adding a filter = one entry here + one entry in
-// the runtime filterDefs (in the <script> below). The SSR template loops over
-// this array rather than copy-pasting eight near-identical <details> blocks.
+// Filter chips, declared once; each preset lists the ones that match its
+// columns. Adding a filter = one entry here + one entry in the runtime
+// filterDefs (in the <script> below).
 interface FilterChip {
   id: string;
   label: string;
@@ -587,24 +921,46 @@ interface FilterChip {
   optionLabel: (v: string) => string;
   defaultChecked?: (v: string) => boolean;
 }
-const boolToTick = (v: string) => (v === 'true' ? '✓' : '✗');
-const filterChips: FilterChip[] = [
-  ...(categoryFilter
-    ? []
-    : [{
-        id: 'category',
-        label: t.colCategory,
-        values: uniqueCategories,
-        optionLabel: (v: string) => CATEGORY_LABELS[v as Category],
-      }]),
+// The symbol as in the table, with words: a symbol alone is not a label.
+const boolToTick = (v: string) => (v === 'true' ? `✓ ${t.supported}` : `✗ ${t.notSupported}`);
+const FILTER_CHIPS: FilterChip[] = [
+  { id: 'category', label: t.colCategory, values: uniqueCategories, optionLabel: (v: string) => CATEGORY_LABELS[v as Category] },
   { id: 'provider', label: t.colProvider, values: uniqueProviders, optionLabel: (v) => v },
   { id: 'cloud', label: t.colCloud, values: uniqueClouds, optionLabel: (v) => v },
+  { id: 'location', label: t.colLocation, values: uniqueLocations, optionLabel: (v) => v },
   { id: 'input', label: t.colInput, values: uniqueInputs, optionLabel: (v) => MODALITY_LABELS[v as InputModality] },
   { id: 'output', label: t.colOutput, values: uniqueOutputs, optionLabel: (v) => MODALITY_LABELS[v as OutputModality] },
   { id: 'streaming', label: t.colStreaming, values: ['true', 'false'], optionLabel: boolToTick },
   { id: 'tools', label: t.colTools, values: ['true', 'false'], optionLabel: boolToTick },
+  { id: 'inputPrice', label: t.filterInputPrice, values: PRICE_BUCKETS, optionLabel: priceBucketLabel },
+  { id: 'outputPrice', label: t.filterOutputPrice, values: PRICE_BUCKETS, optionLabel: priceBucketLabel },
   { id: 'plans', label: t.colPlans, values: uniquePlans, optionLabel: (v) => planLabel(v) },
 ];
+const PRESET_FILTERS: Record<ColumnPreset, string[]> = {
+  catalog: ['category', 'provider', 'cloud', 'input', 'output', 'streaming', 'tools', 'plans'],
+  useCase: ['provider', 'cloud', 'input', 'output', 'streaming', 'tools', 'plans'],
+  plan: ['provider', 'cloud', 'location', 'inputPrice', 'outputPrice'],
+};
+const filterChips = PRESET_FILTERS[preset]
+  .map((id) => FILTER_CHIPS.find((chip) => chip.id === id)!)
+  .filter((chip) => chip.values.length > 0);
+// The filters shown in the row, most general first; every filter is in the
+// panel behind "All filters" (docs/research/table-filter-patterns.md: 3–4
+// in a row, the rest in a panel).
+const PRIMARY_FILTERS: Record<ColumnPreset, string[]> = {
+  catalog: ['category', 'provider', 'plans'],
+  useCase: ['provider', 'cloud', 'plans'],
+  plan: ['provider', 'cloud', 'location'],
+};
+const rowChips = filterChips.filter((chip) => PRIMARY_FILTERS[preset].includes(chip.id));
+const panelId = `mc-panel-${categoryFilter || capabilityFilter || preset}`;
+// Strings the script needs.
+const scriptText = {
+  allFilters: t.allFilters,
+  showResults: t.showResults,
+  removeFilter: t.removeFilter,
+  nSelected: t.nSelected,
+};
 
 // Build the row-data payload consumed by the client script. We render the
 // table SSR (so non-JS users see all rows); the script only toggles row
@@ -621,13 +977,15 @@ function parseContextWindow(raw: string): number {
   return num;
 }
 
-const rowDataPayload = allModels.map((m) => ({
-  key: m.exactModelName,
+const rowDataPayload = rows.map((m) => ({
+  key: m.key,
+  plan: m.plan,
   displayModelName: m.displayModelName,
   category: m.category,           // primary — used as the sort key
   categories: m.categories,       // multi — used by the chip filter
   provider: m.capabilities.creator,
   cloud: m.cloud,
+  location: m.location,
   inputs: m.capabilities.inputModalities,
   outputs: m.capabilities.outputModalities,
   streaming: m.capabilities.streaming,
@@ -639,30 +997,49 @@ const rowDataPayload = allModels.map((m) => ({
   inputPrice: m.inputPricePerMillionTokens,
   outputPrice: m.outputPricePerMillionTokens,
   cachedInputPrice: m.cachedInputPricePerMillionTokens,
+  inputPriceBucket: priceBucket(m.inputPricePerMillionTokens),
+  outputPriceBucket: priceBucket(m.outputPricePerMillionTokens),
+  rpm: limitNumber(m.rpm),
+  tpm: limitNumber(m.tpm),
   plans: m.plans,
   catalogRank: catalogRank(m.displayModelName),
 }));
 ---
 
+{planEmpty ? (
+  <p class="mc-empty">
+    {t.emptyPlan}{' '}
+    <a href={`${localePrefix}/plans/`}>{t.emptyPlanLink}</a>
+  </p>
+) : (
 <div
-  class="models-comparison"
-  data-rows={JSON.stringify(rowDataPayload)}>
-  <div class="models-comparison__filterbar not-content" role="group" aria-label={t.heading}>
+  class:list={['models-comparison', `models-comparison--${preset}`]}
+  data-plan={activePlan || undefined}
+  data-rows={JSON.stringify(rowDataPayload)}
+  data-t={JSON.stringify(scriptText)}>
+  <div
+    class:list={['models-comparison__filterbar aifs-data-filterbar not-content', { 'models-comparison__filterbar--plan': showPlanField }]}
+    role="group"
+    aria-label={t.heading}>
+    {showPlanField && (
+      <Selector id={`mc-plan-${preset}`} label={t.ratePlan}>
+        {selectablePlans.map((p) => (
+          <option value={p.packageName} selected={p.packageName === activePlan}>{p.label}</option>
+        ))}
+      </Selector>
+    )}
     <div class="models-comparison__chips">
-      {filterChips.map((chip) => (
-        <details class="mc-filter" data-filter={chip.id}>
+      {rowChips.map((chip) => (
+        <details class="mc-filter aifs-filter" data-filter={chip.id}>
           <summary>
-            <span class="mc-filter__label">{chip.label}</span>
-            <span class="mc-filter__count" data-count></span>
+            <span class="mc-filter__label aifs-filter__label">{chip.label}</span>
+            <span class="mc-filter__count aifs-filter__value" data-count>{isDE ? 'Alle' : 'All'}</span>
+            <span class="aifs-filter__icon" aria-hidden="true"><Icon name="navigation-collapse-down" size={20} /></span>
           </summary>
-          <div class="mc-filter__menu">
+          <div class="mc-filter__menu aifs-filter__menu">
             {chip.values.map((v) => (
-              <label class="mc-filter__option">
-                <input
-                  type="checkbox"
-                  value={v}
-                  checked={chip.defaultChecked ? chip.defaultChecked(v) : true}
-                />
+              <label class="mc-filter__option aifs-filter__option">
+                <input type="checkbox" value={v} checked />
                 <span>{chip.optionLabel(v)}</span>
               </label>
             ))}
@@ -671,248 +1048,326 @@ const rowDataPayload = allModels.map((m) => ({
       ))}
     </div>
 
-    <Button variant="secondary" size="small" class="mc-reset" data-reset>
-      <span class="mc-reset__full">{t.reset}</span>
-      <span class="mc-reset__short">{isDE ? 'Zurücksetzen' : 'Reset'}</span>
+    <Button variant="secondary" class="mc-open-panel" data-open-panel aria-haspopup="dialog" aria-controls={panelId}>
+      <Icon name="action-filter" size={20} />
+      <span class="mc-open-panel__full">{t.allFilters}</span>
+      <span class="mc-open-panel__short">{t.filters}</span>
+      <span data-filter-count></span>
     </Button>
   </div>
 
-  <div class="models-comparison__status" aria-live="polite">
-    <span data-status-text>
-      {t.showing} <span data-visible-count>{allModels.length}</span> {t.of} <span data-total-count>{allModels.length}</span> {t.models}
+  <!-- Applied filters: one chip per narrowed filter, removable, then Clear all. -->
+  <div class="mc-applied" data-applied hidden>
+    <ul class="mc-applied__list" aria-label={t.appliedFilters} data-applied-list></ul>
+    <Button variant="ghost" size="small" class="mc-applied__clear" data-clear-all>{t.clearAll}</Button>
+  </div>
+  <template data-chip-template>
+    <li>
+      <Button variant="secondary" size="small" class="mc-applied__chip">
+        <span data-chip-text></span>
+        <Icon name="action-close" size={16} />
+      </Button>
+    </li>
+  </template>
+
+  <!-- Every filter, in a modal panel at the window's end edge. The row's
+       fields and these checkboxes stay in step (script below). -->
+  <dialog class="mc-panel not-content" id={panelId} aria-labelledby={`${panelId}-title`}>
+    <div class="mc-panel__head">
+      <span class="mc-panel__title" id={`${panelId}-title`}>{t.allFilters}</span>
+      <Button variant="ghost" iconOnly ariaLabel={t.closeFilters} data-close-panel>
+        <Icon name="action-close" size={24} />
+      </Button>
+    </div>
+    <div class="mc-panel__body">
+      {filterChips.map((chip) => (
+        <fieldset class="mc-panel__group" data-filter={chip.id}>
+          <legend class="mc-panel__legend">{chip.label}</legend>
+          {chip.values.map((v) => (
+            <label class="mc-panel__option">
+              <input type="checkbox" value={v} checked />
+              <span>{chip.optionLabel(v)}</span>
+            </label>
+          ))}
+        </fieldset>
+      ))}
+    </div>
+    <div class="mc-panel__foot">
+      <Button variant="secondary" data-clear-all>{t.clearAll}</Button>
+      <Button variant="primary" data-close-panel data-show-results>{t.showResults.replace('{n}', String(activeRowCount))}</Button>
+    </div>
+  </dialog>
+
+  <!-- The count, then the sort field: the headers sort too, but the
+       details and the cards have no header to click. -->
+  <div class="models-comparison__status not-content">
+    {/* Explicit spaces: Astro's compressHTML drops the plain whitespace
+        between an expression and an element ("Showing39of39models"). */}
+    <span class="models-comparison__count" aria-live="polite" data-status-text>
+      {t.showing && `${t.showing} `}<span data-visible-count>{activeRowCount}</span>{' '}{t.of}{' '}<span data-total-count>{activeRowCount}</span>{' '}{t.models}
+    </span>
+    <span class="mc-sort">
+      <Selector id={`mc-sort-${categoryFilter || capabilityFilter || preset}`} label={t.sortLabel}>
+        <option value="" selected>{t.sortDefault}</option>
+        {sortOptions.map((c) => (
+          <option value={c.key}>{c.label}</option>
+        ))}
+      </Selector>
+      <Button variant="secondary" iconOnly class="mc-sort-dir" ariaLabel={t.sortDescending} data-sort-dir aria-pressed="false" disabled>
+        <Icon name="content-sort-indicator-up" size={20} class="mc-sort-dir__up" />
+        <Icon name="content-sort-indicator-down" size={20} class="mc-sort-dir__down" />
+      </Button>
     </span>
   </div>
 
+  <!-- A copy of the header row, filled and shown by the script once the
+       real one scrolls under the filters. Screen readers use the real
+       header. -->
+  <div class="aifs-head-float" aria-hidden="true"></div>
+
+  <!-- One table. From 36rem of width: the main columns, and per row a
+       details row with the others. Narrower: each row is a card, its cells
+       label–value rows, the details below a Details button. -->
   <div class="models-comparison__scroll">
-    <table class="models-comparison-table">
+    <table class="models-comparison-table aifs-data-table">
       <thead>
         <tr>
-          {[
-            { key: 'model', label: t.colModel, cls: '', tooltip: undefined as string | undefined },
-            ...(!categoryFilter ? [{ key: 'category', label: t.colCategory, cls: '', tooltip: undefined as string | undefined }] : []),
-            { key: 'provider', label: t.colProvider, cls: '', tooltip: undefined as string | undefined },
-            { key: 'cloud', label: t.colCloud, cls: '', tooltip: undefined as string | undefined },
-            { key: 'input', label: t.colInput, cls: '', tooltip: undefined as string | undefined },
-            { key: 'streaming', label: t.colStreaming, cls: 'center', tooltip: t.tooltipStreaming },
-            { key: 'tools', label: t.colTools, cls: 'center', tooltip: t.tooltipTools },
-            { key: 'context', label: t.colContext, cls: '', tooltip: undefined as string | undefined },
-            { key: 'reasoningEffort', label: t.colReasoningEffort, cls: '', tooltip: t.tooltipReasoningEffort },
-            { key: 'reasoningTokensUsage', label: t.colReasoningTokensUsage, cls: '', tooltip: t.tooltipReasoningTokensUsage },
-            { key: 'inputPrice', label: t.colInputPrice, cls: 'num', tooltip: undefined as string | undefined },
-            { key: 'outputPrice', label: t.colOutputPrice, cls: 'num', tooltip: undefined as string | undefined },
-            { key: 'cachedInputPrice', label: t.colCachedPrice, cls: 'num', tooltip: t.tooltipCachedPrice },
-            { key: 'plans', label: t.colPlans, cls: '', tooltip: undefined as string | undefined },
-          ].map((h) => (
-            <th data-sort={h.key} class={h.cls}>
-              {h.tooltip ? (
-                <Tooltip text={h.tooltip} maxWidth="22rem">
-                  <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
+          {tableColumns.map((h) => {
+            // Label, then the arrow on its first line; the unit, if any, below.
+            if (h.sortable === false) {
+              return (
+                <th class={h.cls}>
+                  <span class="mc-sort-label">
+                    <span class="mc-sort-name">{h.label}</span>
+                  </span>
+                </th>
+              );
+            }
+            const button = (
+              <button type="button" class="mc-sort-header" aria-label={t.sortBy.replace('{label}', h.unit ? `${h.label} (${h.unit})` : h.label)}>
+                <span class="mc-sort-label">
+                  <span class="mc-sort-name">
+                    {h.label}
+                    {h.mark && <span aria-hidden="true">{` ${h.mark}`}</span>}
                     <Icon name="content-sort-indicator-down" size={16} class="mc-sort-icon" />
-                    <span>{h.label}</span>
-                  </button>
-                </Tooltip>
-              ) : (
-                <button type="button" class="mc-sort-header" aria-label={`Sort by ${h.label}`}>
-                  <Icon name="content-sort-indicator-down" size={16} class="mc-sort-icon" />
-                  <span>{h.label}</span>
-                </button>
-              )}
-            </th>
-          ))}
+                  </span>
+                  {h.unit && <span class="mc-sort-unit">{h.unit}</span>}
+                </span>
+              </button>
+            );
+            return (
+              <th data-sort={h.key} class={h.cls}>
+                {h.tooltip ? (
+                  <Tooltip text={h.tooltip} maxWidth="22rem" position="bottom" focusable={false}>
+                    {button}
+                  </Tooltip>
+                ) : (
+                  button
+                )}
+              </th>
+            );
+          })}
+          <th class="mc-more"><span class="sr-only">{t.details}</span></th>
         </tr>
       </thead>
       <tbody>
-        {allModels.map((m) => {
-          const creatorLogo = getLogo(m.capabilities.creator) || getLogo('Other');
+        {rows.map((m) => {
           const fullCloud = cloudFullName(m.cloud);
           const cloudLabel = cloudLabelFor(m.exactModelName, m.cloud);
-          const detailsId = detailsIdFor(m.exactModelName);
-          const priceLine = mobilePriceLine(m);
-          const factParts = [
-            blankContext(m.contextWindow) ? '' : formatContextLabel(m.contextWindow),
-            m.capabilities.inputModalities.map((mod) => MODALITY_LABELS[mod]).join(', '),
-          ].filter(Boolean);
-          const cached = cachedDetail(m);
-          const reasoningTokens = reasoningTokensDetail(m);
-          return (
-            <tr data-key={m.exactModelName}>
-              <td data-label={t.colModel}><strong>{m.displayModelName}</strong>{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta">{t.newTag}</span></>}{previewCatalog(m) && <> <span class="aifs-tag aifs-tag--small">{t.planPreview}</span></>}</td>
-              {!categoryFilter && (
-                <td data-label={t.colCategory}>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</td>
-              )}
-              <td data-label={t.colProvider}>
-                <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
-                  <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
-                    {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
-                  </span>
-                </Tooltip>
-              </td>
-              <td data-label={t.colCloud}>
-                {!hostingUnconfirmed(m.exactModelName) && (
-                  <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem">
+          const detailsId = detailsIdFor(m.key);
+          const hasLinks = Boolean(m.termsOfUseUrl || m.dataProtectionUrl);
+          const capCell = (value: boolean | null) =>
+            value == null
+              ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
+              : value
+              ? <span class="mc-cap mc-cap--yes" aria-label={t.supported}>✓</span>
+              : <span class="mc-cap mc-cap--no" aria-label={t.notSupported}>✗</span>;
+          // A column's value, the same in a table cell and in the details.
+          const value = (key: string) => {
+            switch (key) {
+              case 'category':
+                return m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ');
+              case 'provider':
+                return m.capabilities.creator;
+              case 'cloud':
+                return hostingUnconfirmed(m.exactModelName) ? <span class="mc-muted">—</span> : (
+                  <Tooltip text={cloudFullNameFor(m.exactModelName, CLOUD_TOOLTIPS[m.cloud])} maxWidth="22rem" focusable={false}>
                     <button
                       type="button"
                       class={`plans-tag ${cloudTagClass(m.cloud)} mc-cloud-filter-btn`}
                       data-cloud={m.cloud}
-                      aria-label={`Toggle ${m.cloud} cloud in the filter — ${fullCloud}`}
+                      aria-label={t.toggleCloud.replace('{label}', cloudLabel).replace('{full}', fullCloud)}
                     >
-                      {cloudLabelFor(m.exactModelName, m.cloud)}
+                      {cloudLabel}
                     </button>
                   </Tooltip>
-                )}
-              </td>
-              <td data-label={t.colInput}>
-                {m.capabilities.inputModalities.map((mod, index) => (
+                );
+              case 'location':
+                return m.location
+                  ? <span class="mc-location__value">{m.locationCode && <Flag code={m.locationCode} size={16} decorative />}{m.location}</span>
+                  : <span class="mc-muted">—</span>;
+              case 'dataProcessing':
+                return m.dataProcessing
+                  ? <span class="mc-location__value">{m.dataProcessingCode && <Flag code={m.dataProcessingCode} size={16} decorative />}{m.dataProcessing}</span>
+                  : <span class="mc-muted">—</span>;
+              case 'input':
+              case 'output': {
+                const mods = key === 'input' ? m.capabilities.inputModalities : m.capabilities.outputModalities;
+                return mods.length === 0 ? <span class="mc-muted">—</span> : mods.map((mod, index) => (
                   <>
                     {index > 0 ? ' ' : ''}
-                    <span class="mc-mod">{MODALITY_LABELS[mod]}{index < m.capabilities.inputModalities.length - 1 ? ',' : ''}</span>
+                    <span class="mc-mod">{MODALITY_LABELS[mod]}{index < mods.length - 1 ? ',' : ''}</span>
                   </>
-                ))}
-              </td>
-              <td class="center" data-label={t.colStreaming}>
-                {m.capabilities.streaming == null
-                  ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
-                  : m.capabilities.streaming
-                  ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
-                  : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
-              </td>
-              <td class="center" data-label={t.colTools}>
-                {m.capabilities.toolCalling == null
-                  ? <span class="mc-cap" aria-label={isDE ? 'Nicht angegeben' : 'Not published'}>—</span>
-                  : m.capabilities.toolCalling
-                  ? <span class="mc-cap mc-cap--yes" aria-label="Supported">✓</span>
-                  : <span class="mc-cap mc-cap--no"  aria-label="Not supported">✗</span>}
-              </td>
-              <td class="mc-context" data-label={t.colContext}>{formatContextLabel(m.contextWindow)}</td>
-              <td class="mc-reasoning-effort" data-label={t.colReasoningEffort}>
-                {m.reasoningEffort.length > 0
+                ));
+              }
+              case 'streaming':
+                return capCell(m.capabilities.streaming);
+              case 'tools':
+                return capCell(m.capabilities.toolCalling);
+              case 'context': {
+                const label = formatContextLabel(m.contextWindow);
+                const tierNote = priceTierNote(m);
+                return tierNote ? (
+                  <Tooltip text={tierNote} maxWidth="16rem">
+                    <span class="mc-context-tier">{label}<Icon name="alert-information" size={16} /></span>
+                  </Tooltip>
+                ) : label;
+              }
+              case 'reasoningEffort':
+                return m.reasoningEffort.length > 0
                   ? <span class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</span>
-                  : <span aria-label="No reasoning_effort values published">{t.reasoningEffortNone}</span>}
-              </td>
-              <td class="mc-usage-field" data-label={t.colReasoningTokensUsage}>
-                {m.reasoningTokensUsage === 'completion_tokens_details' && (
-                  <span title="completion_tokens_details.reasoning_tokens">details</span>
-                )}
-                {m.reasoningTokensUsage === 'usage' && (
-                  <span title="usage.reasoning_tokens">usage</span>
-                )}
-                {m.reasoningTokensUsage === 'none' && (
-                  <span class="mc-usage-field__none" title={t.reasoningTokensNotReported}>{t.reasoningTokensNotReported}</span>
-                )}
-                {m.reasoningTokensUsage === null && (
-                  <span aria-label="Not documented">{t.reasoningTokensUnknown}</span>
-                )}
-              </td>
-              <td class="num" data-label={t.colInputPrice} title={m.inputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.inputPricePerMillionTokens == null ? '—' : formatPrice(m.inputPricePerMillionTokens)}</td>
-              <td class="num" data-label={t.colOutputPrice} title={m.outputPricePerMillionTokens == null ? t.priceTba.replaceAll('\n', ' ') : undefined}>{m.outputPricePerMillionTokens == null || isEmbeddingOnly(m) ? '—' : formatPrice(m.outputPricePerMillionTokens)}</td>
-              <td class="num" data-label={t.colCachedPrice}>{formatCachedPrice(m)}</td>
-              <td data-label={t.colPlans}>
-                <span class="mc-plans">
-                  {shownPlans(m).map((p) => (
-                    <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
-                  ))}
-                  {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
-                </span>
-              </td>
-              <td class="mc-mobile-cell">
-                <div class="mc-m">
-                  <div class="mc-m__top">
-                    <span class:list={['creator-brand', 'creator-brand--tile', { 'creator-brand--zoom': m.capabilities.creator.startsWith('Google') }]} style={m.capabilities.creator.startsWith('Google') ? `background-image:url("${creatorLogo}")` : undefined} role={m.capabilities.creator.startsWith('Google') ? 'img' : undefined} aria-label={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined} title={m.capabilities.creator.startsWith('Google') ? m.capabilities.creator : undefined}>
-                      {m.capabilities.creator.startsWith('Google') ? null : <img class="creator-brand__icon" src={creatorLogo} alt={m.capabilities.creator} title={m.capabilities.creator} width="16" height="16" />}
+                  : <span aria-label={t.noEffortValues}>{t.reasoningEffortNone}</span>;
+              case 'reasoningTokensUsage':
+                return (
+                  <span class="mc-usage-field">
+                    {m.reasoningTokensUsage === 'completion_tokens_details' && <code set:html={withWrapPoints('completion_tokens_details.reasoning_tokens')} />}
+                    {m.reasoningTokensUsage === 'usage' && <code set:html={withWrapPoints('usage.reasoning_tokens')} />}
+                    {m.reasoningTokensUsage === 'none' && <span class="mc-usage-field__none">{t.reasoningTokensNotReported}</span>}
+                    {m.reasoningTokensUsage === null && <span aria-label={t.notDocumented}>{t.reasoningTokensUnknown}</span>}
+                  </span>
+                );
+              case 'inputPrice':
+                if (m.inputPricePerMillionTokens == null) return <span title={t.priceTba.replaceAll('\n', ' ')}>—</span>;
+                return m.imageInputPricePerMillionTokens == null ? formatPrice(m.inputPricePerMillionTokens) : (
+                  <span class="mc-price-split">
+                    <span>{`${t.priceTextInput} ${formatPrice(m.inputPricePerMillionTokens)}`}</span>
+                    <span>{`${t.priceImageInput} ${formatPrice(m.imageInputPricePerMillionTokens)}`}</span>
+                  </span>
+                );
+              case 'outputPrice':
+                return m.outputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : formatPrice(m.outputPricePerMillionTokens);
+              case 'cachedInputPrice':
+                return formatCachedPrice(m);
+              case 'rpm':
+                return formatLimit(m.rpm);
+              case 'tpm':
+                return formatLimit(m.tpm);
+              case 'plans':
+                return (
+                  <span class="mc-plans">
+                    {shownPlans(m).map((p) => (
+                      <PlanTag plan={p} size="small" href={planHref(p)} />
+                    ))}
+                    {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
+                    {shownPlans(m).length === 0 && !previewCatalog(m) && <span class="mc-muted">—</span>}
+                  </span>
+                );
+              case 'links':
+                return hasLinks ? (
+                  <span class="mc-links">
+                    {m.termsOfUseUrl && (
+                      <a class="mc-link" href={m.termsOfUseUrl} target="_blank" rel="noreferrer noopener">
+                        {t.linkTermsOfUse}<span class="sr-only"> {t.opensInNewTab}</span>
+                        <Icon name="navigation-external-link" size={16} />
+                      </a>
+                    )}
+                    {m.dataProtectionUrl && (
+                      <a class="mc-link" href={m.dataProtectionUrl} target="_blank" rel="noreferrer noopener">
+                        {t.linkDataProtection}<span class="sr-only"> {t.opensInNewTab}</span>
+                        <Icon name="navigation-external-link" size={16} />
+                      </a>
+                    )}
+                  </span>
+                ) : <span class="mc-muted">—</span>;
+              default:
+                return null;
+            }
+          };
+          return (
+            <>
+              <tr data-key={m.key} data-plan={m.plan ?? undefined} hidden={isPlanPreset && m.plan !== activePlan}>
+                {tableColumns.map((c) => c.key === 'model' ? (
+                  <td class="mc-model" data-label={t.colModel}>
+                    <span class="mc-model__inner">
+                      <Tooltip text={getProviderTooltip(m.capabilities.creator, isDE)} maxWidth="24rem">
+                        <Logo name={m.capabilities.creator} />
+                      </Tooltip>
+                      <span class="mc-model__text">
+                        <strong class="mc-model__name">{m.displayModelName}</strong>
+                        {(isNewModel(m.exactModelName) || previewCatalog(m) || m.modelTier === 'premium') && (
+                          <span class="mc-model__tags">
+                            {isNewModel(m.exactModelName) && <Tag color="magenta" size="small">{t.newTag}</Tag>}
+                            {previewCatalog(m) && <Tag size="small">{t.planPreview}</Tag>}
+                            {m.modelTier === 'premium' && <Tag size="small">Premium</Tag>}
+                          </span>
+                        )}
+                      </span>
                     </span>
-                    <strong class="mc-m__name">{m.displayModelName}{isNewModel(m.exactModelName) && <> <span class="aifs-tag aifs-tag--small aifs-tag--magenta mc-m__new">{t.newTag}</span></>}{previewCatalog(m) && <> <span class="aifs-tag aifs-tag--small mc-m__new">{t.planPreview}</span></>}</strong>
-                    <Button
-                      variant="ghost"
-                      size="small"
-                      iconOnly
-                      class="mc-m__details"
-                      ariaLabel={t.details}
-                      aria-expanded="false"
-                      aria-controls={detailsId}
-                    >
-                      <svg class="mc-m__chevron" viewBox="0 0 12 8" width="12" height="8" aria-hidden="true"><path d="M1 1.5L6 6.5L11 1.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
-                    </Button>
-                  </div>
-                  <div class="mc-m__meta">
-                    {!hostingUnconfirmed(m.exactModelName) && <span class={`plans-tag ${cloudTagClass(m.cloud)}`}>{cloudLabel}</span>}
-                    {m.modelTier === 'premium' && <span class="aifs-tag aifs-tag--small">Premium</span>}
-                    {factParts.length > 0 && <span class="mc-m__facts">{factParts.join(' · ')}</span>}
-                    {priceLine && <span class:list={['mc-m__price', { 'mc-m__price--wrap': priceLine === t.priceTba }]}>{priceLine}</span>}
-                  </div>
-                  <div class="mc-m__panel" id={detailsId} hidden="until-found">
-                    <dl class="mc-m__dl">
-                      {(m.capabilities.streaming === true || m.capabilities.toolCalling === true) && (
-                        <div class="mc-m__checks">
-                          <dt class="sr-only">{t.colFeatures}</dt>
-                          <dd>
-                            {m.capabilities.streaming === true && <span class="mc-m__check">{t.colStreaming} <span class="mc-cap--yes" aria-hidden="true">✓</span><span class="sr-only">: {isDE ? 'ja' : 'yes'}</span></span>}
-                            {m.capabilities.toolCalling === true && <span class="mc-m__check">{t.colTools} <span class="mc-cap--yes" aria-hidden="true">✓</span><span class="sr-only">: {isDE ? 'ja' : 'yes'}</span></span>}
-                          </dd>
-                        </div>
-                      )}
-                      {m.capabilities.outputModalities.length > 0 && (
-                        <div>
-                          <dt>{t.colOutput}</dt>
-                          <dd>{m.capabilities.outputModalities.map((mod) => MODALITY_LABELS[mod]).join(', ')}</dd>
-                        </div>
-                      )}
-                      {cached && (
-                        <div>
-                          <dt>{t.colCachedPrice}</dt>
-                          <dd>{cached}</dd>
-                        </div>
-                      )}
-                      {!categoryFilter && (
-                        <div>
-                          <dt>{t.colCategory}</dt>
-                          <dd>{m.categories.map((cat) => CATEGORY_LABELS[cat]).join(', ')}</dd>
-                        </div>
-                      )}
-                      {m.reasoningEffort.length > 0 && (
-                        <div>
-                          <dt>{t.colReasoningEffort}</dt>
-                          <dd class="mc-effort-values">{m.reasoningEffort.map((v) => <code>{v}</code>)}</dd>
-                        </div>
-                      )}
-                      {reasoningTokens && (
-                        <div>
-                          <dt>{t.colReasoningTokensUsage}</dt>
-                          <dd><code set:html={withWrapPoints(reasoningTokens)} /></dd>
-                        </div>
-                      )}
-                      <div>
-                        <dt>{t.colPlans}</dt>
-                        <dd class="mc-plans">
-                          {shownPlans(m).map((p) => (
-                            <a class={`plans-tag ${planTagClass(p)}`} href={planHref(p)}>{planLabel(p)}</a>
-                          ))}
-                          {shownPlans(m).length === 0 && previewCatalog(m) && <a class="mc-plans__preview" href={planHref('Test')}>{t.previewPlans}</a>}
-                        </dd>
+                  </td>
+                ) : (
+                  <td class={c.cls} data-label={cardLabel(c)}>{value(c.key)}</td>
+                ))}
+                <td class="mc-more">
+                  <Button
+                    variant="ghost"
+                    size="small"
+                    class="mc-more__btn"
+                    aria-expanded="false"
+                    aria-controls={detailsId}
+                  >
+                    <span class="mc-more__label">{t.showDetails}<span class="sr-only">: {m.displayModelName}</span></span>
+                    <Icon name="navigation-collapse-down" size={16} class="mc-more__chevron" />
+                  </Button>
+                </td>
+              </tr>
+              <tr class="mc-detail" id={detailsId} data-detail-for={m.key} hidden>
+                <td colspan={tableColumns.length + 1}>
+                  <dl class="mc-dl">
+                    {detailColumns.map((c) => (
+                      <div class:list={['mc-dl__item', `mc-dl__item--${c.key}`, extraStep(c.key) && `mc-x${extraStep(c.key)}`]}>
+                        <dt>{c.label}{c.unit && <span class="mc-dl__unit"> ({c.unit})</span>}{c.mark && <span aria-hidden="true">{` ${c.mark}`}</span>}</dt>
+                        <dd class={c.cls}>{value(c.key)}</dd>
                       </div>
-                    </dl>
-                  </div>
-                </div>
-              </td>
-            </tr>
+                    ))}
+                  </dl>
+                </td>
+              </tr>
+            </>
           );
         })}
         <tr class="mc-no-results" hidden>
-          <td colspan="15" class="mc-no-results__cell">{t.noResults}</td>
+          <td colspan={tableColumns.length + 1} class="mc-no-results__cell">{t.noResults}</td>
         </tr>
       </tbody>
     </table>
   </div>
 </div>
+)}
 
 <script>
+  import { setupFloatingHead } from '../scripts/floatingTableHead';
+  import { showFilterValue } from '../scripts/filterField';
   type RowData = {
     key: string;
+    /** Plan preset: the plan this row belongs to; null elsewhere. */
+    plan: string | null;
     displayModelName: string;
     catalogRank?: number;
     category: string;        // primary, for sort
     categories: string[];    // multi, for filter chip
     provider: string;
     cloud: string;
+    location: string;
     inputs: string[];
     outputs: string[];
     streaming: boolean | null;
@@ -924,6 +1379,10 @@ const rowDataPayload = allModels.map((m) => ({
     inputPrice: number | null;
     outputPrice: number | null;
     cachedInputPrice: number | null;
+    inputPriceBucket: string | null;
+    outputPriceBucket: string | null;
+    rpm: number | null;
+    tpm: number | null;
     plans: string[];
   };
 
@@ -944,11 +1403,22 @@ const rowDataPayload = allModels.map((m) => ({
       const key = tr.dataset.key;
       if (key) tableRowsByKey.set(key, tr);
     });
+    // Each row's details row comes right after it, wherever sorting puts it.
+    const detailRowsByKey = new Map<string, HTMLTableRowElement>();
+    root.querySelectorAll<HTMLTableRowElement>('tbody tr[data-detail-for]').forEach((tr) => {
+      const key = tr.dataset.detailFor;
+      if (key) detailRowsByKey.set(key, tr);
+    });
+    const isOpen = (tr: HTMLTableRowElement) =>
+      tr.querySelector('.mc-more__btn')?.getAttribute('aria-expanded') === 'true';
 
     const noResultsRow = root.querySelector<HTMLTableRowElement>('.mc-no-results');
     const visibleCountEl = root.querySelector<HTMLElement>('[data-visible-count]');
     const totalCountEl = root.querySelector<HTMLElement>('[data-total-count]');
-    if (totalCountEl) totalCountEl.textContent = String(rows.length);
+
+    // Plan preset: the rows of one plan at a time (the plan field switches).
+    let currentPlan = root.dataset.plan || '';
+    const inPlan = (row: RowData) => !currentPlan || row.plan === currentPlan;
 
     // Sort state. Default: cloud (Telekom-first via custom rank). SSR-render
     // is already in this order so the first paint matches; subsequent sorts
@@ -961,27 +1431,67 @@ const rowDataPayload = allModels.map((m) => ({
       { id: 'category', type: 'multi', field: 'categories' },
       { id: 'provider', type: 'single', field: 'provider' },
       { id: 'cloud', type: 'single', field: 'cloud' },
+      { id: 'location', type: 'single', field: 'location' },
       { id: 'input', type: 'multi', field: 'inputs' },
       { id: 'output', type: 'multi', field: 'outputs' },
       { id: 'streaming', type: 'bool', field: 'streaming' },
       { id: 'tools', type: 'bool', field: 'toolCalling' },
+      { id: 'inputPrice', type: 'single', field: 'inputPriceBucket' },
+      { id: 'outputPrice', type: 'single', field: 'outputPriceBucket' },
       { id: 'plans', type: 'multi', field: 'plans' },
     ];
 
     type FilterState = Map<string, Set<string>>;
 
+    // Every filter is a fieldset in the panel; the row repeats some of them
+    // as fields. The panel's checkboxes are the state; the row's follow them.
+    const panelGroup = (id: string) => root.querySelector<HTMLElement>(`fieldset[data-filter="${id}"]`);
+    const filterBoxes = (id: string) =>
+      root.querySelectorAll<HTMLInputElement>(`[data-filter="${id}"] input[type="checkbox"]`);
+    const shownBoxes = (group: HTMLElement) =>
+      [...group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')].filter((i) => !i.closest('label')?.hidden);
+
+    // Only narrowed filters go in the state: a filter at "All" never hides a
+    // row, not even one whose field is unset (no inputs, no location).
     function readState(): FilterState {
       const state: FilterState = new Map();
       for (const def of filterDefs) {
-        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
-        if (!details) continue;
+        const group = panelGroup(def.id);
+        if (!group) continue;
+        const shown = shownBoxes(group);
+        if (shown.every((i) => i.checked)) continue;
         const checked = new Set<string>();
-        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
+        group.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
           if (input.checked) checked.add(input.value);
         });
         state.set(def.id, checked);
       }
       return state;
+    }
+
+    /** Set one option of a filter, in the panel and the row alike. */
+    function setOption(id: string, value: string, on: boolean) {
+      filterBoxes(id).forEach((input) => {
+        if (input.value === value) input.checked = on;
+      });
+    }
+
+    /** A filter is narrowed when one of the options offered is unchecked. */
+    function narrowedFilters() {
+      const out: { id: string; label: string; chosen: string[] }[] = [];
+      for (const def of filterDefs) {
+        const group = panelGroup(def.id);
+        if (!group) continue;
+        const shown = shownBoxes(group);
+        const chosen = shown.filter((i) => i.checked);
+        if (chosen.length === shown.length) continue;
+        out.push({
+          id: def.id,
+          label: group.querySelector('legend')?.textContent?.trim() || def.id,
+          chosen: chosen.map((i) => (i.closest('label')?.textContent || i.value).trim()),
+        });
+      }
+      return out;
     }
 
     function valueToString(value: unknown): string {
@@ -990,6 +1500,7 @@ const rowDataPayload = allModels.map((m) => ({
     }
 
     function rowPasses(row: RowData, state: FilterState): boolean {
+      if (!inPlan(row)) return false;
       for (const def of filterDefs) {
         const checked = state.get(def.id);
         if (!checked) continue;
@@ -999,8 +1510,9 @@ const rowDataPayload = allModels.map((m) => ({
           // Row passes this filter if ANY of its values is checked.
           if (!values.some((v) => checked.has(v))) return false;
         } else {
+          // A narrowed filter keeps only rows known to match; unset is not.
           const raw = row[def.field];
-          if (raw == null || raw === '') continue;
+          if (raw == null || raw === '') return false;
           const v = valueToString(raw);
           if (!checked.has(v)) return false;
         }
@@ -1012,39 +1524,40 @@ const rowDataPayload = allModels.map((m) => ({
     // aria-label uses the same language as the visible chip label.
     const isDE = document.documentElement.lang === 'de';
 
-    function updateCounts() {
-      for (const def of filterDefs) {
-        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
-        if (!details) continue;
-        const all = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
-        const checked = details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]:checked');
-        const countEl = details.querySelector<HTMLElement>('[data-count]');
-        const isAll = checked.length === all.length;
-        if (countEl) {
-          countEl.textContent = isAll ? '' : `(${checked.length}/${all.length})`;
-        }
-        details.classList.toggle('mc-filter--active', !isAll);
+    const text = JSON.parse(root.dataset.t || '{}') as Record<string, string>;
+    const openPanelBtn = root.querySelector<HTMLButtonElement>('[data-open-panel]');
+    const panel = root.querySelector<HTMLDialogElement>('dialog.mc-panel');
+    const applied = root.querySelector<HTMLElement>('[data-applied]');
+    const appliedList = root.querySelector<HTMLElement>('[data-applied-list]');
+    const chipTemplate = root.querySelector<HTMLTemplateElement>('template[data-chip-template]');
 
-        // Mirror the visible (N/M) into a screen-reader-friendly aria-label
-        // on the <summary> so AT users hear "Cloud filter, 1 of 3 selected"
-        // (or the German equivalent) instead of "Cloud, 1, 3".
-        const summary = details.querySelector<HTMLElement>('summary');
-        const labelEl = details.querySelector<HTMLElement>('.mc-filter__label');
-        if (summary && labelEl) {
-          const label = (labelEl.textContent || '').trim();
-          if (isAll) {
-            // All options selected = no active filter. Let visible label
-            // speak for itself; removing aria-label avoids redundant readout.
-            summary.removeAttribute('aria-label');
-          } else {
-            summary.setAttribute(
-              'aria-label',
-              isDE
-                ? `Filter ${label}, ${checked.length} von ${all.length} ausgewählt`
-                : `${label} filter, ${checked.length} of ${all.length} selected`,
-            );
-          }
+    function updateCounts() {
+      // The row's fields show what is chosen (src/scripts/filterField.ts).
+      root.querySelectorAll<HTMLElement>('details.mc-filter').forEach((details) => {
+        showFilterValue(details, isDE);
+        details.classList.toggle('mc-filter--active', details.classList.contains('aifs-filter--active'));
+      });
+
+      // The panel button counts the narrowed filters; the chips name them.
+      const narrowed = narrowedFilters();
+      const count = root.querySelector<HTMLElement>('[data-filter-count]');
+      // Part of the button's visible text, so its name says it too.
+      if (count) count.textContent = narrowed.length ? `(${narrowed.length})` : '';
+      if (applied && appliedList && chipTemplate) {
+        appliedList.replaceChildren();
+        for (const f of narrowed) {
+          const item = chipTemplate.content.firstElementChild!.cloneNode(true) as HTMLElement;
+          const btn = item.querySelector<HTMLButtonElement>('button')!;
+          const values = f.chosen.length <= 2
+            ? f.chosen.join(', ')
+            : (text.nSelected || '{n}').replace('{n}', String(f.chosen.length));
+          const label = `${f.label}: ${values}`;
+          item.querySelector('[data-chip-text]')!.textContent = label;
+          btn.dataset.removeFilter = f.id;
+          btn.setAttribute('aria-label', (text.removeFilter || '{label}').replace('{label}', label));
+          appliedList.appendChild(item);
         }
+        applied.hidden = narrowed.length === 0;
       }
     }
 
@@ -1074,6 +1587,17 @@ const rowDataPayload = allModels.map((m) => ({
           bv = b.displayModelName.toLowerCase();
           break;
         }
+        case 'location':
+          // Rows without a location sort last.
+          av = a.location ? a.location.toLowerCase() : '\uffff';
+          bv = b.location ? b.location.toLowerCase() : '\uffff';
+          break;
+        case 'rpm':
+        case 'tpm':
+          // "dynamic" (no number) sorts after every number.
+          av = priceSortValue(a[sortKey as 'rpm' | 'tpm']);
+          bv = priceSortValue(b[sortKey as 'rpm' | 'tpm']);
+          break;
         case 'input':
           av = a.inputs.join(',').toLowerCase();
           bv = b.inputs.join(',').toLowerCase();
@@ -1141,6 +1665,11 @@ const rowDataPayload = allModels.map((m) => ({
           bv = b.displayModelName.toLowerCase();
       }
       if (typeof av === 'number' && typeof bv === 'number') {
+        // Infinity marks "no value" (unpublished price, dynamic limit): last
+        // in both directions.
+        if (av === Number.POSITIVE_INFINITY || bv === Number.POSITIVE_INFINITY) {
+          return av === bv ? 0 : av === Number.POSITIVE_INFINITY ? 1 : -1;
+        }
         return sortAsc ? av - bv : bv - av;
       }
       const as = String(av);
@@ -1150,11 +1679,23 @@ const rowDataPayload = allModels.map((m) => ({
       return 0;
     }
 
+    const sortField = root.querySelector<HTMLSelectElement>('.mc-sort select');
+    const sortDir = root.querySelector<HTMLButtonElement>('[data-sort-dir]');
+
     function updateSortIndicators() {
+      if (sortField) sortField.value = sortKey;
+      if (sortDir) {
+        sortDir.disabled = !sortKey;
+        sortDir.setAttribute('aria-pressed', sortKey && !sortAsc ? 'true' : 'false');
+        sortDir.classList.toggle('mc-sort-dir--desc', Boolean(sortKey) && !sortAsc);
+      }
       root.querySelectorAll<HTMLElement>('th[data-sort]').forEach((th) => {
         const icon = th.querySelector<SVGElement>('.mc-sort-icon');
         const isActive = th.dataset.sort === sortKey;
         th.classList.toggle('mc-sort-active', isActive);
+        // Screen readers hear the sorted column and its direction.
+        if (isActive) th.setAttribute('aria-sort', sortAsc ? 'ascending' : 'descending');
+        else th.removeAttribute('aria-sort');
         if (icon) {
           icon.classList.toggle('mc-sort-icon--active', isActive);
           icon.classList.toggle('mc-sort-icon--asc', isActive && sortAsc);
@@ -1172,19 +1713,38 @@ const rowDataPayload = allModels.map((m) => ({
         for (const row of ordered) {
           const tr = tableRowsByKey.get(row.key);
           if (tr) tbody.appendChild(tr);
+          const detail = detailRowsByKey.get(row.key);
+          if (detail) tbody.appendChild(detail);
         }
         if (noResultsRow) tbody.appendChild(noResultsRow);
       }
       let visible = 0;
+      let lastVisible: HTMLElement | null = null;
       for (const row of ordered) {
         const tr = tableRowsByKey.get(row.key);
         if (!tr) continue;
         const passes = rowPasses(row, state);
         tr.hidden = !passes;
-        if (passes) visible += 1;
+        tr.classList.remove('mc-last-visible');
+        const detail = detailRowsByKey.get(row.key);
+        if (detail) {
+          detail.hidden = !passes || !isOpen(tr);
+          detail.classList.remove('mc-last-visible');
+        }
+        if (passes) {
+          visible += 1;
+          lastVisible = detail && !detail.hidden ? detail : tr;
+        }
       }
+      // The table's bottom edge and corners go on the last row shown, which
+      // filters and sorting change (the CSS can't tell from :last-child,
+      // since the hidden no-results row comes last).
+      lastVisible?.classList.add('mc-last-visible');
       if (visibleCountEl) visibleCountEl.textContent = String(visible);
+      if (totalCountEl) totalCountEl.textContent = String(rows.filter(inPlan).length);
       if (noResultsRow) noResultsRow.hidden = visible > 0;
+      const showBtn = root.querySelector<HTMLElement>('[data-show-results]');
+      if (showBtn) showBtn.textContent = (text.showResults || '{n}').replace('{n}', String(visible));
       updateCounts();
       updateSortIndicators();
     }
@@ -1194,40 +1754,99 @@ const rowDataPayload = allModels.map((m) => ({
     // the full set. The initial page load also has every option checked
     // (Telekom-first ordering is achieved via sort, not filter).
     function reset() {
-      for (const def of filterDefs) {
-        const details = root.querySelector<HTMLElement>(`.mc-filter[data-filter="${def.id}"]`);
-        if (!details) continue;
-        details.querySelectorAll<HTMLInputElement>('input[type="checkbox"]').forEach((input) => {
-          input.checked = true;
-        });
-      }
+      root.querySelectorAll<HTMLInputElement>('[data-filter] input[type="checkbox"]').forEach((input) => {
+        input.checked = true;
+      });
       apply();
     }
 
     root.addEventListener('change', (evt) => {
       const target = evt.target as HTMLElement | null;
-      if (target && target instanceof HTMLInputElement && target.type === 'checkbox') {
-        // If the user just unchecked the last option in a filter, auto-revert
-        // that filter to "All" (every option checked). Prevents the table
-        // collapsing to zero rows from an accidentally-empty selection.
-        const filterDetails = target.closest('.mc-filter') as HTMLElement | null;
-        if (filterDetails) {
-          const all = filterDetails.querySelectorAll<HTMLInputElement>('input[type="checkbox"]');
-          const anyChecked = Array.from(all).some((input) => input.checked);
-          if (!anyChecked) {
-            all.forEach((input) => {
-              input.checked = true;
-            });
-          }
-        }
-        apply();
+      if (!(target instanceof HTMLInputElement) || target.type !== 'checkbox') return;
+      const container = target.closest<HTMLElement>('[data-filter]');
+      const id = container?.dataset.filter;
+      if (!id) return;
+      setOption(id, target.value, target.checked);
+      // Unchecking the last option of a filter turns it back to "All", so
+      // the table never empties by accident.
+      const group = panelGroup(id);
+      if (group && !shownBoxes(group).some((i) => i.checked)) {
+        filterBoxes(id).forEach((input) => {
+          input.checked = true;
+        });
       }
+      apply();
     });
 
-    const resetBtn = root.querySelector<HTMLButtonElement>('[data-reset]');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', () => reset());
+    // A filter lists only the values the shown plan has. Options of other
+    // plans are hidden and stay checked, so they never narrow the rows.
+    function syncOptionsToPlan() {
+      if (!currentPlan) return;
+      const planRows = rows.filter(inPlan);
+      for (const def of filterDefs) {
+        const present = new Set<string>();
+        for (const row of planRows) {
+          const raw = row[def.field];
+          if (Array.isArray(raw)) raw.forEach((v) => present.add(String(v)));
+          else if (raw != null && raw !== '') present.add(valueToString(raw));
+        }
+        filterBoxes(def.id).forEach((input) => {
+          const label = input.closest('label');
+          const has = present.has(input.value);
+          if (label) label.hidden = !has;
+          if (!has) input.checked = true;
+        });
+      }
     }
+
+    const planSelect = root.querySelector<HTMLSelectElement>('select[id^="mc-plan-"]');
+    planSelect?.addEventListener('change', () => {
+      currentPlan = planSelect.value;
+      root.dataset.plan = currentPlan;
+      syncOptionsToPlan();
+      apply();
+    });
+
+    // Clear all: in the applied-filters row and in the panel.
+    root.querySelectorAll<HTMLButtonElement>('[data-clear-all]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        reset();
+        // The applied row is gone now; keep focus on the filters.
+        if (!panel?.open) openPanelBtn?.focus();
+      });
+    });
+
+    // A chip removes its filter: every option back on. Focus moves to the
+    // next chip, or to the panel button when none is left.
+    appliedList?.addEventListener('click', (evt) => {
+      const btn = (evt.target as HTMLElement | null)?.closest<HTMLButtonElement>('button[data-remove-filter]');
+      const id = btn?.dataset.removeFilter;
+      if (!btn || !id) return;
+      const index = [...appliedList.querySelectorAll('button')].indexOf(btn);
+      filterBoxes(id).forEach((input) => {
+        input.checked = true;
+      });
+      apply();
+      const chips = appliedList.querySelectorAll<HTMLButtonElement>('button');
+      (chips[Math.min(index, chips.length - 1)] ?? openPanelBtn)?.focus();
+    });
+
+    // The panel is a modal dialog: focus moves in, Escape closes it, the
+    // page behind is inert, and focus returns to the button.
+    openPanelBtn?.addEventListener('click', () => {
+      root.querySelectorAll<HTMLDetailsElement>('details.mc-filter[open]').forEach((d) => {
+        d.open = false;
+      });
+      panel?.showModal();
+    });
+    panel?.querySelectorAll<HTMLButtonElement>('[data-close-panel]').forEach((btn) => {
+      btn.addEventListener('click', () => panel.close());
+    });
+    // A click on the backdrop (outside the panel's box) closes it too.
+    panel?.addEventListener('click', (evt) => {
+      if (evt.target === panel) panel.close();
+    });
+    panel?.addEventListener('close', () => openPanelBtn?.focus());
 
     if (!root.hasAttribute('data-popover-bound')) {
       root.setAttribute('data-popover-bound', '');
@@ -1277,38 +1896,78 @@ const rowDataPayload = allModels.map((m) => ({
       });
     }
 
+    // The sort field: a column, or the recommended order (no key). The
+    // button beside it flips the direction.
+    sortField?.addEventListener('change', () => {
+      sortKey = sortField.value;
+      sortAsc = true;
+      apply();
+    });
+    sortDir?.addEventListener('click', () => {
+      if (!sortKey) return;
+      sortAsc = !sortAsc;
+      apply();
+    });
+
+    // The header row follows the page (src/scripts/floatingTableHead.ts).
+    const floatHead = root.querySelector<HTMLElement>('.aifs-head-float');
+    const dataTable = root.querySelector<HTMLTableElement>('table.models-comparison-table');
+    if (floatHead && dataTable) {
+      setupFloatingHead({
+        root,
+        float: floatHead,
+        bar: root.querySelector<HTMLElement>('.models-comparison__filterbar'),
+        table: dataTable,
+        sortControl: '.mc-sort-header',
+      });
+    }
+
     // Cloud tag in a row toggles its value in the Cloud filter. Click an
     // already-selected cloud to remove it; click an unselected cloud to add
     // it. Delegated so it survives any future row re-render. We dispatch a
     // synthetic 'change' event so the existing change listener handles both
     // the apply() call AND the zero-selection auto-revert (uncheck the last
     // remaining cloud → all three snap back to checked).
-    function setMobileDetails(btn: HTMLButtonElement, open: boolean) {
-      const id = btn.getAttribute('aria-controls');
-      if (!id) return;
-      const panel = root.querySelector<HTMLElement>(`#${CSS.escape(id)}`);
-      if (!panel) return;
-      if (open) panel.removeAttribute('hidden');
-      else panel.setAttribute('hidden', 'until-found');
+    // Details: the row's other columns, in the row under it.
+    function setDetails(btn: HTMLButtonElement, open: boolean) {
+      const tr = btn.closest<HTMLTableRowElement>('tr[data-key]');
+      const detail = tr?.dataset.key ? detailRowsByKey.get(tr.dataset.key) : null;
+      if (!tr || !detail) return;
+      // The name stays "Show details"; aria-expanded (and the chevron) say
+      // whether they are open.
       btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      tr.classList.toggle('mc-open', open);
+      detail.hidden = !open || tr.hidden;
+      // The table's bottom edge follows the last row shown.
+      if (tr.classList.contains('mc-last-visible') || detail.classList.contains('mc-last-visible')) {
+        tr.classList.toggle('mc-last-visible', !open);
+        detail.classList.toggle('mc-last-visible', open);
+      }
     }
 
+    // A click anywhere on a row toggles its details, as its Show details
+    // button does. The button stays the one control for keyboard and screen
+    // readers; the row is only a larger pointer target. Clicks on the row's
+    // own controls (links, buttons, tooltip triggers) and the end of a text
+    // selection inside the row are left alone.
+    const ROW_CONTROLS = 'a, button, input, select, textarea, label, summary, [tabindex], [contenteditable]';
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
-      const detailsBtn = target?.closest('button.mc-m__details') as HTMLButtonElement | null;
-      if (!detailsBtn || !root.contains(detailsBtn)) return;
-      setMobileDetails(detailsBtn, detailsBtn.getAttribute('aria-expanded') !== 'true');
+      const btn = target?.closest('button.mc-more__btn') as HTMLButtonElement | null;
+      if (btn && root.contains(btn)) {
+        setDetails(btn, btn.getAttribute('aria-expanded') !== 'true');
+        return;
+      }
+      const tr = target?.closest<HTMLTableRowElement>('tr[data-key]');
+      if (!tr || !root.contains(tr) || target?.closest(ROW_CONTROLS)) return;
+      const selection = window.getSelection();
+      if (selection && !selection.isCollapsed && selection.toString().trim() !== '' && tr.contains(selection.anchorNode)) return;
+      const rowBtn = tr.querySelector<HTMLButtonElement>('button.mc-more__btn');
+      if (rowBtn) setDetails(rowBtn, rowBtn.getAttribute('aria-expanded') !== 'true');
     });
 
-    root.addEventListener('beforematch', (evt) => {
-      const panel = evt.target;
-      if (!(panel instanceof HTMLElement) || !panel.classList.contains('mc-m__panel')) return;
-      const btn = root.querySelector<HTMLButtonElement>(`button.mc-m__details[aria-controls="${CSS.escape(panel.id)}"]`);
-      if (btn) setMobileDetails(btn, true);
-    });
-
-    // On a narrow column the chip row scrolls, which would clip an absolute
-    // menu. Pin the open menu to the viewport instead.
+    // An open filter menu stays inside the window: near the end edge it
+    // moves back, and it is never wider than the window.
     function placeFilterMenu(details: HTMLDetailsElement) {
       const menu = details.querySelector<HTMLElement>('.mc-filter__menu');
       const summary = details.querySelector<HTMLElement>('summary');
@@ -1342,11 +2001,6 @@ const rowDataPayload = allModels.map((m) => ({
       }
     }, true);
 
-    root.querySelector('.models-comparison__chips')?.addEventListener('scroll', () => {
-      const open = root.querySelector<HTMLDetailsElement>('details.mc-filter[open]');
-      if (open) placeFilterMenu(open);
-    }, { passive: true });
-
     root.addEventListener('click', (evt) => {
       const target = evt.target as HTMLElement | null;
       const btn = target?.closest('.mc-cloud-filter-btn') as HTMLElement | null;
@@ -1354,7 +2008,7 @@ const rowDataPayload = allModels.map((m) => ({
       const cloud = btn.dataset.cloud;
       if (!cloud) return;
       const checkbox = root.querySelector<HTMLInputElement>(
-        `.mc-filter[data-filter="cloud"] input[type="checkbox"][value="${cloud}"]`,
+        `fieldset[data-filter="cloud"] input[type="checkbox"][value="${cloud}"]`,
       );
       if (!checkbox) return;
       checkbox.checked = !checkbox.checked;
@@ -1369,6 +2023,7 @@ const rowDataPayload = allModels.map((m) => ({
       });
     });
 
+    syncOptionsToPlan();
     apply();
   }
 
@@ -1387,14 +2042,15 @@ const rowDataPayload = allModels.map((m) => ({
 </script>
 
 <style>
+  /* Spacing around it: the block gap from layout.css. */
   .models-comparison {
-    margin: 8px 0;
     container-type: inline-size;
-    container-name: comparison;
+    /* "datatable": the shared table behaviour (data-table.css). */
+    container-name: comparison datatable;
     min-width: 0;
-    max-width: 100%;
   }
 
+  /* Sticky under the site header: .aifs-data-filterbar (data-table.css). */
   .models-comparison__filterbar {
     display: flex;
     flex-wrap: wrap;
@@ -1407,343 +2063,408 @@ const rowDataPayload = allModels.map((m) => ({
     display: contents;
   }
 
-  .mc-reset__short {
+  .mc-open-panel__short {
     display: none;
   }
 
-  .mc-mobile-cell {
-    display: none;
-  }
-
-  .mc-filter {
-    position: relative;
-    border: 1px solid var(--sl-color-gray-5);
-    border-inline-start-width: 1px;
-    border-radius: 999px;
-    background: transparent;
-    padding: 0;
-    margin: 0;
-    font-size: 0.875rem;
-  }
-
-  .mc-filter > summary {
-    cursor: pointer;
-    list-style: none;
-    padding: 0.25rem 0.75rem;
-    margin: 0;
-    display: inline-flex;
+  /* Applied filters: removable chips in a row under the filter bar, then
+     Clear all. */
+  /* Small buttons reach 6px past their edges to a 44px hit area
+     (button.css); wrapped rows sit that far apart twice, so no two
+     chips' hit areas overlap. */
+  .mc-applied {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 0.4rem;
-    line-height: 1.2;
-    user-select: none;
-    border-radius: 999px;
+    row-gap: calc(var(--aifs-button-min-height) - var(--aifs-button-min-height-small));
+    column-gap: var(--aifs-filter-panel-option-gap);
+    margin-bottom: var(--aifs-filter-panel-option-gap);
   }
 
-  .mc-filter > summary::before,
-  .mc-filter > summary::marker,
-  .mc-filter > summary::-webkit-details-marker {
-    content: none;
+  .mc-applied[hidden] {
     display: none;
   }
 
-  .mc-filter > summary::-webkit-details-marker {
-    display: none;
+  .mc-applied__list {
+    display: contents;
+    margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  /* Telekom's collapse-down icon, turned up while the filter is open. */
-  .mc-filter > summary::after {
-    content: '';
-    width: 1rem;
-    height: 1rem;
-    background: currentColor;
-    mask: url('../assets/icons/scale/navigation/collapse-down/default.svg') center / contain no-repeat;
-    opacity: 0.65;
-    transition: transform 120ms ease;
+  .mc-applied__list :global(li) {
+    margin: 0;
   }
 
-  .mc-filter[open] > summary::after {
-    transform: rotate(180deg);
-  }
-
-  .mc-filter__label {
-    font-weight: 600;
-  }
-
-  .mc-filter__count {
-    color: var(--sl-color-text-accent);
-    font-weight: 500;
-  }
-
-  .mc-filter--active > summary {
-    box-shadow: inset 0 0 0 1px var(--sl-color-text-accent);
-    border-radius: 5px;
-  }
-
-  .mc-filter[open] {
-    z-index: 40;
-  }
-
-  .mc-filter:not([open]) > .mc-filter__menu {
-    display: none;
-  }
-
-  .mc-filter[open] {
-    flex: 1 0 100%;
-    min-width: 0;
-    max-width: 100%;
-  }
-
-  .mc-filter__menu {
-    position: static;
-    width: 100%;
-    min-width: 0;
-    max-width: 100%;
+  /* The filter panel: a modal dialog on the window's end edge, the page
+     dimmed behind it. */
+  .mc-panel {
     box-sizing: border-box;
-    overflow-x: hidden;
-    z-index: 40;
-    max-height: 16rem;
-    overflow-y: auto;
-    padding: 0.4rem;
-    background: var(--sl-color-bg-nav);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 8px;
-    /* TODO(token-gap): Telekom shadow tokens are not converted yet. */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    position: fixed;
+    inset: 0 0 0 auto;
+    width: min(var(--aifs-filter-panel-width), 100vw);
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-inline-start: var(--aifs-border-width-standard) solid var(--aifs-filter-panel-border);
+    /* The subtle backdrop, so the filter cards stand out (layout.css). */
+    background: var(--aifs-layout-tint);
+    color: var(--aifs-color-text-body);
+  }
+
+  .mc-panel[open] {
     display: flex;
     flex-direction: column;
-    gap: 0.15rem;
   }
 
-  .mc-filter__option {
+  .mc-panel::backdrop {
+    background: var(--aifs-color-backdrop);
+  }
+
+  .mc-panel__head,
+  .mc-panel__foot {
+    background: var(--aifs-filter-panel-background);
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.2rem 0.35rem;
-    border-radius: 4px;
+    gap: var(--aifs-filter-panel-option-gap);
+    padding: var(--aifs-filter-panel-padding);
+  }
+
+  .mc-panel__head {
+    justify-content: space-between;
+    padding-block: calc(var(--aifs-filter-panel-padding) / 2);
+    border-bottom: var(--aifs-border-width-standard) solid var(--aifs-filter-panel-border);
+  }
+
+  .mc-panel__title {
+    font-size: var(--aifs-text-h4-font-size);
+    font-weight: var(--aifs-text-h4-font-weight);
+    line-height: var(--aifs-text-h4-line-height);
+  }
+
+  .mc-panel__body {
+    flex: 1 1 auto;
+    display: grid;
+    align-content: start;
+    gap: var(--aifs-filter-panel-card-gap);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--aifs-filter-panel-padding);
+  }
+
+  /* Each filter is a card: its name, then its options. */
+  .mc-panel__group {
+    display: grid;
+    gap: var(--aifs-filter-panel-option-gap);
+    min-width: 0;
+    margin: 0;
+    padding: var(--aifs-filter-panel-card-padding);
+    border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+    border-radius: var(--aifs-radius-card);
+    background: var(--aifs-card-background);
+  }
+
+  /* A legend sits on a fieldset's border; floated, it becomes the card's
+     first line instead. */
+  .mc-panel__legend {
+    float: left;
+    width: 100%;
+    margin-bottom: var(--aifs-filter-panel-option-gap);
+    padding: 0;
+    font-weight: var(--aifs-select-label-font-weight);
+  }
+
+  .mc-panel__option {
+    display: flex;
+    align-items: center;
+    gap: var(--aifs-filter-panel-option-gap);
     cursor: pointer;
-    white-space: normal;
   }
 
-  .mc-filter__option:hover {
-    background: var(--sl-color-gray-5);
+  .mc-panel__option[hidden] {
+    display: none;
   }
 
-  .mc-filter__option input[type='checkbox'] {
+  .mc-panel__option input {
+    margin: 0;
     accent-color: var(--aifs-color-action-background);
   }
 
+  .mc-panel__foot {
+    justify-content: flex-end;
+    border-top: var(--aifs-border-width-standard) solid var(--aifs-filter-panel-border);
+  }
+
+  /* The filter fields: .aifs-filter (select.css). */
+
+  /* The count at the start, the sort field at the end; on a narrow
+     column the sort field goes under the count. */
   .models-comparison__status {
-    margin-top: 8px;
-    margin-bottom: 4px;
-    font-size: 0.875rem;
-    color: var(--sl-color-gray-3);
-  }
-
-  .models-comparison__scroll {
-    margin-top: 0;
-    max-width: 100%;
-    overflow-x: visible;
-    margin-bottom: 8px;
-  }
-
-  .models-comparison-table {
-    display: table;
-    width: 100%;
-    min-width: 0;
-    table-layout: fixed;
-    border-collapse: collapse;
-    font-size: 0.8125rem;
-    border: 0;
-  }
-
-  .models-comparison-table:has(th[data-sort='category']) {
-    min-width: 0;
-  }
-
-  @container comparison (min-width: 52rem) {
-    .models-comparison-table:not(:has(th[data-sort='category'])) {
-      min-width: 0;
-    }
-  }
-
-  .models-comparison-table .mc-sort-icon {
-    flex: 0 0 16px;
-    width: 16px;
-    height: 16px;
-  }
-
-  .models-comparison-table th,
-  .models-comparison-table td {
-    box-sizing: border-box;
-    padding: 6px 3px;
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: normal;
-  }
-
-  /* Headers, plan tags and prices never split inside a word. */
-  .models-comparison-table thead th,
-  .models-comparison-table .mc-sort-header > span,
-  .models-comparison-table .plans-tag,
-  .models-comparison-table td.num {
-    white-space: nowrap;
-    overflow-wrap: normal;
-    word-break: keep-all;
-  }
-
-  /* table.css gives the first and last cells extra inline padding. That
-     padding sits outside a content-box percentage and pushes the last
-     column out of the sheet. */
-  .models-comparison-table :is(th, td):first-child,
-  .models-comparison-table :is(th, td):last-child {
-    padding-inline: 4px;
-  }
-
-  .models-comparison-table th:first-child,
-  .models-comparison-table td:first-child {
-    position: static;
-    min-width: 0;
-    background: transparent;
-  }
-
-  .models-comparison-table th:first-child {
-    background: var(--aifs-table-head-background);
-    z-index: 3;
-  }
-  .models-comparison-table thead th {
-    overflow: visible;
-    line-height: 1.15;
-    font-size: 12px;
-    vertical-align: bottom;
-    hyphens: manual;
-    -webkit-hyphens: manual;
-    /* table.css pads headers 8px. At the sheet width that leaves Streaming
-       and Reasoning wider than the cell. */
-    padding-inline: 2px;
-  }
-
-  /* 13 columns in the sheet beside the sidebar (~850px at 1280).
-     Percentages include padding (border-box) and sum to 100. */
-  .models-comparison-table th[data-sort='model'],
-  .models-comparison-table td:first-child {
-    width: 14%;
-    min-width: 0;
-  }
-  .models-comparison-table th[data-sort='provider'] { width: 7%; }
-  .models-comparison-table th[data-sort='cloud'] { width: 8%; }
-  .models-comparison-table th[data-sort='input'] { width: 7%; }
-  .models-comparison-table th[data-sort='streaming'] { width: 7.5%; }
-  .models-comparison-table th[data-sort='tools'] { width: 4.5%; }
-  .models-comparison-table th[data-sort='context'] { width: 6.5%; }
-  .models-comparison-table th[data-sort='reasoningEffort'] { width: 8.5%; }
-  .models-comparison-table th[data-sort='reasoningTokensUsage'] { width: 8%; }
-  .models-comparison-table th[data-sort='inputPrice'] { width: 6.5%; }
-  .models-comparison-table th[data-sort='outputPrice'] { width: 7%; }
-  .models-comparison-table th[data-sort='cachedInputPrice'] { width: 5.5%; }
-  .models-comparison-table th[data-sort='plans'] { width: 10%; }
-  .models-comparison-table th[data-sort='category'] { width: 8%; }
-
-  /* Tooltip.astro owns these nodes, so the selectors have to be global
-     or the header button stays shrink-to-fit and splits "Provider". */
-  .models-comparison-table th :global(.ui-tooltip),
-  .models-comparison-table th :global(.ui-tooltip__trigger) {
     display: flex;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-  }
-
-  .models-comparison-table .mc-sort-header {
-    display: inline-flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    width: auto;
-    max-width: 100%;
-    min-width: 0;
-    white-space: normal;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: flex-start;
-    gap: 4px;
+    justify-content: space-between;
+    gap: var(--aifs-filter-panel-option-gap) var(--aifs-layout-grid-gap);
+    margin-bottom: var(--aifs-layout-grid-gap);
   }
 
-  .models-comparison-table .mc-sort-header > span {
-    flex: 0 1 auto;
+  .models-comparison__count {
+    font-size: var(--aifs-text-small-font-size);
+    color: var(--aifs-color-text-muted);
+  }
+
+  .mc-sort {
+    display: flex;
+    align-items: center;
+    gap: var(--aifs-filter-panel-option-gap);
     min-width: 0;
-    max-width: 100%;
-    white-space: normal;
   }
 
-  .models-comparison-table td[data-label='Input'],
-  .models-comparison-table td[data-label='Eingabe'] {
-    white-space: normal;
+  .mc-sort :global(.aifs-select) {
+    min-width: 0;
+    width: var(--aifs-models-table-sort-width);
+    max-width: 100%;
   }
 
-  .models-comparison-table .plans-tag {
-    height: auto;
-    min-height: 24px;
+  .mc-sort :global(.mc-sort-dir) {
+    flex: 0 0 auto;
+  }
+
+  /* One arrow at a time: up while ascending, down while descending. */
+  .mc-sort :global(.mc-sort-dir__down),
+  .mc-sort :global(.mc-sort-dir--desc .mc-sort-dir__up) {
+    display: none;
+  }
+
+  .mc-sort :global(.mc-sort-dir--desc .mc-sort-dir__down) {
+    display: inline-block;
+  }
+
+  /* Counts that change with every filter click: equal-width digits, so
+     the line and the button labels do not shift. */
+  .models-comparison__count,
+  .models-comparison :global([data-filter-count]),
+  .mc-panel :global([data-show-results]) {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* The table fits the column: no scroll area. Positioned, so absolutely
+     placed content in the cells (the links' screen-reader text) stays
+     inside. */
+  .models-comparison__scroll {
+    position: relative;
     max-width: 100%;
-    padding-inline: 4px;
-    font-size: 11px;
-    white-space: normal;
-    text-align: center;
+  }
+
+  /* Shared design and behaviour: src/styles/data-table.css. Here only what
+     is this table's own. Every column wraps at spaces, so the table takes
+     the column's width; numbers and tags stay whole. */
+  .models-comparison-table {
+    width: 100%;
   }
 
   .models-comparison-table tbody td {
     vertical-align: top;
+    white-space: normal;
+  }
+
+  .models-comparison-table tbody td.num {
+    white-space: nowrap;
+  }
+
+  /* Header units wrap at their spaces ("pro 1 Mio." / "Tokens"): the
+     headers stay at most three short lines. */
+  .models-comparison-table :global(.mc-sort-unit) {
+    white-space: normal;
+  }
+
+  /* The model: the provider's logo, then the name with its tags under it. */
+  .mc-model__inner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--aifs-models-list-gap);
     min-width: 0;
+  }
+
+  .mc-model__inner > :global(.ui-tooltip) {
+    flex: 0 0 auto;
+  }
+
+  .mc-model__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aifs-models-list-meta-gap-y);
+    min-width: 0;
+  }
+
+  .mc-model__name {
     overflow-wrap: normal;
-  }
-
-  .models-comparison-table td[data-label='Category'],
-  .models-comparison-table td[data-label='Kategorie'] {
-    hyphens: manual;
-    -webkit-hyphens: manual;
-  }
-
-  .models-comparison-table td[data-label='Model'] strong,
-  .models-comparison-table td[data-label='Modell'] strong {
-    overflow-wrap: anywhere;
     word-break: normal;
+    hyphens: manual;
   }
 
-  .models-comparison-table th.num,
-  .models-comparison-table td.num,
-  .models-comparison-table td.mc-context {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-    white-space: normal;
-    padding-inline: 1px;
-    font-size: 12px;
+  .mc-model__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--aifs-models-list-meta-gap-y);
   }
 
-  .models-comparison-table thead th.num {
-    white-space: normal;
+  /* The Details button: its own narrow column; the word is for screen
+     readers here and shows on the cards. */
+  .models-comparison-table :is(th, td).mc-more {
+    width: 1%;
+    padding-inline: var(--aifs-table-cell-padding-x);
+    text-align: end;
   }
 
-  /* Each modality is one unbreakable item. The comma stays on that item, so the
-     next line starts at the next word. */
+  .models-comparison-table td.mc-more {
+    padding-block: calc(var(--aifs-table-cell-padding-y-compact) / 2);
+  }
+
+  .mc-more__label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .models-comparison :global(.mc-more__chevron) {
+    display: block;
+    flex: 0 0 auto;
+    transition: transform var(--aifs-button-transition-duration) var(--aifs-button-transition-easing);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .models-comparison :global(.mc-more__chevron) {
+      transition: none;
+    }
+  }
+
+  .models-comparison :global(.mc-more__btn[aria-expanded='true'] .mc-more__chevron) {
+    transform: rotate(180deg);
+  }
+
+  .models-comparison :global(.mc-more__btn[aria-expanded='true']) {
+    background: var(--aifs-button-ghost-background-pressed);
+    color: var(--aifs-button-ghost-text-pressed);
+  }
+
+  /* An open row and its details read as one: no line between them, no
+     hover fill on the details. */
+  .models-comparison-table tr.mc-open > td {
+    border-bottom-color: transparent;
+  }
+
+  .models-comparison .models-comparison-table tbody tr.mc-detail:hover {
+    background: transparent;
+  }
+
+  /* The whole row opens its details (the click handler in the script), so
+     it shows the pointer; the hover fill is the table's (table.css). */
+  .models-comparison .models-comparison-table tbody tr[data-key] {
+    cursor: pointer;
+  }
+
+  .models-comparison-table tr.mc-detail > td {
+    padding-block: 0 var(--aifs-table-cell-padding-y);
+  }
+
+  /* The details: label above value, as many to a line as fit. */
+  .mc-dl {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--aifs-models-table-detail-min-column), 1fr));
+    gap: var(--aifs-layout-grid-gap) var(--aifs-models-list-panel-gap-x);
+    margin: 0;
+    padding: var(--aifs-models-list-panel-padding) var(--aifs-filter-panel-option-gap);
+    border-radius: var(--aifs-radius-control);
+    background: var(--aifs-color-surface-subtle);
+  }
+
+  .mc-dl__item {
+    min-width: 0;
+  }
+
+  .models-comparison .mc-dl :is(.mc-dl__item, dt, dd) {
+    margin: 0;
+  }
+
+  .mc-dl dt {
+    margin-bottom: var(--aifs-models-list-label-gap);
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-models-list-label-font-size);
+    font-weight: var(--aifs-table-head-font-weight);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  .mc-dl__unit {
+    font-weight: var(--aifs-text-body-font-weight);
+  }
+
+  .models-comparison .mc-dl dd {
+    padding: 0;
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  /* Wide-screen columns (EXTRA_COLUMNS): hidden in the row, their values
+     in the details, until the fluid content column gives the table room
+     (51, 64 and 82rem: about 1500, 1700 and 2000px windows with On this
+     page). Each
+     step shows its cells and hides the same values in the details. The
+     steps are what the widest preset needs in German, so the table never
+     grows wider than the column. */
+  .models-comparison .models-comparison-table :is(th, td).mc-x {
+    display: none;
+  }
+
+  @container comparison (min-width: 51rem) {
+    .models-comparison .models-comparison-table :is(th, td).mc-x1 {
+      display: table-cell;
+    }
+
+    .models-comparison .mc-dl .mc-x1 {
+      display: none;
+    }
+  }
+
+  @container comparison (min-width: 64rem) {
+    .models-comparison .models-comparison-table :is(th, td).mc-x2 {
+      display: table-cell;
+    }
+
+    .models-comparison .mc-dl .mc-x2 {
+      display: none;
+    }
+  }
+
+  @container comparison (min-width: 82rem) {
+    .models-comparison .models-comparison-table :is(th, td).mc-x3 {
+      display: table-cell;
+    }
+
+    .models-comparison .mc-dl .mc-x3 {
+      display: none;
+    }
+  }
+
+  /* Lists of values take a whole line of the details. */
+  .mc-dl__item:is(.mc-dl__item--plans, .mc-dl__item--links, .mc-dl__item--reasoningTokensUsage) {
+    grid-column: 1 / -1;
+  }
+
   .models-comparison-table .mc-mod {
-    display: inline;
-    white-space: normal;
-    overflow-wrap: anywhere;
+    display: inline-block;
+    white-space: nowrap;
     max-width: 100%;
-  }
-
-  .models-comparison-table td[data-label='Model'] strong,
-  .models-comparison-table td[data-label='Modell'] strong {
-    white-space: normal;
-    word-break: normal;
-    overflow-wrap: anywhere;
-    hyphens: manual;
-  }
-
-  .models-comparison-table td[data-label='Input'],
-  .models-comparison-table td[data-label='Eingabe'] {
-    text-align: start;
-  }
-
-  .models-comparison-table td.mc-context {
-    text-align: start;
   }
 
   /* Capability cells (Streaming output, Tool calling): give the tick/cross a
@@ -1754,13 +2475,6 @@ const rowDataPayload = allModels.map((m) => ({
     line-height: 1;
     display: inline-block;
   }
-  /* Values flow inline and wrap onto a second line once they exceed the cap,
-     so six levels take two short lines instead of one long row. */
-  .models-comparison-table td.mc-reasoning-effort {
-    min-width: 0;
-    white-space: normal;
-  }
-
   .models-comparison .mc-effort-values {
     display: flex;
     flex-wrap: wrap;
@@ -1770,8 +2484,8 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
   .models-comparison .mc-effort-values code {
-    white-space: normal;
-    overflow-wrap: anywhere;
+    white-space: nowrap;
+    overflow: visible;
     max-width: 100%;
     font-size: 12px;
   }
@@ -1780,12 +2494,12 @@ const rowDataPayload = allModels.map((m) => ({
   .models-comparison .mc-usage-field,
   .models-comparison .mc-usage-field code {
     white-space: normal;
-    overflow-wrap: anywhere;
+    overflow-wrap: normal;
     word-break: normal;
   }
 
   .models-comparison .mc-usage-field__none {
-    color: var(--sl-color-gray-3);
+    color: var(--aifs-color-text-muted);
   }
 
   .models-comparison .mc-cap--yes {
@@ -1795,27 +2509,16 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--aifs-color-text-muted);
   }
 
-  .models-comparison-table th.center,
-  .models-comparison-table td.center {
-    text-align: center;
+
+
+  /* Plan tags are links too, but keep their colours from tag.css. */
+  .models-comparison-table a:not(.plans-tag, .aifs-tag) {
+    color: var(--sl-color-text-accent);
+    text-decoration: none;
   }
 
-  /* Text links look like running-text links (Patrick's spec §7): blue, always
-     underlined. Mirrors the body-link rule in src/styles/redesign.css; keep
-     the two in sync. Also the fallback when this component renders outside
-     markdown content. Plan tags are links too, but keep their look from
-     tag.css. */
-  .models-comparison-table a:not(.plans-tag) {
-    color: var(--aifs-color-link-standard);
-    font-weight: 500;
+  .models-comparison-table a:not(.plans-tag, .aifs-tag):hover {
     text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-thickness: var(--aifs-border-width-standard);
-  }
-
-  .models-comparison-table a:not(.plans-tag):hover {
-    color: var(--aifs-color-link-hovered);
-    text-decoration-thickness: 2px;
   }
 
   .mc-no-results__cell {
@@ -1824,60 +2527,51 @@ const rowDataPayload = allModels.map((m) => ({
     color: var(--sl-color-gray-3);
   }
 
-  /* Same tile as the catalog cards: 20px, white field, hairline. Google's
-     mark is mostly margin, so it is scaled inside the tile. */
-  .models-comparison .creator-brand--tile {
-    width: 20px;
-    min-width: 20px;
-    height: 20px;
-    min-height: 20px;
-    flex: 0 0 20px;
+  /* Location: the flag before the place name, on one line. */
+  .models-comparison .mc-location__value {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    box-sizing: border-box;
-    padding: 0;
-    border: 1px solid var(--aifs-color-border-subtle);
-    border-radius: 4px;
-    background: var(--aifs-color-logo-background);
-    line-height: 0;
-    vertical-align: middle;
-  }
-
-  .models-comparison .creator-brand--zoom {
-    padding: 0;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 175%;
-  }
-
-  .models-comparison .creator-brand--tile .creator-brand__icon {
-    display: block;
-    width: 16px !important;
-    height: 16px !important;
-    min-width: 0 !important;
-    max-width: 16px !important;
-    max-height: 16px !important;
-    padding: 0;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    object-fit: contain;
-  }
-
-
-  .models-comparison .creator-brand:not(:has(img)),
-  .models-comparison .creator-brand__fallback {
-    width: auto;
-    height: auto;
-    overflow: visible;
-  }
-
-  .models-comparison .creator-brand__fallback {
-    font-weight: 500;
-    font-size: 0.85rem;
+    gap: var(--aifs-button-icon-gap-small);
     white-space: nowrap;
+  }
+
+  .models-comparison .mc-muted {
+    color: var(--aifs-color-text-muted);
+  }
+
+  /* A tiered row's context: the value, then the info icon of its tooltip. */
+  .models-comparison .mc-context-tier {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--aifs-button-icon-gap-small);
+    white-space: nowrap;
+  }
+
+  /* Two input prices (text, image): one per line, at the cell's end edge. */
+  .models-comparison .mc-price-split {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  /* Legal links (plan preset): one per line, each with the external mark. */
+  .models-comparison .mc-links {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--aifs-button-icon-gap-small);
+  }
+
+  .models-comparison .mc-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--aifs-button-icon-gap-small);
+    color: var(--aifs-color-link-standard);
+    white-space: nowrap;
+  }
+
+  .models-comparison .mc-link:hover {
+    color: var(--aifs-color-link-hovered);
   }
 
   .models-comparison .mc-plans {
@@ -1894,339 +2588,233 @@ const rowDataPayload = allModels.map((m) => ({
   }
 
 
-  /* Column-header click-to-sort. Mirrors the plans-table .sort-* pattern but
-     scoped with .mc- prefixes so the two components stay independent. */
-  .mc-sort-header {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    font: inherit;
-    font-weight: 600;
-    color: inherit;
-    cursor: pointer;
-    text-align: left;
-  }
-
-  .mc-sort-header:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-  }
-
-  .models-comparison :global(.mc-sort-icon) {
-    width: 12px;
-    height: 12px;
-    flex: 0 0 auto;
-    opacity: 0.65;
-    transform: rotate(0deg);
-    transition:
-      transform 160ms ease,
-      opacity 160ms ease;
-    color: currentColor;
-  }
-
-  /* The arrow marks the sorted column; as a graphic it needs 3:1, which magenta
-     has on the grey head in both modes (4.1:1 light, 4.0:1 dark). */
-  .models-comparison :global(.mc-sort-icon--active) {
-    opacity: 1;
-    color: var(--aifs-color-brand-text);
-  }
-
-  .models-comparison :global(.mc-sort-icon--asc) {
-    transform: rotate(180deg);
-  }
-
-  .models-comparison :global(.mc-sort-icon--desc) {
-    transform: rotate(0deg);
-  }
-
-  .models-comparison-table th.mc-sort-active .mc-sort-header {
-    color: var(--aifs-color-table-head-text);
-  }
-
-  /* Stacked cards once the content column is under 52rem. */
-  @container comparison (max-width: 52rem) {
-    .models-comparison,
-    .models-comparison__scroll {
-      padding-inline: 0;
-      margin-inline: 0;
-    }
-
+  /* Cards under 36rem: each model a card; its cells label–value rows, the
+     value at the end edge (as on the featured model cards); the details
+     under a Details button, in the same rows. */
+  @container comparison (max-width: 36rem) {
     .models-comparison__filterbar {
-      flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
     }
 
+    .models-comparison__filterbar > :global(.aifs-select) {
+      flex: 1 0 100%;
+    }
+
+    /* No fields in the row, only the Filters button (beside the plan
+       field's line). Applied chips wrap. */
     .models-comparison__chips {
-      display: contents;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      min-width: 0;
-      flex: 1 1 100%;
-      overflow: visible;
-      padding-bottom: 2px;
-    }
-
-    .models-comparison__chips::-webkit-scrollbar {
       display: none;
     }
 
-    .models-comparison__filterbar .mc-reset {
-      flex: 0 0 auto;
-    }
-
-    .mc-reset__full {
+    .mc-open-panel__full {
       display: none;
     }
 
-    .mc-reset__short {
+    .mc-open-panel__short {
       display: inline;
     }
 
-    .models-comparison__scroll {
-      overflow: visible;
-      box-shadow: none;
-      scrollbar-gutter: auto;
+    .mc-applied :global(.aifs-button) {
+      white-space: nowrap;
+    }
+
+    /* The sort field takes the line under the count. */
+    .mc-sort {
+      flex: 1 1 100%;
+    }
+
+    .mc-sort :global(.aifs-select) {
+      flex: 1 1 auto;
+      width: auto;
     }
 
     .models-comparison-table,
-    .models-comparison-table:has(th[data-sort='category']),
     .models-comparison-table tbody {
       display: block;
       width: 100%;
       min-width: 0;
+      border: 0;
     }
 
     .models-comparison-table thead {
       display: none;
     }
 
-    .models-comparison-table tbody {
-      margin-top: 0;
-    }
-
     .models-comparison-table tr[hidden] {
       display: none !important;
     }
 
-    /* Touch can leave :hover stuck on the last row. The list has no hover fill. */
-    .models-comparison .models-comparison-table tbody tr[data-key]:hover {
-      background: transparent;
+    /* As blocks, the table parts would get Starlight's flow margin (16px
+       between siblings); the cards set their own. */
+    .models-comparison .models-comparison-table :is(tbody, tr, td) {
+      margin-top: 0;
     }
 
-    .models-comparison-table tr[data-key] {
+    /* tbody: above table.css's row reset (zebra stripes off). */
+    .models-comparison .models-comparison-table tbody tr[data-key] {
       display: block;
-      width: 100%;
       box-sizing: border-box;
-      margin: 0;
-      padding: 6px 0;
-      border: 0;
-      border-bottom: 1px solid var(--aifs-color-border-subtle);
-      border-radius: 0;
-      background: transparent;
+      margin-bottom: var(--aifs-layout-grid-gap);
+      padding: var(--aifs-filter-panel-card-padding);
+      border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+      border-radius: var(--aifs-radius-card);
+      background: var(--aifs-card-background);
     }
 
-    .models-comparison-table tr[data-key]:first-child {
-      border-top: 1px solid var(--aifs-color-border-subtle);
+    /* Touch can leave :hover stuck on the last card. Cards have no hover
+       fill; with a mouse, the card's frame takes the LinkCard's hover
+       colour, the open card's details too. */
+    .models-comparison .models-comparison-table tbody tr:hover {
+      background: var(--aifs-card-background);
     }
 
-    .models-comparison-table td:not(.mc-mobile-cell) {
-      display: none;
+    @media (hover: hover) {
+      .models-comparison .models-comparison-table tbody tr[data-key]:hover,
+      .models-comparison .models-comparison-table tbody tr[data-key].mc-open:hover + tr.mc-detail {
+        border-color: var(--aifs-card-border-hovered);
+      }
     }
 
-    .models-comparison .models-comparison-table td.mc-mobile-cell {
+    /* Open: the card goes on in the details row below it. */
+    .models-comparison .models-comparison-table tbody tr[data-key].mc-open {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+      border-end-start-radius: 0;
+      border-end-end-radius: 0;
+    }
+
+    .models-comparison .models-comparison-table tbody tr.mc-detail {
       display: block;
-      min-width: 0 !important;
+      box-sizing: border-box;
+      margin-bottom: var(--aifs-layout-grid-gap);
+      padding: 0 var(--aifs-filter-panel-card-padding) var(--aifs-filter-panel-card-padding);
+      border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+      border-top: 0;
+      border-radius: 0 0 var(--aifs-radius-card) var(--aifs-radius-card);
+      background: var(--aifs-card-background);
+    }
+
+    .models-comparison .models-comparison-table td {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--aifs-models-list-meta-gap-y) var(--aifs-layout-grid-gap);
+      box-sizing: border-box;
       width: 100%;
-      margin: 0;
-      padding: 0 !important;
+      min-width: 0;
+      padding: var(--aifs-models-list-meta-gap-y) 0;
       border: 0;
-      position: static;
-      white-space: normal;
+      box-shadow: none;
       background: transparent;
+      text-align: end;
+      font-size: var(--aifs-text-small-font-size);
+    }
+
+    .models-comparison .models-comparison-table td::before {
+      content: attr(data-label);
+      flex: 0 1 auto;
+      color: var(--aifs-color-text-muted);
+      text-align: start;
+    }
+
+    /* The model: the card's head. */
+    .models-comparison .models-comparison-table td.mc-model {
+      display: block;
+      padding: 0 0 var(--aifs-models-list-gap);
+      text-align: start;
+      font-size: var(--aifs-text-body-font-size);
+    }
+
+    .models-comparison .models-comparison-table td:is(.mc-model, .mc-more)::before,
+    .models-comparison .models-comparison-table tr.mc-detail > td::before {
+      content: none;
+    }
+
+    .mc-model__name {
+      font-size: var(--aifs-text-h4-font-size);
+      line-height: var(--aifs-text-h4-line-height);
+    }
+
+    .models-comparison .models-comparison-table td.mc-more {
+      display: block;
+      padding: var(--aifs-models-list-gap) 0 0;
+      text-align: start;
+    }
+
+    /* The word lines up with the labels above it. Open, the turned
+       chevron and the rows below say so; no pressed fill. */
+    .models-comparison :global(.mc-more__btn) {
+      gap: var(--aifs-button-icon-gap-small);
+      margin-inline-start: calc(-1 * var(--aifs-button-padding-x-ghost));
+    }
+
+    .models-comparison :global(.mc-more__btn[aria-expanded='true']:not(:hover, :active)) {
+      background: transparent;
+      color: var(--aifs-button-ghost-text);
+    }
+
+    .mc-more__label {
+      position: static;
+      width: auto;
+      height: auto;
+      margin: 0;
+      overflow: visible;
+      clip: auto;
+    }
+
+    .models-comparison .models-comparison-table tr.mc-detail > td {
+      display: block;
+      padding: 0;
+      text-align: start;
+    }
+
+    /* The details: label–value rows like the card's own. */
+    .mc-dl {
+      display: block;
+      padding: 0;
+      background: transparent;
+    }
+
+    .mc-dl__item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--aifs-models-list-meta-gap-y) var(--aifs-layout-grid-gap);
+      padding: var(--aifs-models-list-meta-gap-y) 0;
+    }
+
+    .mc-dl dt {
+      margin: 0;
+      font-size: var(--aifs-text-small-font-size);
+      font-weight: var(--aifs-text-body-font-weight);
+      line-height: var(--aifs-text-small-line-height);
+    }
+
+    .models-comparison .mc-dl dd {
+      min-width: 0;
+      text-align: end;
+    }
+
+    .models-comparison .mc-dl dd :is(.mc-plans, .mc-effort-values) {
+      justify-content: flex-end;
+    }
+
+    .models-comparison .mc-dl dd .mc-links {
+      align-items: flex-end;
     }
 
     .models-comparison-table .mc-no-results {
       display: block;
-      border: 0;
-      background: transparent;
-      padding: 8px 0;
     }
 
-    .models-comparison-table .mc-no-results td {
+    .models-comparison .models-comparison-table .mc-no-results td {
       display: block;
-      padding: 8px 0;
-      border: 0;
+      padding: var(--aifs-models-list-gap) 0;
+      text-align: start;
     }
-  }
-
-  /* One row: logo, name over a meta line, and the toggle on the right spanning both lines. */
-  .mc-m {
-    position: relative;
-    display: grid;
-    grid-template-columns: 20px minmax(0, 1fr) auto;
-    column-gap: 6px;
-    align-items: center;
-  }
-
-  .mc-m__top {
-    display: contents;
-  }
-
-  .mc-m__top > .creator-brand {
-    grid-column: 1;
-    grid-row: 1;
-  }
-
-  .mc-m__name {
-    grid-column: 2;
-    grid-row: 1;
-    min-width: 0;
-    font-size: 16px;
-    font-weight: 700;
-    line-height: 1.25;
-    overflow-wrap: break-word;
-  }
-
-  /* A small chevron; its hit area covers the whole row (name and meta line). */
-  .models-comparison .mc-m__details {
-    grid-column: 3;
-    grid-row: 1;
-    align-self: center;
-    position: static;
-    inline-size: 24px;
-    block-size: 24px;
-    min-inline-size: 24px;
-    min-block-size: 24px;
-  }
-
-  .models-comparison .mc-m__details::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-  }
-
-  .mc-m__chevron {
-    display: block;
-    transition: transform 160ms ease;
-  }
-
-  .mc-m__details[aria-expanded='true'] .mc-m__chevron {
-    transform: rotate(180deg);
-  }
-
-  .mc-m__details[aria-expanded='true'] {
-    background: var(--aifs-button-ghost-background-pressed);
-    color: var(--aifs-button-ghost-text-pressed);
-  }
-
-  .mc-m__meta {
-    grid-column: 2 / -1;
-    grid-row: 2;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 4px 8px;
-    margin: 2px 0 0;
-    min-width: 0;
-    color: var(--aifs-color-text-muted);
-    font-size: var(--aifs-text-small-font-size);
-    line-height: 1.3;
-  }
-
-  /* The New and Preview tags sit on the name line without making it taller. */
-  .mc-m__new {
-    vertical-align: top;
-  }
-
-  .mc-m__facts {
-    min-width: 0;
-  }
-
-  .mc-m__price {
-    white-space: nowrap;
-  }
-
-  .mc-m__price--wrap {
-    white-space: normal;
-  }
-
-  /* Details: a dense label-value grid, no panel fill. */
-  .mc-m__panel:not([hidden]) {
-    position: relative;
-    z-index: 1;
-    grid-column: 2 / -1;
-    grid-row: 3;
-    margin: 6px 0 4px;
-    padding: 6px 0 0;
-    border-top: 1px solid var(--aifs-color-border-subtle);
-  }
-
-  /* until-found keeps the panel searchable, but its box must not paint a bar. */
-  .models-comparison .mc-m__panel[hidden] {
-    grid-column: 2 / -1;
-    grid-row: 3;
-    height: 0;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-    background: transparent;
-    border: 0;
-    content-visibility: hidden;
-  }
-
-  .mc-m__dl {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
-    gap: 4px 24px;
-    margin: 0;
-  }
-
-  .mc-m__dl > div {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: baseline;
-    gap: 2px 8px;
-    min-width: 0;
-    margin: 0;
-  }
-
-  .mc-m__dl dt {
-    flex: 0 0 auto;
-    margin: 0;
-    color: var(--aifs-color-text-muted);
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 1.5;
-  }
-
-  .models-comparison .mc-m__dl dd {
-    flex: 0 1 auto;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    font-size: var(--aifs-text-small-font-size);
-    line-height: 1.4;
-  }
-
-  .models-comparison .mc-m__dl code {
-    font-size: 12px;
-  }
-
-  .mc-m__checks dd {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 2px 12px;
-  }
-
-  .mc-m__check {
-    white-space: nowrap;
   }
 
 </style>

@@ -1,16 +1,20 @@
 ---
-import currentPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
-import legacyPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-01-19.json';
-import ModelsTable from './ModelsTable.astro';
+// The plans page: rate plan cards, then the plan's models in ModelsComparison
+// (plan preset). `selectedPlanId` shows one plan; without it, every plan with a
+// plan field.
+import { parseDataProcessing, parseLocation as parseRegionLocation } from '../shared/lib/location';
+import allPricing from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
+import ModelsComparison from './ModelsComparison.astro';
 import Tooltip from './Tooltip.astro';
+import PlanTag from './PlanTag.astro';
 import Icon from './Icon.astro';
 import Button from './Button.astro';
-import { creatorNameFor, logos } from '../shared/lib/logos';
+import { creatorNameFor } from '../shared/lib/logos';
 import { planTagKey } from '../shared/lib/planTags';
 import { getProviderTooltips } from '../shared/lib/providerTooltips';
 import { cloudFullNameFor, cloudLabelFor } from '../shared/lib/cloudLabelOverrides';
 import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
-import { isRetiringModel } from '../shared/lib/choosingModels';
+import { isRetiredModel } from '../shared/lib/retirements';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
 import { catalogRank } from '../shared/lib/modelCatalogOrder';
 import {
@@ -19,29 +23,23 @@ import {
   hasCachedTokenPricing,
 } from '../shared/lib/cachedTokenPricing';
 import { resolvePrimaryCategory } from '../shared/lib/modelCategories';
-import { EURO_SUFFIX_DE, formatDecimalText, formatInteger, type NumberLocale } from '../shared/lib/displayFormat';
+import { EURO_SUFFIX_DE, formatDecimalText, formatInteger, keepWholeParts, type NumberLocale } from '../shared/lib/displayFormat';
 
 interface Props {
   selectedPlanId?: string;
   sectionTitle?: string;
   modelsSectionTitle?: string;
-  legacy?: boolean;
   /** Overview: only the Essential, Professional and Agentic tiles, each with price, throughput and Premium access. */
   compact?: boolean;
 }
-const { selectedPlanId = '', sectionTitle = '', modelsSectionTitle = '', legacy = false, compact = false } = Astro.props;
-
-const allPricing = legacy ? legacyPricing : currentPricing;
+const { selectedPlanId = '', sectionTitle = '', modelsSectionTitle = '', compact = false } = Astro.props;
 
 // Detect locale from URL path
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
-// Archived versions (/v1…/) keep their original number format.
-const isArchive = /\/v1(-\d+-\d+)?\//.test(Astro.url.pathname);
-const numberLocale: NumberLocale = isDE && !isArchive ? 'de' : 'en';
+const numberLocale: NumberLocale = isDE ? 'de' : 'en';
 
-/** Monthly plan price: "€1,000" on English pages, "1.000 €" (no-break space) on German pages. Archived pages keep their original "1,000 €". */
+/** Monthly plan price: "€1,000" on English pages, "1.000 €" (no-break space) on German pages. */
 function planPrice(amount: number): string {
-  if (isArchive) return `${formatInteger(amount, 'en')} €`;
   return numberLocale === 'de' ? `${formatInteger(amount, 'de')}${EURO_SUFFIX_DE}` : `€${formatInteger(amount, 'en')}`;
 }
 
@@ -76,7 +74,10 @@ const t = {
     ? 'Der Mindestumsatz ist monatlicher Token-Verbrauch, keine zusätzliche Gebühr. Darüber wird zu den ausgewiesenen Token-Preisen abgerechnet.'
     : 'The minimum commitment is monthly token spend, not an extra fee. Usage above it is billed at the listed token prices.',
   perMonth: isDE ? '/ Monat Mindest-Tokenumsatz' : '/ month minimum token spend',
-  throughputLabel: isDE ? 'Durchsatz (TPM / RPM)' : 'Throughput (TPM / RPM)',
+  byAgreement: isDE ? 'nach Vereinbarung' : 'by agreement',
+  throughputLabel: isDE ? 'Durchsatz' : 'Throughput',
+  viewPlan: isDE ? 'Tarif ansehen' : 'View plan',
+  viewPlanNamed: isDE ? 'Tarif {plan} ansehen' : 'View plan {plan}',
   checkTCloud: isDE ? 'T-Cloud-Modelle' : 'T-Cloud models',
   checkHyperscaler: isDE ? 'Hyperscaler-Modelle' : 'Hyperscaler models',
   checkPremium: isDE ? 'Premium-Modelle' : 'Premium models',
@@ -90,7 +91,7 @@ const t = {
   modelsSubtitleList: isDE
     ? [
         'Probieren Sie die neuesten KI-Modelle aus: kostenlos testen, sofort erkunden. Unser Vorschau-Katalog ist Ihre Testumgebung, in der Sie Funktionen bewerten, die Leistung vergleichen und Ideen prototypisieren können, bevor Sie sie in Produktionsumgebungen einsetzen. Sie benötigen lediglich einen aktiven Tarif (Essential, Professional oder Agentic), um loszulegen.',
-        'Wähle ein Modell aus, probiere es in deinem Arbeitsablauf aus und finde heraus, was am besten passt.',
+        'Wählen Sie ein Modell aus, probieren Sie es in Ihrem Arbeitsablauf aus und finden Sie heraus, was am besten passt.',
         '\nHinweis',
         'Die Nutzung der Testmodelle ist kostenfrei, setzt jedoch das Abschließen eines Tarifes (Essential / Professional / Agentic) voraus. Die Telekom ist berechtigt, die Nutzung der Testmodelle jederzeit zu limitieren, insbesondere hinsichtlich der verfügbaren Tokens, Rate-Limits (TPM/RPM) und der Nutzungsdauer. Die Telekom ist berechtigt, die Testmodelle jederzeit und ohne vorherige Ankündigung abzuschalten oder den Zugang des Kunden zu diesen einzuschränken. Der Kunde hat keinen Rechtsanspruch auf die fortlaufende Bereitstellung der Testmodelle.',
       ]
@@ -140,6 +141,16 @@ const t = {
   thLimitsSub: 'RPM · TPM',
   thContext: isDE ? 'Kontext' : 'Context',
   thDetails: 'Details',
+  // Model table headers, as on All models: the label, the unit below it.
+  thCloud: 'Cloud',
+  thLocation: isDE ? 'Standort' : 'Location',
+  thCachedInput: isDE ? 'Cache-Eingabe' : 'Cached input',
+  thRequests: isDE ? 'Anfragen' : 'Requests',
+  thTokensPerMinute: 'Tokens',
+  unitPrice: isDE ? 'pro 1 Mio. Tokens' : 'per 1M tokens',
+  unitPerMinute: isDE ? 'pro Minute' : 'per minute',
+  unitTokens: isDE ? 'Tokens' : 'tokens',
+  sortBy: isDE ? 'Nach {label} sortieren' : 'Sort by {label}',
   dynamicLimit: isDE ? 'dynamisch' : 'dynamic',
   newTag: isDE ? 'Neu' : 'New',
   // Display label for the 'External' host key (tooltips and filters stay keyed by 'External').
@@ -154,8 +165,8 @@ const t = {
   thOutputPrice: isDE ? 'Output-Token-Preis' : 'Output token price',
   thCachedInputPrice: isDE ? 'Cached-Input-Token-Preis' : 'Cached input token price',
   cachedPriceNote: isDE
-    ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Modelle.`
-    : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted models only.`,
+    ? `Aus dem Prefix-Cache bediente Prompt-Tokens werden mit ${CACHED_INPUT_PRICE_PERCENT} % des normalen Input-Token-Preises abgerechnet. Das gilt ausschließlich für T-Cloud-gehostete Sprachmodelle, nicht für Embedding-, Reranking- und Speech-to-Text-Modelle.`
+    : `Prompt tokens served from the prefix cache are billed at ${CACHED_INPUT_PRICE_PERCENT}% of the normal input token price. This applies to T-Cloud-hosted language models only, not to embedding, reranking or speech-to-text models.`,
   cachedPriceUnavailable: '—',
   priceTba: isDE ? 'Preis folgt' : 'Pricing to be announced',
   worldwideLocationNote: isDE
@@ -199,22 +210,12 @@ const t = {
     : 'Powerful, high-capability models for complex and quality-critical work.',
 } as Record<string, any>;
 
-// ModelsTable formats prices and limits client-side; pass it the page locale.
+// The models table formats prices and limits client-side; pass it the page locale.
 // Only set on German pages so the English data-t payload stays unchanged.
 if (numberLocale === 'de') t.numberLocale = numberLocale;
 // The † (cached-token note) follows real cached prices only, not "—".
-// Archived pages keep the marker on every row, as published.
-if (!isArchive) t.cachedDaggerPricedOnly = true;
+t.cachedDaggerPricedOnly = true;
 
-// Legacy (v1.0.0) overrides — different copy for the archived plans page.
-if (legacy) {
-  t.subtitle = isDE
-    ? 'Die Tarife unterscheiden sich durch den Durchsatz: <a href="/de/reference/rate-limits/">TPM- und RPM-Rate-Limits</a>. Für dediziertes Hosting <a href="mailto:ai@t-systems.com">kontaktieren Sie uns</a>.'
-    : 'Plans differ by throughput: <a href="/reference/rate-limits/">TPM and RPM rate limits</a>. For dedicated hosting, <a href="mailto:ai@t-systems.com">contact us</a>.';
-  t.modelsSubtitle = isDE
-    ? 'Wählen Sie das richtige Modell für Ihren Anwendungsfall – von schnellen Antworten bis zu tiefgehender Analyse.'
-    : 'Choose the right model for your use case - from fast responses to deep analysis';
-}
 
 const hostTooltips: Record<string, string> = {
   'T-Cloud': t.tooltipTCloud,
@@ -228,8 +229,8 @@ const tierTooltips: Record<string, string> = {
   Premium: t.tooltipPremium,
 };
 
-// Plan display config (current)
-const currentPlanConfigs = [
+// Plan display config
+const planConfigs = [
   {
     packageName: 'Essential',
     label: 'Essential',
@@ -272,64 +273,6 @@ const currentPlanConfigs = [
   },
 ];
 
-// Plan display config (legacy v1: pre-2026-04 5-tier structure)
-const legacyPlanConfigs = [
-  {
-    packageName: 'Tarif Basic Template',
-    label: 'Basic',
-    basePrice: '–',
-    tokenPrice: priceText('3.53'),
-    rpm: '20',
-    modelHost: ['T-Cloud'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard1000 Template',
-    label: 'Standard 1000',
-    basePrice: planPrice(1000),
-    tokenPrice: priceText('3.53'),
-    rpm: '150',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard2000 Template',
-    label: 'Standard 2000',
-    basePrice: planPrice(2000),
-    tokenPrice: priceText('2.89'),
-    rpm: '300',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard3000 Template',
-    label: 'Standard 3000',
-    basePrice: planPrice(3000),
-    tokenPrice: priceText('2.23'),
-    rpm: '450',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-  {
-    packageName: 'Tarif Standard4000 Template',
-    label: 'Standard 4000',
-    basePrice: planPrice(4000),
-    tokenPrice: priceText('1.75'),
-    rpm: '600',
-    modelHost: ['T-Cloud', 'External'],
-    modelTier: ['Standard'],
-    isFilterAvailable: true,
-  },
-];
-
-const planConfigs = legacy ? legacyPlanConfigs : currentPlanConfigs;
-const tokenPricesIdentical =
-  planConfigs.length > 0 && planConfigs.every((plan) => plan.tokenPrice === planConfigs[0].tokenPrice);
-const showTokenPriceColumn = !tokenPricesIdentical;
 
 // Helper: parse deployment region
 function parseCloud(deploymentRegion: string): string {
@@ -366,35 +309,8 @@ function parseModelCreator(exactModelName: string | undefined, displayModelName:
   return creatorNameFor(exactModelName, displayModelName);
 }
 
-const COUNTRY_CODES: Record<string, string> = {
-  germany: 'de',
-  sweden: 'se',
-  france: 'fr',
-  europe: 'eu',
-  us: 'us',
-  // Not a flag — `.fi-globe` is defined in src/styles/custom.css.
-  worldwide: 'globe',
-};
-
-const REGION_DE: Record<string, string> = {
-  germany: 'Deutschland',
-  sweden: 'Schweden',
-  france: 'Frankreich',
-  europe: 'Europa',
-  worldwide: 'Weltweit',
-  us: 'USA',
-};
-
 function parseLocation(deploymentRegion: string): { name: string; code: string } {
-  const parts = deploymentRegion.toLowerCase().split('-');
-  if (parts.length < 2) return { name: deploymentRegion, code: '' };
-  const raw = parts[1];
-  const english = raw.charAt(0).toUpperCase() + raw.slice(1);
-  const name = isDE ? (REGION_DE[raw] ?? english) : english;
-  // T-Cloud data stays in Germany, within the EU.
-  if (parts[0] === 'otc' && raw === 'germany') return { name: `${name}\u00a0(EU)`, code: COUNTRY_CODES[raw] };
-  const code = COUNTRY_CODES[raw] || '';
-  return { name, code };
+  return parseRegionLocation(deploymentRegion, isDE);
 }
 
 function mapModelRow(
@@ -404,12 +320,12 @@ function mapModelRow(
   cloudProvider: string,
   serverLocation: string,
   locationCode: string,
+  dataProcessing: { name: string; code: string },
   isSubRow: boolean,
 ) {
   const exactModelName = model.exactModelName ?? fallbackModel.exactModelName;
   const displayName = model.displayModelName || fallbackModel.displayModelName;
-  // Legacy and archived pages keep their original output: no category check.
-  const modelCategory = legacy || isArchive ? null : resolvePrimaryCategory(exactModelName);
+  const modelCategory = resolvePrimaryCategory(exactModelName);
 
   return {
     modelHost,
@@ -426,6 +342,7 @@ function mapModelRow(
     catalogRank: catalogRank(displayName),
     subName: localizeSubName(model.modelLabel || ''),
     inputPrice: model.inputPricePerMillionTokens ?? fallbackModel.inputPricePerMillionTokens,
+    imageInputPrice: model.imageInputPricePerMillionTokens ?? fallbackModel.imageInputPricePerMillionTokens ?? null,
     outputPrice: model.outputPricePerMillionTokens ?? fallbackModel.outputPricePerMillionTokens,
     isNew: isNewModel(exactModelName),
     // Embedding models return vectors, not tokens: they show an input price only.
@@ -447,6 +364,8 @@ function mapModelRow(
     dataProtectionUrl: model.dataProtectionUrl ?? fallbackModel.dataProtectionUrl ?? '',
     serverLocation,
     locationCode,
+    dataProcessing: dataProcessing.name,
+    dataProcessingCode: dataProcessing.code,
     inputTokenMin: model.inputTokenPerMinuteLimit ?? fallbackModel.inputTokenPerMinuteLimit,
     outputTokenMin: model.outputTokenPerMinuteLimit ?? fallbackModel.outputTokenPerMinuteLimit,
     rpm: model.requestPerMinuteLimit ?? fallbackModel.requestPerMinuteLimit,
@@ -464,7 +383,7 @@ const plansData = allPricing
     if (!selectedPlanId && (!config || !config.isFilterAvailable)) return null;
     if (selectedPlanId && plan.packageName !== selectedPlanId) return null;
     const models = (plan.modelQuotaConfigs || [])
-      .filter((m: any) => !isRetiringModel(m.exactModelName) && !isHiddenModel(m.exactModelName))
+      .filter((m: any) => !isRetiredModel(m.exactModelName) && !isHiddenModel(m.exactModelName))
       .map((m: any) => {
         const unconfirmed = hostingUnconfirmed(m.exactModelName) || !m.deploymentRegion;
         const modelHost = unconfirmed ? '' : parseModelHost(m.deploymentRegion);
@@ -472,10 +391,13 @@ const plansData = allPricing
         const { name: locName, code: locCode } = unconfirmed
           ? { name: '', code: '' }
           : parseLocation(m.deploymentRegion);
-        const rows: any[] = [mapModelRow(m, m, modelHost, cloudProvider, locName, locCode, false)];
+        const processing = unconfirmed
+          ? { name: '', code: '' }
+          : parseDataProcessing(m.exactModelName, m.deploymentRegion, isDE);
+        const rows: any[] = [mapModelRow(m, m, modelHost, cloudProvider, locName, locCode, processing, false)];
         if (m.modelQuotaMetadata?.data) {
           for (const sub of m.modelQuotaMetadata.data) {
-            rows.push(mapModelRow(sub, m, modelHost, cloudProvider, locName, locCode, true));
+            rows.push(mapModelRow(sub, m, modelHost, cloudProvider, locName, locCode, processing, true));
           }
         }
         return rows;
@@ -500,56 +422,6 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
       <section class:list={['rate-plans-section', { 'rate-plans-section--compact': compact }]}>
         {!compact && <h2>{t.ratePlansTitle}</h2>}
         {!compact && <p class="par-description" set:html={t.subtitle} />}
-        {legacy ? (
-          <div class="table-wrapper">
-            <table class="plans-table">
-              <thead>
-                <tr>
-                  <th>{t.thPlan}</th>
-                  <th>
-                    {t.thCommitment}
-                    <div class="plans-table__small-text">{t.thCommitmentUnit}</div>
-                  </th>
-                  {showTokenPriceColumn && (
-                    <th>
-                      {t.thTokenPrice}
-                      <div class="plans-table__small-text">{t.thTokenPriceUnit}</div>
-                    </th>
-                  )}
-                  <th>
-                    {t.thRPM}
-                    <div class="plans-table__small-text">{t.thRPMUnit}</div>
-                  </th>
-                  <th>{t.thModelHost}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {planConfigs.map((plan) => (
-                  <tr>
-                    <td data-label={t.thPlan}>
-                      <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
-                    </td>
-                    <td data-label={t.thCommitment}>
-                      <span class="plans-table__main-text">{plan.basePrice}</span>
-                    </td>
-                    {showTokenPriceColumn && <td data-label={t.thTokenPrice}><span class="nowrap">{plan.tokenPrice}{'\u00A0'}†</span></td>}
-                    <td data-label={t.thRPM}>{plan.rpm}</td>
-                    <td data-label={t.thModelHost}>
-                      {plan.modelHost.map((cloud, i) => (
-                        <>
-                          {i > 0 && ' '}
-                          <Tooltip text={hostTooltips[cloud] || cloud} maxWidth="26rem">
-                            <span class={`plans-tag ${cloud === 'T-Cloud' ? 'tag-tcloud' : 'tag-cloud'}`}>{cloud === 'External' ? t.hostExternal : cloud}</span>
-                          </Tooltip>
-                        </>
-                      ))}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
           <ul class:list={['plan-tiles', { 'plan-tiles--compact': compact }]}>
             {(compact ? planConfigs.filter((plan) => plan.basePrice !== 'Custom') : planConfigs).map((plan) => {
               const price = plan.basePrice === 'Custom' ? t.priceCustom : plan.basePrice;
@@ -572,38 +444,42 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               ].filter((item) => !compact || item.key === 'premium');
               return (
                 <li class="plan-tile" data-plan={planTagKey(plan.label)}>
-                  <span class={`plans-tag tag-plan-${planTagKey(plan.label)}`}>{plan.label}</span>
-                  <p class="plan-tile__price">{price}</p>
-                  <p class:list={['plan-tile__unit', { 'plan-tile__unit--empty': plan.basePrice === 'Custom' }]} aria-hidden={plan.basePrice === 'Custom' ? 'true' : undefined}>{plan.basePrice !== 'Custom' ? t.perMonth : '\u00a0'}</p>
+                  {/* Header: the plan tag (the plan's colour), the price, what
+                      the price means. A hairline separates it from the details. */}
+                  <div class="plan-tile__head">
+                    <h3 class="plan-tile__name">
+                      <PlanTag plan={plan.label} size="small" />
+                    </h3>
+                    <p class="plan-tile__price">{price}</p>
+                    <p class="plan-tile__unit">{plan.basePrice !== 'Custom' ? t.perMonth : t.byAgreement}</p>
+                  </div>
                   {!compact && <p class="plan-tile__for">{blurb}</p>}
-                  <a class="plan-meter" href={t.rateLimitsHref}>
-                    <span class="plan-meter__label">{t.throughputLabel}</span>
-                    <span class="plan-meter__track">
-                      <span class="plan-meter__bar" aria-hidden="true">
-                        {[1, 2, 3, 4].map((step) => (
-                          <span
-                            class:list={[
-                              'plan-meter__seg',
-                              { 'is-on': meter > 0 && step <= meter, 'is-custom': meter === 0 },
-                            ]}
-                          />
-                        ))}
-                      </span>
-                      {meter === 0 && <span class="plan-meter__custom">{t.priceCustom}</span>}
+                  {/* Throughput as a bar in the plan's colour: one to four
+                      segments; a custom plan fills it. The link to the rate
+                      limits is in the sentence above the cards. */}
+                  <div class="plan-meter">
+                    <span class="plan-meter__label">
+                      {t.throughputLabel}
+                      <span class="sr-only">{meter === 0 ? t.priceCustom : `${meter} / 4`}</span>
                     </span>
-                  </a>
+                    <span class="plan-meter__bar" aria-hidden="true">
+                      {[1, 2, 3, 4].map((step) => (
+                        <span class:list={['plan-meter__seg', { 'is-on': meter === 0 || step <= meter }]} />
+                      ))}
+                    </span>
+                  </div>
                   <ul class="plan-tile__list">
                     {checks.map((item) => (
-                      <li>
+                      <li class:list={{ 'is-off': !item.on && !item.dash }}>
                         <span class:list={['plan-tile__mark', item.dash ? 'is-custom' : item.on ? 'is-yes' : 'is-no']}>
                           {item.dash ? '—' : <Icon name={item.on ? 'action-checkmark' : 'action-close'} size={16} />}
                         </span>
-                        <span>{item.label}</span>
+                        <span>{keepWholeParts(item.label).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}</span>
                       </li>
                     ))}
                   </ul>
                   {!compact && (
-                    <div class:list={['plan-tile__action', { 'plan-tile__action--empty': plan.basePrice !== 'Custom' }]}>
+                    <div class="plan-tile__action">
                       {plan.basePrice === 'Custom' && (
                         <Button variant="secondary" size="small" href={t.contactHref} class="plan-tile__cta">
                           {t.contactCta}
@@ -615,32 +491,35 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
               );
             })}
           </ul>
-        )}
-        {/* One example price under the tiles reads as if it applied to every
-            plan, so only legacy and archived pages keep it and its footnote. */}
-        {(legacy || isArchive) && !showTokenPriceColumn && (
-          <p class="token-price-note">
-            {t.thTokenPrice}: {planConfigs[0].tokenPrice} <span class="nowrap">{t.thTokenPriceUnit}{'\u00A0'}†</span>
-          </p>
-        )}
         {!compact && <p class="plan-spend">{t.spendNote}</p>}
-        {(legacy || isArchive) && <small>{t.footnote}</small>}
       </section>
     )
   }
 
-  {!compact && <ModelsTable
-    plansData={plansData}
-    effectiveIndex={initialPlanIndex}
-    locked={Boolean(selectedPlanId)}
-    translations={t}
-    logos={logos}
-    hostTooltips={hostTooltips}
-    tierTooltips={tierTooltips}
-    creatorTooltips={creatorTooltips}
-    testModelsSectionTitle={modelsSectionTitle}
-    legacy={legacy}
-  />}
+  {!compact && <section class="models-section plans-models-section">
+    {/* The models table of All models, with the plan preset: this plan's
+        prices, limits per minute and legal links. */}
+    <h2>{modelsSectionTitle || t.modelsTitle}</h2>
+    {modelsSectionTitle
+      ? (t.modelsSubtitleList as string[]).map((item) =>
+          item.startsWith('\n') ? <p class="plans-models-intro"><strong>{item.trim()}</strong></p> : <p class="plans-models-intro">{item}</p>,
+        )
+      : <p class="plans-models-intro">{t.modelsSubtitle}</p>}
+    <ModelsComparison
+      columns="plan"
+      plans={plansData}
+      plan={plansData[initialPlanIndex]?.packageName}
+      planLocked={Boolean(selectedPlanId)}
+    />
+    <div class="plans-models-notes">
+      <p id="cached-token-notes">&dagger; {keepWholeParts(t.cachedPriceNote).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}</p>
+      <p id="worldwide-location-notes">
+        {t.worldwideLocationNote}{' '}
+        <a href={t.enterpriseTrustHref}>{t.enterpriseTrustLabel}</a>
+      </p>
+      <p>{t.adequacyNote}</p>
+    </div>
+  </section>}
 </div>
 
 <style is:global>
@@ -655,16 +534,39 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     --model-link-icon-color: var(--aifs-color-link-standard);
   }
 
-  :root[data-theme='dark'] .plans-table th a {
-    color: inherit;
+  /* Each section (rate plans, models) is a page section: the section gap
+     between them, the after-heading gap under their headings. */
+  .plans-page > * + * {
+    margin-top: var(--aifs-rhythm-heading-2);
   }
 
-  :root[data-theme='dark'] .sort-icon.active {
-    color: var(--aifs-color-link-standard);
+  .plans-page :is(.rate-plans-section, .plans-models-section) > h2 {
+    margin: 0 0 var(--aifs-rhythm-after-heading);
+  }
+
+  /* Intro, table and notes: the flow gap between paragraphs, the block gap
+     around the table. */
+  .plans-models-intro {
+    margin: 0 0 var(--aifs-rhythm-flow);
+  }
+
+  .plans-models-section > .models-comparison {
+    margin-top: var(--aifs-rhythm-block);
+  }
+
+  .plans-models-notes {
+    display: grid;
+    gap: var(--aifs-rhythm-after-heading);
+    margin-top: var(--aifs-rhythm-flow);
+    color: var(--aifs-color-text-muted);
+    font-size: var(--aifs-text-small-font-size);
+  }
+
+  .plans-models-notes p {
+    margin: 0;
   }
 
   .rate-plans-section {
-    margin-bottom: 8px;
     container-type: inline-size;
     container-name: rateplans;
   }
@@ -672,30 +574,47 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tiles {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: var(--aifs-layout-grid-gap);
     margin: 0;
     padding: 0;
     list-style: none;
     align-items: stretch;
   }
 
-  /* One column: each tile is only as tall as its content. Side by side, the
-     tiles share row lines (subgrid) so prices and meters line up. */
+  /* Rate plan cards: the card frame (aifs.card.*), neutral; the plan tag
+     carries the plan's colour.
+     Rows line up across the cards (subgrid): header, description,
+     throughput, features, action. Not a link itself; the button is. */
   .plan-tile {
     display: grid;
-    align-content: start;
-    gap: 8px;
+    grid-template-rows: subgrid;
+    grid-row: span 5;
+    gap: var(--aifs-model-card-gap);
     min-width: 0;
     margin: 0;
-    padding: 16px;
-    border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-    border-radius: var(--aifs-radius-card);
-    background: var(--aifs-color-surface-chrome);
+    padding: 0 0 var(--aifs-model-card-padding);
+    overflow: hidden;
+    border: var(--aifs-card-border-width) solid var(--aifs-card-border);
+    border-radius: var(--aifs-card-radius);
+    background: var(--aifs-card-background);
   }
 
-  .plan-tile > .plans-tag {
-    align-self: start;
-    justify-self: start;
+  .plan-tile > :not(.plan-tile__head) {
+    margin: 0;
+    padding-inline: var(--aifs-model-card-padding);
+  }
+
+  .plan-tile__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-rhythm-after-heading);
+    padding: var(--aifs-model-card-padding);
+    border-bottom: var(--aifs-card-border-width) solid var(--aifs-card-border);
+  }
+
+  .sl-markdown-content .plan-tile__name {
+    margin: 0;
+    line-height: 0;
   }
 
   /* Placeholder that keeps the row line when tiles sit side by side. */
@@ -707,59 +626,51 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
   .plan-tile__price {
     margin: 0;
     color: var(--aifs-color-text-body);
-    font-family: var(--aifs-font-body, inherit);
-    font-size: var(--aifs-text-h2-font-size);
-    font-weight: var(--aifs-text-h2-font-weight);
-    line-height: var(--aifs-text-h2-line-height);
+    font-family: var(--aifs-text-h1-font-family);
+    font-size: var(--aifs-text-h1-font-size);
+    font-weight: var(--aifs-text-h1-font-weight);
+    line-height: var(--aifs-text-h1-line-height);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .sl-markdown-content .plan-tile__head > * + * {
+    margin-top: 0;
   }
 
   .plan-tile__unit {
-    margin: -4px 0 0;
+    margin: calc(-1 * var(--aifs-model-card-logo-padding)) 0 0;
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
-    font-weight: 500;
     line-height: var(--aifs-text-small-line-height);
   }
 
-  .sl-markdown-content a.plan-meter {
+  .plan-tile__for {
+    color: var(--aifs-color-text-body);
+    font-size: var(--aifs-text-small-font-size);
+    line-height: var(--aifs-text-small-line-height);
+  }
+
+  .plan-meter {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    margin-top: 4px;
-    color: inherit;
+    gap: var(--aifs-model-card-row-gap);
+  }
+
+  .plan-meter__label {
+    color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
-    font-weight: var(--aifs-button-font-weight);
     line-height: var(--aifs-text-small-line-height);
-    text-decoration: none;
-  }
-
-  .sl-markdown-content a.plan-meter .plan-meter__label {
-    color: var(--aifs-color-link-standard);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-
-  .sl-markdown-content a.plan-meter:hover .plan-meter__label,
-  .sl-markdown-content a.plan-meter:focus-visible .plan-meter__label {
-    color: var(--aifs-color-link-hovered);
-  }
-
-  .plan-meter__track {
-    display: flex;
-    align-items: center;
-    gap: 8px;
   }
 
   .plan-meter__bar {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 4px;
-    flex: 1 1 auto;
-    height: 8px;
+    gap: var(--aifs-model-card-logo-padding);
+    height: var(--aifs-model-card-row-gap);
   }
 
   .plan-meter__seg {
-    border-radius: var(--aifs-radius-control);
+    border-radius: var(--aifs-radius-indicator);
     background: var(--aifs-color-scale-6);
   }
 
@@ -777,33 +688,33 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     background: var(--aifs-tag-plan-agentic-text);
   }
 
-  .plan-tile[data-plan='enterprise'] .plan-meter__seg.is-custom {
+  .plan-tile[data-plan='enterprise'] .plan-meter__seg.is-on {
     background: var(--aifs-tag-plan-enterprise-text);
-  }
-
-  .plan-meter__custom {
-    flex: 0 0 auto;
-    color: var(--aifs-color-text-muted);
-    font-size: var(--aifs-tag-font-size-small);
-    font-weight: var(--aifs-tag-font-weight);
   }
 
   .plan-tile__list {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    margin: 4px 0 0;
-    padding: 0;
+    gap: var(--aifs-model-card-row-gap);
+    padding-block: 0;
     list-style: none;
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
   }
 
+  .sl-markdown-content .plan-tile__list > li + li {
+    margin-top: 0;
+  }
+
   .plan-tile__list li {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: var(--aifs-model-card-row-gap);
     min-width: 0;
+  }
+
+  .plan-tile__list li.is-off {
+    color: var(--aifs-color-text-muted);
   }
 
   .plan-tile__mark {
@@ -819,11 +730,8 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
     color: var(--aifs-color-text-muted);
   }
 
-  .plan-tile__for {
-    margin: 0;
-    color: var(--aifs-color-text-body);
-    font-size: var(--aifs-text-small-font-size);
-    line-height: var(--aifs-text-small-line-height);
+  .plan-tile__action {
+    align-self: end;
   }
 
   /* Full width of the card. Colour, height, radius and states come from
@@ -834,14 +742,14 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
   .plan-spend {
     margin: 8px 0 0;
-    max-width: 54rem;
     color: var(--aifs-color-text-muted);
     font-size: var(--aifs-text-small-font-size);
     line-height: var(--aifs-text-small-line-height);
   }
 
-  /* Phones stay one column. Two by two until four cards of about 215px fit.
-     With the sidebar open that is 1280 (content about 854px) and 1440. */
+  /* Phones stay one column. Two by two until four cards fit: 58rem of
+     section, the German Premium tile's longest line (about 1600px windows
+     with On this page beside the fluid column). */
   @container rateplans (min-width: 34rem) {
     .plan-tiles {
       grid-template-columns: 1fr 1fr;
@@ -849,16 +757,11 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
 
     .plan-tile {
       grid-template-rows: subgrid;
-      grid-row: span 7;
-    }
-
-    .plan-tile__unit--empty,
-    .plan-tile__action--empty {
-      display: block;
+      grid-row: span 5;
     }
   }
 
-  @container rateplans (min-width: 53rem) {
+  @container rateplans (min-width: 58rem) {
     .plan-tiles {
       grid-template-columns: repeat(4, minmax(0, 1fr));
     }
@@ -871,216 +774,18 @@ const initialPlanIndex = selectedPlanId ? plansData.findIndex((p: any) => p.pack
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
+    /* Compact tiles have three rows: header, throughput, Premium. */
     .plan-tiles--compact .plan-tile {
-      grid-row: span 5;
+      grid-row: span 3;
     }
   }
 
   .rate-plans-section--compact {
-    margin-block: 12px 0;
+    margin-block: var(--aifs-rhythm-after-heading) 0;
   }
 
   .content-panel .rate-plans-section > * + * {
     margin-top: 8px;
   }
 
-  .rate-plans-section .plans-table :is(th, td) {
-    padding-block: 8px;
-    line-height: 1.2;
-  }
-
-  .rate-plans-section .table-wrapper {
-    max-width: 100%;
-    overflow-x: visible;
-    padding-top: 0;
-    margin-top: 0;
-  }
-
-  @media (min-width: 80rem) {
-    .rate-plans-section .table-wrapper {
-      overflow-x: visible;
-      padding-top: 0;
-      margin-top: 0;
-    }
-  }
-
-  /* The Model-Host / Model-Tier tooltips sit in the last two columns; centered
-     they would poke ~110px past the container's right edge and create a
-     transient page-wide scrollbar on hover. Pin them to the right edge. */
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__content {
-    left: auto;
-    right: 0;
-    transform: translateX(0) translateY(0.35rem);
-  }
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip:hover .ui-tooltip__content,
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip:focus-within .ui-tooltip__content {
-    transform: translateX(0) translateY(0);
-  }
-  .plans-table td:nth-last-child(-n + 2) .ui-tooltip__content::after {
-    left: auto;
-    right: 1.5rem;
-  }
-
-  .table-wrapper > table {
-    border-radius: var(--sl-border-md);
-    overflow: visible;
-  }
-
-  .par-description {
-    width: min(100%, 54rem);
-  }
-
-  .token-price-note {
-    margin: 8px 0 0;
-    font-size: var(--aifs-text-small-font-size);
-  }
-
-  .plans-table {
-    display: table;
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.875rem;
-    overflow-wrap: break-word;
-    border: 0;
-  }
-
-  /* Five short columns. Fixed layout lets Host and Tier chips wrap inside
-     the cell, so the table stays a table down to 36rem of content. That is
-     the column under a 900px viewport with the sidebar open (~37rem). */
-  .rate-plans-section .plans-table {
-    table-layout: fixed;
-  }
-
-  .rate-plans-section .plans-table :is(th, td) {
-    white-space: normal;
-    overflow-wrap: break-word;
-  }
-
-  .rate-plans-section .plans-table :is(.ui-tooltip, .plans-tag) {
-    margin-inline-end: 4px;
-  }
-
-  /* Head, cells, rows and hover: src/styles/table.css. */
-
-  .plans-table__small-text {
-    display: block;
-    max-width: 100%;
-    font-weight: normal;
-    font-size: var(--sl-text-2xs);
-    white-space: normal;
-    overflow-wrap: anywhere;
-  }
-
-  .plans-table__main-text {
-    font-weight: 650;
-  }
-
-  .plans-table tbody tr.sub-row {
-    opacity: 0.85;
-    font-size: 0.85rem;
-  }
-
-  .sort-icon {
-    font-size: 1rem;
-    margin-left: 0.25rem;
-    opacity: 0.5;
-  }
-
-  .sort-icon.active {
-    color: var(--aifs-color-brand-text);
-    opacity: 1;
-  }
-
-  @container rateplans (max-width: 36rem) {
-    .rate-plans-section .table-wrapper {
-      overflow: visible;
-      padding-top: 0;
-      margin-top: 0;
-      border: 0;
-    }
-
-    .rate-plans-section .plans-table,
-    .rate-plans-section .plans-table tbody {
-      display: block;
-      width: 100%;
-      min-width: 0;
-      border: 0;
-    }
-
-    .rate-plans-section .plans-table thead {
-      display: none;
-    }
-
-    /* Plan chip and commitment fill the first line. Limits, host and tier
-       chips share the next line. */
-    .rate-plans-section .plans-table tr {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 4px 8px;
-      width: 100%;
-      box-sizing: border-box;
-      border: var(--aifs-border-width-standard) solid var(--aifs-color-border-subtle);
-      border-radius: var(--aifs-table-radius);
-      margin: 0 0 6px;
-      padding: 8px;
-    }
-
-    .rate-plans-section .plans-table td {
-      display: inline-flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 4px;
-      min-width: 0;
-      width: auto;
-      padding: 0;
-      border: 0;
-    }
-
-    .rate-plans-section .plans-table td:nth-child(-n + 2) {
-      order: 0;
-    }
-
-    .rate-plans-section .plans-table td:nth-child(2) {
-      flex: 1 1 auto;
-    }
-
-    .rate-plans-section .plans-table tr::after {
-      content: '';
-      order: 1;
-      flex-basis: 100%;
-      width: 0;
-      height: 0;
-    }
-
-    .rate-plans-section .plans-table td:nth-child(n + 3) {
-      order: 2;
-    }
-
-    .rate-plans-section .plans-table td::before {
-      content: attr(data-label);
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  }
-
-  @media (max-width: 1200px) {
-    .par-description {
-      width: min(100%, 46rem);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .par-description {
-      width: 100%;
-    }
-  }
 </style>

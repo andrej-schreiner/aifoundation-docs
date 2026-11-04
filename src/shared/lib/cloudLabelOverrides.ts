@@ -17,6 +17,9 @@ const CLOUD_LABEL_OVERRIDES: Record<string, string> = {
   'claude-fable-5': 'GCP / Azure',
   'claude-sonnet-5.5': 'GCP / Azure',
   'claude-opus-5.5': 'GCP / Azure',
+  'claude-haiku-5.5': 'GCP / Azure',
+  'claude-haiku-5.5-long-context': 'GCP / Azure',
+  'claude-fable-5.1': 'GCP / Azure',
 };
 
 /** Cloud label to render for a model, falling back to the region-derived one. */

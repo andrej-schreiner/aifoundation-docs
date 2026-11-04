@@ -15,10 +15,13 @@ function localizeDigits(text: string, locale: NumberLocale): string {
   return text.replace(/[.,]/g, (mark) => (mark === '.' ? ',' : '.'));
 }
 
-/** Euro amounts share one spelling: €0.00, €0.05, no space after the symbol. German: 0,05 € with a no-break space. */
+/**
+ * Euro amounts share one spelling: €0.00, €0.05, no space after the symbol. German: 0,05 € with a no-break space.
+ * With more than two digits, trailing zeros are dropped (€0.0225, €0.3); zero stays €0.00 like every other zero price.
+ */
 export function formatEuro(value: number | null | undefined, digits = 2, locale: NumberLocale = 'en'): string {
   if (value == null) return 'xx';
-  const text = digits <= 2 ? value.toFixed(2) : value.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '');
+  const text = digits <= 2 || value === 0 ? value.toFixed(2) : value.toFixed(digits).replace(/0+$/, '').replace(/\.$/, '');
   if (locale === 'de') return `${localizeDigits(text, 'de')}${EURO_SUFFIX_DE}`;
   return `€${text}`;
 }
@@ -31,4 +34,19 @@ export function formatInteger(value: number, locale: NumberLocale = 'en'): strin
 /** A number written in English notation in the source (0.20, 102.4K, 1.05M), re-spelled for the page locale. */
 export function formatDecimalText(text: string, locale: NumberLocale = 'en'): string {
   return localizeDigits(text, locale);
+}
+
+/**
+ * Names that must never break at their hyphen ("T-" / "Cloud"). Text that
+ * shows them goes through `keepWholeParts` and puts each `whole` part in a
+ * `.nowrap` span (src/styles/layout.css), so the text itself keeps the plain
+ * ASCII hyphen: find-in-page, copy and lookups by "T-Cloud" still work.
+ */
+const KEEP_WHOLE = /(T-Cloud)/;
+
+export function keepWholeParts(text: string): { text: string; whole: boolean }[] {
+  return text
+    .split(KEEP_WHOLE)
+    .filter((part) => part !== '')
+    .map((part) => ({ text: part, whole: KEEP_WHOLE.test(part) }));
 }

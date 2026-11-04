@@ -1,49 +1,104 @@
 ---
-// A model creator's logo (src/shared/lib/logos.ts).
+// A model creator's logo (src/shared/lib/logos.ts) in a white rounded
+// square with a hairline border: the one way to show a creator logo on the
+// site (model cards, recommended models, the models table, Choosing a model).
+// Scale has no logo component; the square follows AGENTS.md ("creator logos
+// sit in a rounded square, never a circle"). Tokens: aifs.logo.*.
+//
+// Logos that are mostly margin (Google's) are scaled up to fill the square.
+// An unknown creator shows the generic mark.
 import { getLogo } from '../shared/lib/logos';
 
 interface Props {
+  /** The creator's name as logos.ts keys it ("Anthropic", "Google Gemma"). */
   name: string;
-  size?: number;
-  title?: string;
+  /** small 20px (beside text in a cell) · default 32px (models table) · large 40px (cards). */
+  size?: 'small' | 'default' | 'large';
   /**
-   * When the creator's name is already announced next to the logo (the typical case),
-   * pass `decorative=true` so it isn't announced twice. The image is
-   * exposed to AT as decorative (`alt=""`, `role="presentation"`).
+   * When the creator's name is already announced next to the logo, pass
+   * `decorative` so it isn't announced twice (`alt=""`).
    */
   decorative?: boolean;
+  /** Extra class for the square, for layout (flex, margins) only. */
+  class?: string;
 }
 
-const { name, size = 18, title = name, decorative = false } = Astro.props;
-const src = getLogo(name);
+const { name, size = 'default', decorative = false, class: className } = Astro.props;
+const src = getLogo(name) || getLogo('Other');
+const known = name !== 'Other' && Boolean(getLogo(name));
+const zoom = name.startsWith('Google');
+const px = { small: 20, default: 32, large: 40 }[size];
 ---
 
-<img
-  class="logo"
-  src={src}
-  alt={decorative ? '' : name}
-  role={decorative ? 'presentation' : undefined}
-  aria-hidden={decorative ? 'true' : undefined}
-  title={title}
-  width={size}
-  height={size}
-  loading="lazy"
-  decoding="async"
-/>
+<span class:list={['aifs-logo', `aifs-logo--${size}`, { 'aifs-logo--zoom': zoom }, className]}>
+  <img
+    class="aifs-logo__image"
+    src={src}
+    alt={decorative || !known ? '' : name}
+    title={known ? name : undefined}
+    width={px}
+    height={px}
+    loading="lazy"
+    decoding="async"
+  />
+</span>
 
-<style>
-  /* The size prop sets width and height; object-fit keeps logos that are not
-     square (NVIDIA) inside that box without stretching. */
-  .logo {
-    display: inline-block;
-    max-width: 100%;
-    object-fit: contain;
+<style is:global>
+  .aifs-logo {
+    --aifs-logo-size: var(--aifs-logo-size-default);
+    --aifs-logo-inset: var(--aifs-logo-inset-default);
+    flex: none;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--aifs-logo-size);
+    height: var(--aifs-logo-size);
+    padding: var(--aifs-logo-inset);
+    overflow: hidden;
+    border: var(--aifs-logo-border-width) solid var(--aifs-logo-border);
+    border-radius: var(--aifs-logo-radius);
+    background: var(--aifs-logo-background);
+    line-height: 0;
     vertical-align: middle;
-    /* A white, rounded tile with a hairline inside its edge: logos are drawn
-       for white, and the outline keeps the tile's edge on a white page. */
-    background: var(--aifs-color-logo-background);
-    border-radius: var(--aifs-radius-media);
-    outline: 1px solid var(--aifs-color-media-outline);
-    outline-offset: -1px;
+  }
+
+  .aifs-logo--small {
+    --aifs-logo-size: var(--aifs-logo-size-small);
+    --aifs-logo-inset: var(--aifs-logo-inset-small);
+    border-radius: var(--aifs-logo-radius-small);
+  }
+
+  .aifs-logo--large {
+    --aifs-logo-size: var(--aifs-logo-size-large);
+    --aifs-logo-inset: var(--aifs-logo-inset-large);
+  }
+
+  /* The image fills the square inside the inset; logos that are not square
+     (NVIDIA) keep their proportions. Global, because Markdown and table
+     styles size images too. */
+  .aifs-logo > .aifs-logo__image {
+    display: block;
+    /* Not shrunk by the flex square: the zoomed image must overflow it. */
+    flex: none;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    object-fit: contain;
+  }
+
+  .aifs-logo--zoom {
+    padding: 0;
+  }
+
+  .aifs-logo--zoom > .aifs-logo__image {
+    width: calc(var(--aifs-logo-zoom) * 100%);
+    height: calc(var(--aifs-logo-zoom) * 100%);
   }
 </style>

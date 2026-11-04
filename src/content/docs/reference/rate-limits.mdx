@@ -15,7 +15,8 @@ Limits vary by both plan and model. The table below shows representative figures
 
 | Metric | Essential | Professional | Agentic |
 |---|---|---|---|
-| **T-Cloud embedding models (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| **BGE-M3 and Jina Embeddings v2 Base DE (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 600 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
+| **Qwen3 Embedding 8B (RPM)** <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 360 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 720 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,200 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
 ### Example: per-model limits across plans
 
@@ -169,13 +170,13 @@ def safe_completion(messages, max_retries=3):
 
 <a id="about-these-rpm-and-tpm-values"></a>
 
-## Service note on the published RPM and TPM values
+## Rate limits are ceilings, not guarantees
 
 <sup>&ast;</sup> The Requests-per-Minute (RPM) and Tokens-per-Minute (TPM) figures throughout this page are **best-effort, best-case ceilings** for the Shared LLM Serving Service. They denote the maximum traffic permitted under the contract — not a guaranteed level of throughput. The following conditions apply:
 
 - **Not part of the [Service Level Agreement (SLA)](/reference/service-levels).** The 99.5% availability SLA covers API reachability only; it does not extend to RPM, TPM, throughput, end-to-end latency, or time-to-first-token.
 - **For open-source models hosted on T-Cloud**, realised throughput may fall substantially below the published ceilings during periods of peak concurrent demand. End-to-end latency and time-to-first-token also vary with platform load.
-- **The "T-Cloud embedding models (RPM)" figure** in the Limits-by-Plan table is the requests-per-minute value for BGE-M3, Jina Embeddings v2 Base DE, and Qwen3 Embedding 8B. Professional and Agentic include Premium-tier models (e.g. Claude Opus) in addition to the Standard catalog available on Essential.
+- **Premium-tier models** (e.g. Claude Opus) are included on Professional and Agentic, in addition to the Standard catalog available on Essential.
 - **For contractual guarantees on throughput, end-to-end latency, or time-to-first-token**, see [Dedicated LLM Serving](/plans/dedicated), where such commitments can be negotiated as performance SLAs on reserved hardware.
 
 

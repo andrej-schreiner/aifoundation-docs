@@ -9,7 +9,7 @@ Wiederholen Sie einen fehlgeschlagenen Aufruf, wenn der Status vorübergehend is
 
 :::note[Voraussetzungen]
 - Ein API-Schlüssel ([hier erhalten](https://apikey.llmhub.t-systems.net/))
-- Der Client aus dem [Quickstart](/de/)
+- Der Client aus dem [Quickstart](/de/getting-started/quickstart)
 :::
 
 ## Wiederholungen
@@ -88,7 +88,7 @@ Ein `429` von `/queue` bedeutet, dass Sie dauerhaft mehr senden, als Ihr Limit e
 
 ### Endpunkt-Zuordnung
 
-Jeder Standard-Endpunkt hat ein `/queue`-Aequivalent:
+Jeder Standard-Endpunkt hat ein `/queue`-Äquivalent:
 
 | Standard-Endpunkt | Queue-Endpunkt | Beschreibung |
 |---|---|---|
@@ -101,7 +101,7 @@ Jeder Standard-Endpunkt hat ein `/queue`-Aequivalent:
 | `POST /v2/images/edits` | `POST /queue/images/edits` | Image Edit |
 | `GET /v2/models` | `GET /queue/models` | Modelle auflisten |
 
-Der Request-Body fuer jeden Queue-Endpunkt ist **identisch** mit seinem Standard-Gegenstueck — aendern Sie einfach den Basispfad von `/v2` zu `/queue`.
+Der Request-Body für jeden Queue-Endpunkt ist **identisch** mit seinem Standard-Gegenstück — ändern Sie einfach den Basispfad von `/v2` zu `/queue`.
 
 
 ### Grundlegende Verwendung
@@ -151,6 +151,7 @@ print(response.choices[0].message.content)
   <TabItem value="node" label="Node.js">
 
 ```javascript
+import OpenAI from "openai";
 
 const client = new OpenAI({
   baseURL: "https://llm-server.llmhub.t-systems.net/queue",
@@ -174,12 +175,13 @@ console.log(response.choices[0].message.content);
 
 ### Beispiel für Batch-Verarbeitung
 
-Verarbeiten Sie mehrere Prompts effizient ueber die Warteschlange:
+Verarbeiten Sie mehrere Prompts effizient über die Warteschlange:
 
 <Tabs>
   <TabItem value="python" label="Python" default>
 
 ```python
+import asyncio
 
 from openai import AsyncOpenAI
 
@@ -215,6 +217,7 @@ asyncio.run(main())
   <TabItem value="node" label="Node.js">
 
 ```javascript
+import OpenAI from "openai";
 
 const client = new OpenAI({
   baseURL: "https://llm-server.llmhub.t-systems.net/queue",

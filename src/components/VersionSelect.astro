@@ -1,0 +1,52 @@
+---
+// Site part, not for reuse. The version select in the header (SiteHeader) and
+// the phone menu (MobileMenuFooter), beside the theme and language selects and
+// drawn like them (Starlight's Select, styles in select.css). "Latest" is the
+// current docs; each archived version links to its static snapshot (archive/,
+// copied verbatim into the build, see archive/README.md): the same page in
+// that version where the snapshot has it, else the version's start page, in
+// the page's language (EN to EN, DE to DE).
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import Select from '@astrojs/starlight/components/Select.astro';
+import { archivedVersions } from '../archivedVersions.mjs';
+
+const path = Astro.url.pathname;
+const isDE = path === '/de' || path.startsWith('/de/');
+const prefix = isDE ? '/de' : '';
+const rest = (isDE ? path.slice(3) : path).replace(/^\/?/, '/').replace(/\/?$/, '/');
+const snapshotDir = join(process.cwd(), 'archive');
+
+const versionHref = (slug: string) => {
+	const samePage = `${prefix}/${slug}${rest}`;
+	return existsSync(join(snapshotDir, samePage, 'index.html')) ? samePage : `${prefix}/${slug}/`;
+};
+
+const options = [
+	{ label: isDE ? 'Aktuell' : 'Latest', value: path, selected: true },
+	...archivedVersions.map(({ slug, label }) => ({ label, value: versionHref(slug), selected: false })),
+];
+---
+
+<aifs-version-select>
+	<Select icon="seti:clock" label={isDE ? 'Version auswählen' : 'Select version'} options={options} width="6.25em" />
+</aifs-version-select>
+
+<script>
+	class AifsVersionSelect extends HTMLElement {
+		constructor() {
+			super();
+			const select = this.querySelector('select');
+			if (!select) return;
+			select.addEventListener('change', () => {
+				window.location.pathname = select.value;
+			});
+			// A page restored from the back-forward cache shows the version it was
+			// left for; reset the select to this page's own option.
+			window.addEventListener('pageshow', (event) => {
+				if (event.persisted) select.selectedIndex = 0;
+			});
+		}
+	}
+	customElements.define('aifs-version-select', AifsVersionSelect);
+</script>

@@ -3,12 +3,17 @@ title: "Coding-Modelle"
 description: "Code-optimierte Modelle auf AI Foundation Services. Filtern nach Cloud, Anbieter, Tarif und Funktionen."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelsComparison from '../../../../components/ModelsComparison.astro';
 import ModelPick from '../../../../components/ModelPick.astro';
 
 Modelle mit Coding-Tag für Vervollständigung, Refactoring und Review. Sie nutzen denselben Chat-Completions-Endpunkt wie die anderen Chat-Modelle.
 
-Weiter: [Function Calling](/de/guides/function-calling) · [Integrationen](/de/integrations) · [Empfohlene Modelle](/de/getting-started/choosing-a-model)
+<div class="link-card-row">
+  <LinkCard title="Function Calling" href="/de/guides/function-calling" />
+  <LinkCard title="Integrationen" href="/de/integrations" />
+  <LinkCard title="Empfohlene Modelle" href="/de/getting-started/choosing-a-model" />
+</div>
 
 <ModelPick useCase="coding" />
 

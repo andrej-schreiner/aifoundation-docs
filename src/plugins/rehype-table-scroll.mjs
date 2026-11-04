@@ -22,6 +22,24 @@ function markDates(node) {
 	(node.children || []).forEach(markDates);
 }
 
+// A cell that holds only a short API path in code (`/v2/coding`) gets
+// .md-path: the path stays on one line (table.css). Short, so it always
+// fits the narrowest column.
+function markPaths(node) {
+	if (!node || node.type !== 'element') return;
+	if (node.tagName === 'td') {
+		const kids = (node.children || []).filter((n) => !(n.type === 'text' && !n.value.trim()));
+		const only = kids.length === 1 && kids[0].type === 'element' && kids[0].tagName === 'code' ? kids[0] : null;
+		if (only && /^\/[\w./-]{0,15}$/.test(textOf(only).trim())) {
+			const current = node.properties?.className;
+			const list = Array.isArray(current) ? current : current ? [current] : [];
+			node.properties = node.properties || {};
+			node.properties.className = [...list, 'md-path'];
+		}
+	}
+	(node.children || []).forEach(markPaths);
+}
+
 function labelCells(table) {
 	const head = (table.children || []).find((n) => n.type === 'element' && n.tagName === 'thead');
 	const row = head && (head.children || []).find((n) => n.type === 'element' && n.tagName === 'tr');
@@ -51,6 +69,7 @@ export default function rehypeTableScroll() {
 		node.children = node.children.map((child) => {
 			if (child.type === 'element' && child.tagName === 'table') {
 				markDates(child);
+				markPaths(child);
 				labelCells(child);
 				return {
 					type: 'element',

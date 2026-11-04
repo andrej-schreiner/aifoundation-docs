@@ -8,7 +8,7 @@ Function calling lets models generate structured JSON arguments for functions yo
 
 :::note[Prerequisites]
 - An API key ([get one here](https://apikey.llmhub.t-systems.net/))
-- OpenAI SDK installed ([Quickstart](/))
+- OpenAI SDK installed ([Quickstart](/getting-started/quickstart))
 - A model that supports function calling (most hosted models do — see [Available models](/models))
 :::
 
@@ -56,7 +56,7 @@ messages = [
 ]
 
 response = client.chat.completions.create(
-    model="GLM-5.2",
+    model="GLM-5.3",
     messages=messages,
     tools=tools,
 )

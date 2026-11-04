@@ -9,14 +9,14 @@
     "build": "bun --bun ./node_modules/.bin/astro build",
     "datasheet": "bun run scripts/fetch-model-parameters.mjs",
     "tokens": "bun run scripts/build-tokens.mjs",
+    "check:urls": "bun run scripts/check-prod-urls.mjs",
     "preview": "bun --bun ./node_modules/.bin/astro preview"
   },
   "dependencies": {
     "@astrojs/starlight": "^0.38.2",
     "astro": "^6.0.1",
     "flag-icons": "^7.5.0",
-    "sharp": "^0.34.2",
-    "starlight-versions": "^0.8.1"
+    "sharp": "^0.34.2"
   },
   "engines": {
     "bun": ">=1.0.0"

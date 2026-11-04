@@ -18,6 +18,8 @@ import IconGallery from '../../components/design/IconGallery.astro';
 import Tag from '../../components/Tag.astro';
 import PlanTag from '../../components/PlanTag.astro';
 import ModelsComparison from '../../components/ModelsComparison.astro';
+import AvailableModels from '../../components/AvailableModels.astro';
+import ModelPick from '../../components/ModelPick.astro';
 import PlansPage from '../../components/PlansPage.astro';
 import Selector from '../../components/Selector.astro';
 import TextField from '../../components/TextField.astro';
@@ -43,6 +45,16 @@ It is organised in three libraries:
 - **Style guides**: the visual, content and interaction standards, such as colours, type scale and spacing.
 - **Component library**: the UI blocks, split into base elements and composite components.
 - **Pattern library**: layout patterns for page shells, and task and flow patterns for what readers do on the site.
+
+## Building with this system
+
+The same rules apply to people and to AI coding tools; `AGENTS.md` in the repository root holds them for the tools, and `GAPS.md` lists every known difference from Scale.
+
+- **Reuse first.** Use the components on this page with the props and values they have. The list is closed: a prop or variant that is not documented does not exist.
+- **Tokens only.** Colours, spacing, radii and type come from `--aifs-*` tokens (`tokens/aifs.docs.tokens.json`, built with `bun run tokens`). No raw values; a missing value becomes a token first.
+- **If nothing fits, write a GAP.** Note what is missing and the closest thing that exists, and ask, instead of inventing a part.
+- **Something new follows Scale.** A new component mirrors [Scale's](https://telekom.github.io/scale/?path=/docs/scale-design-system--page) API and look with our tokens, has every state and meets WCAG 2.1 AA, and gets an entry on this page.
+- **A difference is listed or it is a bug.** Every deliberate deviation gets a row in `GAPS.md`.
 
 ## Style guides
 
@@ -97,6 +109,16 @@ Aligned with Scale's [Button](https://telekom.github.io/scale/?path=/docs/compon
   <Button variant="ghost" size="small" iconOnly ariaLabel="Copy model ID"><Copy /></Button>
 </Showcase>
 
+<Showcase label="Success state, after a copy (shown fixed here)">
+  <Button variant="ghost" size="small" iconOnly ariaLabel="Copied: GLM-5.3" successTooltip="Copied: GLM-5.3" data-state="success"><Copy /><Icon slot="success" name="action-checkmark" size={16} /></Button>
+  <Button variant="ghost" iconOnly ariaLabel="Copied model ID" data-state="success"><Copy /><Icon slot="success" name="action-checkmark" size={20} /></Button>
+  <Button variant="secondary" size="small" data-state="success">Copy ID<span slot="success">Copied</span></Button>
+</Showcase>
+
+A button that confirms its own action, such as a copy button, puts the confirmation into the `success` slot. A script sets `data-state="success"` on the button and removes it after about 1.5 seconds. The slot then replaces the button's content, and ghost and secondary buttons turn the success colour (`aifs.button.success.text`); primary keeps its colours. The swap is only visual, so also announce the result in a live region and update `aria-label`.
+
+`successTooltip` adds a tooltip that shows during the same state and says what happened, such as what was copied. It is the same tooltip as below (see Tooltip, `aifs.tooltip.*`). It sits above the button, centred (`tooltipPlacement="top"`) or with end edges aligned (`top-end`, for a button in a corner, as in the model card). It is hidden from screen readers, which hear the live region instead. It never grows wider than the nearest size container less `--aifs-tooltip-inset`, so a long text breaks instead of leaving the screen.
+
 <Showcase label="Disabled">
   <Button disabled>Get API key</Button>
   <Button variant="secondary" disabled>Show more models</Button>
@@ -119,8 +141,11 @@ Aligned with Scale's [Button](https://telekom.github.io/scale/?path=/docs/compon
 | `disabled` | on a link, removes `href` and sets `aria-disabled` | `false` |
 | `type` | `button`, `submit`, `reset` | `button` |
 | `ariaLabel` | accessible name when the visible text is not enough | – |
+| `success` slot | what the button shows while `data-state="success"` is set | – |
+| `successTooltip` | tooltip text shown while `data-state="success"` is set | – |
+| `tooltipPlacement` | `top`, `top-end` | `top` |
 
-Used in: the header (Get API key), the model cards (copy ID, Show more), the model and plan tables (Reset filters) and the announcement banners (close).
+Used in: the header (Get API key), the model cards (copy ID, Show more), the model and plan tables (Reset filters, Show details) and the announcement banners (close).
 
 </ComponentCard>
 
@@ -131,7 +156,7 @@ Used in: the header (Get API key), the model cards (copy ID, Show more), the mod
 Aligned with Scale's [Dropdown Select](https://telekom.github.io/scale/?path=/docs/components-dropdown-select--standard): a 44px field, the label inside above the value, a chevron on the right, and Scale's hover, focus, invalid and disabled states. It is a native `<select>`, so it keeps the browser's own option list, keyboard handling and mobile picker. Tokens: `aifs.select.*`.
 
 - **Standard**: in forms and filters, such as the rate plan and filters above the model table.
-- **Ghost**: without border, where a frame would be noise. The header uses it for version, theme and language, with the label hidden.
+- **Ghost**: without border, where a frame would be noise. The header uses it for version, theme and language, with the label hidden. From 50 to 72rem the three and the search move into one panel under a ghost Menu button.
 - **Hidden label**: when the context already says what the select is for. The label stays for screen readers.
 
 <Showcase label="Standard, with label">
@@ -284,25 +309,44 @@ The SVGs are in `src/assets/icons/scale/`, with their source and licence in `PRO
 
 <ComponentCard>
 
-#### Logos
+#### Logo
 
-The model creators' logos, as shown in the model and plan tables. Each logo is keyed by the creator name the tables use (`src/shared/lib/logos.ts`).
+A model creator's logo in a white rounded square with a hairline border: the one way to show a creator logo on the site. Scale has no logo component; the square follows the rule that creator logos are never round (flags are). Each logo is keyed by the creator name the tables use (`src/shared/lib/logos.ts`). Logos that are mostly margin (Google's) are scaled up to fill the square; an unknown creator shows the generic mark.
 
-<Showcase label="All logos, 64px">
-  <Logo name="Anthropic" size={64} />
-  <Logo name="BAAI" size={64} />
-  <Logo name="DeepSeek" size={64} />
-  <Logo name="Google" size={64} />
-  <Logo name="Jina AI" size={64} />
-  <Logo name="Meta" size={64} />
-  <Logo name="Mistral" size={64} />
-  <Logo name="OpenAI" size={64} />
-  <Logo name="Alibaba Cloud" size={64} />
-  <Logo name="T-Systems" size={64} />
-  <Logo name="NVIDIA" size={64} />
-  <Logo name="Zhipu AI" size={64} />
-  <Logo name="Other" size={64} />
+<Showcase label="Sizes: small 20px, default 32px, large 40px">
+  <Logo name="Anthropic" size="small" />
+  <Logo name="Anthropic" />
+  <Logo name="Anthropic" size="large" />
 </Showcase>
+
+<Showcase label="All logos, large">
+  <Logo name="Anthropic" size="large" />
+  <Logo name="BAAI" size="large" />
+  <Logo name="DeepSeek" size="large" />
+  <Logo name="Google" size="large" />
+  <Logo name="Jina AI" size="large" />
+  <Logo name="Meta" size="large" />
+  <Logo name="Mistral" size="large" />
+  <Logo name="OpenAI" size="large" />
+  <Logo name="Alibaba Cloud" size="large" />
+  <Logo name="T-Systems" size="large" />
+  <Logo name="NVIDIA" size="large" />
+  <Logo name="Zhipu AI" size="large" />
+  <Logo name="LightOn" size="large" />
+  <Logo name="PaddlePaddle" size="large" />
+  <Logo name="vLLM" size="large" />
+  <Logo name="Other" size="large" />
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `name` | the creator's name, as `logos.ts` keys it | – |
+| `size` | `small` (20px) · `default` (32px) · `large` (40px) | `default` |
+| `decorative` | `true` when the creator's name is already next to the logo (`alt=""`) | `false` |
+
+Tokens: `aifs.logo.*` (sizes, radii, inset, zoom, border, background).
+
+Used in: the model cards and recommended models (large), the models table's model cells (default), and Choosing a model (small).
 
 Zhipu AI shows the Z.ai logo, the name it publishes its models under. Google Gemini and Google Gemma both show the Google logo. Only "Other" is still a placeholder.
 
@@ -312,7 +356,7 @@ Zhipu AI shows the Z.ai logo, the name it publishes its models under. Google Gem
 
 #### Plan tag
 
-A tag per plan, with a fixed colour from the tag colours and fixed wording, the same on every page. Plan names are product names, so they read the same in English and German.
+A tag per plan, with a fixed colour from the tag colours and fixed wording, the same on every page. Plan names are product names, so they read the same in English and German; the Test catalogue reads Preview (Vorschau on German pages). `plan` takes the plan's name as the data spells it: the first word picks the colour, and a retired plan ("Standard 1000") shows its full name in grey.
 
 <Showcase label="Default (24px)">
   <PlanTag plan="essential" />
@@ -338,6 +382,8 @@ A tag per plan, with a fixed colour from the tag colours and fixed wording, the 
 | Test, retired plans | Standard grey | 15.8:1 | 11.5:1 |
 
 The ratios are text on tag background; all pass WCAG AA.
+
+Used in: the plans table and the rate plan cards on Plans & Pricing, and the Plans column of the models table (small, linked to the plan page).
 
 </ComponentCard>
 
@@ -408,7 +454,7 @@ There is no dismissible variant, because nothing on the site removes a tag.
 
 All colours pass WCAG AA in both modes (4.5–15.8:1); cyan, yellow and red only just, as in Scale.
 
-Used in: the model and plan tables (cloud, tier, T-Cloud; the cloud and tier tags there are buttons that filter the table), the homepage labels and the announcement banners.
+Used in: the model and plan tables (cloud, tier, T-Cloud; the cloud and tier tags there are buttons that filter the table), the homepage labels and the announcement banners (New in magenta, a notice in standard).
 
 </ComponentCard>
 
@@ -475,12 +521,66 @@ Used in: almost every guide and reference page (about 210 asides; notes are by f
 
 <ComponentCard>
 
+#### Card
+
+Starlight's `LinkCard` and `Card` in one frame: the chrome surface, a subtle border and the card radius. Inside, top to bottom: icon, bold title, description in the muted text colour. Tokens: `aifs.card.*`.
+
+- **Link card** points to another page. The whole card is the link; the arrow sits at the end, centred on the text. On hover and focus the border turns magenta and the arrow moves a little; keyboard focus adds the button's focus ring.
+- **Card** only informs, so it has no hover. Its icon is drawn in the text colour.
+- **Next steps** after a page's intro or its last section are link cards in a `link-card-row`, as in the home page's Integrations section: the link texts as card titles, a description only where one was written for the card (never a made-up one). The quickstart, Coding agent setup and the model pages use them in place of a "Next:" line of text links.
+- **Previous and next links** at the end of every page (Starlight's pagination) are link cards too: "Previous" or "Next" in the description colour, the page title as the card title, the arrow at the outer edge, moving outward on hover. Starlight renders them; they are restyled in `redesign.css`. This page has none; see the end of [Authentication](/getting-started/authentication/).
+
+Several cards go in a `CardGrid`: one column, then two equal columns from 768px.
+
+<Showcase label="Link card" block>
+
+<LinkCard title="Quickstart" description="Send your first request in under 5 minutes." href="/getting-started/quickstart" />
+
+</Showcase>
+
+<Showcase label="Link cards in a grid" block>
+
+<CardGrid>
+  <LinkCard title="Authentication" description="API keys, environment variables, and request headers." href="/getting-started/authentication/" />
+  <LinkCard title="Choosing a model" description="Pick a model for your task, budget and region." href="/getting-started/choosing-a-model/" />
+</CardGrid>
+
+</Showcase>
+
+<Showcase label="Cards with an icon" block>
+
+<CardGrid>
+  <Card title="Card one" icon="rocket">
+    A card with an icon and short text.
+  </Card>
+  <Card title="Card two" icon="setting">
+    Cards sit side by side on wide screens.
+  </Card>
+</CardGrid>
+
+</Showcase>
+
+| Component | Props | Use for |
+|---|---|---|
+| `LinkCard` | `title`, `description`, `href` | A next step or a related page |
+| `Card` | `title`, `icon` (a Starlight icon name); text in the slot | A short point that needs no link |
+| `CardGrid` | cards in the slot | Two or more cards side by side |
+
+Used in: the home page, Get started, Guides, Integrations, Plans and API transition (link cards, often in a `CardGrid`); the next-step rows on the quickstart, Coding agent setup and the model pages; the previous and next links on every page with a sidebar. The plain `Card` is not used on a page yet.
+
+</ComponentCard>
+
+<ComponentCard>
+
 #### Code block
 
-Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a quiet header bar with the file name, a plain code area, and tinted lines for highlights and diffs. Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
+Modelled on Vercel Geist's [Code Block](https://vercel.com/geist/code-block), with Telekom's tokens (`aifs.code-block.*`): a light frame, a plain code area, and tinted lines for highlights and diffs. Every block says what it is in a header bar, so code stands apart from the cards around it (`src/plugins/ec-frame-titles.mjs`, registered in `astro.config.mjs`). Code is set in the system monospace font (`ui-monospace`, then the usual fallbacks down to `monospace`). It is Starlight's Expressive Code, so every fenced code block in the docs uses it.
 
-- **With a file name** when the code goes into a file. Add `title="…"` after the language.
-- **Without** for examples that are not saved anywhere.
+- **Shell commands** (`bash`, `sh`, `shell`, `console`, `powershell`, `cmd` …) get the terminal frame, with three window dots and the title **Terminal**; PowerShell blocks are titled **PowerShell**, Command Prompt blocks **Command Prompt** (a `bash` block on a CMD tab gets `title="Command Prompt"`).
+- **A file name** only where the page names the file the code goes into ("Create `~/.continue/.env`", "opens an empty `config.yaml`"): add `title="…"` after the language. Never make one up: a plausible but wrong file name misleads.
+- **Otherwise the language** as the title: Python, JavaScript, TypeScript, JSON, YAML, Markdown and so on. No `title` needed; it is set from the language.
+- **No header** for `text` blocks and fences without a language (output, a URL, a formula).
+- In **tabs** the block keeps its header, unless the automatic title would only repeat the tab's label (case-insensitive): a Python block on a "Python" tab has no title, so a code block has no header bar and a terminal block keeps its frame without a title. A `title=` you set is always kept.
 - **Highlight** only the lines the text talks about.
 
 <Showcase label="With a file name" block>
@@ -497,7 +597,7 @@ response = client.chat.completions.create(
 
 </Showcase>
 
-<Showcase label="Without a file name" block>
+<Showcase label="Language as the title (no file name)" block>
 
 ```json
 { "model": "gpt-oss-120b", "stream": true }
@@ -528,7 +628,7 @@ const client = new OpenAI({
 
 </Showcase>
 
-<Showcase label="Terminal (shell languages)" block>
+<Showcase label="Shell command: terminal frame" block>
 
 ```bash
 curl https://llm-server.llmhub.t-systems.net/v2/models \
@@ -539,7 +639,11 @@ curl https://llm-server.llmhub.t-systems.net/v2/models \
 
 | In Markdown | Effect |
 |---|---|
-| ` ```python title="chat.py" ` | Header bar with the file name |
+| ` ```python title="chat.py" ` | The file name in the title bar |
+| ` ```python ` | "Python" in the title bar |
+| ` ```bash ` | The terminal frame, titled "Terminal" |
+| ` ```python ` on a "Python" tab | No title: it would repeat the tab label |
+| ` ```text ` | No title bar |
 | ` ```python {2,4} ` | Highlights lines 2 and 4 |
 | ` ```js ins={3} del={2} ` | Marks line 3 as added and line 2 as removed |
 | ` ```diff ` | A diff, with `+` and `-` at the line starts |
@@ -616,12 +720,119 @@ The message goes in the slot.
 
 <ComponentCard>
 
+#### Model card
+
+One available model: a header row with the creator logo (the Logo component, large), the model name as the primary line (bold) and a copy button for the model ID; below a divider, the facts side by side while they fit, each a small muted label above its value. The cloud is a small tag (T-Cloud magenta, others standard), the server location a 20px flag and the country in bold. A third fact, Data processing, appears only when it differs from the server location (`parseDataProcessing` in `location.ts`, shared with the models table). Preview models get a small tag after the name. In a row of cards each card spans the grid's rows (subgrid), so the dividers and the prices line up and the cards are as tall as the tallest. The card only informs, so it has no hover. Tokens: `aifs.model-card.*` (`stack-gap`, 4px, between a label and its value); the frame aliases `aifs.card.*`.
+
+The copy button uses the button's success state: the icon turns into a green tick, a tooltip says what was copied, and a live region announces it. Click it to try.
+
+<Showcase label="Model card" block>
+
+<AvailableModels showHeading={false} limit={1} />
+
+</Showcase>
+
+<Showcase label="In a grid: one column, two from 34rem of grid width, three from 52rem" block>
+
+<AvailableModels showHeading={false} limit={3} />
+
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `showHeading` | the "Available Models (n)" heading above the grid | `true` |
+| `limit` | show only the first n cards, without Show more | all, six at first |
+
+The grid's columns follow the grid's own width (a container query), not the window's, so the cards never get narrower than their longest row.
+
+**Recommended models** (`ModelPick`) use the same card for the picks at the top of each model page. The model ID is shown as code under the name, smaller and muted, because people come there to choose a model and copy its ID; it wraps only at its wrap points (after `-`, `.`, `/`, `_`), never inside a word. The facts are Context and Hosting, and the hosting tag links to Enterprise Trust. A note and a link to the matching guide follow the cards.
+
+<Showcase label="Recommended models: ModelPick useCase=&quot;chat&quot;" block>
+
+<ModelPick useCase="chat" />
+
+</Showcase>
+
+Used in: the home page (`AvailableModels`, all models, six at first with Show more); the model pages' Recommended section (`ModelPick`).
+
+</ComponentCard>
+
+<ComponentCard>
+
+#### Model comparison
+
+The one table for every list of models: All models, the "For …" pages and the plans pages. It knows every attribute; a preset (`columns`) picks the columns and the filters that match them:
+
+| Column | `catalog` (All models) | `useCase` ("For …") | `plan` (plans pages) |
+|---|---|---|---|
+| Model, with a Premium tag | ✓ | ✓ | ✓ |
+| Category | ✓ | – | – |
+| Provider, Cloud, Location | ✓ | ✓ | ✓ |
+| Data processing (Germany, EU or worldwide) | ✓ | ✓ | ✓ |
+| Input, Streaming, Tools | ✓ | ✓ | – |
+| Context | ✓ | ✓ | ✓ |
+| Reasoning, Reasoning tokens | ✓ | ✓ | – |
+| Input, output and cached input price | ✓ | ✓ | ✓ (this plan's) |
+| Requests and tokens per minute | – | – | ✓ (this plan's) |
+| Plans | ✓ | ✓ | – |
+| Links (terms of use, data protection) | – | – | ✓ |
+
+Filters: `catalog` and `useCase` filter by provider, cloud, input, output, streaming, tools and plan (`catalog` also by category); `plan` by provider, cloud, location and input and output price. On the plans overview a plan field comes first and switches the rows; a filter then offers only that plan's values.
+
+A filter at All hides no model, not even one with that value unset (no inputs listed, no location). Once narrowed, a filter keeps only the models whose value is set and chosen, and the count reads **Showing N of M**.
+
+- **Filter row:** three filters, the most general first (`catalog`: category, provider, plans; `useCase`: provider, cloud, plans; `plan`: provider, cloud, location), then **All filters (n)**: a panel at the window's end edge with every filter, as checkboxes, and **Show N models** / **Clear all** at its foot. It is a modal dialog: focus moves in, Escape closes it, the page behind is dimmed and inert, and focus returns to the button. Tokens: `aifs.filter-panel.*`.
+- **Applied filters:** under the row, one chip per narrowed filter ("Provider: OpenAI, Google"); a chip removes its filter, **Clear all** removes them all. They replace the Reset button.
+- **Phones:** no fields in the row, only a **Filters (n)** button that opens the same panel at full width; the chips wrap.
+- Why: `docs/research/table-filter-patterns.md`.
+
+It uses the table's look (`aifs.table.*`) in the compact density, everything left-aligned, 8px before a cell's text and 12px after it. It never scrolls sideways: it fits the fluid content column (see Layout patterns) and uses the extra width of a wider window for more columns.
+
+- **Columns:** the model (with its provider's logo and tags), then the main values: cloud, context and the input and output prices (`plan`: the prices and the limits per minute). Every other column is in the row's **details**, opened with the chevron at the row's end (**Show details**, its accessible name; the name stays the same, `aria-expanded` says whether the details are open), label above value. A click anywhere else on the row (or card) does the same, with the pointer cursor and the row's hover fill (cards: the frame in `aifs.card.border-hovered`); clicks on a link, button or tooltip in the row, and selecting text, do not. The button stays the only tab stop and the only control screen readers hear.
+- **Wide screens:** as the column grows with the window, the table moves columns from the details into the row in three steps of the table's width: from 51rem input types and output types (`plan`: cloud and context), from 64rem plans and cached input (`plan`: cached input and location), from 82rem location, streaming and tools (`plan`: provider); with On this page beside it that is about 1500, 1700 and 2000px of window width. The reasoning columns, data processing and the legal links stay in the details. The steps are sized for the German labels, so the table always fits the column.
+
+- **Headers:** the label with its sort arrow on one line, the unit (if any) in small text under it, wrapping at its spaces. The unit is "per 1M tokens" (German "pro 1 Mio. Tokens") without the € sign; each price cell carries it: €1.40 and €0.0075 on English pages, 1,40 € (with a no-break space) on German pages. A price not yet published is a dash, without €. Context cells hold plain numbers. Click a header to sort; screen readers hear the sorted column (`aria-sort`). Some headers explain themselves in a tooltip below them.
+- **Sort field:** beside the count, **Sort by** lists every sortable column (also those in the details) and the recommended order, with a button for the direction. It and the headers stay in step.
+- **Sticky:** the filter row stays under the site header while you scroll down, and a copy of the header row stays under it, sorting like the real one.
+- **Logos:** the Logo component at its default size (32px).
+- **Cards:** below 36rem of the column's width (a container query) each model is a card: the main values as label–value rows, the details below a **Show details** button in the same rows. That includes desktop windows of about 72–75rem, where On this page beside the column leaves it under 36rem.
+- **Numbers:** prices, context and limits use the page's number format (German pages: 0,60 and 400.000).
+- **Price tiers:** a model priced by prompt length has a row per tier, named with its limit ("GPT-6.1 Sol (≤272k)", "(>272k)"). Both rows show the model's full context window; the context value carries an information icon whose tooltip (Tooltip, focusable) gives the tier: "Prices for prompts up to 272K tokens" / "over 272K tokens" (German "Preise für Prompts bis / über 272K Tokens"). Read from the row's name.
+- **Two input prices:** where the service description prices image input apart from text input (GPT Image 2), the input price cell holds both, one per line: **Text** €4.39 and **Image** €7.03 (German **Text** / **Bild**). Its data field is `imageInputPricePerMillionTokens`. Sorting and the price filter use the text price.
+- **Retirements:** a model stays in every preset until its retirement date in `src/shared/lib/retirements.ts` (the dates on Deprecations), and drops out from that date at build time. The model cards, Recommended models and the reasoning table use the same list.
+- **Unpublished values:** a model the service description lists before its details are published has only what the SD states (name, type, cloud, plans, limits, prices). Every other cell is a dash: context, input and output types, streaming, tools, and location when the SD names only the cloud. Its key in the pricing data starts with `sd:` and is not an API id, so no model card or Recommended block shows or copies it (`apiIdPublished` in `launchModels.ts`; a recommendation without a published id fails the build). No model has such a key now: the SD v1.25 models have their ids and the values their vendors publish; streaming and tools are a dash where the vendor's page does not state them. The Category column has **Reranker** for Qwen3-Reranker-4B; it takes text and returns a relevance score, so its output type is a dash.
+
+<Showcase label="Use case preset: ModelsComparison category=&quot;embeddings&quot;" block>
+
+<ModelsComparison category="embeddings" />
+
+</Showcase>
+
+The `plan` preset is shown under Plan page below.
+
+| Prop | Values | Default |
+|---|---|---|
+| `columns` | `catalog`, `useCase`, `plan` | `plan` with `plans`; `useCase` with `category` or `capabilityFilter`; else `catalog` |
+| `category` | `llms`, `coding`, `vision`, `embeddings`, `reranking`, `audio`, `image-generation`: only that category | all models |
+| `capabilityFilter` | `accepts-image`: models that take images (For vision); `accepts-only-image`: models whose only input is an image (For OCR); `serves-decisions`: models that serve `/decisions`, from `src/shared/lib/modelEndpoints.ts` (For decisions) | – |
+| `plans` | the plans and their models, as `PlansPage` builds them (`plan` preset) | – |
+| `plan` | the plan shown first (package name, such as `Essential`) | the first plan |
+| `planLocked` | `true`: one plan, no plan field (a single plan's page) | `false` |
+
+Used in: the Models page, section All models (`catalog`), For chat & reasoning, coding, vision, OCR, decisions, embeddings, audio and images (`useCase`), and through `PlansPage` on Plans & pricing, each plan's page and Preview models (`plan`).
+
+</ComponentCard>
+
+<ComponentCard>
+
 #### Table
 
-Aligned with Scale's [Table](https://telekom.github.io/scale/?path=/docs/components-table--standard): a grey header row with bold small text and rounded top corners, no outer frame, a line under each row and a hover fill. Tokens: `aifs.table.*`. Every Markdown table and the three data tables (rate plans, model table, model comparison) use it without new markup.
+Aligned with Scale's [Table](https://telekom.github.io/scale/?path=/docs/components-table--standard): a grey header row with bold small text, a line under each row and a hover fill. One deviation: a subtle outline with rounded corners around the whole table (`aifs.table.outline`), which holds it together on the white sheet as the frame does for code blocks; Scale's table has none. Tokens: `aifs.table.*`. Every Markdown table and the two data tables (rate plans, model comparison) use it without new markup.
+
+A table wider than its column scrolls sideways in an area that runs to the sheet's edge: at rest it starts where the text starts, and scrolled to the end it stops the sheet's padding short of the edge.
 
 - **Default** (16px cell padding): Markdown tables and the rate plans table.
-- **Compact** (8px): dense data, as in the model table and the model comparison.
+- **Compact** (8px): dense data, as in the model comparison.
 - **Sortable headers** get a fill on hover and press and a blue focus ring, as in Scale.
 - Deviation from Scale: text in cells wraps, because docs tables hold descriptions.
 
@@ -640,12 +851,12 @@ Aligned with Scale's [Table](https://telekom.github.io/scale/?path=/docs/compone
 
 <div class="sl-markdown-content">
 <table class="aifs-table--compact aifs-table--striped">
-  <thead><tr><th>Model</th><th>Context</th><th>Input €/M</th><th>Output €/M</th></tr></thead>
+  <thead><tr><th>Model</th><th>Context</th><th>Input per 1M</th><th>Output per 1M</th></tr></thead>
   <tbody>
-    <tr><td>GPT-OSS 120B</td><td>131k</td><td>0.50</td><td>1.50</td></tr>
-    <tr><td>Gemma 4</td><td>128k</td><td>0.20</td><td>0.60</td></tr>
-    <tr><td>GLM 5.2</td><td>200k</td><td>0.60</td><td>2.20</td></tr>
-    <tr><td>Mistral Small 4</td><td>128k</td><td>0.10</td><td>0.30</td></tr>
+    <tr><td>GPT-OSS 120B</td><td>131k</td><td>€0.50</td><td>€1.50</td></tr>
+    <tr><td>Gemma 4</td><td>128k</td><td>€0.20</td><td>€0.60</td></tr>
+    <tr><td>GLM 5.2</td><td>200k</td><td>€0.60</td><td>€2.20</td></tr>
+    <tr><td>Mistral Small 4</td><td>128k</td><td>€0.10</td><td>€0.30</td></tr>
   </tbody>
 </table>
 </div>
@@ -656,8 +867,8 @@ Aligned with Scale's [Table](https://telekom.github.io/scale/?path=/docs/compone
 
 | Model | Provider | Context | Input price | Output price | Location | Cloud | Streaming | Function calling | Vision | Status |
 |---|---|---|---|---|---|---|---|---|---|---|
-| GPT-OSS 120B | OpenAI | 131k | 0.50 € | 1.50 € | Germany | Telekom | Yes | Yes | No | Active |
-| Gemma 4 | Google | 128k | 0.20 € | 0.60 € | Germany | Telekom | Yes | Yes | Yes | Preview |
+| GPT-OSS 120B | OpenAI | 131k | €0.50 | €1.50 | Germany | Telekom | Yes | Yes | No | Active |
+| Gemma 4 | Google | 128k | €0.20 | €0.60 | Germany | Telekom | Yes | Yes | Yes | Preview |
 
 </Showcase>
 
@@ -715,13 +926,67 @@ Used in: the guides and API reference, mostly for code in several languages (90 
 
 </ComponentCard>
 
+<ComponentCard>
+
+#### Tooltip
+
+Aligned with Scale's [Tooltip](https://telekom.github.io/scale/?path=/docs/components-tooltip--standard): a dark box with white body text, the small radius and a 12px arrow, faded in and out. Tokens: `aifs.tooltip.*`, styles in `tooltip.css`. It never grows wider than `maxWidth` or its container, so long text breaks instead of leaving the screen.
+
+- **Hover tooltip** (`Tooltip`): explains a term, a column or a tag. Shows on hover and on keyboard focus, can itself be hovered, and Escape hides it. Its text is linked to the trigger with `aria-describedby`. "T-Cloud" in it never breaks at its hyphen: it is put in a `.nowrap` span (`keepWholeParts`, `src/shared/lib/displayFormat.ts`), as in the plans page's notes and the announcement banners.
+- **Success tooltip** (Button's `successTooltip`): says what an action did, such as what was copied. See Button and Model card.
+
+<Showcase label="Above (top, the default), below (bottom, for table headers) and beside (right-center, for table rows)">
+  <Tooltip text="Tooltips explain a term without leaving the page.">
+    <span>Hover or focus here</span>
+  </Tooltip>
+  <Tooltip text="Streams the answer token by token." position="bottom">
+    <span>Streaming</span>
+  </Tooltip>
+  <Tooltip text="Open Telekom Cloud, Telekom's sovereign cloud in Germany." position="right-center">
+    <Tag color="magenta" size="small">T-Cloud</Tag>
+  </Tooltip>
+</Showcase>
+
+| Prop | Values | Default |
+|---|---|---|
+| `text` | the tooltip text | – |
+| `position` | `top`, `bottom` (table headers: a scroll container cuts off a tooltip above), `right-center` | `top` |
+| `maxWidth` | widest the tooltip may get | `20rem` |
+
+Used in: the model comparison (column headers, providers, clouds) and the rate plans table (clouds). As a success tooltip: the model cards' copy button.
+
+</ComponentCard>
+
 <EmptySection>Other composite components, such as cards, tables and navigation, come here once they are refined.</EmptySection>
 
 ## Pattern library
 
 ### Layout patterns
 
-<EmptySection>Nothing here yet: page shells, such as the guide, reference and overview pages, come here once they are refined.</EmptySection>
+One page layout (`layout.css`, tokens `aifs.layout.*`):
+
+- **Sheet:** white, edge to edge, no frame, from just under the header. Below it, the footer on the backdrop, revealed as the sheet ends.
+- **Content:** On this page in a column on the sheet, then the **fluid content column**: it fills the rest of the row at every window width, with no maximum width (`--sl-content-width` is 100%, in `layout.css`; there is no content-width token). Code, Markdown tables, figures, cards, tabs, steps and the models table use its full width. Its side padding is `aifs.layout.sheet-padding` (40px) from 72rem and `aifs.layout.sheet-padding-wide` (64px) from 120rem; from 80rem it keeps the chat launcher's clearance at its end edge. Card grids and link-card rows fit as many columns of at least `aifs.layout.card-min-width` (320px) as there is room for. Below 72rem On this page is a menu above the content.
+- **Measure:** running text stops at `aifs.layout.measure` (45rem, 720px, about 79ch of TeleNeo at 16px): paragraphs, lists, headings (with their anchor link), quotes and asides inside the Markdown content. It stays at the column's start edge, not centred, so it lines up with a table or code block below it. Not capped: tables, code blocks, figures, card grids and link cards, the tab bar, steps (their text stops at the measure, their code does not), the file tree, the banners and the components (models table, plan tiles, featured models, recommended models). Text inside table cells, cards and components keeps their width. A rem value, not `80ch`: DTCG dimensions are px or rem only (GAPS row 21).
+- **Vertical rhythm:** one spacing scale on every page, from the `aifs.rhythm.*` tokens on Telekom's 8px scale, set in `layout.css` only; pages and components do not add margins between content blocks. The gap grows with the size of the break:
+
+  | Gap | Token | Value |
+  |---|---|---|
+  | After a heading, and after the page title | `aifs.rhythm.after-heading` | 12px |
+  | Between paragraphs and lists | `aifs.rhythm.flow` | 16px |
+  | Around a block: code, table, aside, tabs, card grid or link-card row, steps, component | `aifs.rhythm.block` | 32px |
+  | Before an h4 | `aifs.rhythm.heading-4` | 32px |
+  | Before an h3 | `aifs.rhythm.heading-3` (`heading-3-compact` below 50rem) | 48px (40px) |
+  | Before an h2, or a component that opens a section | `aifs.rhythm.heading-2` (`heading-2-compact` below 50rem) | 72px (48px) |
+  | Before previous and next | `aifs.rhythm.page-end` | 96px |
+
+  Block margins collapse with their neighbour's, so a heading after a code block keeps its own gap, not the sum.
+- **No breakout band** any more: with a fluid column a wide element (the models table) simply fits the column.
+- **Announcement banners** (`PreviewModelsBanner`, a site part): one banner per announcement at the top of the content column, on the sheet, above the title, with the column's edges and width at every window width; no band or backdrop behind them. Each is a region with its own label and has a tag, the text, a link and its own close button. **New**: magenta tag, magenta accent line and a faint magenta tint; **Notice**: standard tag, informational blue accent line and tint, as a note aside. They fade in (opacity only, not with reduced motion) the first time in a session. Each close is remembered for the session on its own; focus moves to the remaining banner's close button, or to the page title after the last. Every built page shows them; the archived versions are snapshots with their own (below). Tokens: `aifs.notice.*`.
+- **Version select** (`VersionSelect`, a site part): in the header (from 50 to 72rem in the Menu panel) and in the phone menu, before the theme and language selects and drawn like them (Starlight's select, ghost, hidden label "Select version" / "Version auswählen"). The first option is the current docs, "Latest" (German "Aktuell"); then v1.0.0, v1.1.0 and v1.2.0 (`src/archivedVersions.mjs`), each linking to the same page in that archive if it has one, else to the archive's start page, in the page's language.
+- **Archived versions** (v1.0.0, v1.1.0, v1.2.0, EN and DE): static snapshots of production in `archive/`, copied verbatim into the build; not built from these components or tokens, and left out of the search index, the sitemap and the design checks (GAPS.md, row 25). They keep their own header, announcements, version notice and search as published. Refresh with `node scripts/snapshot-archives.mjs` (`archive/README.md`).
+- **Site header** (`SiteHeader`, a site part): the T, the site name and under it the subline "Technical documentation" (German: "Technische Dokumentation"), small and muted; both link to the home page of the page's language. Below 40rem the name is short (AIFS); below 31rem the subline is hidden, as there is no room for it beside the search and the Get API key button. Below 22.5rem (360px) the English button reads "API key", as short as the German "API-Key", so nothing in the header touches; its accessible name stays "Get API key (opens in a new tab)".
+- **Site navigation:** every group starts open on every page; the chevrons close a group, and Starlight remembers that for the session. A stored state from before the groups opened by default is dropped once per session (`aifsSidebarDefaultOpen1`, astro.config.mjs).
 
 ### Task and flow patterns
 
@@ -763,19 +1028,6 @@ Content that is hidden until someone opens it.
 
 </details>
 
-### Cards and links
-
-<LinkCard title="Quickstart" description="Send your first request in under 5 minutes." href="/getting-started/quickstart/" />
-
-<CardGrid>
-  <Card title="Card one" icon="rocket">
-    A card with an icon and short text.
-  </Card>
-  <Card title="Card two" icon="setting">
-    Cards sit side by side on wide screens.
-  </Card>
-</CardGrid>
-
 
 ### Steps
 
@@ -789,19 +1041,9 @@ Content that is hidden until someone opens it.
 
 ### Custom components
 
-#### Tooltip
-
-<Tooltip text="Tooltips explain a term without leaving the page.">
-  <span>Hover or focus here</span>
-</Tooltip>
-
 #### Text field
 
 <TextField id="design-text-field" label="Search models" placeholder="e.g. Qwen" />
-
-#### Model comparison
-
-<ModelsComparison category="embeddings" />
 
 #### Plan page
 
@@ -809,7 +1051,7 @@ Content that is hidden until someone opens it.
 
 ### Design tokens
 
-The draft tokens from `tokens/`, resolved for both modes. Every value comes from Telekom's design tokens; see `tokens/README.md`. Nothing on the site uses them yet.
+The draft tokens from `tokens/`, resolved for both modes. Every value comes from Telekom's design tokens; see `tokens/README.md`. The site's styles and components use them as `--aifs-*` variables.
 
 #### Colour
 

@@ -76,10 +76,6 @@
           "$extensions": { "net.t-systems.aifs": { "css": ["--sl-color-gray-7"] } }
         }
       },
-      "tooltip": {
-        "background": { "$value": "{color.background.surface-highlight}" },
-        "text": { "$value": "{color.text-&-icon.white.standard}" }
-      },
       "media-outline": {
         "$value": "{color.ui.border.disabled}",
         "$description": "Hairline ring around flags and logos: pure black at 14% in light mode, white at 21% in dark mode, so white areas keep an edge on a white or black page."
@@ -225,7 +221,10 @@
       "gap": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px between the logo, the search and the tools." },
       "tools-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between the selects and the button: their hover backgrounds stay apart." },
       "mark-size": { "$type": "dimension", "$value": "{spacing.composition.space-09}", "$description": "28px Telekom T, in magenta, left of the site name." },
-      "search-width": { "$type": "dimension", "$value": { "value": 28, "unit": "rem" }, "$description": "Widest the search field gets, 448px (Starlight: 22rem)." }
+      "search-width": { "$type": "dimension", "$value": { "value": 28, "unit": "rem" }, "$description": "Widest the search field gets, 448px (Starlight: 22rem)." },
+      "settings-padding": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px inside the header menu panel (search, version, theme, language), shown from 50 to 72rem." },
+      "settings-row-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between the items in the header menu panel." },
+      "settings-offset": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between the Menu button and its panel, as between a filter field and its menu." }
     },
     "layout": {
       "$type": "dimension",
@@ -239,15 +238,14 @@
         "$value": { "value": 14, "unit": "rem" },
         "$description": "Table of contents (On this page), 224px. Next to the site navigation, so both lists sit where the pointer already is."
       },
-      "content-width": {
-        "$value": { "value": 50, "unit": "rem" },
-        "$description": "Widest the content column gets, 800px: room for code blocks and tables.",
-        "$extensions": { "net.t-systems.aifs": { "css": ["--sl-content-width"] } }
-      },
       "measure": {
-        "$value": { "value": 35, "unit": "rem" },
-        "$description": "Widest running text gets, 560px: about 75 characters a line at 16px in the system font, inside the 45 to 80 that read comfortably. Measured on the guides; TeleNeo is wider, so fewer."
+        "$value": { "value": 45, "unit": "rem" },
+        "$description": "Widest line of running text: 720px, about 79ch of TeleNeo at 16px (1ch is 9.15px), in the 75 to 80ch the owner asked for (2026-11-03). Paragraphs, lists, headings, quotes and asides stop here, at the column's start edge; tables, code, cards, figures and components keep the full column. In rem, not ch: DTCG dimensions are px or rem only. On the 8px grid."
       },
+      "grid-gap": { "$value": "{spacing.composition.space-06}", "$description": "16px between the items of every grid on a page, across and down: card rows, card grids, model cards, recommended models, plan tiles, previous and next." },
+      "card-min-width": { "$value": { "value": 20, "unit": "rem" }, "$description": "320px: the narrowest card in a card grid or link-card row. The grid fits as many columns as the fluid column has room for." },
+      "grid-action-gap": { "$value": "{spacing.composition.space-08}", "$description": "24px between a grid and a button below it, such as Show more models." },
+      "launcher-clearance": { "$value": "{spacing.composition.space-14}", "$description": "48px more at the content column's end edge while the chat launcher (bottom right, 56px, 20px from the window's edges) would otherwise sit over the column, so it keeps 12px from the column's text and controls." },
       "divider": {
         "$type": "color",
         "$value": "{color.ui.faint}",
@@ -271,6 +269,7 @@
       "sheet-border": { "$type": "color", "$value": "{color.ui.faint}" },
       "sheet-radius": { "$value": "{radius.large}", "$description": "Top corners of the sheet." },
       "sheet-padding": { "$value": "{spacing.composition.space-12}", "$description": "40px on all four sides of the content on the sheet (left and right through Starlight's --sl-content-pad-x)." },
+      "sheet-padding-wide": { "$value": "{spacing.composition.space-17}", "$description": "64px left and right of the content from 120rem (1920px) wide, so the fluid column gets a little more air on very wide windows." },
       "frame-padding": {
         "$value": "{spacing.composition.space-10}",
         "$description": "32px around the row that holds the table of contents and the sheet: above it, left and right. The sheet runs off the bottom."
@@ -286,7 +285,7 @@
     },
     "rhythm": {
       "$type": "dimension",
-      "$description": "Vertical spacing in the content, on Telekom's 8px scale. Gaps grow with the size of the break: within running text, around a block, before a heading.",
+      "$description": "Vertical spacing in the content, on Telekom's 8px scale, the same on every page (layout.css). Gaps grow with the size of the break, about 1.5× a step: 12 after a heading or the page title, 16 within running text, 32 around a block or before a minor heading, 48 before a subsection, 72 before a section, 96 at the page's end; below 50rem 40 before a subsection and 48 before a section. A section break is then clearly more than any gap inside a section, and a heading sits closer to its own content than to what comes before it.",
       "panel-padding-y": { "$value": "{spacing.composition.space-10}", "$description": "32px above and below the title area and the content area." },
       "stack": { "$value": "{spacing.composition.space-08}", "$description": "24px between the parts of a panel: banners, title, content, pagination, footer." },
       "flow": {
@@ -294,11 +293,14 @@
         "$description": "16px between paragraphs and lists.",
         "$extensions": { "net.t-systems.aifs": { "css": ["--sl-content-gap-y"] } }
       },
-      "block": { "$value": "{spacing.composition.space-08}", "$description": "24px before and after a code block, table, aside, tabs, cards or steps." },
-      "heading-2": { "$value": "{spacing.composition.space-14}", "$description": "48px before a section heading." },
-      "heading-3": { "$value": "{spacing.composition.space-10}", "$description": "32px before a subsection heading." },
-      "heading-4": { "$value": "{spacing.composition.space-08}", "$description": "24px before a minor heading." },
-      "after-heading": { "$value": "{spacing.composition.space-05}", "$description": "12px between a heading and what it introduces, so it sits with its section." }
+      "block": { "$value": "{spacing.composition.space-10}", "$description": "32px before and after a code block, table, aside, tabs, cards, steps or a component: framed boxes need more air than a paragraph." },
+      "heading-2": { "$value": "{spacing.composition.space-18}", "$description": "72px before a section heading: more than twice the block gap, so sections separate." },
+      "heading-2-compact": { "$value": "{spacing.composition.space-14}", "$description": "48px before a section heading on narrow screens (below 50rem), where 72px would push content apart." },
+      "page-end": { "$value": "{spacing.composition.space-21}", "$description": "96px between the content and the previous and next links: the page is over, the way on starts." },
+      "heading-3": { "$value": "{spacing.composition.space-14}", "$description": "48px before a subsection heading." },
+      "heading-3-compact": { "$value": "{spacing.composition.space-12}", "$description": "40px before a subsection heading on narrow screens (below 50rem): still more than a block gap, less than the compact section break." },
+      "heading-4": { "$value": "{spacing.composition.space-10}", "$description": "32px before a minor heading: never less than a block gap." },
+      "after-heading": { "$value": "{spacing.composition.space-05}", "$description": "12px between a heading and what it introduces, so it sits with its section; also between the page title and the page's first content." }
     },
     "sidebar-nav": {
       "$description": "Site navigation, aligned with Scale's sidebar navigation (telekom/scale@e90165a, sidebar-nav*.css). Each first- and second-level entry is a row with a line under it; the third level is condensed, with a line on its left and a bar on the current page.",
@@ -340,7 +342,8 @@
         "$description": "Cards, tables, asides, code blocks."
       },
       "control": { "$value": "{radius.small}", "$description": "Buttons, inputs, inline code." },
-      "media": { "$value": "{radius.standard}", "$description": "Logos: rounded tiles with the media outline around them." }
+      "media": { "$value": "{radius.standard}", "$description": "Logos: rounded tiles with the media outline around them." },
+      "indicator": { "$value": "{radius.extra-small}", "$description": "2px: small bars, such as the plan throughput meter. Slightly rounded, not pills." }
     },
     "code-block": {
       "$description": "Component tokens for code blocks (Expressive Code), modelled on Vercel Geist's Code Block: a light frame with an 8px radius, a quiet header bar with the file name, a plain body, and tinted lines for highlights and diffs. Values come from Telekom's tokens; Telekom's type scale has no 13px, so code is 14px.",
@@ -353,7 +356,7 @@
       "header-font-size": { "$type": "dimension", "$value": "{typography.font-size.caption}" },
       "header-padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
       "header-line-height": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "With 8px above and below, the header is 40px high, as in Geist." },
-      "font-size": { "$type": "dimension", "$value": "{typography.font-size.caption}" },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.caption}", "$description": "Also Starlight's inline code size, which was hand-set to 14px in tokens.css.", "$extensions": { "net.t-systems.aifs": { "css": ["--sl-text-code-sm"] } } },
       "line-height": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px per line, as in Geist." },
       "padding-block": { "$type": "dimension", "$value": "{spacing.composition.space-06}" },
       "padding-inline": { "$type": "dimension", "$value": "{spacing.composition.space-06}" },
@@ -414,6 +417,7 @@
       "label-top": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "The label's distance from the field's top edge." },
       "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px chevron, Scale's --height-icon." },
       "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "header-width": { "$type": "dimension", "$value": "{core.dimension.5125}", "$description": "144px: one width for the three header selects (version, theme, language). Icon, padding and caret take 72px; the widest value, Deutsch, fits the rest." },
       "border-width": { "$type": "dimension", "$value": "{spacing.composition.space-01}" },
       "border-width-invalid": { "$type": "dimension", "$value": "{spacing.composition.space-02}" },
       "radius": { "$type": "dimension", "$value": "{radius.standard}" },
@@ -437,9 +441,69 @@
       "helper-invalid": { "$type": "color", "$value": "{color.text-&-icon.functional.danger}" },
       "focus": { "$type": "color", "$value": "{color.functional.focus.standard}" }
     },
+    "filter-panel": {
+      "$description": "The filters of the models table: the side panel with every filter (a modal dialog, right edge; Scale's modal is centred), one card per filter on the subtle backdrop, and the row of applied filters under the filter bar.",
+      "width": { "$type": "dimension", "$value": "{core.dimension.6500}", "$description": "384px; the panel takes the whole width on phones." },
+      "padding": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px around the panel's header, body and footer." },
+      "card-gap": { "$type": "dimension", "$value": "{aifs.layout.grid-gap}", "$description": "16px between the filter cards: the grid gap." },
+      "card-padding": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px inside a filter card." },
+      "option-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between the options of one filter, and between applied-filter chips." },
+      "background": { "$type": "color", "$value": "{aifs.layout.sheet}" },
+      "border": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "The panel's start edge and the lines under its header and above its footer." }
+    },
+    "notice": {
+      "$description": "The announcement banners at the top of the content column (PreviewModelsBanner): one banner per announcement (a tag, the text, a link, a close button), a light tint and an accent line at the start, no border.",
+      "radius": { "$type": "dimension", "$value": "{aifs.notification.radius}", "$description": "8px, as the inline notification." },
+      "close-radius": { "$type": "dimension", "$value": "{aifs.radius.control}", "$description": "4px on the close button's hover fill: concentric with the bar's 8px, 4px inside it." },
+      "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px above and below." },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px at the sides." },
+      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between tag, text, link and close button, and between two banners." },
+      "padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px above and below on phones." },
+      "padding-x-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px at the sides on phones." },
+      "row-gap-compact": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the text and the link on phones." },
+      "enter-duration": { "$type": "duration", "$value": "{motion.duration.transition}", "$description": "200ms fade-in, the first time a banner appears in a session. Off with reduced motion." },
+      "enter-easing": { "$type": "cubicBezier", "$value": "{motion.easing.enter}", "$description": "Telekom's enter (ease-out) curve: no overshoot." },
+      "new-accent": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Accent line of a New banner: brand magenta, as the New tag beside it." },
+      "new-tint": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Mixed into the sheet colour by new-tint-strength for a New banner's background." },
+      "new-tint-strength": { "$type": "number", "$value": 0.06, "$description": "Share of magenta in a New banner's background: a faint pink in light mode, a faint warm grey in dark mode; body text and links keep AA on it. Telekom has no subtle magenta step." },
+      "info-accent": { "$type": "color", "$value": "{aifs.aside.note.accent}", "$description": "Accent line of a Notice banner: informational blue, as a note aside." },
+      "info-tint": { "$type": "color", "$value": "{aifs.aside.note.background}", "$description": "Telekom's informational subtle colour, mixed into the sheet colour for a Notice banner's background." },
+      "info-tint-strength": { "$type": "number", "$value": "{aifs.aside.tint-opacity}", "$description": "The asides' 40% tint, so a notice reads like a note." }
+    },
+    "logo": {
+      "$description": "The Logo component: a creator's logo in a white rounded square with a hairline border. Three sizes; the image sits inside a small inset. Scale has no logo component.",
+      "size-small": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px, beside text in a table cell (Choosing a model)." },
+      "size-default": { "$type": "dimension", "$value": "{spacing.composition.space-10}", "$description": "32px, in the models table." },
+      "size-large": { "$type": "dimension", "$value": "{spacing.composition.space-12}", "$description": "40px, on model cards and recommended models." },
+      "radius-small": { "$type": "dimension", "$value": "{aifs.radius.control}", "$description": "4px on the small square." },
+      "radius": { "$type": "dimension", "$value": "{aifs.radius.media}", "$description": "8px on the default and large squares." },
+      "inset-small": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the square's edge and the image." },
+      "inset-default": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px." },
+      "inset-large": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px: the large logos are drawn with their own margin." },
+      "zoom": { "$type": "number", "$value": 1.75, "$description": "Scale for logos that are mostly margin (Google's): the image fills the square without the inset." },
+      "border-width": { "$type": "dimension", "$value": "{aifs.border-width.standard}" },
+      "border": { "$type": "color", "$value": "{aifs.color.border.subtle}" },
+      "background": { "$type": "color", "$value": "{aifs.color.logo-background}" }
+    },
+    "models-list": {
+      "$description": "The models table's parts (ModelsComparison): the model cell (logo, name, tags), the cards below 36rem (label–value rows), and the details row with the columns the table does not show.",
+      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between logo, name and button, and between the items of the meta line." },
+      "meta-gap-y": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between wrapped lines of the meta line, and around each entry." },
+      "label-gap": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between a detail's label and its value." },
+      "panel-padding": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px inside the details panel." },
+      "panel-gap-x": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px between the columns of the details panel." },
+      "label-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}", "$description": "12px labels in the details panel." }
+    },
+    "models-table": {
+      "$description": "Sizes of the models table's own controls (ModelsComparison).",
+      "sort-width": { "$type": "dimension", "$value": "{core.dimension.5875}", "$description": "240px: the Sort by field beside the count, as wide as its longest option in German." },
+      "detail-min-column": { "$type": "dimension", "$value": "{core.dimension.5250}", "$description": "160px: the narrowest column of the details row; as many columns as fit." }
+    },
     "table": {
       "$description": "Component tokens for tables, mirroring Scale's scale-table (telekom/scale@e90165a, table.css): a grey header with bold small text and rounded top corners, no outer frame, a line under each row, a hover fill, and sortable headers. Two densities as in Scale: default (Markdown tables) and compact (the dense model and plan tables). Deviation: cell text wraps, because docs tables hold descriptions.",
-      "radius": { "$type": "dimension", "$value": "{radius.standard}", "$description": "Top corners of the header only." },
+      "radius": { "$type": "dimension", "$value": "{radius.standard}", "$description": "The outline's corners, and with them the header's top corners and the last row's bottom corners." },
+      "outline": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "A subtle line around the whole table. Deviation from Scale, which has no outer frame: it holds a table together on the white sheet, as the frame does for code blocks and cards." },
+      "outline-width": { "$type": "dimension", "$value": "{aifs.border-width.standard}" },
       "head-background": { "$type": "color", "$value": "{color.background.surface-subtle}" },
       "head-text": { "$type": "color", "$value": "{color.text-&-icon.standard}" },
       "head-font-size": { "$type": "dimension", "$value": "{typography.font-size.small}" },
@@ -635,6 +699,50 @@
         "accent": { "$value": "{color.text-&-icon.on-subtle.danger}" }
       }
     },
+    "card": {
+      "$description": "Component tokens for Starlight's Card and LinkCard: one frame for both. Icon, title and description stack in that order. A Card only informs, so it has no hover. A LinkCard is the whole click target, with the arrow at the end edge, centred on the text.",
+      "radius": { "$type": "dimension", "$value": "{aifs.radius.card}" },
+      "border-width": { "$type": "dimension", "$value": "{aifs.border-width.standard}" },
+      "border": { "$type": "color", "$value": "{aifs.color.border.subtle}" },
+      "border-hovered": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "LinkCard on hover and focus." },
+      "background": { "$type": "color", "$value": "{aifs.color.surface.chrome}" },
+      "padding": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px all round." },
+      "gap": { "$type": "dimension", "$value": "{aifs.layout.grid-gap}", "$description": "Between cards in a grid: the page's grid gap, 16px." },
+      "icon-size": { "$type": "dimension", "$value": "{spacing.composition.space-08}", "$description": "24px." },
+      "icon-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between icon and title." },
+      "text-gap": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between title and description." },
+      "arrow-gap": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px between the text and the LinkCard arrow." },
+      "arrow-shift": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "How far the arrow moves on hover." },
+      "title-font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" },
+      "icon": { "$type": "color", "$value": "{aifs.color.text.body}" },
+      "description": { "$type": "color", "$value": "{aifs.color.text.muted}" },
+      "arrow": { "$type": "color", "$value": "{aifs.color.text.muted}" },
+      "arrow-hovered": { "$type": "color", "$value": "{aifs.color.brand-text}" },
+      "focus": { "$type": "color", "$value": "{aifs.button.focus}" },
+      "focus-width": { "$type": "dimension", "$value": "{aifs.button.focus-width}" },
+      "focus-offset": { "$type": "dimension", "$value": "{aifs.button.focus-offset}", "$description": "The same ring as a button, drawn on the whole card." },
+      "transition-duration": { "$type": "duration", "$value": "{motion.duration.transition}" }
+    },
+    "model-card": {
+      "$description": "Component tokens for the model card (AvailableModels, ModelPick). The frame is the card's. A header row holds the creator logo, the model name (the primary line) and, on recommended models, the model ID under it, smaller and muted; below a divider, the facts: each a small muted label above its stronger value, such as the cloud as a tag, the server location as a flag and country. It only informs, so like a Card it has no hover.",
+      "radius": { "$type": "dimension", "$value": "{aifs.card.radius}" },
+      "border-width": { "$type": "dimension", "$value": "{aifs.card.border-width}" },
+      "border": { "$type": "color", "$value": "{aifs.card.border}" },
+      "background": { "$type": "color", "$value": "{aifs.card.background}" },
+      "padding": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px all round: tighter than a docs card, since three sit in a row." },
+      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-06}", "$description": "16px between the header row and the facts, from the divider above the facts to the first fact, and between facts side by side." },
+      "grid-gap": { "$type": "dimension", "$value": "{aifs.layout.grid-gap}", "$description": "Between cards: the page's grid gap, 16px, the same as the padding inside one." },
+      "row-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between rows of facts, and between a name and its tags." },
+      "stack-gap": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between the model name and its model ID, and between a fact's label and its value below it." },
+      "logo-padding": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px." },
+      "logo-gap": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px between logo and name." },
+      "flag-size": { "$type": "dimension", "$value": "{spacing.composition.space-07}", "$description": "20px round flag, as tall as the small tag above it." },
+      "name-font-size": { "$type": "dimension", "$value": "{typography.font-size.body}", "$description": "16px, the size of a card title." },
+      "name-font-weight": { "$type": "fontWeight", "$value": "{aifs.card.title-font-weight}" },
+      "label": { "$type": "color", "$value": "{aifs.color.text.muted}" },
+      "value": { "$type": "color", "$value": "{aifs.color.text.body}" },
+      "value-font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.bold}" }
+    },
     "button": {
       "$description": "Component tokens for buttons, mirroring Scale's scale-button (telekom/scale@e90165a, button.css) variable for variable. One deviation: the primary background is aifs.color.action.background, so white text passes AA in dark mode too.",
       "min-height": { "$type": "dimension", "$value": "{spacing.composition.space-13}", "$description": "44px, also the touch target." },
@@ -691,7 +799,30 @@
         "text-hovered": { "$value": "{color.text-&-icon.link.hovered}" },
         "text-pressed": { "$value": "{color.text-&-icon.link.active}" },
         "text-disabled": { "$value": "{color.text-&-icon.disabled}" }
+      },
+      "success": {
+        "$type": "color",
+        "$description": "After an action succeeded, such as a copy: the success content replaces the button's content for a moment.",
+        "text": { "$value": "{aifs.color.success}", "$description": "Text and icon of the ghost and secondary button in the success state." }
       }
+    },
+    "tooltip": {
+      "$description": "Component tokens for the tooltip, mirroring Scale's scale-tooltip (telekom/scale, tooltip.css) variable for variable. Scale sets the arrow size and distance as literal px; here they are the nearest tokens.",
+      "radius": { "$type": "dimension", "$value": "{radius.small}" },
+      "background": { "$type": "color", "$value": "{color.background.surface-highlight}" },
+      "text": { "$type": "color", "$value": "{color.text-&-icon.white.standard}" },
+      "font-size": { "$type": "dimension", "$value": "{typography.font-size.body}" },
+      "font-weight": { "$type": "fontWeight", "$value": "{typography.font-weight.regular}" },
+      "line-height": { "$type": "number", "$value": "{typography.line-spacing.standard}" },
+      "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-02}" },
+      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-04}" },
+      "arrow-size": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px, as in Scale." },
+      "arrow-offset": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "How far the arrow's box reaches past the tooltip: 4px, as in Scale." },
+      "distance": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "Gap to the trigger: 8px (Scale: 10px, not on the spacing scale)." },
+      "duration-show": { "$type": "duration", "$value": "{motion.duration.immediate}" },
+      "duration-hide": { "$type": "duration", "$value": "{motion.duration.immediate}" },
+      "delay-hide": { "$type": "duration", "$value": "{motion.duration.instant}" },
+      "easing": { "$type": "cubicBezier", "$value": "{motion.easing.standard}" }
     },
     "border-width": {
       "$type": "dimension",

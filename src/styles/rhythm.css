@@ -1,5 +1,5 @@
-/* Section rhythm stays inside 32px on desktop and 24px on a phone.
-   Loaded after tokens.css so these lengths win over the generated scale.
+/* Loaded after tokens.css. The vertical rhythm before headings is
+   layout.css's, from the --aifs-rhythm-* tokens; nothing here overrides it.
    TeleNeoWeb is not shipped, so every face uses the same system stack. */
 
 :root {
@@ -10,9 +10,6 @@
 	--aifs-text-h4-font-family: var(--aifs-font-body);
 	--aifs-text-body-font-family: var(--aifs-font-body);
 	--aifs-text-small-font-family: var(--aifs-font-body);
-	--aifs-layout-measure: 52rem;
-	--aifs-layout-content-width: 52rem;
-	--sl-content-width: 52rem;
 }
 
 body,
@@ -33,14 +30,6 @@ h1, h2, h3, h4, h5, h6,
 
 .aifs-button--small.aifs-button--icon-only::before {
 	inset: 0;
-}
-
-.mc-mobile-cell,
-.mc-m,
-.mc-m__top {
-	max-width: 100%;
-	min-width: 0;
-	box-sizing: border-box;
 }
 
 .sl-heading-wrapper,
@@ -70,19 +59,4 @@ h1, h2, h3, h4, h5, h6,
 	white-space: normal;
 	overflow-wrap: anywhere;
 	max-width: 100%;
-}
-
-.sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2) {
-	margin-top: 32px;
-}
-
-.sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
-	margin-top: 24px;
-}
-
-@media (max-width: 767px) {
-	.sl-markdown-content > :is(h2, .sl-heading-wrapper.level-h2),
-	.sl-markdown-content > :is(h3, .sl-heading-wrapper.level-h3) {
-		margin-top: 24px;
-	}
 }

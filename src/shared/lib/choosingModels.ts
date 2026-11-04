@@ -1,9 +1,11 @@
 import pricingData from '../../components/PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { cloudLabelFor } from './cloudLabelOverrides';
 import { isHiddenModel } from './hiddenModels';
+import { isRetiredModel } from './retirements';
+import { apiIdPublished } from './launchModels';
 
 /** Shown on the choosing page. Bump when the draft picks are reviewed. */
-export const LAST_REVIEWED = '2026-11-02';
+export const LAST_REVIEWED = '2026-11-03';
 
 const REVIEWED_MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const REVIEWED_MONTHS_DE = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
@@ -12,34 +14,6 @@ export function reviewedLabel(isDE: boolean): string {
   const [year, month, day] = LAST_REVIEWED.split('-').map(Number);
   const name = (isDE ? REVIEWED_MONTHS_DE : REVIEWED_MONTHS_EN)[month - 1];
   return isDE ? `${day}. ${name} ${year}` : `${day} ${name} ${year}`;
-}
-
-/**
- * exact ids whose display names are on /models/deprecations for 2026-10-31
- * or 2026-11-30. They stay out of every recommendation.
- */
-export const RETIRING_MODEL_IDS = new Set(
-  [
-    'gpt-5-nano',
-    'gpt-5-mini',
-    'gpt-5.4-mini',
-    'gpt-5',
-    'gpt-5-codex',
-    'gpt-5.4',
-    'gpt-5.5',
-    'claude-haiku-4.5',
-    'claude-sonnet-4.6',
-    'claude-opus-4.6',
-    'claude-opus-4.8',
-    'gemini-3-pro',
-    'gemini-3-pro-long-context',
-    // gemini-3-flash retires 2026-11-30; remove then.
-  ].map((id) => id.toLowerCase()),
-);
-
-/** Models retiring on 2026-10-31 or 2026-11-30. They stay on the deprecations page only. */
-export function isRetiringModel(exactModelName: string | undefined): boolean {
-  return RETIRING_MODEL_IDS.has((exactModelName ?? '').toLowerCase());
 }
 
 interface Quota {
@@ -70,7 +44,7 @@ const byId = new Map<string, ModelFact>();
 for (const pkg of pricingData as Package[]) {
   for (const entry of pkg.modelQuotaConfigs ?? []) {
     const id = entry.exactModelName;
-    if (isHiddenModel(id) || isRetiringModel(id)) continue;
+    if (isHiddenModel(id) || isRetiredModel(id)) continue;
     const existing = byId.get(id);
     if (existing) {
       if (pkg.packageName === 'Test' && existing.preview === false) {
@@ -117,7 +91,11 @@ function hostingFor(id: string, region: string): string {
 export function modelFact(id: string): ModelFact {
   const fact = byId.get(id);
   if (!fact) {
-    throw new Error(`choosingModels: ${id} is missing, hidden, or scheduled to retire`);
+    throw new Error(`choosingModels: ${id} is missing, hidden, or retired`);
+  }
+  // A pick shows its id with a copy button, so it needs a published one.
+  if (!apiIdPublished(id)) {
+    throw new Error(`choosingModels: ${id} has no published model id`);
   }
   return fact;
 }
@@ -126,7 +104,8 @@ export interface ChoiceRow {
   id: string;
   useCase: { en: string; de: string };
   recommended: string;
-  alternative: string;
+  /** Second model; absent when the catalog has only one model for the use case. */
+  alternative?: string;
   /** Third model for the compact block on a category page. */
   also?: string;
   notes: { en: string; de: string };
@@ -155,11 +134,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'reasoning',
     useCase: { en: 'Reasoning and complex tasks', de: 'Komplexe Aufgaben' },
+    // GLM 5.3 replaces GLM 5.2, which retires on 2026-11-30 (Andrej, 2026-11-03).
     recommended: 'GLM-5.3',
-    alternative: 'GLM-5.2',
+    alternative: 'GLM-5.3-Flash',
     notes: {
-      en: 'GLM 5.3 and GLM 5.2 run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max.',
-      de: 'GLM 5.3 und GLM 5.2 laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max.',
+      en: 'GLM 5.3 and GLM 5.3 Flash run on T-Cloud with a 1M context window. `reasoning_effort` accepts none, high, and max on GLM 5.3, and low, high, and max on GLM 5.3 Flash.',
+      de: 'GLM 5.3 und GLM 5.3 Flash laufen auf T-Cloud mit einem Kontextfenster von 1M. `reasoning_effort` akzeptiert none, high und max bei GLM 5.3 und low, high und max bei GLM 5.3 Flash.',
     },
     guide: '/guides/reasoning',
   },
@@ -193,8 +173,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
     recommended: 'LightOnOCR-3-4B-Preview',
     alternative: 'PaddleOCR-VL-1.6-Preview',
     notes: {
-      en: 'Both are preview models on T-Cloud. Context windows are 32K and 128K.',
-      de: 'Beide sind Vorschau-Modelle auf T-Cloud. Die Kontextfenster sind 32K und 128K.',
+      en: 'Both run on T-Cloud, in the Essential, Professional and Agentic plans. Context windows are 32K and 128K.',
+      de: 'Beide laufen auf T-Cloud, in den Tarifen Essential, Professional und Agentic. Die Kontextfenster sind 32K und 128K.',
     },
     guide: '/guides/ocr',
   },
@@ -235,11 +215,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'image',
     useCase: { en: 'Image generation', de: 'Bildgenerierung' },
+    // No alternative: the live docs recommend no image model, so Gemini 3 Pro
+    // Image is in the catalog but not picked here (product owner, 2026-11-03).
     recommended: 'gpt-image-2',
-    alternative: 'gemini-3-pro-image',
     notes: {
-      en: 'GPT Image 2 runs on Azure Sweden. Gemini 3 Pro Image runs on Google Cloud worldwide. No image-generation model runs on T-Cloud.',
-      de: 'GPT Image 2 läuft auf Azure Schweden. Gemini 3 Pro Image läuft auf Google Cloud weltweit. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
+      en: 'GPT Image 2 runs on Azure Sweden. No image-generation model runs on T-Cloud.',
+      de: 'GPT Image 2 läuft auf Azure Schweden. Kein Modell für Bildgenerierung läuft auf T-Cloud.',
     },
     guide: '/guides/image-generation',
   },
@@ -247,12 +228,12 @@ export const CHOICE_ROWS: ChoiceRow[] = [
 
 for (const row of CHOICE_ROWS) {
   const recommended = modelFact(row.recommended);
-  const alternative = modelFact(row.alternative);
+  const alternative = row.alternative ? modelFact(row.alternative) : undefined;
   if (row.also) modelFact(row.also);
   if (!recommended.tcloud && row.id !== 'image') {
     throw new Error(`choosingModels: ${row.id} recommended model is not on T-Cloud`);
   }
-  if (row.id === 'image' && (recommended.tcloud || alternative.tcloud)) {
+  if (row.id === 'image' && (recommended.tcloud || alternative?.tcloud)) {
     throw new Error('choosingModels: an image model is marked T-Cloud');
   }
 }

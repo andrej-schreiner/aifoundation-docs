@@ -3,6 +3,7 @@ title: "Coding agent setup"
 description: "Connect a coding agent or IDE plugin to AI Foundation Services with an API key, the coding base URL, and a coding model."
 ---
 
+import { LinkCard } from '@astrojs/starlight/components';
 import ModelPick from '../../../components/ModelPick.astro';
 
 Every coding tool below connects to AI Foundation Services the same way: an API key, the coding base URL, and a model ID.
@@ -38,4 +39,8 @@ API Key      = your_api_key_here
 Model        = GLM-5.3
 ```
 
-Next: [Recommended models](/getting-started/choosing-a-model) · [Coding models](/models/coding) · [Function calling](/guides/function-calling)
+<div class="link-card-row">
+  <LinkCard title="Recommended models" href="/getting-started/choosing-a-model" />
+  <LinkCard title="Coding models" href="/models/coding" />
+  <LinkCard title="Function calling" href="/guides/function-calling" />
+</div>

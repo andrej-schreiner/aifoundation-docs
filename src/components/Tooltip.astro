@@ -1,136 +1,97 @@
 ---
+import { keepWholeParts } from '../shared/lib/displayFormat';
+
+// Hover and focus tooltip, styled as Scale's scale-tooltip. Styles live in
+// src/styles/tooltip.css, shared with Button's successTooltip and the model
+// table's rows.
 interface Props {
   text: string;
+  /** Widest the tooltip may get; it also never leaves its container. */
   maxWidth?: string;
-  position?: 'top' | 'right-center';
+  /**
+   * `top` (centred above), `bottom` (centred below, for a table header, whose
+   * scroll container would cut off a tooltip above) or `right-center`
+   * (beside, for a table row).
+   */
+  position?: 'top' | 'bottom' | 'right-center';
+  /**
+   * `false` when the slot is already focusable (a button, a link): the
+   * trigger then adds no tab stop of its own, and the slot's focus still
+   * shows the tooltip.
+   */
+  focusable?: boolean;
 }
 
-const { text, maxWidth = '24rem', position = 'top' } = Astro.props;
+const { text, maxWidth = '20rem', position = 'top', focusable = true } = Astro.props;
 // Unique id per instance so the tooltip content can be linked to its trigger
 // via `aria-describedby`, exposing the text to screen readers.
 const tipId = Math.random().toString(36).slice(2, 10);
 ---
 
-<span class={`ui-tooltip ui-tooltip--${position}`} style={`--ui-tooltip-max-width: ${maxWidth};`}>
-  <span class="ui-tooltip__trigger" tabindex="0" aria-describedby={`ui-tooltip-${tipId}`}>
+<span class="ui-tooltip" style={`--aifs-tooltip-max-width: ${maxWidth};`}>
+  <span class="ui-tooltip__trigger" tabindex={focusable ? 0 : undefined} aria-describedby={`ui-tooltip-${tipId}`}>
     <slot />
   </span>
-  <span class="ui-tooltip__content" id={`ui-tooltip-${tipId}`} role="tooltip">
-    {text}
+  <span
+    class:list={[
+      'aifs-tooltip',
+      'ui-tooltip__content',
+      { 'aifs-tooltip--right': position === 'right-center', 'aifs-tooltip--bottom': position === 'bottom' },
+    ]}
+    id={`ui-tooltip-${tipId}`}
+    role="tooltip">
+    {/* "T-Cloud" in a .nowrap span, so it never breaks at its hyphen. */}
+    {keepWholeParts(text).map((part) => (part.whole ? <span class="nowrap">{part.text}</span> : part.text))}
   </span>
 </span>
 
-<style>
-  .ui-tooltip {
-    position: relative;
-    display: inline-flex;
-    justify-content: center;
-    vertical-align: middle;
-    outline: none;
-  }
-
-  .ui-tooltip__trigger {
-    display: inline-flex;
-  }
-
-  .ui-tooltip__content {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 0.85rem);
-    transform: translateX(-50%) translateY(0.35rem);
-    width: max-content;
-    max-width: min(var(--ui-tooltip-max-width), calc(100vw - 2rem));
-    padding: 0.75rem 1rem;
-    border-radius: 0.75rem;
-    background: var(--aifs-color-tooltip-background);
-    color: var(--aifs-color-tooltip-text);
-    font-size: 0.95rem;
-    line-height: 1.35;
-    white-space: normal;
-    text-align: left;
-    /* TODO(token-gap): Telekom shadow tokens are not converted yet. */
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.26);
-    /* Hidden via display:none (not visibility) so the max-content box doesn't
-       contribute invisible horizontal overflow to the page. allow-discrete +
-       @starting-style keep the fade; older engines just show/hide instantly. */
-    display: none;
-    opacity: 0;
-    pointer-events: none;
-    transition:
-      opacity 160ms ease,
-      transform 160ms ease,
-      display 160ms allow-discrete;
-    z-index: 30;
-  }
-
-  .ui-tooltip__content::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: -0.45rem;
-    width: 0.9rem;
-    height: 0.9rem;
-    background: var(--aifs-color-tooltip-background);
-    transform: translateX(-50%) rotate(45deg);
-    border-radius: 0.1rem;
-  }
-
-  .ui-tooltip:hover .ui-tooltip__content,
-  .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
-  .ui-tooltip:focus-within .ui-tooltip__content {
-    display: block;
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  @starting-style {
-    .ui-tooltip:hover .ui-tooltip__content,
-    .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
-    .ui-tooltip:focus-within .ui-tooltip__content {
-      opacity: 0;
-      transform: translateX(-50%) translateY(0.35rem);
+<script>
+  // WCAG 1.4.13: Escape hides the tooltip under the pointer or focus until
+  // the pointer leaves or focus moves on. Delegated, so it also covers the
+  // tooltips the model table builds in a script.
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    document.querySelectorAll('.ui-tooltip:hover, .ui-tooltip:focus-within').forEach((tip) => {
+      tip.classList.add('ui-tooltip--dismissed');
+    });
+  });
+  // Only when the pointer or focus really leaves the tooltip, not when it
+  // moves between elements inside it.
+  const reset = (event: MouseEvent | FocusEvent) => {
+    const tip = (event.target as Element | null)?.closest?.('.ui-tooltip');
+    if (tip && !tip.contains(event.relatedTarget as Node | null)) {
+      tip.classList.remove('ui-tooltip--dismissed');
     }
-  }
+  };
+  document.addEventListener('mouseout', reset);
+  document.addEventListener('focusout', reset);
 
-  .ui-tooltip__trigger:focus-visible {
-    outline: 2px solid var(--sl-color-accent);
-    outline-offset: 2px;
-    border-radius: 2px;
-  }
-
-  .ui-tooltip--right-center .ui-tooltip__content {
-    left: calc(100% + 0.85rem);
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%) translateX(-0.35rem);
-  }
-
-  .ui-tooltip--right-center .ui-tooltip__content::after {
-    left: -0.45rem;
-    top: 50%;
-    bottom: auto;
-    transform: translateY(-50%) rotate(45deg);
-  }
-
-  .ui-tooltip--right-center:hover .ui-tooltip__content,
-  .ui-tooltip--right-center .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
-  .ui-tooltip--right-center:focus-within .ui-tooltip__content {
-    transform: translateY(-50%) translateX(0);
-  }
-
-  @starting-style {
-    .ui-tooltip--right-center:hover .ui-tooltip__content,
-    .ui-tooltip--right-center .ui-tooltip__trigger:focus-visible ~ .ui-tooltip__content,
-    .ui-tooltip--right-center:focus-within .ui-tooltip__content {
-      opacity: 0;
-      transform: translateY(-50%) translateX(-0.35rem);
-    }
-  }
-
-  @media (max-width: 900px) {
-    .ui-tooltip__content {
-      font-size: 0.9rem;
-      padding: 0.65rem 0.85rem;
-    }
-  }
-</style>
+  // Keep a tooltip inside the content area (main, else the window): measure
+  // it once shown and shift it along its axis, as floating-ui's shift does in
+  // Scale. Placements beside the trigger are left alone.
+  const GUTTER = 8;
+  const place = (event: MouseEvent | FocusEvent) => {
+    const tip = (event.target as Element | null)?.closest?.('.ui-tooltip');
+    const box = tip?.querySelector<HTMLElement>(':scope > .aifs-tooltip:not(.aifs-tooltip--right)');
+    // Only on entering, not on moving between elements inside it.
+    if (!tip || !box || tip.contains(event.relatedTarget as Node | null)) return;
+    box.style.setProperty('--aifs-tooltip-shift', '0px');
+    requestAnimationFrame(() => {
+      const r = box.getBoundingClientRect();
+      if (!r.width) return;
+      // The nearest scroll container (a table's) would cut it off, so that
+      // comes first; otherwise the content area.
+      let scroller: Element | null = tip.parentElement;
+      while (scroller && scroller !== document.body && getComputedStyle(scroller).overflowX === 'visible') {
+        scroller = scroller.parentElement;
+      }
+      const area = (scroller && scroller !== document.body ? scroller : tip.closest('main'))?.getBoundingClientRect();
+      const min = Math.max(area?.left ?? 0, 0) + GUTTER;
+      const max = Math.min(area?.right ?? innerWidth, innerWidth) - GUTTER;
+      const shift = r.left < min ? min - r.left : r.right > max ? max - r.right : 0;
+      box.style.setProperty('--aifs-tooltip-shift', `${Math.round(shift)}px`);
+    });
+  };
+  document.addEventListener('mouseover', place);
+  document.addEventListener('focusin', place);
+</script>
