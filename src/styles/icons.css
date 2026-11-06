@@ -7,7 +7,7 @@
 
 :is(
 		.sl-anchor-icon svg,
-		site-search button > svg,
+		site-search > button[data-open-modal] > svg,
 		header label > svg.label-icon,
 		header label > svg:is(.caret, .caret-icon),
 		.sidebar-content summary > svg.caret,
@@ -22,7 +22,7 @@
 
 :is(
 		.sl-anchor-icon svg,
-		site-search button > svg,
+		site-search > button[data-open-modal] > svg,
 		header label > svg.label-icon,
 		header label > svg:is(.caret, .caret-icon),
 		.sidebar-content summary > svg.caret,
@@ -38,7 +38,7 @@
 	--aifs-icon: url('../assets/icons/scale/action/link/default.svg');
 }
 
-site-search button > svg {
+site-search > button[data-open-modal] > svg {
 	--aifs-icon: url('../assets/icons/scale/action/search/default.svg');
 }
 
@@ -121,7 +121,7 @@ img.aifs-flag {
 @media (forced-colors: active) {
 	:is(
 			.sl-anchor-icon svg,
-			site-search button > svg,
+			site-search > button[data-open-modal] > svg,
 			header label > svg.label-icon,
 			header label > svg:is(.caret, .caret-icon),
 			.sidebar-content summary > svg.caret,
