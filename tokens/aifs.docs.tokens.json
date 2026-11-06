@@ -222,7 +222,7 @@
       "tools-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between the selects and the button: their hover backgrounds stay apart." },
       "mark-size": { "$type": "dimension", "$value": "{spacing.composition.space-09}", "$description": "28px Telekom T, in magenta, left of the site name." },
       "search-width": { "$type": "dimension", "$value": { "value": 28, "unit": "rem" }, "$description": "Widest the search field gets, 448px (Starlight: 22rem)." },
-      "settings-padding": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px inside the header menu panel (search, version, theme, language), shown from 50 to 72rem." },
+      "settings-padding": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px inside the header menu panel (SmartChat and Service Description links, version, theme, language; below 72rem also the search), shown from 50 to 90rem." },
       "settings-row-gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between the items in the header menu panel." },
       "settings-offset": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px between the Menu button and its panel, as between a filter field and its menu." }
     },
