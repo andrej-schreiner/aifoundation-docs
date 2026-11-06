@@ -30,7 +30,8 @@ export const MODEL_CATALOG_ORDER = [
   'DeepSeek V4.1 Flash', // Preview on T-Cloud, launched 2026-11-03; ranked with the preview models, not the GA ones.
 
   // --- T-Cloud: embeddings, then OCR, then audio ---
-  'Qwen3 Embedding 8B', // Newest embedding (changelog 2026-10), 8B, 32K.
+  'NVIDIA Nemotron 3.5 Embedding 8B', // Newest embedding (changelog 2026-11-06), 8B, 32K.
+  'Qwen3 Embedding 8B', // Embedding (changelog 2026-10), 8B, 32K.
   'BGE-M3', // Embedding, no newer generation token than Qwen3 Embedding.
   'Jina Embeddings v2 Base DE', // Embedding v2, Base size, 8K context.
   'Qwen3-Reranker-4B', // Reranker (SD v1.25), 4B. Next to the embeddings it is used with.

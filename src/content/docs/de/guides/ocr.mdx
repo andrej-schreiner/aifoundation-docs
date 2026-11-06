@@ -42,7 +42,15 @@ Beide sind Open-Weight-Modelle, gehostet auf T-Cloud Public in Deutschland. Ihre
 Made in Europe von LightOn aus Paris. Es liest gedruckten Text und Handschrift und erhält Tabellen und mehrspaltige Layouts.
 :::
 
-Beide Modelle sind in den Tarifen Essential, Professional und Agentic enthalten. Preise und Limits je Tarif: [Tarife & Preise](/de/plans).
+Beide Modelle sind in den Tarifen Essential, Professional und Agentic enthalten. OCR-Modelle erzeugen Text, daher werden Input- und Output-Tokens begrenzt und berechnet. Preise je Tarif: [Tarife & Preise](/de/plans). Limits je Tarif:
+
+| Tarif | LightOnOCR-3-4B<br/>RPM / Input-TPM / Output-TPM | PaddleOCR-VL-1.6<br/>RPM / Input-TPM / Output-TPM |
+|---|---|---|
+| Essential | 18 / 60.000 / 22.500 | 60 / 82.500 / 75.000 |
+| Professional | 36 / 120.000 / 45.000 | 120 / 165.000 / 150.000 |
+| Agentic | 60 / 200.000 / 75.000 | 200 / 275.000 / 250.000 |
+
+Eine Anfrage wird gedrosselt, sobald sie eines der drei Limits überschreiten würde. Es handelt sich um Best-Effort-Obergrenzen, nicht um garantierten Durchsatz; siehe [Rate-Limits](/de/reference/rate-limits#rate-limits-sind-obergrenzen-keine-garantie).
 
 
 ## Zwei Wege, die Modelle aufzurufen

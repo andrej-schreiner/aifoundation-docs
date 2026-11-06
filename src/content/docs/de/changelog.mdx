@@ -7,6 +7,17 @@ tableOfContents:
 
 Wichtige Änderungen an AI Foundation Services — neue Modelle, Funktionsupdates und Deprecations.
 
+## 2026-11-06
+
+### Hinzugefügt
+
+- Neues Embedding-Modell in den Tarifen Essential, Professional und Agentic: **NVIDIA Nemotron 3.5 Embedding 8B** (`Nemotron-3.5-Embed-8B`), mehrsprachig, mit 32K Kontextfenster und 4096-dimensionalen Vektoren. Stellen Sie Anfragen `query:` und Dokumenten `passage:` voran, jeweils mit einem Leerzeichen danach, um die besten Suchergebnisse zu erzielen. Gehostet in der T-Cloud. Siehe [Tarife & Preise](/de/plans).
+
+### Geändert
+
+- Embedding- und Reranking-Modelle werden nur nach Input-Tokens abgerechnet und haben kein Output-Token-Limit: Jina Embeddings v2 Base DE, BGE-M3, Qwen3 Embedding 8B, NVIDIA Nemotron 3.5 Embedding 8B, Ada Text Embedding und Qwen3-Reranker-4B. [Tarife & Preise](/de/plans) zeigt ihren Output-Preis als —.
+- OCR-Modelle (LightOnOCR-3-4B, PaddleOCR-VL-1.6) behalten Input- und Output-Limits; die [OCR-Anleitung](/de/guides/ocr) nennt jetzt beide je Tarif.
+
 ## 2026-11-03
 
 ### Hinzugefügt
