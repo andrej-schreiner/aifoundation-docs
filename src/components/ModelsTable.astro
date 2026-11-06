@@ -640,6 +640,13 @@ const priceBuckets = [
       return value != null ? value.toFixed(2) : 'xx';
     }
 
+    // Embedding and reranker models bill input tokens only: a zero output
+    // price next to a paid input price means "not charged", not "free".
+    function formatOutputPrice(model: any) {
+      if (model.outputPrice === 0 && model.inputPrice > 0) return '&mdash;';
+      return `&euro; ${formatPrice(model.outputPrice)}`;
+    }
+
     // Cached input tokens are only priced for T-Cloud-hosted models; external
     // providers show as not available until their pricing is published.
     function formatCachedPrice(model: any) {
@@ -725,7 +732,7 @@ const priceBuckets = [
             </div>
           </td>
           <td><strong>&euro; ${formatPrice(model.inputPrice)}</strong></td>
-          <td><strong>&euro; ${formatPrice(model.outputPrice)}</strong></td>
+          <td><strong>${formatOutputPrice(model)}</strong></td>
           ${legacy ? '' : `<td><strong>${formatCachedPrice(model)}</strong></td>`}
           <td><div class="loc-wrapper">${model.locationCode ? `<span class="fi fi-${escapeHtml(model.locationCode)}"></span> ` : ''}${escapeHtml(model.serverLocation)}</div></td>
           <td>${formatNumber(model.rpm)}${legacy ? '' : ' <sup><a href="#rpm-tpm-notes" onclick="event.stopPropagation()">*</a></sup>'}</td>
