@@ -1,7 +1,9 @@
 ---
 // Site-wide announcement bars — currently the API transition notice (linking
 // to /api-transition), the DeepSeek V4.1 Flash preview model (linking to
-// /plans/test) and GLM 5.3 going live on the paid plans (linking to /plans).
+// /plans/test), GLM 5.3 going live on the paid plans (linking to /plans) and
+// NVIDIA Nemotron 3.5 Embedding 8B joining the Essential, Professional and Agentic
+// plans (linking to /plans).
 // The GLM 5.3 bar replaced the Qwen3-Reranker-4B preview bar, which replaced the OCR
 // preview bar (LightOnOCR-3-4B / PaddleOCR-VL-1.6), which
 // replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
@@ -54,6 +56,13 @@ const bars = isDE
         cta: 'Zu den Tarifen',
         href: `${prefix}/plans`,
       },
+      {
+        key: 'nemotron35EmbedBannerDismissed',
+        badge: 'Neu',
+        msg: '<b>NVIDIA Nemotron 3.5 Embedding 8B</b> ist jetzt in den Tarifen Essential, Professional und Agentic verfügbar — mehrsprachige Embeddings mit 32K Kontext, gehostet in Deutschland.',
+        cta: 'Zu den Tarifen',
+        href: `${prefix}/plans`,
+      },
     ]
   : [
       {
@@ -74,6 +83,13 @@ const bars = isDE
         key: 'glm53LiveBannerDismissed',
         badge: 'New',
         msg: 'Now live: <b>GLM 5.3</b> from Z.ai on all paid plans — built for coding and agentic tasks, with a 1M context window, hosted in Germany.',
+        cta: 'View plans',
+        href: `${prefix}/plans`,
+      },
+      {
+        key: 'nemotron35EmbedBannerDismissed',
+        badge: 'New',
+        msg: '<b>NVIDIA Nemotron 3.5 Embedding 8B</b> is now available on the Essential, Professional and Agentic plans — multilingual embeddings with a 32K context, hosted in Germany.',
         cta: 'View plans',
         href: `${prefix}/plans`,
       },
