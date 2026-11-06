@@ -69,7 +69,6 @@ const PRIMARY_CATEGORY: Record<string, Category> = {
   // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
-  'Nemotron-3.5-Embed-8B': 'embeddings',
   // OCR (document parsing): Image -> Text. Primary 'vision' keeps them off /models/llms.
   'LightOnOCR-3-4B': 'vision',
   'PaddleOCR-VL-1.6': 'vision',
@@ -132,7 +131,6 @@ type Creator =
   | 'Alibaba Cloud'
   | 'Zhipu AI'
   | 'DeepSeek'
-  | 'NVIDIA'
   | 'T-Systems'
   | 'Other';
 type InputModality = 'Text' | 'Image' | 'Audio';
@@ -153,7 +151,6 @@ function inferCreator(exactModelName: string): Creator {
   if (/^Qwen/i.test(n)) return 'Alibaba Cloud';
   if (/^GLM-/i.test(n)) return 'Zhipu AI';
   if (/^DeepSeek-/i.test(n)) return 'DeepSeek';
-  if (/^Nemotron-/i.test(n)) return 'NVIDIA';
   if (/^claude-/i.test(n)) return 'Anthropic';
   if (/^(diffusion)?gemma-/i.test(n)) return 'Google Gemma';
   if (/^gemini-/i.test(n)) return 'Google';
