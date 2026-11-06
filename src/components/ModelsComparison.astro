@@ -615,6 +615,7 @@ const t = {
   details: 'Details',
   showDetails: isDE ? 'Details anzeigen' : 'Show details',
   priceTba: isDE ? 'Preis wird noch\nbekannt gegeben' : 'Pricing\nto be\nannounced',
+  outputNotCharged: isDE ? 'Output wird nicht berechnet' : 'Output is not charged',
   planPreview: isDE ? 'Vorschau' : 'Preview',
   // Wording from models/preview.mdx. Shown in the Plans column instead of a second Preview tag.
   previewPlans: isDE ? 'Kostenlos in jedem aktiven Tarif' : 'Free on any active plan',
@@ -721,6 +722,12 @@ const MODALITY_LABELS: Record<InputModality | OutputModality, string> = {
 function formatPrice(n: number | null | undefined): string {
   if (n == null) return t.priceTba;
   return formatEuro(n, 2, numberLocale);
+}
+
+// Embedding and reranker models bill input tokens only: a zero output price
+// next to a paid input price means "not charged", not "free".
+function outputNotCharged(m: Pick<CompiledModel, 'inputPricePerMillionTokens' | 'outputPricePerMillionTokens'>): boolean {
+  return m.outputPricePerMillionTokens === 0 && (m.inputPricePerMillionTokens ?? 0) > 0;
 }
 
 function formatCachedPrice(m: CompiledModel): string {
@@ -998,10 +1005,10 @@ const rowDataPayload = rows.map((m) => ({
   reasoningEffort: m.reasoningEffort,
   reasoningTokensUsage: m.reasoningTokensUsage,
   inputPrice: m.inputPricePerMillionTokens,
-  outputPrice: m.outputPricePerMillionTokens,
+  outputPrice: outputNotCharged(m) ? null : m.outputPricePerMillionTokens,
   cachedInputPrice: m.cachedInputPricePerMillionTokens,
   inputPriceBucket: priceBucket(m.inputPricePerMillionTokens),
-  outputPriceBucket: priceBucket(m.outputPricePerMillionTokens),
+  outputPriceBucket: outputNotCharged(m) ? null : priceBucket(m.outputPricePerMillionTokens),
   rpm: limitNumber(m.rpm),
   tpm: limitNumber(m.tpm),
   plans: m.plans,
@@ -1259,6 +1266,7 @@ const rowDataPayload = rows.map((m) => ({
                   </span>
                 );
               case 'outputPrice':
+                if (outputNotCharged(m)) return <span title={t.outputNotCharged}>—</span>;
                 return m.outputPricePerMillionTokens == null ? <span title={t.priceTba.replaceAll('\n', ' ')}>—</span> : formatPrice(m.outputPricePerMillionTokens);
               case 'cachedInputPrice':
                 return formatCachedPrice(m);

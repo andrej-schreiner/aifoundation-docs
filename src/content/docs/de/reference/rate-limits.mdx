@@ -50,7 +50,7 @@ Für die vollständige Aufschlüsselung pro Modell für Ihren Tarif besuchen Sie
 - **TPM (Token pro Minute)** — Best-Effort-*Obergrenze* für verarbeitete Token pro Minute (Eingabe und Ausgabe haben getrennte Limits); kein SLA-gestützter Durchsatzwert
 - **RPM (Anfragen pro Minute)** — Best-Effort-*Obergrenze* für API-Anfragen pro Minute; kein SLA-gestützter Anfragerate-Wert
 - Limits gelten je Projekt — alle in einem Projekt erzeugten API-Schlüssel teilen sich das Kontingent
-- Eingabe-Token zählen zum Eingabe-TPM; Ausgabe-Token zählen zum Ausgabe-TPM
+- Eingabe-Token zählen zum Eingabe-TPM; Ausgabe-Token zählen zum Ausgabe-TPM. Das gilt auch für OCR-Modelle, die Text erzeugen. Embedding- und Reranking-Modelle liefern Vektoren oder Scores und haben daher nur ein Eingabe-TPM-Limit
 
 Anders gesagt: RPM/TPM zeigen, ab wann die Plattform Ihren Traffic *drosselt*. Sie sagen **nichts** darüber aus, mit welcher Rate die Plattform Ihren Traffic *bedient*. Im Shared Service hängt die tatsächlich erreichte Rate von der Plattformlast und der Nutzung desselben Modells durch andere Tenants ab.
 

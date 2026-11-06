@@ -60,6 +60,9 @@ export function modelPrices(id: string): ModelPrices {
   return {
     cached: cachedInputPrice(found.inputPricePerMillionTokens, found.deploymentRegion, primary),
     input: found.inputPricePerMillionTokens,
-    output: primary === 'embeddings' ? null : found.outputPricePerMillionTokens,
+    // Embedding and reranker models bill input tokens only (output price 0).
+    output: primary === 'embeddings' || (found.outputPricePerMillionTokens === 0 && (found.inputPricePerMillionTokens ?? 0) > 0)
+      ? null
+      : found.outputPricePerMillionTokens,
   };
 }

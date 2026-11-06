@@ -25,6 +25,7 @@ const PRIMARY_CATEGORY: Record<string, ModelCategory> = {
   // Embeddings: Text → Vector. Primary 'embeddings' keeps them off /models/llms.
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
+  'Nemotron-3.5-Embed-8B': 'embeddings',
   // OCR (document parsing): Image -> Text, served on chat completions.
   'LightOnOCR-3-4B': 'llms',
   'PaddleOCR-VL-1.6': 'llms',

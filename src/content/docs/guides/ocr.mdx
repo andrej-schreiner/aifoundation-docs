@@ -42,7 +42,15 @@ Both are open-weight models hosted on T-Cloud Public in Germany, so your documen
 Made in Europe by LightOn, Paris. It reads printed text and handwriting, and keeps tables and multi-column layouts.
 :::
 
-Both models are in the Essential, Professional and Agentic plans. Prices and limits per plan: [Plans & pricing](/plans).
+Both models are in the Essential, Professional and Agentic plans. OCR models generate text, so input and output tokens are both rate-limited and billed. Prices per plan: [Plans & pricing](/plans). Limits per plan:
+
+| Plan | LightOnOCR-3-4B<br/>RPM / input TPM / output TPM | PaddleOCR-VL-1.6<br/>RPM / input TPM / output TPM |
+|---|---|---|
+| Essential | 18 / 60,000 / 22,500 | 60 / 82,500 / 75,000 |
+| Professional | 36 / 120,000 / 45,000 | 120 / 165,000 / 150,000 |
+| Agentic | 60 / 200,000 / 75,000 | 200 / 275,000 / 250,000 |
+
+A request is throttled when it would exceed any of the three. These are best-effort ceilings, not guaranteed throughput; see [Rate limits](/reference/rate-limits#rate-limits-are-ceilings-not-guarantees).
 
 
 ## Two ways to call the models
