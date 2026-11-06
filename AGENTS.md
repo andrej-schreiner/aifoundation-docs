@@ -100,14 +100,21 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   rule is in `layout.css`; do not cap text yourself.
 - **Announcements** (`PreviewModelsBanner`): one banner each, at the top of
   the content column with its edges, no backdrop behind them; each has its
-  own close button and session memory. Every built page is a current one:
-  the archived versions are static snapshots (below) with their own notices.
+  own close button and session memory. They are calm, like the asides: a
+  Telekom icon in the informational colour, no accent line, no tag. New
+  models get a soft informational tint, a bold lead and one line per model
+  (or group); a notice is quieter, on the sheet with a subtle outline, one
+  line. Never magenta: that is the primary button's colour. Every built page
+  is a current one: the archived versions are static snapshots (below) with
+  their own notices.
 - **Next steps**: a page's "Next:" links are link cards in a
   `<div class="link-card-row">` (as on the home page's Integrations), the
   link texts as titles; no "Next:" line of text links.
-- **Site navigation**: the menu button sits at the start of the header, before
-  the logo, at every width (`SiteHeader.astro`): it opens the navigation on
-  phones and hides or shows the sidebar from 50rem. Every sidebar group
+- **Site navigation**: below 50rem the menu button sits at the start of the
+  header, before the logo (`SiteHeader.astro`), and opens the navigation over
+  the page. From 50rem the sidebar is always in the page and there is no menu
+  button (`display: none`: not focusable, not announced); the logo starts the
+  header. The sidebar cannot be hidden on wide screens. Every sidebar group
   starts closed (`collapsed: true` in `astro.config.mjs`), except the group
   that holds the current page; a visitor opens and closes groups with the
   chevrons, and each page starts that way again. Entries are 14px with 12px

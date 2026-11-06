@@ -464,8 +464,8 @@ sup {
 }
 
 /* Starlight's own menu button sits at the end of the header, on phones only.
-   The menu button at the start of the header (SiteHeader.astro) replaces it
-   at every width. */
+   The menu button at the start of the header (SiteHeader.astro) replaces it;
+   it too is shown below 50rem only. */
 starlight-menu-button {
 	display: none;
 }

@@ -453,23 +453,92 @@
       "border": { "$type": "color", "$value": "{aifs.color.border.subtle}", "$description": "The panel's start edge and the lines under its header and above its footer." }
     },
     "notice": {
-      "$description": "The announcement banners at the top of the content column (PreviewModelsBanner): one banner per announcement (a tag, the text, a link, a close button), a light tint and an accent line at the start, no border.",
-      "radius": { "$type": "dimension", "$value": "{aifs.notification.radius}", "$description": "8px, as the inline notification." },
-      "close-radius": { "$type": "dimension", "$value": "{aifs.radius.control}", "$description": "4px on the close button's hover fill: concentric with the bar's 8px, 4px inside it." },
-      "padding-y": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px above and below." },
-      "padding-x": { "$type": "dimension", "$value": "{spacing.composition.space-05}", "$description": "12px at the sides." },
-      "gap": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px between tag, text, link and close button, and between two banners." },
-      "padding-y-compact": { "$type": "dimension", "$value": "{spacing.composition.space-03}", "$description": "4px above and below on phones." },
-      "padding-x-compact": { "$type": "dimension", "$value": "{spacing.composition.space-04}", "$description": "8px at the sides on phones." },
-      "row-gap-compact": { "$type": "dimension", "$value": "{spacing.composition.space-02}", "$description": "2px between the text and the link on phones." },
-      "enter-duration": { "$type": "duration", "$value": "{motion.duration.transition}", "$description": "200ms fade-in, the first time a banner appears in a session. Off with reduced motion." },
-      "enter-easing": { "$type": "cubicBezier", "$value": "{motion.easing.enter}", "$description": "Telekom's enter (ease-out) curve: no overshoot." },
-      "new-accent": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Accent line of a New banner: brand magenta, as the New tag beside it." },
-      "new-tint": { "$type": "color", "$value": "{aifs.color.action.background}", "$description": "Mixed into the sheet colour by new-tint-strength for a New banner's background." },
-      "new-tint-strength": { "$type": "number", "$value": 0.06, "$description": "Share of magenta in a New banner's background: a faint pink in light mode, a faint warm grey in dark mode; body text and links keep AA on it. Telekom has no subtle magenta step." },
-      "info-accent": { "$type": "color", "$value": "{aifs.aside.note.accent}", "$description": "Accent line of a Notice banner: informational blue, as a note aside." },
-      "info-tint": { "$type": "color", "$value": "{aifs.aside.note.background}", "$description": "Telekom's informational subtle colour, mixed into the sheet colour for a Notice banner's background." },
-      "info-tint-strength": { "$type": "number", "$value": "{aifs.aside.tint-opacity}", "$description": "The asides' 40% tint, so a notice reads like a note." }
+      "$description": "The announcement banners at the top of the content column (PreviewModelsBanner), a lighter take on the inline notification in the style of the asides: one banner per announcement, a Telekom icon, a bold lead, the text, a link and a close button; no accent line. New models: a soft informational tint, the lead and a short list. Notice: lower emphasis, the sheet colour with a subtle border, one line.",
+      "radius": {
+        "$type": "dimension",
+        "$value": "{aifs.notification.radius}",
+        "$description": "8px, as the inline notification."
+      },
+      "close-radius": {
+        "$type": "dimension",
+        "$value": "{aifs.radius.control}",
+        "$description": "4px on the close button's hover fill: concentric with the bar's 8px, 4px inside it."
+      },
+      "padding-y": {
+        "$type": "dimension",
+        "$value": "{aifs.aside.padding-y}",
+        "$description": "12px above and below, as an aside."
+      },
+      "padding-x": {
+        "$type": "dimension",
+        "$value": "{spacing.composition.space-05}",
+        "$description": "12px at the sides, so the close button's hover fill keeps the same inset as above it."
+      },
+      "gap": {
+        "$type": "dimension",
+        "$value": "{spacing.composition.space-04}",
+        "$description": "8px between icon, text and close button, and between two banners."
+      },
+      "enter-duration": {
+        "$type": "duration",
+        "$value": "{motion.duration.transition}",
+        "$description": "200ms fade-in, the first time a banner appears in a session. Off with reduced motion."
+      },
+      "enter-easing": {
+        "$type": "cubicBezier",
+        "$value": "{motion.easing.enter}",
+        "$description": "Telekom's enter (ease-out) curve: no overshoot."
+      },
+      "icon-size": {
+        "$type": "dimension",
+        "$value": "{aifs.aside.icon-size}",
+        "$description": "20px, as in the asides and Scale's inline notification."
+      },
+      "icon": {
+        "$type": "color",
+        "$value": "{aifs.notification.informational.icon}",
+        "$description": "Icon colour on both banners: Telekom's informational text-and-icon colour, 3:1 or more on the tint and the sheet."
+      },
+      "text-gap": {
+        "$type": "dimension",
+        "$value": "{aifs.aside.text-gap}",
+        "$description": "4px between the lead, the list and the closing line."
+      },
+      "list-gap": {
+        "$type": "dimension",
+        "$value": "{spacing.composition.space-02}",
+        "$description": "2px between list items."
+      },
+      "list-indent": {
+        "$type": "dimension",
+        "$value": "{spacing.composition.space-06}",
+        "$description": "16px list indent for the bullets."
+      },
+      "new-tint": {
+        "$type": "color",
+        "$value": "{aifs.notification.informational.background}",
+        "$description": "Telekom's informational subtle colour, mixed into the sheet by new-tint-strength for the New models banner. Calm blue, not brand magenta, so the banner does not compete with the primary button."
+      },
+      "new-tint-strength": {
+        "$type": "number",
+        "$value": "{aifs.aside.tint-opacity}",
+        "$description": "The asides' tint, so the banner reads like a note."
+      },
+      "notice-background": {
+        "$type": "color",
+        "$value": "{aifs.layout.sheet}",
+        "$description": "The Notice banner sits on the sheet colour: lower emphasis than New."
+      },
+      "notice-border": {
+        "$type": "color",
+        "$value": "{aifs.color.border.subtle}",
+        "$description": "Subtle 1px outline of the Notice banner."
+      },
+      "border-width": {
+        "$type": "dimension",
+        "$value": "{aifs.border-width.standard}",
+        "$description": "1px outline of the Notice banner."
+      }
     },
     "logo": {
       "$description": "The Logo component: a creator's logo in a white rounded square with a hairline border. Three sizes; the image sits inside a small inset. Scale has no logo component.",

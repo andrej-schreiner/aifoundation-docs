@@ -4,12 +4,13 @@
 // hidden on phones below 31rem), search, version, theme and language
 // selects, and the API key button (in English "API key" below 22.5rem, as
 // short as the German "API-Key").
-// The menu button sits at the start of the header, before the logo, at every
-// width. Below 50rem it opens the site navigation over the page (Starlight's
-// phone menu); from 50rem it shows and hides the sidebar, which starts
-// shown; a hidden sidebar stays hidden for the session. It replaces
-// Starlight's own menu button, which sits at the end of the header and only
-// on phones (hidden in redesign.css).
+// The menu button sits at the start of the header, before the logo, below
+// 50rem only, where the sidebar is not in the page: it opens the site
+// navigation over the page (Starlight's phone menu). From 50rem the sidebar
+// is always shown beside the content, so the button is not drawn
+// (display: none, so it is neither focusable nor announced) and the logo
+// starts the header. It replaces Starlight's own menu button, which sits at
+// the end of the header (hidden in redesign.css).
 import config from 'virtual:starlight/user-config';
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import Search from 'virtual:starlight/components/Search';
@@ -42,25 +43,17 @@ const showSearch =
 	<div class="ts-start">
 		{
 			hasSidebar && (
-				<>
-					<script is:inline>
-						try {
-							if (sessionStorage.getItem('aifsNavHidden') === '1')
-								document.documentElement.setAttribute('data-nav-hidden', '');
-						} catch (e) {}
-					</script>
-					<Button
-						variant="ghost"
-						iconOnly
-						ariaLabel={menu}
-						class="ts-menu-toggle"
-						aria-expanded="false"
-						aria-controls="starlight__sidebar"
-					>
-						<Icon name="action-menu" size={24} class="ts-menu-open" />
-						<Icon name="action-close" size={24} class="ts-menu-close" />
-					</Button>
-				</>
+				<Button
+					variant="ghost"
+					iconOnly
+					ariaLabel={menu}
+					class="ts-menu-toggle"
+					aria-expanded="false"
+					aria-controls="starlight__sidebar"
+				>
+					<Icon name="action-menu" size={24} class="ts-menu-open" />
+					<Icon name="action-close" size={24} class="ts-menu-close" />
+				</Button>
 			)
 		}
 		<a class="ts-brand" href={home} aria-label={`AI Foundation Services, ${subline}`}>
@@ -117,6 +110,14 @@ const showSearch =
 	/* The close icon shows only while the phone menu is open. */
 	.ts-start :global(.ts-menu-close) {
 		display: none;
+	}
+
+	/* From 50rem the sidebar is in the page: no menu button. display: none
+	   also takes it out of the tab order and the accessibility tree. */
+	@media (min-width: 50rem) {
+		.ts-start :global(.ts-menu-toggle) {
+			display: none;
+		}
 	}
 
 	@media (max-width: 49.99rem) {
@@ -381,43 +382,32 @@ const showSearch =
 	initSettings();
 	document.addEventListener('astro:page-load', initSettings);
 
-	// The menu button at the start of the header. Below 50rem it opens and
-	// closes the phone menu: Starlight's data-mobile-menu-expanded on <body>
-	// (which also stops the page scrolling) shows the sidebar pane over the
-	// page (layout.css). From 50rem it hides and shows the sidebar
-	// (data-nav-hidden on <html>, kept in sessionStorage; an inline script
-	// above sets it before the sidebar is drawn). aria-expanded says whether
-	// the navigation is shown at the current width.
+	// The menu button at the start of the header, below 50rem only (from
+	// 50rem it is not drawn and the sidebar is always in the page). It opens
+	// and closes the phone menu: Starlight's data-mobile-menu-expanded on
+	// <body> (which also stops the page scrolling) shows the sidebar pane over
+	// the page (layout.css). aria-expanded says whether the menu is open.
 	function initMenu() {
 		const toggle = document.querySelector<HTMLButtonElement>('.ts-menu-toggle');
 		if (!toggle || toggle.dataset.bound) return;
 		toggle.dataset.bound = 'true';
 		const wide = window.matchMedia('(min-width: 50rem)');
-		const root = document.documentElement;
 
-		const sync = () => {
-			const shown = wide.matches
-				? !root.hasAttribute('data-nav-hidden')
-				: document.body.hasAttribute('data-mobile-menu-expanded');
-			toggle.setAttribute('aria-expanded', String(shown));
-		};
+		// An earlier version could hide the sidebar from 50rem for the session;
+		// that choice is gone, so a stale flag must not hide it.
+		try {
+			sessionStorage.removeItem('aifsNavHidden');
+		} catch {}
+		document.documentElement.removeAttribute('data-nav-hidden');
+
 		const setPhoneMenu = (open: boolean) => {
 			document.body.toggleAttribute('data-mobile-menu-expanded', open);
-			sync();
+			toggle.setAttribute('aria-expanded', String(open));
 		};
 
 		toggle.addEventListener('click', () => {
-			if (wide.matches) {
-				const hide = !root.hasAttribute('data-nav-hidden');
-				root.toggleAttribute('data-nav-hidden', hide);
-				try {
-					if (hide) sessionStorage.setItem('aifsNavHidden', '1');
-					else sessionStorage.removeItem('aifsNavHidden');
-				} catch {}
-				sync();
-			} else {
-				setPhoneMenu(!document.body.hasAttribute('data-mobile-menu-expanded'));
-			}
+			if (wide.matches) return;
+			setPhoneMenu(!document.body.hasAttribute('data-mobile-menu-expanded'));
 		});
 
 		document.addEventListener('keydown', (e) => {
@@ -428,8 +418,10 @@ const showSearch =
 		});
 
 		// Growing past 50rem closes the phone menu: the sidebar is in the page.
-		wide.addEventListener('change', () => setPhoneMenu(false));
-		sync();
+		wide.addEventListener('change', () => {
+			if (wide.matches) setPhoneMenu(false);
+		});
+		setPhoneMenu(false);
 	}
 	initMenu();
 	document.addEventListener('astro:page-load', initMenu);
