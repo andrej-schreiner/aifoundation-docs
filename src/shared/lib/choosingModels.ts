@@ -170,8 +170,8 @@ export const CHOICE_ROWS: ChoiceRow[] = [
   {
     id: 'ocr',
     useCase: { en: 'OCR', de: 'OCR' },
-    recommended: 'LightOnOCR-3-4B-Preview',
-    alternative: 'PaddleOCR-VL-1.6-Preview',
+    recommended: 'LightOnOCR-3-4B',
+    alternative: 'PaddleOCR-VL-1.6',
     notes: {
       en: 'Both run on T-Cloud, in the Essential, Professional and Agentic plans. Context windows are 32K and 128K.',
       de: 'Beide laufen auf T-Cloud, in den Tarifen Essential, Professional und Agentic. Die Kontextfenster sind 32K und 128K.',

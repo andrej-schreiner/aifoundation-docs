@@ -29,7 +29,7 @@ AI Foundation Services provides vision models that can analyze images alongside 
       -H "Authorization: Bearer $OPENAI_API_KEY" \
       -H "Content-Type: application/json" \
       -d '{
-        "model": "Qwen-3.6-35B-FP8",
+        "model": "Qwen3.6-35B-A3B-FP8",
         "messages": [
           {
             "role": "user",
@@ -50,7 +50,7 @@ AI Foundation Services provides vision models that can analyze images alongside 
     client = OpenAI()
 
     response = client.chat.completions.create(
-        model="Qwen-3.6-35B-FP8",
+        model="Qwen3.6-35B-A3B-FP8",
         messages=[
             {
                 "role": "user",
@@ -78,7 +78,7 @@ AI Foundation Services provides vision models that can analyze images alongside 
     const client = new OpenAI();
 
     const response = await client.chat.completions.create({
-      model: "Qwen-3.6-35B-FP8",
+      model: "Qwen3.6-35B-A3B-FP8",
       messages: [
         {
           role: "user",
@@ -120,7 +120,7 @@ def encode_image(image_path):
 base64_image = encode_image("/path/to/your/image.jpg")
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {
             "role": "user",
@@ -148,7 +148,7 @@ The models below are examples used in this guide. Other models on the platform a
 
 | Model (example) | Provider | Capabilities |
 |---|---|---|
-| `Qwen-3.6-35B-FP8` | T-Cloud, Germany&nbsp;(EU) | Text and image input |
+| `Qwen3.6-35B-A3B-FP8` | T-Cloud, Germany&nbsp;(EU) | Text and image input |
 | `gemma-4-31B-it-FP8` | T-Cloud, Germany&nbsp;(EU) | Text and image input |
 
 ## Limitations and troubleshooting
@@ -156,7 +156,7 @@ The models below are examples used in this guide. Other models on the platform a
 For scanned pages and handwriting, use the two [OCR](/guides/ocr) models.
 
 :::caution[Per-request image limits differ by model]
-T-Cloud-hosted models cap how many images one request may contain, and **the cap is not the same for every model**. `gemma-4-31B-it-FP8` accepts 10. `Qwen-3.6-35B-FP8` accepts 8.
+T-Cloud-hosted models cap how many images one request may contain, and **the cap is not the same for every model**. `gemma-4-31B-it-FP8` accepts 10. `Qwen3.6-35B-A3B-FP8` accepts 8.
 
 Exceeding the cap returns HTTP 400, either `At most 10 image(s) may be provided in one prompt.` or `Image count 9 exceeds limit 8 per request.` Split large batches into multiple requests.
 :::

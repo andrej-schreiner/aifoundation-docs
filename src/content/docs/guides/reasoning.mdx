@@ -76,7 +76,7 @@ from openai import OpenAI
 client = OpenAI()
 
 response = client.chat.completions.create(
-    model="Qwen-3.6-35B-FP8",
+    model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
         {"role": "user", "content": "/no_think What is your name?"},
