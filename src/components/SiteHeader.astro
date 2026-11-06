@@ -293,7 +293,7 @@ const showSearch =
 		}
 
 		/* The search field fills its column, wider than Starlight's 22rem. */
-		.ts-search :global(site-search button) {
+		.ts-search :global(site-search > button[data-open-modal]) {
 			width: 100%;
 			max-width: none;
 		}

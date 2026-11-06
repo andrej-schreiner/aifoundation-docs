@@ -471,7 +471,7 @@ starlight-menu-button {
 }
 
 @media (max-width: 50rem) {
-	site-search button {
+	site-search > button[data-open-modal] {
 		display: inline-grid;
 		place-items: center;
 		min-width: 44px;
