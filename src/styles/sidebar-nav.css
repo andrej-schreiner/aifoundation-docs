@@ -51,7 +51,9 @@
 	padding-inline-end: var(--aifs-sidebar-nav-padding-end);
 }
 
-.sidebar-content .large {
+/* A group's label inherits its row's size; a top-level link (also .large)
+   keeps the entries' size and colour from the rule above. */
+.sidebar-content span.large {
 	color: inherit;
 	font-size: inherit;
 	font-weight: inherit;

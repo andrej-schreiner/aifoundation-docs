@@ -348,7 +348,7 @@ export default defineConfig({
 				},
 				{
 					// Language-aware Service Description PDF link, normalized at runtime.
-					// The sidebar "Links" entry is authored as an ABSOLUTE production URL
+					// The sidebar's Service Description entry is authored as an ABSOLUTE production URL
 					// in the config on purpose: Starlight localizes root-relative sidebar
 					// links (…/files → /de/files, a 404), and the link-checker skips
 					// external URLs. At runtime this script rewrites absolute Service
@@ -357,10 +357,12 @@ export default defineConfig({
 					// deployed host. Every Service Description link resolves to the one
 					// current document in the page's language: the German edition on
 					// German pages (including fallback pages under /de/), the English
-					// edition everywhere else. Runs on first load and on Starlight
+					// edition everywhere else. On German pages it also sets the German
+					// accessible name of sidebar links that carry one
+					// (`data-aria-label-de`). Runs on first load and on Starlight
 					// view-transition navigations.
 					tag: 'script',
-					content: `(function(){function fix(){var file=document.documentElement.lang==='de'?'Leistungsbeschreibung-LLM-Serving-Service.pdf':'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"],a[href*="Leistungsbeschreibung_LLM_Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/'+file);});}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
+					content: `(function(){function fix(){var file=document.documentElement.lang==='de'?'Leistungsbeschreibung-LLM-Serving-Service.pdf':'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';document.querySelectorAll('a[href*="Leistungsbeschreibung-LLM-Serving-Service"],a[href*="Leistungsbeschreibung_LLM_Serving-Service"]').forEach(function(a){a.setAttribute('href','/files/'+file);});if(document.documentElement.lang==='de'){document.querySelectorAll('a[data-aria-label-de]').forEach(function(a){a.setAttribute('aria-label',a.getAttribute('data-aria-label-de'));});}}document.addEventListener('astro:page-load',fix);if(document.readyState!=='loading'){fix();}else{document.addEventListener('DOMContentLoaded',fix);}})();`,
 				},
 				{
 					// Hide a dismissed notice before first paint so the bars
@@ -522,6 +524,16 @@ export default defineConfig({
 						{ label: 'Glossary', translations: { de: 'Glossar' }, slug: 'getting-started/concepts' },
 					],
 				},
+				// Last, after the groups: two links that open in a new tab, with
+				// Telekom's external-link icon (icons.css). SmartChat's path is
+				// localized by Starlight (/de/smartchat/overview/) and redirects to
+				// the SmartChat docs (`redirects` above). The Service Description is
+				// an absolute URL so Starlight does not prefix /de; the head script
+				// above points it at /files/ in the page's language. Starlight's
+				// `attrs` are not translated, so the German accessible name is in
+				// `data-aria-label-de`, which the same script applies on German pages.
+				{ label: 'SmartChat', translations: { de: 'SmartChat' }, link: '/smartchat/overview/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'SmartChat (opens in a new tab)', 'data-aria-label-de': 'SmartChat (öffnet in neuem Tab)' } },
+				{ label: 'Service Description', translations: { de: 'Leistungsbeschreibung' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in a new tab)', 'data-aria-label-de': 'Leistungsbeschreibung, PDF (öffnet in neuem Tab)' } },
 		],
 		}),
 		archiveSnapshots(),
