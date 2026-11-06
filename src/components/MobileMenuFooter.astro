@@ -1,12 +1,27 @@
 ---
 // Site part, not for reuse. Starlight's MobileMenuFooter slot: version, theme
-// and language selects at the bottom of the phone menu.
+// and language selects at the bottom of the phone menu, after the SmartChat
+// and Service Description links (in the header from 50rem), drawn as sidebar
+// entries, with the sidebar's external-link icon (icons.css).
 import LanguageSelect from 'virtual:starlight/components/LanguageSelect';
 import ThemeSelect from 'virtual:starlight/components/ThemeSelect';
 import VersionSelect from './VersionSelect.astro';
+
+const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
+const smartchatHref = isDE ? '/de/smartchat/overview/' : '/smartchat/overview/';
+const smartchatAria = isDE ? 'SmartChat (öffnet in neuem Tab)' : 'SmartChat (opens in a new tab)';
+const sdLabel = isDE ? 'Leistungsbeschreibung' : 'Service Description';
+const sdHref = isDE
+	? '/files/Leistungsbeschreibung-LLM-Serving-Service.pdf'
+	: '/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';
+const sdAria = isDE
+	? 'Leistungsbeschreibung, PDF (öffnet in neuem Tab)'
+	: 'Service Description PDF (opens in a new tab)';
 ---
 
 <div class="mobile-preferences">
+	<a class="mobile-link" href={smartchatHref} target="_blank" rel="noopener noreferrer" aria-label={smartchatAria}>SmartChat</a>
+	<a class="mobile-link" href={sdHref} target="_blank" rel="noopener noreferrer" aria-label={sdAria}>{sdLabel}</a>
 	<VersionSelect />
 	<ThemeSelect />
 	<LanguageSelect />
@@ -22,6 +37,11 @@ import VersionSelect from './VersionSelect.astro';
 		padding: 12px 16px calc(16px + 4.75rem);
 		border-top: 1px solid var(--aifs-layout-divider);
 		background: var(--aifs-color-surface-page);
+	}
+
+	/* The entries' text lines up with the selects' edges. */
+	.mobile-link {
+		margin-inline-start: calc(-1 * var(--aifs-sidebar-nav-padding-start));
 	}
 
 	.mobile-preferences :global(label) {

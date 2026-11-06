@@ -3,7 +3,9 @@
 // menu button (on pages with a sidebar), logo (the T, the site name and under it the subline "Technical documentation",
 // hidden on phones below 31rem), search, version, theme and language
 // selects, and the API key button (in English "API key" below 22.5rem, as
-// short as the German "API-Key").
+// short as the German "API-Key"), with the SmartChat and Service Description
+// links before the selects (in the More panel from 50 to 90rem, in the phone
+// menu's footer below 50rem).
 // The menu button sits at the start of the header, before the logo, at every
 // width. Below 50rem it opens the site navigation over the page (Starlight's
 // phone menu); from 50rem it shows and hides the sidebar, which starts
@@ -19,9 +21,10 @@ import VersionSelect from './VersionSelect.astro';
 import Icon from './Icon.astro';
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
-// From 50 to 72rem the search and the version, theme and language selects
-// move into one panel under a More button, so the site name keeps its room. Phones have their own
-// menu (MobileMenuFooter) and keep the search icon.
+// From 50 to 90rem the links and the version, theme and language selects
+// move into one panel under a More button, so the site name and the search
+// keep their room; from 50 to 72rem the search moves there too. Phones have
+// their own menu (MobileMenuFooter) and keep the search icon.
 const more = isDE ? 'Mehr' : 'More';
 const menu = Astro.locals.t('menuButton.accessibleLabel');
 const hasSidebar = Astro.locals.starlightRoute.hasSidebar;
@@ -34,6 +37,17 @@ const ctaShort = isDE ? 'API-Key' : 'API key';
 const ctaAria = isDE
 	? 'API-Key generieren (öffnet in neuem Tab)'
 	: 'Get API key (opens in a new tab)';
+// SmartChat's docs path redirects to docs.smartchat.ai.t-systems.net; the
+// Service Description is a PDF. Both open in a new tab, like the API key.
+const smartchatHref = isDE ? '/de/smartchat/overview/' : '/smartchat/overview/';
+const smartchatAria = isDE ? 'SmartChat (öffnet in neuem Tab)' : 'SmartChat (opens in a new tab)';
+const sdLabel = isDE ? 'Leistungsbeschreibung' : 'Service Description';
+const sdHref = isDE
+	? '/files/Leistungsbeschreibung-LLM-Serving-Service.pdf'
+	: '/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';
+const sdAria = isDE
+	? 'Leistungsbeschreibung, PDF (öffnet in neuem Tab)'
+	: 'Service Description PDF (opens in a new tab)';
 const showSearch =
 	config.pagefind || config.components?.Search !== '@astrojs/starlight/components/Search.astro';
 ---
@@ -85,6 +99,8 @@ const showSearch =
 		</Button>
 		<div class="ts-settings" id="ts-settings">
 			<div class="ts-settings__search" data-search-menu></div>
+			<Button variant="ghost" class="ts-link" href={smartchatHref} target="_blank" rel="noopener noreferrer" ariaLabel={smartchatAria}>SmartChat</Button>
+			<Button variant="ghost" class="ts-link" href={sdHref} target="_blank" rel="noopener noreferrer" ariaLabel={sdAria}>{sdLabel}</Button>
 			<VersionSelect />
 			<ThemeSelect />
 			<LanguageSelect />
@@ -201,9 +217,10 @@ const showSearch =
 		display: none;
 	}
 
-	/* Below 72rem: one More button; the selects open in a panel under
-	   it, drawn like a filter field's menu. */
-	@media (max-width: 71.99rem) {
+	/* Below 90rem: one More button; the links and selects open in a panel
+	   under it, drawn like a filter field's menu. Below 90rem they would
+	   squeeze the search field to nothing. */
+	@media (max-width: 89.99rem) {
 		.ts-tools :global(.ts-settings-toggle) {
 			display: inline-flex;
 		}
@@ -246,6 +263,11 @@ const showSearch =
 
 		.ts-settings__search:empty {
 			display: none;
+		}
+
+		/* The links start at the panel's edge, like the selects' labels. */
+		.ts-settings :global(.ts-link) {
+			justify-content: flex-start;
 		}
 	}
 
@@ -346,9 +368,9 @@ const showSearch =
 	menuWidth.addEventListener('change', placeSearch);
 	document.addEventListener('astro:page-load', placeSearch);
 
-	// The More button (50 to 72rem) shows and hides the panel with the search
-	// and the version, theme and language selects. Escape and a click
-	// outside close it.
+	// The More button (50 to 90rem) shows and hides the panel with the links,
+	// the version, theme and language selects and (below 72rem) the search.
+	// Opening it focuses its first item; Escape and a click outside close it.
 	function initSettings() {
 		const toggle = document.querySelector<HTMLButtonElement>('.ts-settings-toggle');
 		const panel = document.getElementById('ts-settings');
@@ -363,7 +385,7 @@ const showSearch =
 		toggle.addEventListener('click', () => {
 			const open = toggle.getAttribute('aria-expanded') !== 'true';
 			setOpen(open);
-			if (open) panel.querySelector<HTMLElement>('button[data-open-modal], select')?.focus();
+			if (open) panel.querySelector<HTMLElement>('button[data-open-modal], a, select')?.focus();
 		});
 
 		panel.addEventListener('keydown', (e) => {
