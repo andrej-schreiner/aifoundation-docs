@@ -49,8 +49,9 @@
 
 ## Integrations
 
-- [LangChain](https://docs.llmhub.t-systems.net/integrations/langchain): Use langchain-openai against AI Foundation Services.
-- [LlamaIndex](https://docs.llmhub.t-systems.net/integrations/llama-index): Point the OpenAI-compatible client at AI Foundation Services.
+- [Integrations](https://docs.llmhub.t-systems.net/integrations): Tools built for OpenAI work once you set the base URL and key.
+- [AI Engineer](https://docs.llmhub.t-systems.net/aie/overview): T-Systems coding tools.
+- [Coding agent setup](https://docs.llmhub.t-systems.net/getting-started/coding-agents): Connect a coding tool or IDE plugin.
 
 ## Optional
 

@@ -148,7 +148,13 @@ export default defineConfig({
 		'/models/catalog': '/models/#catalog',
 		'/de/models/catalog': '/de/models/#katalog',
 		'/Introduction': '/',
-		'/Model Serving/langchain': '/integrations/langchain',
+		'/Model Serving/langchain': '/integrations/',
+		// LangChain and LlamaIndex pages removed (issue #49): the Integrations
+		// page instead. The archived versions keep their own copies.
+		'/integrations/langchain': '/integrations/',
+		'/de/integrations/langchain': '/de/integrations/',
+		'/integrations/llama-index': '/integrations/',
+		'/de/integrations/llama-index': '/de/integrations/',
 		'/Services and Pricing': '/plans',
 		'/guides/fine-tuning': '/plans/dedicated#optional-services',
 		'/de/guides/fine-tuning': '/de/plans/dedicated#optionale-leistungen',
@@ -482,8 +488,7 @@ export default defineConfig({
 					translations: { de: 'Integrationen' },
 					collapsed: true,
 					items: [
-						{ label: 'LangChain', translations: { de: 'LangChain' }, slug: 'integrations/langchain' },
-						{ label: 'LlamaIndex', translations: { de: 'LlamaIndex' }, slug: 'integrations/llama-index' },
+						{ label: 'Overview', translations: { de: 'Überblick' }, slug: 'integrations' },
 						{ label: 'AI Engineer', translations: { de: 'AI Engineer' }, slug: 'aie/overview' },
 					],
 				},
