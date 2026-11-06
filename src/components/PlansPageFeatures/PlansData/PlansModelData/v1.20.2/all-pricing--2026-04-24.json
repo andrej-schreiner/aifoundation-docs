@@ -1152,7 +1152,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "LightOnOCR-3-4B-Preview",
+        "exactModelName": "LightOnOCR-3-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 60000,
@@ -1176,7 +1176,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "PaddleOCR-VL-1.6-Preview",
+        "exactModelName": "PaddleOCR-VL-1.6",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 82500,
@@ -2553,7 +2553,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "LightOnOCR-3-4B-Preview",
+        "exactModelName": "LightOnOCR-3-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 120000,
@@ -2577,7 +2577,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "PaddleOCR-VL-1.6-Preview",
+        "exactModelName": "PaddleOCR-VL-1.6",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 165000,
@@ -3954,7 +3954,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "LightOnOCR-3-4B-Preview",
+        "exactModelName": "LightOnOCR-3-4B",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 200000,
@@ -3978,7 +3978,7 @@
         "modelTier": "standard"
       },
       {
-        "exactModelName": "PaddleOCR-VL-1.6-Preview",
+        "exactModelName": "PaddleOCR-VL-1.6",
         "inputTokenPerMinute": 0,
         "outputTokenPerMinute": 0,
         "inputTokenPerMinuteLimit": 275000,

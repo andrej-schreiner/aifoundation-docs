@@ -232,8 +232,8 @@ const MODEL_CAPABILITY_OVERRIDES: Record<string, Partial<Capabilities>> = {
   // none or "grounding"; PaddleOCR-VL: a task prompt such as "OCR:"), not
   // free text, so you cannot send text or ask questions about the image.
   // Streaming works; no tool calling.
-  'LightOnOCR-3-4B-Preview':  { inputModalities: ['Image'], streaming: true, toolCalling: false },
-  'PaddleOCR-VL-1.6-Preview': { inputModalities: ['Image'], streaming: true, toolCalling: false },
+  'LightOnOCR-3-4B':          { inputModalities: ['Image'], streaming: true, toolCalling: false },
+  'PaddleOCR-VL-1.6':         { inputModalities: ['Image'], streaming: true, toolCalling: false },
   'gpt-4o-2024-11-20':             { inputModalities: ['Text', 'Image'] },
   'gpt-4o-mini-2024-07-18':        { inputModalities: ['Text', 'Image'] },
   'gpt-4.1-2025-04-14':            { inputModalities: ['Text', 'Image'] },
@@ -376,8 +376,9 @@ interface CompiledModel {
 // the LLM Hub one.
 // 'completion_tokens_details' = the OpenAI field completion_tokens_details.reasoning_tokens
 // (vLLM-served models); 'usage' = top-level usage.reasoning_tokens (SGLang-served models);
-// 'none' = the model reports no reasoning token count.
-type ReasoningTokensUsage = 'completion_tokens_details' | 'usage' | 'none';
+// 'none' = the model reports no reasoning token count; 'both' = the model is served by
+// two backends, and each response carries one of the two fields (see the data file).
+type ReasoningTokensUsage = 'completion_tokens_details' | 'usage' | 'both' | 'none';
 const reasoningTokensUsageByName = new Map<string, ReasoningTokensUsage>(
   Object.entries(reasoningTokensUsageData.models as Record<string, ReasoningTokensUsage>).map(([name, v]) => [
     name.toLowerCase(),
@@ -640,9 +641,11 @@ const t = {
   reasoningEffortNone: '—',
   colReasoningTokensUsage: isDE ? 'Reasoning-Tokens' : 'Reasoning tokens',
   tooltipReasoningTokensUsage: isDE
-    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens oder nicht gemeldet (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
-    : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
+    ? 'Wo die Antwort die Anzahl der Reasoning-Tokens im usage-Objekt meldet: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, eines der beiden je nach Backend oder nicht gemeldet (das Modell denkt, die Antwort enthält aber keine Zahl). „-“: das Modell hat kein Reasoning.'
+    : 'Where the response reports the number of reasoning tokens in the usage object: completion_tokens_details.reasoning_tokens, usage.reasoning_tokens, either of the two depending on the backend, or not reported (the model reasons, but the response carries no count). "-": the model has no reasoning.',
   reasoningTokensNotReported: isDE ? 'nicht gemeldet' : 'not reported',
+  reasoningTokensOr: isDE ? 'oder' : 'or',
+  reasoningTokensPerBackend: isDE ? '(je nach Backend, das die Anfrage bedient; prüfen Sie beide)' : '(depends on the backend that serves the request; check both)',
   reasoningTokensUnknown: '—',
   // Plan preset
   colLocation: isDE ? 'Standort' : 'Location',
@@ -1242,6 +1245,7 @@ const rowDataPayload = rows.map((m) => ({
                   <span class="mc-usage-field">
                     {m.reasoningTokensUsage === 'completion_tokens_details' && <code set:html={withWrapPoints('completion_tokens_details.reasoning_tokens')} />}
                     {m.reasoningTokensUsage === 'usage' && <code set:html={withWrapPoints('usage.reasoning_tokens')} />}
+                    {m.reasoningTokensUsage === 'both' && <><code set:html={withWrapPoints('completion_tokens_details.reasoning_tokens')} />{` ${t.reasoningTokensOr} `}<code set:html={withWrapPoints('usage.reasoning_tokens')} />{' '}<span class="mc-usage-field__none">{t.reasoningTokensPerBackend}</span></>}
                     {m.reasoningTokensUsage === 'none' && <span class="mc-usage-field__none">{t.reasoningTokensNotReported}</span>}
                     {m.reasoningTokensUsage === null && <span aria-label={t.notDocumented}>{t.reasoningTokensUnknown}</span>}
                   </span>
@@ -1375,7 +1379,7 @@ const rowDataPayload = rows.map((m) => ({
     contextWindowRaw: string;
     contextWindowNum: number;
     reasoningEffort: string[];
-    reasoningTokensUsage: 'completion_tokens_details' | 'usage' | 'none' | null;
+    reasoningTokensUsage: 'completion_tokens_details' | 'usage' | 'both' | 'none' | null;
     inputPrice: number | null;
     outputPrice: number | null;
     cachedInputPrice: number | null;
@@ -1650,10 +1654,10 @@ const rowDataPayload = rows.map((m) => ({
           bv = b.reasoningEffort.length > 0 ? -b.reasoningEffort.length : Number.POSITIVE_INFINITY;
           break;
         case 'reasoningTokensUsage': {
-          // Standard field first, then top-level, then "not reported", then "-".
-          const rank = { completion_tokens_details: 0, usage: 1, none: 2 } as const;
-          av = a.reasoningTokensUsage ? rank[a.reasoningTokensUsage] : 3;
-          bv = b.reasoningTokensUsage ? rank[b.reasoningTokensUsage] : 3;
+          // Standard field first, then top-level, then either, then "not reported", then "-".
+          const rank = { completion_tokens_details: 0, usage: 1, both: 2, none: 3 } as const;
+          av = a.reasoningTokensUsage ? rank[a.reasoningTokensUsage] : 4;
+          bv = b.reasoningTokensUsage ? rank[b.reasoningTokensUsage] : 4;
           break;
         }
         case 'plans':

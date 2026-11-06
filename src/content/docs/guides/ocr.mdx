@@ -29,7 +29,7 @@ Both are open-weight models hosted on T-Cloud Public in Germany, so your documen
 
 | <span class="sr-only">Aspect</span> | **LightOnOCR-3-4B** | **PaddleOCR-VL-1.6** |
 |---|---|---|
-| Model ID | `LightOnOCR-3-4B-Preview` | `PaddleOCR-VL-1.6-Preview` |
+| Model ID | `LightOnOCR-3-4B` | `PaddleOCR-VL-1.6` |
 | Made by | [LightOn](https://www.lighton.ai), Paris, France | [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR) (Baidu) |
 | One request | **one page image** → the whole page as Markdown | **one page element** (text block, table, formula, chart) |
 | Output | Markdown; tables as HTML, math as LaTeX; optional layout blocks with boxes | text, tables, LaTeX formulas, chart data; as Markdown/JSON through the PaddleOCR pipeline |
@@ -84,7 +84,7 @@ One request per page: send the page image with no text prompt, get the page back
 
 
     response = client.chat.completions.create(
-        model="LightOnOCR-3-4B-Preview",
+        model="LightOnOCR-3-4B",
         messages=[{
             "role": "user",
             "content": [{"type": "image_url", "image_url": {"url": page_to_data_url("document.pdf")}}],
@@ -100,7 +100,7 @@ One request per page: send the page image with no text prompt, get the page back
     Save the page as `page.png` first (2048 px longest edge). The request body goes into a file because a base64 page is too long for the command line.
 
     ```bash
-    printf '{"model": "LightOnOCR-3-4B-Preview", "temperature": 0.2, "top_p": 0.9, "max_tokens": 4096,
+    printf '{"model": "LightOnOCR-3-4B", "temperature": 0.2, "top_p": 0.9, "max_tokens": 4096,
       "messages": [{"role": "user", "content": [
         {"type": "image_url", "image_url": {"url": "data:image/png;base64,%s"}}]}]}' \
       "$(base64 < page.png | tr -d '\n')" > request.json
@@ -132,7 +132,7 @@ Send the text prompt `grounding` after the image. Every block of the page then s
 import re
 
 response = client.chat.completions.create(
-    model="LightOnOCR-3-4B-Preview",
+    model="LightOnOCR-3-4B",
     messages=[{
         "role": "user",
         "content": [
@@ -179,7 +179,7 @@ pages = [page_to_data_url(pdf_path, page=i) for i in range(len(pdfium.PdfDocumen
 
 def ocr_page(data_url):
     response = client.chat.completions.create(
-        model="LightOnOCR-3-4B-Preview",
+        model="LightOnOCR-3-4B",
         messages=[{"role": "user", "content": [{"type": "image_url", "image_url": {"url": data_url}}]}],
         temperature=0.2,
         top_p=0.9,
@@ -208,7 +208,7 @@ LightOn's [`lightonocr`](https://github.com/lightonai/LightOnOCR) package render
     ocr = LightOnOCR(
         base_url=os.environ["OPENAI_BASE_URL"],
         api_key=os.environ["OPENAI_API_KEY"],
-        model="LightOnOCR-3-4B-Preview",  # always set the model
+        model="LightOnOCR-3-4B",  # always set the model
         timeout=300,
     )
 
@@ -223,7 +223,7 @@ LightOn's [`lightonocr`](https://github.com/lightonai/LightOnOCR) package render
   <TabItem value="cli" label="CLI">
     ```bash
     export LIGHTONOCR_API_KEY=$OPENAI_API_KEY
-    lightonocr report.pdf --base-url "$OPENAI_BASE_URL" --model LightOnOCR-3-4B-Preview \
+    lightonocr report.pdf --base-url "$OPENAI_BASE_URL" --model LightOnOCR-3-4B \
       --max-tokens 4096 --concurrency 8
     ```
 
@@ -238,7 +238,7 @@ Always pass the model ID: without it the library uses the first model the servic
 
 PaddleOCR-VL is the recognition step of a **two-stage pipeline**:
 1. A small **layout model** runs on your side and finds the blocks of the page (text, titles, tables, formulas, charts, seals) and their reading order.
-2. Each block is cropped and sent to `PaddleOCR-VL-1.6-Preview` with the matching task prompt.
+2. Each block is cropped and sent to `PaddleOCR-VL-1.6` with the matching task prompt.
 3. The results are put back together as Markdown or JSON.
 
 The model is small and fast, so a page is many short requests in parallel. Do not send whole pages with `OCR:`: on tables, the model then reads the cells as a flat list of numbers. Use the pipeline, or crop the elements yourself.
@@ -257,7 +257,7 @@ pipeline = PaddleOCRVL(
     vl_rec_backend="vllm-server",
     vl_rec_server_url=os.environ["OPENAI_BASE_URL"],
     vl_rec_api_key=os.environ["OPENAI_API_KEY"],
-    vl_rec_api_model_name="PaddleOCR-VL-1.6-Preview",
+    vl_rec_api_model_name="PaddleOCR-VL-1.6",
     vl_rec_max_concurrency=8,
     device="cpu",  # the layout model runs locally; use "gpu:0" if you have a GPU
 )
@@ -305,7 +305,7 @@ with open("table.png", "rb") as f:
     image_url = "data:image/png;base64," + base64.b64encode(f.read()).decode()
 
 response = client.chat.completions.create(
-    model="PaddleOCR-VL-1.6-Preview",
+    model="PaddleOCR-VL-1.6",
     messages=[{
         "role": "user",
         "content": [

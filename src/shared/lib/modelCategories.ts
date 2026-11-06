@@ -26,8 +26,8 @@ const PRIMARY_CATEGORY: Record<string, ModelCategory> = {
   'jina-embeddings-v2-base-de': 'embeddings',
   'qwen3-embedding-8b': 'embeddings',
   // OCR (document parsing): Image -> Text, served on chat completions.
-  'LightOnOCR-3-4B-Preview': 'llms',
-  'PaddleOCR-VL-1.6-Preview': 'llms',
+  'LightOnOCR-3-4B': 'llms',
+  'PaddleOCR-VL-1.6': 'llms',
   'text-embedding-ada-002': 'embeddings',
   'text-embedding-bge-m3': 'embeddings',
   // Reranker: SD v1.25 model type "Reranker". Not an LLM, so not on /models/llms.

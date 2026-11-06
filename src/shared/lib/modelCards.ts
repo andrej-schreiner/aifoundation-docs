@@ -15,7 +15,7 @@ export const FEATURED_MODEL_IDS: readonly string[] = [
   'GLM-5.3-Flash',
   'gpt-oss-120b',
   'Qwen-3.6-35B-FP8',
-  'LightOnOCR-3-4B-Preview',
+  'LightOnOCR-3-4B',
 ];
 
 interface Quota {
