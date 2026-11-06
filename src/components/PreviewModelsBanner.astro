@@ -1,9 +1,10 @@
 ---
 // Site-wide announcement banners — currently NVIDIA Nemotron 3.5 Embedding 8B
 // and GLM 5.3 live on the paid plans together with the DeepSeek V4.1 Flash
-// preview (New) first, then the API transition notice (Notice, linking to
-// /api-transition). Two banners at most: telekom main's separate Nemotron,
-// GLM 5.3 and DeepSeek bars are merged into the first.
+// preview (New models) first, then the API transition notice (API changes,
+// linking to /api-transition). Two banners at most: telekom main's separate
+// Nemotron, GLM 5.3 and DeepSeek bars are merged into the first, which lists
+// them one per line.
 // It replaced the GLM 5.3 / DeepSeek bar, which replaced the GLM 5.3 / DeepSeek launch bar, which replaced the Qwen3 Embedding 8B bar, which replaced the d3 preview bar,
 // which replaced the DiffusionGemma 26B A4B
 // preview bar, which replaced the
@@ -13,10 +14,14 @@
 //
 // Named generically (it was QwenPreviewBanner) because the copy is swapped
 // whenever the preview catalog changes. Each announcement is its own banner
-// (tag, text, link, close button) in the order of the `bars` array below:
-// New in a magenta-accented tint, Notice in an informational (blue) tint.
-// It replaced one combined box with a row per announcement, which replaced
-// the GA bar (Mistral Small 4 / Gemma 4), which in turn replaced GlmBanner.
+// (icon, text, link, close button) in the order of the `bars` array below.
+// They are a lighter take on Scale's inline notification, in the style of
+// the asides: a Telekom icon in the informational colour, the text in the
+// body colour, no accent line, no tag. New models: a soft informational
+// tint, a bold lead, a short list (`items`, one line per model or group)
+// and a closing line with the link. Notice: lower emphasis, the sheet
+// colour with a subtle outline, one line of text and its link. Not Scale's
+// notification banner (a full-colour strip): GAPS.md row 20.
 //
 // Placed at the top of the content column, on the sheet (portaled there by
 // the script below; the spacing is in layout.css), so the banners have the
@@ -28,31 +33,48 @@
 // pages). A hard reload clears it (detected via PerformanceNavigationTiming
 // "reload"), and a new tab starts a fresh session, so the banner returns.
 // Each banner has its own close button and storage key, and the key changes
-// with each announcement, so visitors who dismissed the previous one still
-// see this one. After a close, focus moves to the remaining banner's close
-// button, or to the page title when none is left.
+// with each announcement (or redesign), so visitors who dismissed the
+// previous one still see this one. After a close, focus moves to the
+// remaining banner's close button, or to the page title when none is left.
+
+interface Bar {
+  key: string;
+  kind: 'new' | 'notice';
+  icon: string;
+  label: string;
+  close: string;
+  lead?: string;
+  items?: string[];
+  msg: string;
+  cta: string;
+  href: string;
+}
 
 const isDE = Astro.url.pathname.startsWith('/de/') || Astro.url.pathname === '/de';
 const prefix = isDE ? '/de' : '';
 
-const bars = isDE
+const bars: Bar[] = isDE
   ? [
       {
-        key: 'nemotron35EmbedGlm53Dismissed',
+        key: 'newModelsNemotronGlm53DeepseekDismissed',
         kind: 'new',
-        badge: 'Neu',
-        tag: 'magenta',
+        icon: 'content-news',
         label: 'Neue Modelle',
         close: 'Hinweis zu neuen Modellen schließen',
-        msg: 'Jetzt in allen kostenpflichtigen Tarifen: <b>NVIDIA Nemotron 3.5 Embedding 8B</b>, mehrsprachige Embeddings mit 32K Kontextfenster, und <b>GLM 5.3</b> von Z.ai für Coding und agentische Aufgaben. Neu in der Vorschau und kostenlos testbar: <b>DeepSeek V4.1 Flash</b>. Alle gehostet in Deutschland (<span class="nowrap">T-Cloud</span>).',
+        lead: 'Neue Modelle',
+        items: [
+          '<b>NVIDIA Nemotron 3.5 Embedding 8B</b>: mehrsprachige Embeddings mit 32K Kontextfenster, in allen kostenpflichtigen Tarifen',
+          '<b>GLM 5.3</b> von Z.ai: für Coding und agentische Aufgaben, in allen kostenpflichtigen Tarifen',
+          '<b>DeepSeek V4.1 Flash</b>: neu in der Vorschau und kostenlos testbar',
+        ],
+        msg: 'Alle gehostet in Deutschland (<span class="nowrap">T-Cloud</span>).',
         cta: 'Modelle ansehen',
         href: `${prefix}/models`,
       },
       {
-        key: 'apiTransitionBannerDismissed',
+        key: 'apiTransitionNoticeDismissed',
         kind: 'notice',
-        badge: 'Hinweis',
-        tag: 'standard',
+        icon: 'alert-information',
         label: 'API-Änderungen',
         close: 'Hinweis zur API-Umstellung schließen',
         msg: 'Wir nehmen einige <b>Änderungen an der API</b> vor. Prüfen Sie, was sich ändert und was Sie tun müssen.',
@@ -62,21 +84,25 @@ const bars = isDE
     ]
   : [
       {
-        key: 'nemotron35EmbedGlm53Dismissed',
+        key: 'newModelsNemotronGlm53DeepseekDismissed',
         kind: 'new',
-        badge: 'New',
-        tag: 'magenta',
+        icon: 'content-news',
         label: 'New models',
         close: 'Dismiss new models announcement',
-        msg: 'Now on all paid plans: <b>NVIDIA Nemotron 3.5 Embedding 8B</b>, multilingual embeddings with a 32K context window, and <b>GLM 5.3</b> from Z.ai for coding and agentic tasks. New in preview and free to try: <b>DeepSeek V4.1 Flash</b>. All hosted in Germany (<span class="nowrap">T-Cloud</span>).',
+        lead: 'New models',
+        items: [
+          '<b>NVIDIA Nemotron 3.5 Embedding 8B</b>: multilingual embeddings with a 32K context window, on all paid plans',
+          '<b>GLM 5.3</b> from Z.ai: for coding and agentic tasks, on all paid plans',
+          '<b>DeepSeek V4.1 Flash</b>: new in preview and free to try',
+        ],
+        msg: 'All hosted in Germany (<span class="nowrap">T-Cloud</span>).',
         cta: 'View models',
         href: `${prefix}/models`,
       },
       {
-        key: 'apiTransitionBannerDismissed',
+        key: 'apiTransitionNoticeDismissed',
         kind: 'notice',
-        badge: 'Notice',
-        tag: 'standard',
+        icon: 'alert-information',
         label: 'API changes',
         close: 'Dismiss API changes notice',
         msg: 'We are making a few <b>API changes</b>. See what changes and what you need to do.',
@@ -85,15 +111,23 @@ const bars = isDE
       },
     ];
 import Button from './Button.astro';
-import Tag from './Tag.astro';
 import Icon from './Icon.astro';
 ---
 
 {bars.map((b) => (
-  <div class={`qp-bar qp-bar--${b.kind}`} data-key={b.key} role="region" aria-label={b.label} hidden>
-    <Tag color={b.tag as 'magenta' | 'standard'} size="small" class="qp-badge">{b.badge}</Tag>
-    <p class="qp-msg" set:html={b.msg}></p>
-    <a class="qp-cta" href={b.href}>{b.cta}</a>
+  <div class={`qp-bar qp-bar--${b.kind}`} data-key={b.key} data-pagefind-ignore role="region" aria-label={b.label} hidden>
+    <span class="qp-icon"><Icon name={b.icon} size={20} /></span>
+    <div class="qp-body">
+      {b.lead && <p class="qp-lead">{b.lead}</p>}
+      {b.items && (
+        <ul class="qp-list">
+          {b.items.map((item) => <li set:html={item} />)}
+        </ul>
+      )}
+      <p class="qp-msg">
+        <span set:html={b.msg} />{' '}<a class="qp-cta" href={b.href}>{b.cta}</a>
+      </p>
+    </div>
     <Button variant="ghost" size="small" iconOnly class="qp-close" ariaLabel={b.close}>
       <Icon name="action-close" size={16} />
     </Button>
@@ -101,10 +135,10 @@ import Icon from './Icon.astro';
 ))}
 
 <style>
-  /* One banner per announcement: tag, text, link, close button in a row.
-     A light tint and an accent line at the start, no border or shadow, in
-     the style of the asides and Scale's inline notification: magenta for
-     New, informational blue for a notice. */
+  /* One banner per announcement: icon, text, close button. A lighter take
+     on Scale's inline notification, as the asides are: no accent line, no
+     shadow. New models in a soft informational tint; a notice on the sheet
+     with a subtle outline, so it reads quieter. */
   .qp-bar {
     /* In-flow (not fixed): the banner occupies real layout space above the
        page title, so it can never cover content, and it scrolls away with
@@ -113,17 +147,13 @@ import Icon from './Icon.astro';
     box-sizing: border-box;
 
     display: grid;
-    grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
-    align-items: center;
+    grid-template-columns: var(--aifs-notice-icon-size) minmax(0, 1fr) max-content;
+    align-items: start;
     column-gap: var(--aifs-notice-gap);
-    min-height: calc(var(--aifs-button-min-height-small) + 2 * var(--aifs-notice-padding-y));
     margin: 0;
-    padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-y) var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
+    padding: var(--aifs-notice-padding-y) var(--aifs-notice-padding-x);
 
-    background: color-mix(in srgb, var(--_qp-tint) calc(var(--_qp-tint-strength) * 100%), var(--aifs-layout-sheet));
     color: var(--aifs-color-text-body);
-    border: 0;
-    border-inline-start: var(--aifs-border-width-indicator) solid var(--_qp-accent);
     border-radius: var(--aifs-notice-radius);
     box-shadow: none;
     font-size: var(--aifs-text-small-font-size);
@@ -131,15 +161,17 @@ import Icon from './Icon.astro';
   }
 
   .qp-bar--new {
-    --_qp-accent: var(--aifs-notice-new-accent);
-    --_qp-tint: var(--aifs-notice-new-tint);
-    --_qp-tint-strength: var(--aifs-notice-new-tint-strength);
+    background: color-mix(
+      in srgb,
+      var(--aifs-notice-new-tint) calc(var(--aifs-notice-new-tint-strength) * 100%),
+      var(--aifs-layout-sheet)
+    );
+    border: 0;
   }
 
   .qp-bar--notice {
-    --_qp-accent: var(--aifs-notice-info-accent);
-    --_qp-tint: var(--aifs-notice-info-tint);
-    --_qp-tint-strength: var(--aifs-notice-info-tint-strength);
+    background: var(--aifs-notice-notice-background);
+    border: var(--aifs-notice-border-width) solid var(--aifs-notice-notice-border);
   }
 
   /* The first time it appears in a session it fades in (opacity only, no
@@ -152,22 +184,46 @@ import Icon from './Icon.astro';
     display: none;
   }
 
-  /* Drawn by the Tag component (small): magenta for New, standard (grey)
-     for a notice, so magenta stays rare. */
-  .qp-bar :global(.qp-badge) {
-    justify-self: start;
+  /* The icon on the first line of text, in the informational colour. */
+  .qp-icon {
+    display: flex;
+    color: var(--aifs-notice-icon);
   }
 
-  .qp-msg {
+  .qp-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-notice-text-gap);
     min-width: 0;
+  }
+
+  .qp-lead,
+  .qp-msg,
+  .qp-list {
     margin: 0;
     /* No single word alone on the last line. */
     text-wrap: pretty;
-    color: var(--aifs-color-text-body);
   }
 
-  /* Bold in the text colour: magenta text on the tint would fall below 4.5:1. */
-  .qp-msg :global(b) {
+  .qp-lead {
+    font-weight: var(--aifs-aside-heading-font-weight);
+  }
+
+  .qp-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--aifs-notice-list-gap);
+    padding-inline-start: var(--aifs-notice-list-indent);
+    list-style: disc;
+  }
+
+  .qp-list li {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Model names in bold, in the text colour. */
+  .qp-bar :global(b) {
     color: var(--aifs-color-text-body);
     font-weight: 600;
   }
@@ -185,8 +241,10 @@ import Icon from './Icon.astro';
     color: var(--aifs-color-text-body);
   }
 
-  /* Drawn by the Button component (ghost, small, icon only). */
+  /* Drawn by the Button component (ghost, small, icon only); centred on the
+     first line of text, so it does not make the banner taller. */
   .qp-bar :global(.qp-close) {
+    margin-block: calc((var(--aifs-notice-icon-size) - var(--aifs-button-min-height-small)) / 2);
     border-radius: var(--aifs-notice-close-radius);
   }
 
@@ -195,40 +253,9 @@ import Icon from './Icon.astro';
     outline-offset: var(--aifs-button-focus-width);
   }
 
-  /* Narrow columns: the link goes under its text; the close button keeps
-     the end of the first line. */
-  @container qpstack (max-width: 40rem) {
+  @media (forced-colors: active) {
     .qp-bar {
-      grid-template-columns: max-content minmax(0, 1fr) max-content;
-      grid-template-rows: auto auto;
-      row-gap: var(--aifs-notice-row-gap-compact);
-      align-items: start;
-      padding: var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-y-compact) var(--aifs-notice-padding-y-compact)
-        var(--aifs-notice-padding-x-compact);
-    }
-
-    .qp-bar :global(.qp-badge) {
-      grid-column: 1;
-      grid-row: 1 / 3;
-      margin-top: var(--aifs-notice-padding-y);
-    }
-
-    .qp-msg {
-      grid-column: 2;
-      grid-row: 1;
-      padding-top: var(--aifs-notice-padding-y);
-    }
-
-    .qp-cta {
-      grid-column: 2;
-      grid-row: 2;
-      justify-self: start;
-      padding-bottom: var(--aifs-notice-padding-y);
-    }
-
-    .qp-bar :global(.qp-close) {
-      grid-column: 3;
-      grid-row: 1;
+      border: var(--aifs-notice-border-width) solid CanvasText;
     }
   }
 
