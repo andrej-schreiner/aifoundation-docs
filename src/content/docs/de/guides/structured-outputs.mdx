@@ -66,14 +66,12 @@ response = client.responses.create(
 print(json.dumps(json.loads(response.output_text), indent=2))
 ```
 
-{/* TODO(andrej): für diesen Aufruf liegt kein aufgezeichnetes output_text vor. Das JSON unten ist die Form, die Schema und Prompt nahelegen. */}
-
-`response.output_text` ist ein JSON-String. Beispielausgabe (illustrativ):
+`response.output_text` ist ein JSON-String. Beispielausgabe von `gpt-oss-120b` (der Wortlaut von `features` wechselt von Aufruf zu Aufruf):
 
 ```json
 {
   "product_name": "Premium Laptop Backpack",
-  "features": ["Padded compartments that fit laptops up to 15.6 inches"],
+  "features": ["Padded compartments", "Fits laptops up to 15.6 inches"],
   "colors": ["navy blue", "black", "gray"],
   "pricing": {
     "regular_price": 79.99,
@@ -87,13 +85,11 @@ print(json.dumps(json.loads(response.output_text), indent=2))
 
 Setzen Sie `model`, `input`, `max_output_tokens` und `text.format`. In `text.format` setzen Sie `type` auf `json_schema` sowie `name`, `schema` und `strict`.
 
-{/* TODO(andrej): bestätigen, ob Chat Completions response_format oder json_schema akzeptieren. Im Repo steht heute nur das Responses-API-Beispiel. */}
+Chat Completions akzeptieren dasselbe Schema als `response_format={"type": "json_schema", "json_schema": {"name": ..., "schema": ..., "strict": True}}`; der `content` der Nachricht ist dann der JSON-String. Beides ist auf `gpt-oss-120b` bestätigt.
 
 ## Modellunterstützung
 
 Die Responses API ist für Text, Tool Calls und Streaming auf `gpt-oss-120b` bestätigt. Einige Modelle antworten auf `client.responses.create` mit HTTP 400. Für diese Modelle [Chat Completions](/de/guides/chat-completions) verwenden.
-
-{/* TODO(andrej): bestätigen, dass gpt-oss-120b diese text.format-Nutzlast mit json_schema akzeptiert. */}
 
 ## Grenzen
 

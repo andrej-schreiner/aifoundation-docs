@@ -10,35 +10,41 @@ Diese Seite beschreibt die API unter `https://llm-server.llmhub.t-systems.net/v2
 
 ## HTTP-Statuscodes
 
+Während Phase 1 der API-Umstellung liefert der Host das Format der Legacy-API. Die Codes und Antworten unten sind das, was er heute zurückgibt.
+
 | Code | Name | Beschreibung | Lösung |
 |---|---|---|---|
-| `400` | Bad Request | Ungültiges Anfrageformat oder ungültige Parameter, oder ein Modellname, der sich nicht auflösen lässt | Prüfen Sie den Anfragekörper, die Parameter und den Modellnamen |
-| `401` | Unauthorized | Fehlender oder ungültiger API-Schlüssel | Senden Sie Ihren Schlüssel im `Authorization: Bearer`-Header und prüfen Sie, ob er stimmt |
-| `402` | Payment Required | Budget überschritten | Nicht wiederholen; prüfen Sie das Budget Ihres Tarifs oder kontaktieren Sie den Support |
-| `403` | Forbidden | Schlüssel gesperrt oder deaktiviert, oder kein Zugriff auf dieses Modell | Prüfen Sie, ob Ihr Tarif das Modell enthält, oder kontaktieren Sie den Support |
-| `429` | Too Many Requests | Rate-Limit überschritten | Warten und mit exponentiellem Backoff erneut versuchen |
-| `500` | Internal Server Error | Serverseitiger Fehler | Nach kurzer Verzögerung erneut versuchen |
-| `502` | Bad Gateway | Der Modellanbieter ist nicht erreichbar | Nach kurzer Verzögerung erneut versuchen |
+| `400` | Bad Request | Ungültiges Anfrageformat oder ungültige Parameter | Prüfen Sie den Anfragekörper und die Parameter |
+| `401` | Unauthorized | Ungültiger API-Schlüssel | Prüfen Sie den Schlüssel im `Authorization: Bearer`-Header |
+| `403` | Forbidden | Fehlender API-Schlüssel, oder der Schlüssel hat keinen Zugriff auf diese Ressource | Senden Sie Ihren Schlüssel im `Authorization: Bearer`-Header; ist er gesetzt, prüfen Sie Ihren Tarif oder kontaktieren Sie den Support |
+| `404` | Not Found | Unbekannter Pfad oder ein Modellname, den es auf diesem Host nicht gibt | Prüfen Sie die URL und den Modellnamen |
+| `405` | Method Not Allowed | Den Pfad gibt es, aber nicht mit dieser Methode | Nutzen Sie die Methode aus [API-Endpunkte](/de/reference/api-endpoints) |
+| `429` | Too Many Requests | Rate-Limit oder Budget überschritten | Bei einem Rate-Limit warten und mit exponentiellem Backoff erneut versuchen; bei einem Budget Ihren Tarif prüfen |
+| `500` | Internal Server Error | Serverseitiger Fehler, oder der Modellanbieter war nicht erreichbar oder hat nicht rechtzeitig geantwortet | Nach kurzer Verzögerung erneut versuchen |
 | `503` | Service Unavailable | Modell ist vorübergehend nicht verfügbar | [Modellstatus](https://uptime.llmhub.t-systems.net/status/health) prüfen und erneut versuchen |
-| `504` | Gateway Timeout | Der Modellanbieter hat nicht rechtzeitig geantwortet | Erneut versuchen oder eine kürzere Anfrage senden |
+
+Die neue API beantwortet einige dieser Fälle mit anderen Codes (`401` bei fehlendem Schlüssel, `400` bei unbekanntem Modell, `402` bei überschrittenem Budget, `502` und `504` bei Problemen des Anbieters). Siehe [API-Umstellung: Fehlerbehandlung](/de/api-transition/#fehlerbehandlung).
 
 
 ## Fehlerantwort-Format
 
-Fehler kommen als strukturiertes `error`-Objekt zurück:
+Fehler kommen als `detail`-String zurück. Bei einem unbekannten Modell nennt er das Modell und listet die Modelle, die Ihr Schlüssel nutzen kann:
 
 ```json
 {
-  "error": {
-    "message": "Invalid request parameter",
-    "type": "invalid_request_error",
-    "code": "invalid_value",
-    "param": "messages[0].role"
-  }
+  "detail": "The model my-model does not exist or discontinued or you might using wrong api. Available models are: [...]"
 }
 ```
 
-Werten Sie in erster Linie den HTTP-Status aus. `type`, `code` und `param` sind optional: Nicht jeder Fehler setzt sie.
+Lehnt der Modellanbieter eine Anfrage ab, enthält `detail` dessen Status und Fehlerobjekt als Text:
+
+```json
+{
+  "detail": "Error: 400 - Bad Request - {\"error\": {\"message\": \"Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead.\", \"type\": \"invalid_request_error\", \"param\": \"max_tokens\", \"code\": \"unsupported_parameter\"}}"
+}
+```
+
+Nutzen Sie den HTTP-Status als wichtigstes Signal. Lesen Sie `detail` für den Grund, werten Sie den Text aber nicht maschinell aus: Er hat kein festes Format.
 
 
 ## Umgang mit Rate-Limits (429)
@@ -66,28 +72,29 @@ def call_with_retry(messages, max_retries=3):
             time.sleep(wait)
 ```
 
-Ein `402` (Budget überschritten) ist kein Rate-Limit: Wiederholen Sie die Anfrage nicht.
+Ein `429` kann auch ein überschrittenes Budget bedeuten. Das ist kein Rate-Limit, und eine Wiederholung hilft nicht: Prüfen Sie die Fehlermeldung und dann das Budget Ihres Tarifs.
 
 
 ## Häufige Probleme
 
-### Modell nicht gefunden (400)
+### Modell nicht gefunden (404)
 - Prüfen Sie, ob der Modellname exakt übereinstimmt (Groß-/Kleinschreibung beachten)
-- Verwenden Sie die [Modelle-API](/de/reference/api-endpoints), um verfügbare Modelle zu prüfen
+- Verwenden Sie die [Modelle-API](/de/reference/api-endpoints), um verfügbare Modelle zu prüfen; auch die `404`-Antwort listet sie
 - Ist der Name richtig und Sie erhalten `403`, enthält Ihr Tarif das Modell nicht
 
-### Ungültiger API-Schlüssel (401)
+### Ungültiger oder fehlender API-Schlüssel (401, 403)
+- Ein ungültiger Schlüssel ergibt `401`, eine Anfrage ohne Schlüssel `403`
 - Stellen Sie sicher, dass der Schlüssel korrekt in Ihrer Umgebung gesetzt ist
 - Prüfen Sie, ob der Schlüssel abgelaufen ist
 - Besuchen Sie das [API-Schlüssel-Portal](https://apikey.llmhub.t-systems.net/), um Schlüssel zu verwalten
 
 ### Kontextlänge überschritten (400)
 - Kürzen Sie die Eingabe oder setzen Sie einen niedrigeren Wert für `max_tokens`
-- Prüfen Sie `context_length` des Modells in der [Modelle-API](/de/reference/api-endpoints) oder sein Kontextfenster im [Katalog](/de/models/#katalog)
+- Prüfen Sie `meta_data.max_sequence_length` des Modells in der [Modelle-API](/de/reference/api-endpoints) oder sein Kontextfenster im [Katalog](/de/models/#katalog)
 
 ## Nächste Schritte
 
 - [Zuverlässigkeit und Wiederholungen](/de/guides/reliability) für 429, 500 und 503.
 - [Rate-Limits](/de/reference/rate-limits) für RPM und TPM.
 - [Authentifizierung](/de/getting-started/authentication) für 401 und 403.
-- [API-Umstellung](/de/api-transition/#fehlerbehandlung) zu den abweichenden Codes der Legacy-API.
+- [API-Umstellung](/de/api-transition/#fehlerbehandlung) zu den Codes der neuen API.

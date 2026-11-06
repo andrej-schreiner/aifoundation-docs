@@ -103,6 +103,10 @@ Die vollständige Streaming-Dokumentation einschließlich Fehlerbehandlung, Func
 
 Die Completion API sendet Rohtext direkt an das LLM, ohne das Chat-Nachrichtenformat zu verwenden.
 
+:::caution
+`POST /v2/completions` ist auf `llm-server.llmhub.t-systems.net` derzeit nicht verfügbar: Der Aufruf liefert `404` mit dem Fehlercode `endpoint_not_found` (geprüft am 6. November 2026 mit `gpt-oss-120b` und `Qwen3.8-27B-FP8`). Nutzen Sie stattdessen die [Chat Completions API](#grundlegende-verwendung).
+:::
+
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python showLineNumbers
@@ -175,6 +179,7 @@ Die Responses API funktioniert mit Modellen mehrerer Anbieter — Text, Tool Cal
 | `messages` | array | Liste von Nachrichtenobjekten mit `role` und `content` |
 | `temperature` | float | Sampling-Temperatur (0-2). Niedriger = deterministischer |
 | `max_tokens` | integer | Maximale Anzahl zu generierender Token |
+| `max_completion_tokens` | integer | Maximale Anzahl zu generierender Token, Reasoning-Token eingeschlossen. GPT-5.6- und GPT-6-Modelle akzeptieren nur diesen Parameter und lehnen `max_tokens` mit HTTP 400 ab |
 | `stream` | boolean | Streaming-Antworten aktivieren |
 | `top_p` | float | Nucleus-Sampling-Parameter |
 
@@ -183,7 +188,8 @@ Die vollständige API-Spezifikation finden Sie in der [API-Referenz](https://llm
 
 ## Grenzen und Fehlersuche
 
-Die Completions API gilt nur für Open-Source-Modelle und sollte nicht Ihr Standardweg sein. Einige Modelle lehnen die Responses API mit HTTP 400 ab.
+Die Completions API ist auf diesem Host derzeit nicht verfügbar (siehe [Completion API](#completion-api)).
+GPT-5.6- und GPT-6-Modelle brauchen `max_completion_tokens` statt `max_tokens`. Einige Modelle lehnen die Responses API mit HTTP 400 ab.
 
 {/* TODO(andrej): eine Parametermatrix je Modell steht in dieser Anleitung nicht. Die Parametertabelle ist der dokumentierte Satz. */}
 

@@ -125,10 +125,14 @@ JSON Schema on the Responses API is documented on [Structured outputs](/guides/s
 
 ## Limitations and troubleshooting
 
+:::caution[GPT-6 models]
+On Chat Completions, `gpt-6.1-sol`, `gpt-6-luna` and `gpt-6-astra` reject tools while reasoning is on, which it is by default: HTTP 400 `Function tools with reasoning_effort are not supported`. Send their tool calls to the [Responses API](#function-calling-with-responses-api) (`/v2/responses`) instead; all three return the function call there. On Chat Completions, only `gpt-6-luna` can call tools, with `reasoning_effort="none"`; `gpt-6.1-sol` and `gpt-6-astra` do not accept `none`.
+:::
+
 :::note
 Function calling works across a broad range of models on the platform, including OpenAI, Google and Anthropic models as well as many open-source ones. The model names used in this guide are examples only — they are not the only models that support the feature. Some T-Cloud-hosted open-source models do not support function calling yet; check the model's entry under [Available models](/models) before relying on it.
 
-The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
+The Responses API is confirmed for text, tool calls, and streaming on `gpt-oss-120b`, and for tool calls on the GPT-6 models. Some models return HTTP 400 for `client.responses.create`. Use [Chat completions](/guides/chat-completions) for those models.
 :::
 
 

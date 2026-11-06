@@ -30,7 +30,7 @@ To illustrate how limits scale, here are the limits for two models.
 | Professional | 200 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 1,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 | Agentic | 300 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 2,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | 2,000,000 <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 
-**GPT-6.1 Sol** (Azure, worldwide):
+**GPT-6.1 Sol** (Azure, Sweden):
 
 | Plan | RPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Input TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> | Output TPM <sup><a href="#about-these-rpm-and-tpm-values">*</a></sup> |
 |---|---|---|---|
@@ -75,8 +75,6 @@ Responses from Azure-hosted GPT models include headers that help you track usage
 
 :::note
 Rate limit headers are currently returned by Azure-hosted models. Open-source models hosted on T-Cloud (for example `gpt-oss-120b`) do not return these headers.
-
-{/* TODO(andrej): the published examples of these headers used gpt-5 and gpt-5-mini. Confirm the same headers on gpt-6.1-sol, which this sample now calls. */}
 :::
 
 | Header | Description |
@@ -104,7 +102,7 @@ response = httpx.post(
     json={
         "model": "gpt-6.1-sol",
         "messages": [{"role": "user", "content": "Hello"}],
-        "max_tokens": 10,
+        "max_completion_tokens": 10,
     },
 )
 
@@ -123,7 +121,7 @@ curl -i -X POST "$OPENAI_BASE_URL/chat/completions" \
   -d '{
     "model": "gpt-6.1-sol",
     "messages": [{"role": "user", "content": "Hello"}],
-    "max_tokens": 10
+    "max_completion_tokens": 10
   }'
 
 # The -i flag shows response headers including:

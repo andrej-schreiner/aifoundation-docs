@@ -17,14 +17,14 @@ For the complete OpenAPI specification, see the [interactive API docs (Redoc)](h
 | Method | Endpoint | Description |
 |---|---|---|
 | `GET` | `/models` | List all available models |
-| `GET` | `/models/{model_id}` | Get model details and metadata |
+| `GET` | `/models/{model_id}` | Get model details and metadata. Not available on this host at the moment: returns `405`; use `GET /models` |
 | `POST` | `/chat/completions` | Create a chat completion |
-| `POST` | `/completions` | Create a text completion |
+| `POST` | `/completions` | Create a text completion. Not available on this host at the moment: returns `404`; use `/chat/completions` |
 | `POST` | `/embeddings` | Create embeddings |
 | `POST` | `/rerank` | Rerank documents by relevance to a query ([guide](/guides/reranking)) |
 | `POST` | `/audio/transcriptions` | Transcribe audio to text |
 | `POST` | `/audio/translations` | Translate audio to English |
-| `GET` | `/audio/models` | List available audio models |
+| `GET` | `/audio/models` | List available audio models. At the moment it returns every model, not only the audio models |
 | `POST` | `/images/generations` | Generate images from text |
 | `POST` | `/images/edits` | Edit an image. The [queued-requests section](/guides/reliability#queued-requests) documents this path. |
 | `POST` | `/responses` | Create a response (Responses API) |

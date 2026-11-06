@@ -29,8 +29,6 @@ Accepted `reasoning_effort` values and the datasheet default:
 
 {/* TODO(andrej): DeepSeek V4.1 Flash (DeepSeek-V4.1-Flash-Preview) supports a vendor thinking mode. Confirm the reasoning_effort values on AIFS before adding them to the table. */}
 
-Qwen 3.6 also accepts the prompt keyword `/no_think`, in the section below.
-
 A few models are exceptions worth knowing about:
 
 - **Mistral models** accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
@@ -68,7 +66,7 @@ The sample uses `reasoning_effort="high"` on `GLM-5.3`. The datasheet lists `non
 
 ## Disabling reasoning for Qwen 3.6
 
-For Qwen 3.6 models, prepend `/no_think` to your prompt to disable reasoning:
+For Qwen 3.6 models, set `reasoning_effort="none"` to disable reasoning. The prompt keyword `/no_think` does not switch it off: the model still reasons.
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -79,12 +77,15 @@ response = client.chat.completions.create(
     model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "/no_think What is your name?"},
+        {"role": "user", "content": "What is your name?"},
     ],
+    reasoning_effort="none",
 )
 
 print(response.choices[0].message.content)
 ```
+
+The response then reports `reasoning_tokens: 0` in `usage`.
 
 
 ## Limitations and troubleshooting
@@ -94,6 +95,7 @@ Known limits:
 - Mistral models accept only `none` and `high`. Sending `low` or `medium` returns HTTP 400 with `reasoning_effort=... is not supported by Mistral models.`
 - Some newer Anthropic models reject `reasoning_effort`. The error names the alternative.
 - Some code-specialised models reject the parameter with `The requested operation is unsupported.`
+- `GLM-5.3` accepts `reasoning_effort="none"` without an error, but still reasons: the response carries reasoning and reports reasoning tokens.
 
 {/* TODO(andrej): confirm which current Anthropic model ids reject reasoning_effort. The note above is the existing sentence; it does not name the ids. */}
 

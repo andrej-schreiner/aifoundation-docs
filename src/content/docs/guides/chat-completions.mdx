@@ -103,6 +103,10 @@ For full streaming documentation including error handling, function calling with
 
 The Completion API sends raw text directly to the LLM without the chat message format.
 
+:::caution
+`POST /v2/completions` is not available on `llm-server.llmhub.t-systems.net` at the moment: it returns `404` with the error code `endpoint_not_found` (checked on 6 November 2026 with `gpt-oss-120b` and `Qwen3.8-27B-FP8`). Use the [Chat Completions API](#basic-usage) instead.
+:::
+
 <Tabs>
   <TabItem value="python" label="Python" default>
     ```python showLineNumbers
@@ -175,6 +179,7 @@ The Responses API works with models from several providers — text, tool calls 
 | `messages` | array | List of message objects with `role` and `content` |
 | `temperature` | float | Sampling temperature (0-2). Lower = more deterministic |
 | `max_tokens` | integer | Maximum tokens to generate |
+| `max_completion_tokens` | integer | Maximum tokens to generate, reasoning tokens included. GPT-5.6 and GPT-6 models accept only this one and reject `max_tokens` with HTTP 400 |
 | `stream` | boolean | Enable streaming responses |
 | `top_p` | float | Nucleus sampling parameter |
 
@@ -183,7 +188,8 @@ For the full API specification, see the [API Reference](https://llm-server.llmhu
 
 ## Limitations and troubleshooting
 
-The Completions API is only for open-source models and should not be your default. Some models reject the Responses API with HTTP 400.
+The Completions API is currently not available on this host (see [Completion API](#completion-api)).
+GPT-5.6 and GPT-6 models need `max_completion_tokens` instead of `max_tokens`. Some models reject the Responses API with HTTP 400.
 
 {/* TODO(andrej): a per-model parameter matrix is not in this guide. The parameters table is the documented set. */}
 

@@ -29,8 +29,6 @@ Zulässige Werte für `reasoning_effort` und der Default aus dem Datenblatt:
 
 {/* TODO(andrej): DeepSeek V4.1 Flash (DeepSeek-V4.1-Flash-Preview) unterstützt laut Anbieter einen Thinking-Modus. Die reasoning_effort-Werte auf AIFS bestätigen, bevor sie in die Tabelle kommen. */}
 
-Qwen 3.6 akzeptiert zusätzlich das Prompt-Schlüsselwort `/no_think`, im Abschnitt unten.
-
 Einige Modelle bilden Ausnahmen:
 
 - **Mistral-Modelle** akzeptieren nur `none` und `high`. `low` oder `medium` führen zu HTTP 400 mit `reasoning_effort=... is not supported by Mistral models.`
@@ -68,7 +66,7 @@ Das Beispiel setzt `reasoning_effort="high"` auf `GLM-5.3`. Das Datenblatt liste
 
 ## Reasoning für Qwen 3.6 deaktivieren
 
-Für Qwen 3.6-Modelle stellen Sie `/no_think` Ihrem Prompt voran, um Reasoning zu deaktivieren:
+Für Qwen 3.6-Modelle setzen Sie `reasoning_effort="none"`, um Reasoning zu deaktivieren. Das Prompt-Schlüsselwort `/no_think` schaltet es nicht ab: Das Modell denkt trotzdem.
 
 ```python showLineNumbers
 from openai import OpenAI
@@ -79,12 +77,15 @@ response = client.chat.completions.create(
     model="Qwen3.6-35B-A3B-FP8",
     messages=[
         {"role": "system", "content": "You are a helpful assistant."},
-        {"role": "user", "content": "/no_think What is your name?"},
+        {"role": "user", "content": "What is your name?"},
     ],
+    reasoning_effort="none",
 )
 
 print(response.choices[0].message.content)
 ```
+
+Die Antwort meldet dann `reasoning_tokens: 0` in `usage`.
 
 
 ## Grenzen und Fehlersuche
@@ -94,6 +95,7 @@ Bekannte Grenzen:
 - Mistral-Modelle akzeptieren nur `none` und `high`. `low` oder `medium` führen zu HTTP 400 mit `reasoning_effort=... is not supported by Mistral models.`
 - Einzelne neuere Anthropic-Modelle lehnen `reasoning_effort` ab. Die Fehlermeldung nennt die Alternative.
 - Einige auf Code spezialisierte Modelle weisen den Parameter mit `The requested operation is unsupported.` zurück.
+- `GLM-5.3` akzeptiert `reasoning_effort="none"` ohne Fehler, denkt aber trotzdem: Die Antwort enthält Reasoning und meldet Reasoning-Token.
 
 {/* TODO(andrej): bestätigen, welche aktuellen Anthropic-Modell-IDs reasoning_effort ablehnen. Der Satz oben ist der bestehende Hinweis; er nennt keine IDs. */}
 
