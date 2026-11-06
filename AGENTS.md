@@ -107,8 +107,11 @@ Site parts, not for reuse (Starlight slots and single-page tables):
   link texts as titles; no "Next:" line of text links.
 - **Site navigation**: the menu button sits at the start of the header, before
   the logo, at every width (`SiteHeader.astro`): it opens the navigation on
-  phones and hides or shows the sidebar from 50rem. Every sidebar group starts open (no `collapsed` in
-  `astro.config.mjs`); a visitor can close groups with the chevrons.
+  phones and hides or shows the sidebar from 50rem. Every sidebar group
+  starts closed (`collapsed: true` in `astro.config.mjs`), except the group
+  that holds the current page; a visitor opens and closes groups with the
+  chevrons, and each page starts that way again. Entries are 14px with 12px
+  above and below (`aifs.sidebar-nav.*`).
 - **One models table**: every list of models is `ModelsComparison` with a
   column preset. Need a column or filter it does not have? Add it there, to
   the preset that needs it; never build a second table.
