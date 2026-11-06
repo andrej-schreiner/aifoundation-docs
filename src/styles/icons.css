@@ -12,7 +12,6 @@
 		header label > svg:is(.caret, .caret-icon),
 		.sidebar-content summary > svg.caret,
 		#starlight__mobile-toc .toggle svg.caret,
-		starlight-menu-button svg,
 		.pagination-links > a > svg,
 		.sl-link-card > svg.icon
 	) {
@@ -28,7 +27,6 @@
 		header label > svg:is(.caret, .caret-icon),
 		.sidebar-content summary > svg.caret,
 		#starlight__mobile-toc .toggle svg.caret,
-		starlight-menu-button svg,
 		.pagination-links > a > svg,
 		.sl-link-card > svg.icon
 	)
@@ -69,14 +67,6 @@ header label > svg:is(.caret, .caret-icon) {
    the group is open (sidebar-nav.css). */
 .sidebar-content summary > svg.caret {
 	--aifs-icon: url('../assets/icons/scale/navigation/collapse-down/default.svg');
-}
-
-starlight-menu-button svg.open-menu {
-	--aifs-icon: url('../assets/icons/scale/action/menu/default.svg');
-}
-
-starlight-menu-button svg.close-menu {
-	--aifs-icon: url('../assets/icons/scale/action/close/default.svg');
 }
 
 .pagination-links > a[rel='prev'] > svg {
@@ -136,8 +126,7 @@ img.aifs-flag {
 			header label > svg:is(.caret, .caret-icon),
 			.sidebar-content summary > svg.caret,
 			#starlight__mobile-toc .toggle svg.caret,
-			starlight-menu-button svg,
-			.pagination-links > a > svg,
+				.pagination-links > a > svg,
 			.sl-link-card > svg.icon,
 			.model-links__icon,
 			.fi.fi-globe

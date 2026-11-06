@@ -39,6 +39,31 @@
 	border-inline-end-color: var(--aifs-layout-divider);
 }
 
+/* The menu button is in the header's row (SiteHeader.astro), so the header
+   keeps no room for Starlight's fixed one at its end. */
+[data-has-sidebar] .header {
+	padding-inline-end: var(--sl-nav-pad-x);
+}
+
+/* Phones: the menu button opens the site navigation over the page. */
+@media (max-width: 49.99rem) {
+	[data-mobile-menu-expanded] .sidebar-pane {
+		--sl-sidebar-visibility: visible;
+	}
+}
+
+/* From 50rem the menu button hides the sidebar; the content then starts at
+   the window's edge. */
+@media (min-width: 50rem) {
+	:root[data-has-sidebar][data-nav-hidden] {
+		--sl-content-inline-start: 0rem;
+	}
+
+	:root[data-nav-hidden] .sidebar-pane {
+		--sl-sidebar-visibility: hidden;
+	}
+}
+
 mobile-starlight-toc nav {
 	border-bottom-color: var(--aifs-layout-divider);
 }
