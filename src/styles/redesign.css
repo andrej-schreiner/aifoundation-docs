@@ -463,19 +463,14 @@ sup {
 	}
 }
 
-starlight-menu-button button {
-	background: transparent;
-	color: var(--aifs-color-text-body);
-}
-
-/* The menu button is fixed in the header; its host element must not take a
-   46px line in the page flow above the content. */
+/* Starlight's own menu button sits at the end of the header, on phones only.
+   The menu button at the start of the header (SiteHeader.astro) replaces it
+   at every width. */
 starlight-menu-button {
-	display: contents;
+	display: none;
 }
 
 @media (max-width: 50rem) {
-	starlight-menu-button button,
 	site-search button {
 		display: inline-grid;
 		place-items: center;

@@ -102,7 +102,9 @@ Site parts, not for reuse (Starlight slots and single-page tables):
 - **Next steps**: a page's "Next:" links are link cards in a
   `<div class="link-card-row">` (as on the home page's Integrations), the
   link texts as titles; no "Next:" line of text links.
-- **Site navigation**: every sidebar group starts open (no `collapsed` in
+- **Site navigation**: the menu button sits at the start of the header, before
+  the logo, at every width (`SiteHeader.astro`): it opens the navigation on
+  phones and hides or shows the sidebar from 50rem. Every sidebar group starts open (no `collapsed` in
   `astro.config.mjs`); a visitor can close groups with the chevrons.
 - **One models table**: every list of models is `ModelsComparison` with a
   column preset. Need a column or filter it does not have? Add it there, to
