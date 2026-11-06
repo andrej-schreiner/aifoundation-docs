@@ -853,8 +853,8 @@ const PRIMARY_COLUMNS: Record<ColumnPreset, string[]> = {
   plan: ['model', 'inputPrice', 'outputPrice', 'rpm', 'tpm'],
 };
 // The content column is fluid (layout.css), so the table grows with the
-// window. Each step of width (container queries below: 1 from 51rem,
-// 2 from 64rem, 3 from 82rem) moves these columns out of the details into
+// window. Each step of width (container queries below: 1 from 52rem,
+// 2 from 66rem, 3 from 84rem) moves these columns out of the details into
 // the row; the details keep the rest. The reasoning columns (long code
 // values), data processing and the legal links stay in the details.
 const EXTRA_COLUMNS: Record<ColumnPreset, Record<string, 1 | 2 | 3>> = {
@@ -2417,7 +2417,7 @@ const rowDataPayload = rows.map((m) => ({
 
   /* Wide-screen columns (EXTRA_COLUMNS): hidden in the row, their values
      in the details, until the fluid content column gives the table room
-     (51, 64 and 82rem: about 1500, 1700 and 2000px windows with On this
+     (52, 66 and 84rem: about 1460, 1680 and 2040px windows with On this
      page). Each
      step shows its cells and hides the same values in the details. The
      steps are what the widest preset needs in German, so the table never
@@ -2426,7 +2426,7 @@ const rowDataPayload = rows.map((m) => ({
     display: none;
   }
 
-  @container comparison (min-width: 51rem) {
+  @container comparison (min-width: 52rem) {
     .models-comparison .models-comparison-table :is(th, td).mc-x1 {
       display: table-cell;
     }
@@ -2436,7 +2436,7 @@ const rowDataPayload = rows.map((m) => ({
     }
   }
 
-  @container comparison (min-width: 64rem) {
+  @container comparison (min-width: 66rem) {
     .models-comparison .models-comparison-table :is(th, td).mc-x2 {
       display: table-cell;
     }
@@ -2446,7 +2446,7 @@ const rowDataPayload = rows.map((m) => ({
     }
   }
 
-  @container comparison (min-width: 82rem) {
+  @container comparison (min-width: 84rem) {
     .models-comparison .models-comparison-table :is(th, td).mc-x3 {
       display: table-cell;
     }

@@ -100,6 +100,7 @@
 	--aifs-layout-card-min-width: 20rem;
 	--aifs-layout-grid-action-gap: 24px;
 	--aifs-layout-launcher-clearance: 48px;
+	--aifs-layout-launcher-clearance-block: 88px;
 	--aifs-layout-divider: #dfdfe1;
 	--aifs-layout-backdrop: #efeff0;
 	--aifs-layout-backdrop-strength: 0.5;
@@ -620,6 +621,7 @@
 	--aifs-layout-card-min-width: 20rem;
 	--aifs-layout-grid-action-gap: 24px;
 	--aifs-layout-launcher-clearance: 48px;
+	--aifs-layout-launcher-clearance-block: 88px;
 	--aifs-layout-divider: #353841;
 	--aifs-layout-backdrop: #353841;
 	--aifs-layout-backdrop-strength: 0.5;

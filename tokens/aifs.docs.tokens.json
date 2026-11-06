@@ -245,7 +245,8 @@
       "grid-gap": { "$value": "{spacing.composition.space-06}", "$description": "16px between the items of every grid on a page, across and down: card rows, card grids, model cards, recommended models, plan tiles, previous and next." },
       "card-min-width": { "$value": { "value": 20, "unit": "rem" }, "$description": "320px: the narrowest card in a card grid or link-card row. The grid fits as many columns as the fluid column has room for." },
       "grid-action-gap": { "$value": "{spacing.composition.space-08}", "$description": "24px between a grid and a button below it, such as Show more models." },
-      "launcher-clearance": { "$value": "{spacing.composition.space-14}", "$description": "48px more at the content column's end edge while the chat launcher (bottom right, 56px, 20px from the window's edges) would otherwise sit over the column, so it keeps 12px from the column's text and controls." },
+      "launcher-clearance": { "$value": "{spacing.composition.space-14}", "$description": "48px more at the content column's end edge, on pages without On this page, while the chat launcher (bottom right, 56px, 20px from the window's edges) would otherwise sit over the column, so it keeps 12px from the column's text and controls." },
+      "launcher-clearance-block": { "$value": "{spacing.composition.space-20}", "$description": "88px under the On this page list while the chat launcher (56px, 20px from the window's bottom edge) sits under that column, so the last entries scroll 12px clear of it." },
       "divider": {
         "$type": "color",
         "$value": "{color.ui.faint}",

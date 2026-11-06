@@ -71,12 +71,15 @@ Site parts, not for reuse (Starlight slots and single-page tables):
 
 ### Layout and rhythm — use what is there
 
-- **One page layout.** Every page: On this page beside a **fluid content
-  column** (`src/styles/layout.css`). The column fills the rest of the row
+- **One page layout.** Every page: a **fluid content column** with On this
+  page to its right, sticky while the page scrolls (`src/styles/layout.css`;
+  below 72rem On this page is a menu above the content). The column fills the rest of the row
   at every window width, with no maximum width (`--sl-content-width` is
   100%, in `layout.css`; only its running text stops at the measure); its side padding is `aifs.layout.sheet-padding`, from 120rem
-  `aifs.layout.sheet-padding-wide`, and from 80rem it keeps the chat
-  launcher's clearance at its end edge. A wide element (the models table)
+  `aifs.layout.sheet-padding-wide`. From 80rem the chat launcher sits under
+  On this page, whose list keeps `aifs.layout.launcher-clearance-block` at
+  its bottom (on a page without On this page the column keeps
+  `aifs.layout.launcher-clearance` at its end edge). A wide element (the models table)
   fits the column and never scrolls sideways: it shows more columns as the
   column grows (main columns, a details row, cards below 36rem). There is
   no breakout band. Do not set `tableOfContents: false` to make room, and
