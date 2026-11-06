@@ -1,21 +1,13 @@
 ---
 title: "Integrations"
-description: "Integrate AI Foundation Services with popular AI frameworks including LangChain and LlamaIndex for RAG, chains, and agent workflows."
+description: "Use AI Foundation Services with tools built for OpenAI: set the base URL and your API key."
 ---
 
 import { CardGrid, LinkCard } from '@astrojs/starlight/components';
 
-AI Foundation Services exposes an OpenAI-compatible API, which means most frameworks and tools built for OpenAI work out of the box — point the base URL at `https://llm-server.llmhub.t-systems.net/v2` and supply your API key. The pages below cover the most common framework integrations with working setup examples.
+AI Foundation Services exposes an OpenAI-compatible API, which means most frameworks and tools built for OpenAI work out of the box — point the base URL at `https://llm-server.llmhub.t-systems.net/v2` and supply your API key. The pages below cover T-Systems' own coding tools and how to connect a coding tool or IDE plugin.
 
 <CardGrid>
-  <LinkCard
-    title="LangChain integration"
-    href="/integrations/langchain/"
-    description="Connect AI Foundation Services to LangChain for RAG pipelines, chains, and agents using the langchain-openai package."
-  />
-  <LinkCard
-    title="LlamaIndex integration"
-    href="/integrations/llama-index/"
-    description="Build RAG applications and chat engines with LlamaIndex by pointing the OpenAI-compatible client at AI Foundation Services."
-  />
+  <LinkCard title="AI Engineer" href="/aie/overview/" description="T-Systems coding tools." />
+  <LinkCard title="Coding agent setup" href="/getting-started/coding-agents/" description="Connect a coding tool or IDE plugin." />
 </CardGrid>
