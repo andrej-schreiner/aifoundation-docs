@@ -135,12 +135,64 @@ function archiveSnapshots() {
 	};
 }
 
+/**
+ * Every archived page (archive/…/index.html, as served from dist/), as a full
+ * URL for the sitemap. The archives are copied in after the build, so the
+ * sitemap integration does not see them as routes.
+ */
+function archivedPageUrls(site) {
+	const source = fileURLToPath(new URL('./archive/', import.meta.url));
+	if (!existsSync(source)) return [];
+	const pages = (directory, prefix) =>
+		readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+			if (entry.isDirectory()) return entry.name === '_archive' && !prefix ? [] : pages(join(directory, entry.name), `${prefix}${entry.name}/`);
+			return entry.name === 'index.html' && prefix ? [`${site}/${prefix}`] : [];
+		});
+	return pages(source, '').sort();
+}
+
+/**
+ * Service Description links in the built pages point at the PDF in the
+ * page's language under /files/: the German edition under /de/, the English
+ * one elsewhere. Starlight prefixes the sidebar's /files/ link with /de on
+ * German pages (/de/files/…, a 404). Runs before the archives are copied in,
+ * so they keep their own links.
+ */
+function serviceDescriptionLinks() {
+	const link = /href="(?:\/de)?\/files\/Leistungsbeschreibung(?:-LLM-Serving-Service|_LLM_Serving-Service_EN)\.pdf\/?"/g;
+	return {
+		name: 'service-description-links',
+		hooks: {
+			'astro:build:done': ({ dir }) => {
+				const root = fileURLToPath(dir);
+				const visit = (directory, de) => {
+					for (const name of readdirSync(directory)) {
+						const path = join(directory, name);
+						if (statSync(path).isDirectory()) {
+							visit(path, de || (directory === root && name === 'de'));
+							continue;
+						}
+						if (!name.endsWith('.html')) continue;
+						const html = readFileSync(path, 'utf8');
+						const file = de ? 'Leistungsbeschreibung-LLM-Serving-Service.pdf' : 'Leistungsbeschreibung_LLM_Serving-Service_EN.pdf';
+						const next = html.replace(link, `href="/files/${file}"`);
+						if (next !== html) writeFileSync(path, next);
+					}
+				};
+				visit(root, false);
+			},
+		},
+	};
+}
+
+const site = 'https://docs.llmhub.t-systems.net';
+
 // https://astro.build/config
 export default defineConfig({
 	markdown: {
 		rehypePlugins: [rehypeTableScroll, rehypeInlineCodeBreaks, rehypeNowrapTerms],
 	},
-	site: 'https://docs.llmhub.t-systems.net',
+	site,
 	base: '/',
 	redirects: {
 		'/Quickstart': '/getting-started/quickstart',
@@ -251,7 +303,9 @@ export default defineConfig({
 				},
 			},
 		},
-		sitemap(),
+		// Every built page, plus the archived versions' pages (copied in after
+		// the build by archiveSnapshots, so not routes of their own).
+		sitemap({ customPages: archivedPageUrls(site) }),
 		starlight({
 			title: 'AI Foundation Services',
 			head: [
@@ -348,13 +402,12 @@ export default defineConfig({
 				},
 				{
 					// Language-aware Service Description PDF link, normalized at runtime.
-					// The sidebar's Service Description entry is authored as an ABSOLUTE production URL
-					// in the config on purpose: Starlight localizes root-relative sidebar
-					// links (…/files → /de/files, a 404), and the link-checker skips
-					// external URLs. At runtime this script rewrites absolute Service
-					// Description links to a host-relative /files/… path, so they resolve
-					// against the current origin — working in local dev and on any
-					// deployed host. Every Service Description link resolves to the one
+					// The sidebar's Service Description entry is a same-site /files/ path,
+					// which Starlight localizes on German pages (/de/files/…, a 404). The
+					// built pages are corrected by the `service-description-links` step;
+					// this script does the same in `astro dev`, rewriting every Service
+					// Description link to a host-relative /files/… path, so it resolves
+					// against the current origin. Every Service Description link resolves to the one
 					// current document in the page's language: the German edition on
 					// German pages (including fallback pages under /de/), the English
 					// edition everywhere else. On German pages it also sets the German
@@ -528,14 +581,17 @@ export default defineConfig({
 				// Telekom's external-link icon (icons.css). SmartChat's path is
 				// localized by Starlight (/de/smartchat/overview/) and redirects to
 				// the SmartChat docs (`redirects` above). The Service Description is
-				// an absolute URL so Starlight does not prefix /de; the head script
-				// above points it at /files/ in the page's language. Starlight's
+				// a same-site /files/ path; Starlight prefixes it with /de on German
+				// pages, and the `service-description-links` step after the build
+				// points that copy at the German PDF (the head script above does the
+				// same at runtime, for `astro dev`). Starlight's
 				// `attrs` are not translated, so the German accessible name is in
 				// `data-aria-label-de`, which the same script applies on German pages.
 				{ label: 'SmartChat', translations: { de: 'SmartChat' }, link: '/smartchat/overview/', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'SmartChat (opens in a new tab)', 'data-aria-label-de': 'SmartChat (öffnet in neuem Tab)' } },
-				{ label: 'Service Description', translations: { de: 'Leistungsbeschreibung' }, link: 'https://docs.llmhub.t-systems.net/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in a new tab)', 'data-aria-label-de': 'Leistungsbeschreibung, PDF (öffnet in neuem Tab)' } },
+				{ label: 'Service Description', translations: { de: 'Leistungsbeschreibung' }, link: '/files/Leistungsbeschreibung_LLM_Serving-Service_EN.pdf', attrs: { target: '_blank', rel: 'noopener noreferrer', 'aria-label': 'Service Description PDF (opens in a new tab)', 'data-aria-label-de': 'Leistungsbeschreibung, PDF (öffnet in neuem Tab)' } },
 		],
 		}),
+		serviceDescriptionLinks(),
 		archiveSnapshots(),
 	],
 });
