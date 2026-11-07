@@ -6,7 +6,7 @@
 import pricingData from './PlansPageFeatures/PlansData/PlansModelData/v1.20.2/all-pricing--2026-04-24.json';
 import { creatorNameFor } from '../shared/lib/logos';
 import { isHiddenModel } from '../shared/lib/hiddenModels';
-import { isRetiredModel } from '../shared/lib/retirements';
+import { isRetiredModel, retirementDate } from '../shared/lib/retirements';
 import { hostingUnconfirmed, isNewModel } from '../shared/lib/launchModels';
 import { catalogRank, compareCatalogName } from '../shared/lib/modelCatalogOrder';
 import { getProviderTooltip } from '../shared/lib/providerTooltips';
@@ -589,6 +589,8 @@ const t = {
   colTools: 'Tools',
   colFeatures: isDE ? 'Funktionen' : 'Features',
   newTag: isDE ? 'Neu' : 'New',
+  // The scheduled retirement notice, linked to the upcoming list on the deprecations page.
+  retiresTag: isDE ? 'Stilllegung am {date}' : 'Retires {date}',
   colContext: isDE ? 'Kontext' : 'Context',
   colReasoningEffort: 'Reasoning',
   colPlans: isDE ? 'Tarife' : 'Plans',
@@ -743,6 +745,20 @@ function formatCachedPrice(m: CompiledModel): string {
 function planHref(plan: string): string {
   if (plan === 'Test') return `${localePrefix}/models/preview/`;
   return `${localePrefix}/plans/#${plan.toLowerCase()}`;
+}
+
+const deprecationsHref = `${localePrefix}/models/deprecations/#upcoming`;
+
+/** Models whose scheduled retirement the table announces with a tag (owner-approved; others keep only the deprecations page). */
+const RETIRES_TAG_MODELS = new Set(['gemini-3-flash']);
+
+/** "Retires 30 November 2026" for a model in RETIRES_TAG_MODELS, dated from retirements.ts. */
+function retiresLabel(exactModelName: string): string | undefined {
+  if (!RETIRES_TAG_MODELS.has((exactModelName ?? '').toLowerCase())) return undefined;
+  const date = retirementDate(exactModelName);
+  if (!date) return undefined;
+  const formatted = new Date(`${date}T00:00:00Z`).toLocaleDateString(isDE ? 'de-DE' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+  return t.retiresTag.replace('{date}', formatted);
 }
 
 /** The Test catalog is the preview catalog. The tag says Preview; the plan id stays Test. */
@@ -1316,11 +1332,12 @@ const rowDataPayload = rows.map((m) => ({
                       </Tooltip>
                       <span class="mc-model__text">
                         <strong class="mc-model__name">{m.displayModelName}</strong>
-                        {(isNewModel(m.exactModelName) || previewCatalog(m) || m.modelTier === 'premium') && (
+                        {(isNewModel(m.exactModelName) || previewCatalog(m) || m.modelTier === 'premium' || retiresLabel(m.exactModelName)) && (
                           <span class="mc-model__tags">
                             {isNewModel(m.exactModelName) && <Tag color="magenta" size="small">{t.newTag}</Tag>}
                             {previewCatalog(m) && <Tag size="small">{t.planPreview}</Tag>}
                             {m.modelTier === 'premium' && <Tag size="small">Premium</Tag>}
+                            {retiresLabel(m.exactModelName) && <Tag size="small" href={deprecationsHref}>{retiresLabel(m.exactModelName)}</Tag>}
                           </span>
                         )}
                       </span>
